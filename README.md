@@ -1,6 +1,6 @@
 # DCMS
 
-DCMS is a package made to boost productivity, dynamic easily reusable functions to maintain a structured back-end in Laravel projects.
+DCMS is a package made to boost productivity, and speed up the usual workflow when developing CRUD applications.
 
 # DCMS Datatables
 
