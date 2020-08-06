@@ -2,10 +2,9 @@
 
 namespace Pveltrop\DCMS;
 
-use Console\Commands\Update;
-use Console\Commands\Crud;
-
 use Illuminate\Support\ServiceProvider;
+use Pveltrop\DCMS\Console\Commands\Crud;
+use Pveltrop\DCMS\Console\Commands\Update;
 
 class DCMSProvider extends ServiceProvider
 {
@@ -16,7 +15,7 @@ class DCMSProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Crud::class,
-                Update::class,
+                // Update::class,
             ]);
         }
     }
