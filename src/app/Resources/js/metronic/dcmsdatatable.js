@@ -1,68 +1,9 @@
 "use strict";
 
-const { sortBy } = require("lodash");
+const { sortBy, isSet } = require("lodash");
 
 var tables = $('.datatable');
 var custColumns;
-
-// function ExportTable(btn){
-// 	var table = document.querySelector(btn.currentTarget.dataset.table);
-// 	var tableHeaders = table.getElementsByTagName('thead')[0].getElementsByTagName('tr')[0].getElementsByClassName('datatable-cell');
-// 	var tableBodyRows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-
-// 	var pressedBtn = btn.currentTarget.classList;
-// 	var exportMethod;
-
-// 	pressedBtn.contains('pdfTableBtn') ? exportMethod = 'pdf' : '';
-// 	pressedBtn.contains('printTableBtn') ? exportMethod = 'print' : '';
-
-// 	var tableExpHeaders = [];
-// 	var tableExpRows = [];
-
-// 	Array.from(tableHeaders).forEach(function(header){
-// 		if (header.dataset.field){
-// 			if (header.dataset.field.length > 1 && header.dataset.field !== 'Actions'){
-// 				tableExpHeaders.push(header.dataset.field);
-// 			}
-// 		}
-// 	})
-// 	Array.from(tableBodyRows).forEach(function(row){
-// 		let rowCells = row.getElementsByClassName('datatable-cell');
-// 		let x = 0;
-// 		let newRow = [];
-
-// 		Array.from(rowCells).forEach(function(cell){
-// 			if (cell.dataset.field){
-// 				//if cell with value to send to pdf
-// 				if (cell.dataset.field.length > 1 && cell.dataset.field !== 'Actions' && x !== tableExpHeaders.length){
-// 					//various ways to make rows, depending on export method
-// 					switch (exportMethod) {
-// 						case 'pdf':
-// 						case 'print':
-// 							newRow.push(cell.textContent.replace(/[\n\r]+|[\s]{2,}/g, ' '));
-// 							break;
-// 					}
-// 				}
-// 				if (x == tableExpHeaders.length){
-// 					tableExpRows.push(newRow);
-// 					newRow = [];
-// 					x = 0;
-// 				}
-// 				x++;
-// 			}
-// 		})
-// 	})
-
-// 	switch (exportMethod) {
-// 		case 'pdf':
-// 			window.TablePDF(tableExpHeaders,tableExpRows, 'export.pdf');
-// 			break;
-
-// 			case 'print':
-// 			window.TablePDF(tableExpHeaders,tableExpRows, 'export.pdf', true);
-// 			break;
-// 	}
-// }
 
 window.DCMSDatatable = function (parameters) {
 	$.each(parameters.table, function (key, table) {
@@ -89,7 +30,11 @@ window.DCMSDatatable = function (parameters) {
 				type: column.dataset.type,
 				align: (column.dataset.align) ? column.dataset.align : 'center',
 				template: function (row) {
-					value = row[column.dataset.column];
+					if (column.dataset.type == 'property'){
+						value = row[column.dataset.column][column.dataset.property];
+					} else {
+						value = row[column.dataset.column];
+					}
 					switch (column.dataset.type) {
 						case 'user':
 							var userTitle = '';
@@ -162,7 +107,7 @@ window.DCMSDatatable = function (parameters) {
 							</div>`;
 							break;
 						default:
-							return "<div data-id='" + row['id'] + "'>" + row[column.dataset.column] + "</div>";
+							return "<div data-id='" + row['id'] + "'>" + value + "</div>";
 							break;
 					}
 				},
@@ -313,7 +258,7 @@ window.DCMSDatatable = function (parameters) {
 		$(table).parent().find('#kt_datatable_remove_row').on('click', function () {
 			let activeIds = [];
 			let cells = $('.datatable-row-active').find('[data-id');
-			console.log(cells);
+
 			$.each(cells, function (x, cell) {
 				let cellId = $(cell).data('id');
 				if (!activeIds.includes(cellId)) {
@@ -322,7 +267,7 @@ window.DCMSDatatable = function (parameters) {
 			});
 			DeleteModel({
 				id: activeIds,
-				route: 'user',
+				route: $(table).data('destroy-route'),
 				confirmTitle: (table.dataset.deleteRowsConfirmTitle) ? Lang(table.dataset.deleteRowsConfirmTitle) : Lang('Delete rows'),
 				confirmMsg: (table.dataset.deleteRowsConfirmMessage) ? Lang(table.dataset.deleteRowsConfirmMessage) : Lang('Are you sure you want to delete these rows?'),
 				completeTitle: (table.dataset.deleteRowsCompleteTitle) ? Lang(table.dataset.deleteRowsCompleteTitle) : Lang('Deleted rows'),
@@ -344,21 +289,26 @@ window.DCMSDatatable = function (parameters) {
 			e.preventDefault();
 			let id = e.currentTarget.dataset.id;
 			let route = $(table).data('edit-route').replace('__id__', id);
-			window.open(route, '_blank');
+			if (window.AllowNewTab == false){
+				window.location.href = route;
+			} else {
+				window.open(route, '_blank');
+			}
 		});
 
 		$(document).on('click', '[data-action=destroy]', function (e) {
 			e.preventDefault();
 			let id = e.currentTarget.dataset.id;
+			let route = $(table).data('destroy-route').replace('__id__', id);
 			DeleteModel({
 				id: id,
-				route: 'post',
-				confirmTitle: Lang('Delete post'),
-				confirmMsg: Lang('Are you sure you want to delete this post?'),
-				completeTitle: Lang('Deleted post'),
-				completeMsg: Lang('The post has been succesfully deleted.'),
-				failedTitle: Lang('Deleting failed'),
-				failedMsg: Lang('The post can\'t be deleted. It might still be required somewhere.'),
+				route: route,
+				confirmTitle: (table.dataset.deleteSingleConfirmTitle) ? Lang(table.dataset.deleteSingleConfirmTitle) : Lang('Delete object'),
+				confirmMsg: (table.dataset.deleteSingleConfirmMessage) ? Lang(table.dataset.deleteSingleConfirmMessage) : Lang('Are you sure you want to delete this object?'),
+				completeTitle: (table.dataset.deleteSingleCompleteTitle) ? Lang(table.dataset.deleteSingleCompleteTitle) : Lang('Deleted object'),
+				completeMsg: (table.dataset.deleteSingleCompleteMessage) ? Lang(table.dataset.deleteSingleCompleteMessage) : Lang('The object has been succesfully deleted.'),
+				failedTitle: (table.dataset.deleteSingleFailedTitle) ? Lang(table.dataset.deleteSingleFailedTitle) : Lang('Deleting failed'),
+				failedMsg: (table.dataset.deleteSingleFailedMessage) ? Lang(table.dataset.deleteSingleFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
 			});
 		});
 	});

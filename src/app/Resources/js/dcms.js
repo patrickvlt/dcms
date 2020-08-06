@@ -1,4 +1,43 @@
 /**
+*
+*  Plugin Settings
+*
+*/
+
+// Alerts - pick one
+window.JQAlerts = true;
+window.SweetAlert = false;
+
+// Date Format
+window.AppDateFormat = "DD/MM/YYYY";
+
+// Datatable Settings
+window.AllowNewTab = true;
+
+
+/**
+ *
+ *  Plugins
+ *
+ */
+
+try {
+    if (window.SweetAlert == true || window.JQAlerts == true){
+        require('./plugins/alerts.js');
+    }
+    require('./plugins/filepond.js');
+    require('./plugins/slimselect.js');
+    require('./plugins/tinymce.js');
+    require('./plugins/datepicker.js');
+    require('./plugins/jexcel.js');
+    require('./plugins/spotlight.js');
+    require('./plugins/jspdftable.js');
+    require('./metronic/dcmsdatatable.js');
+} catch (error) {
+    console.log(error);
+}
+
+/**
  *
  *  AJAX Headers
  *
@@ -30,35 +69,6 @@ window.Lang = function (string) {
         return string;
     }
 }
-
-/**
- *
- *  Plugins
- *
- */
-
-try {
-    require('./plugins/alerts.js');
-    require('./plugins/filepond.js');
-    require('./plugins/slimselect.js');
-    require('./plugins/tinymce.js');
-    require('./plugins/datepicker.js');
-    require('./plugins/jexcel.js');
-    require('./plugins/spotlight.js');
-    require('./plugins/jspdftable.js');
-    require('./metronic/dcmsdatatable.js');
-} catch (error) {
-    console.log(error);
-}
-
-/**
-*
-*  Plugin Settings
-*
-*/
-
-window.FilePondJQAlerts = true;
-window.AppDateFormat = "DD/MM/YYYY";
 
 /**
  *
@@ -218,14 +228,14 @@ window.DeleteModel = function (args) {
                 if (id != null){
                     if (isArray(id)){
                         let success = true;
-                        let deleteRows = $.each(id, function (key, x) { 
+                        let deleteRows = $.each(id, function (key, x) {
                             jQuery.ajax({
                                 type: "POST",
                                 async: false,
                                 headers: {
                                     'X-CSRF-TOKEN': window.csrf
                                 },
-                                url: "/" + route + "/" + x,
+                                url: route.replace('__id__',x),
                                 data: {
                                     _method: "DELETE"
                                 },
@@ -256,7 +266,7 @@ window.DeleteModel = function (args) {
                             headers: {
                                 'X-CSRF-TOKEN': window.csrf
                             },
-                            url: "/" + route + "/" + id,
+                            url: route,
                             data: {
                                 _method: "DELETE"
                             },
