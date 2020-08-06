@@ -4,7 +4,7 @@ DCMS is a package made to boost productivity, dynamic easily reusable functions 
 
 # DCMS Datatables
 
-This is a simple JS function which dynamically initalises KTDatatable. Purchase a Metronic license if you wish to use these tables.
+This is a simple JS function which easily initalises KTDatatable, working with data attributes. Purchase a Metronic license if you wish to use these tables.
 
 Include these plugins:
 ```
@@ -102,6 +102,17 @@ Example HTML code:
                                 </span>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class='col-2 my-2 my-md-0'>
+                    <div class='d-flex align-items-center'>
+                        <label class='mr-3 mb-0 d-none d-md-block'>Name:</label>
+                        <select class='form-control' data-type='slimselect' data-filter="name">
+                                <option value="">{{ __('All') }}</option>
+                            {{-- @foreach($userNames as $name) --}}
+                                {{-- <option value="{{ $name }}">{{ $name }}</option> --}}
+                            {{-- @endforeach --}}
+                        </select>
                     </div>
                 </div>
             </div>
