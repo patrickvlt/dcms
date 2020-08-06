@@ -3,7 +3,7 @@
 namespace Pveltrop\DCMS;
 
 use App\Console\Commands\Update;
-use App\Console\Commands\DCMS\Crud;
+use App\Console\Commands\Crud;
 
 use Illuminate\Support\ServiceProvider;
 
