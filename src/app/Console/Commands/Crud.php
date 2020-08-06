@@ -46,7 +46,7 @@ namespace App\\Http\\Controllers;
 
 use Illuminate\\Http\\Request;
 
-use App\\DCMS\\Traits\\DCMSController; 
+use App\\Traits\\DCMSController; 
 
 class '.$model.'Controller extends Controller
 {
@@ -336,7 +336,7 @@ class ".$model."Seeder extends Seeder
 
 namespace App;
 
-use App\\DCMS\\Traits\\DCMSModel;
+use App\\Traits\\DCMSModel;
 use Illuminate\\Database\\Eloquent\\Model;
 
 class '.$model.' extends Model
