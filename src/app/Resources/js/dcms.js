@@ -17,7 +17,7 @@ window.csrf = document.querySelectorAll('meta[name=csrf-token]')[0].content;
 
 // There are no translations
 try {
-    var lang = require('../../../../resources/lang/' + locale + '.json');
+    var lang = require('../../../resources/lang/' + locale + '.json');
 } catch (error) {
     console.log('No translation yet for: ' + locale);
 }

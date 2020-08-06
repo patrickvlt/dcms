@@ -5,6 +5,7 @@ namespace Pveltrop\DCMS;
 use Illuminate\Support\ServiceProvider;
 use Pveltrop\DCMS\Console\Commands\Crud;
 use Pveltrop\DCMS\Console\Commands\Update;
+use Pveltrop\DCMS\Console\Commands\Publish;
 
 class DCMSProvider extends ServiceProvider
 {
@@ -23,6 +24,7 @@ class DCMSProvider extends ServiceProvider
             $this->commands([
                 Crud::class,
                 Update::class,
+                Publish::class,
             ]);
         }
     }
