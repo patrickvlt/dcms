@@ -12,6 +12,13 @@ class DCMSProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
+        $this->publishes([
+            __DIR__.'/app/Resources/js' => resource_path('js/dcms'),
+            __DIR__.'/app/Resources/sass' => resource_path('sass/dcms')
+        ], 'resources');
+
+        // php artisan vendor:publish --tag=resources --force
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Crud::class,
