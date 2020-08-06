@@ -4,7 +4,7 @@ DCMS is a package made to boost productivity, dynamic easily reusable functions 
 
 # DCMS Datatables
 
-This is a simple JS function which dynamically initalises KTDatatable. Purchase a Metronic license if you wish to use these tables.
+This is a simple JS function which easily initalises KTDatatable, working with data attributes. Purchase a Metronic license if you wish to use these tables.
 
 Include these plugins:
 ```
