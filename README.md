@@ -104,6 +104,17 @@ Example HTML code:
                         </div>
                     </div>
                 </div>
+                <div class='col-2 my-2 my-md-0'>
+                    <div class='d-flex align-items-center'>
+                        <label class='mr-3 mb-0 d-none d-md-block'>Name:</label>
+                        <select class='form-control' data-type='slimselect' data-filter="name">
+                                <option value="">{{ __('All') }}</option>
+                            {{-- @foreach($userNames as $name) --}}
+                                {{-- <option value="{{ $name }}">{{ $name }}</option> --}}
+                            {{-- @endforeach --}}
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
         <div class='row py-5'>
