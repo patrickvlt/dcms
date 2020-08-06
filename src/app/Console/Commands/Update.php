@@ -11,7 +11,7 @@ class Update extends Command
      *
      * @var string
      */
-    protected $signature = 'dcms update';
+    protected $signature = 'dcms:update';
 
     /**
      * The console command description.
