@@ -21,7 +21,6 @@ window.DCMSDatatable = function (parameters) {
 		let tableColumns = $(table).find('#tableColumns').children();
 		$.each(tableColumns, function (index, column) {
 			let textColor, value, spotlightClass;
-
 			let newColumn = {
 				field: column.dataset.title,
 				title: column.dataset.title,
@@ -30,11 +29,13 @@ window.DCMSDatatable = function (parameters) {
 				type: column.dataset.type,
 				align: (column.dataset.align) ? column.dataset.align : 'center',
 				template: function (row) {
-					if (column.dataset.type == 'property'){
+					if (column.dataset.type == 'property' && row[column.dataset.column] !== null){
 						value = row[column.dataset.column][column.dataset.property];
 					} else {
 						value = row[column.dataset.column];
 					}
+					value = (typeof value == 'undefined' || value == null) ? '' : value;
+					var textColor = (column.dataset.textColor) ? column.dataset.textColor : 'dark';
 					switch (column.dataset.type) {
 						case 'user':
 							var userTitle = '';
@@ -69,13 +70,18 @@ window.DCMSDatatable = function (parameters) {
 							} else {
 								userImgText = userTitle[0].toUpperCase();
 							}
+
+							var cardColor = (column.dataset.cardColor) ? column.dataset.cardColor : 'primary';
+							var cardTextColor = (column.dataset.cardTextColor) ? column.dataset.cardTextColor : 'primary';
+							var titleColor = (column.dataset.titleColor) ? column.dataset.titleColor : 'primary';
+
 							return `<div data-id='` + row['id'] + `'><span style="width: 250px;"><div class="d-flex align-items-center">
-									<div class="symbol symbol-40 symbol-`+ column.dataset.color + ` flex-shrink-0">
-										<div class="symbol-label" style="background-image:url('`+ userImg + `')">` + userImgText + `</div>
+									<div class="symbol symbol-40 symbol-`+ userColor + ` flex-shrink-0">
+										<div class="symbol-label text-` + cardTextColor + `" style="background-image:url('`+ userImg + `')">` + userImgText + `</div>
 									</div>
 									<div class="ml-2">
-										<div class="text-dark-75 font-weight-bold line-height-sm">`+ userTitle + `</div> <a href="#"
-											class="font-size-sm text-dark-50 text-hover-primary">`+ userInfo + `</a>
+										<div class="text-` + titleColor + ` font-weight-bold line-height-sm">`+ userTitle + `</div> <a href="#"
+											class="font-size-sm text-` + textColor + ` text-hover-primary">`+ userInfo + `</a>
 									</div>
 									</div>
 								</div>
@@ -83,15 +89,18 @@ window.DCMSDatatable = function (parameters) {
 							break;
 						case 'boolean':
 							if (value !== null && value !== 0 && typeof value !== 'undefined') {
-								return `<i data-id='`+row.id+`' class="fas fa-check text-` + column.dataset.color + `"></i>`;
+								return `<i data-id='`+row.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.maxHeight+`"></i>`;
+							}
+							else {
+								return '';
 							}
 							break;
 						case 'text':
-							return `<div data-id='`+row.id+`' style='max-height:`+column.dataset.maxHeight+`'>`+value+`</div>`;
+							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+value+`</div>`;
 							break;
 						case 'image':
 							spotlightClass = (value !== null) ? 'spotlight' : '';
-							return `<div class="image-input mb-4 mt-4" data-id='`+row.id+`' style="background-image: url()">
+							return `<div class="image-input mb-4 mt-4" data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`">
 								<div class="image-input-wrapper `+spotlightClass+`" data-src='`+value+`' style="background-image: url(`+value+`)"></div>
 								<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
 									<i class="fa fa-pen icon-sm text-muted"></i>
@@ -107,7 +116,7 @@ window.DCMSDatatable = function (parameters) {
 							</div>`;
 							break;
 						default:
-							return "<div data-id='" + row['id'] + "'>" + value + "</div>";
+							return `<div data-id='` + row['id'] + `' class="text-`+textColor+`">` + value + `</div>`;
 							break;
 					}
 				},
