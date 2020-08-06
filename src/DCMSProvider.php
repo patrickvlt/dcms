@@ -2,8 +2,8 @@
 
 namespace Pveltrop\DCMS;
 
-use App\Console\Commands\Update;
-use App\Console\Commands\Crud;
+use Console\Commands\Update;
+use Console\Commands\Crud;
 
 use Illuminate\Support\ServiceProvider;
 

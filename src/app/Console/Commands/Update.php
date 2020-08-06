@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace Pveltrop\DCMS\Commands;
 
 use Illuminate\Console\Command;
 
