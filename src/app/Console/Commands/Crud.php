@@ -55,6 +55,7 @@ class '.$model.'Controller extends Controller
 
     function DCMS()
     {
+        // All these settings are optional, DCMS uses default routes and messages, you can override these
         return [
             "routePrefix" => '.$prefix.',
             "indexQuery" => '.$model.'::all(),
