@@ -60,13 +60,18 @@ class '.$model.'Controller extends Controller
             "indexQuery" => '.$model.'::all(),
             "created" => [
                 "title" => __("'.$model.' created")
-                "message" => __("'.$model.' created on __created_at__")
+                "message" => __("'.$model.' created on __created_at__"),
+                "url" => "/'.$prefix.'"
             ],
             "updated" => [
                 "title" => __("__name__ updated")
-                "message" => __("__name__ updated on __created_at__")
+                "message" => __("__name__ updated on __created_at__"),
+                "url" => "/'.$prefix.'"
             ],
             "views" => [
+                "index" => "index",
+                "show" => "crud",
+                "edit" => "crud",
                 "create" => "crud"
             ]
         ];
@@ -171,52 +176,6 @@ Route::resource('" . $model . "', '" . $model . "Controller');", FILE_APPEND);
         $migration = $console->ask('Paste the path to the migration file for: '.$model);
         $request = 'app/Http/Requests/'.$model.'Request.php';
         $factory = 'database/factories/'.$model.'Factory.php';
-
-        // $columns = [
-        //     "amount" => [
-        //         "attributes" => [
-        //             "name" => "amount",
-        //             "type" => "bigInteger",
-        //             "nullable" => 0,
-        //             "unsigned" => 1,
-        //         ],
-        //         "foreign" => [
-        //             "foreign_column" => "user_id",
-        //             "references" => "id",
-        //             "class" => "User",
-        //             "table" => "users",
-        //             "relation" => "BelongsTo",
-        //             "relationFunction" => "user",
-        //         ],
-        //         "validation" => [
-        //             0 => "integer",
-        //             1 => "min:1",
-        //             2 => "max:100",
-        //         ],
-        //         "seed" => '$faker->lastName()'
-        //     ],
-        //     "user_id" => [
-        //         "attributes" => [
-        //             "name" => "user_id",
-        //             "type" => "bigInteger",
-        //             "nullable" => 1,
-        //             "unsigned" => 1,
-        //         ],
-        //         "foreign" => [
-        //             "foreign_column" => "user_id",
-        //             "references" => "id",
-        //             "class" => "User",
-        //             "table" => "users",
-        //             "relation" => "BelongsTo",
-        //             "relationFunction" => "user",
-        //         ],
-        //         "validation" => [
-        //             0 => "integer",
-        //             1 => "unique:users",
-        //         ],
-        //         "seed" => '"someotherseed"'
-        //     ]
-        // ];
 
         //Adding DCMS Trait and relationship(s) to model
         $modelFile = 'app/' . $model . '.php';
@@ -402,6 +361,24 @@ class '.$model.'Request extends FormRequest
     public function authorize()
     {
         return true;
+    }
+
+    public function DCMSmodifyRequest()
+    {
+        $request = request()->all();
+
+        // Modify store request
+        if (FormMethod() == "POST"){
+        }
+        // Modify update request 
+        else if (FormMethod() == "PUT"){
+        } 
+        // Modify all requests
+        else {
+            //$request["column"] = ($request["someColumn"] == "Foo") ? $request["column"] = null : $request["column"];
+        }
+
+        return $request;
     }
 
     /**

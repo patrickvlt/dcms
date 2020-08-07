@@ -1,8 +1,9 @@
 <?php
-
 namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
+
+use Illuminate\Support\Facades\Validator;
 
 $GLOBALS['classFolders'] = [
     'app'
@@ -48,6 +49,30 @@ trait DCMSController
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $createView = (isset($this->DCMS()['views']['create'])) ? $this->DCMS()['views']['create'] : 'create';
         return view($prefix.'.'.$createView);
+    }
+
+    public function store()
+    {
+        
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $class = FindClass($prefix)['class'];
+        $file = FindClass($prefix)['file'];
+        $classRequest = '\App\Http\Requests\\'.$file.'Request';
+
+        $requestData = request()->all();
+        try {
+            $modRequest = (new $classRequest())->DCMSModifyRequest();
+            foreach ($modRequest as $modKey => $modValue){
+                $requestData[$modKey] = $modValue;
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+        
+        $request = Validator::make($requestData, (new $classRequest())->rules(), (new $classRequest())->messages());
+        $$prefix = $class::create($request->validated());
+
+        return $this->DCMSJSON($$prefix,'created');
     }
 
     public function destroy($id)
