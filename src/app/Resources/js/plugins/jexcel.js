@@ -107,13 +107,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             UpdateSheetData(e);
         });
 
-        function UpdateSheetData(e,submit=false) {
+        function UpdateSheetData(e) {
             // define form rows from jexcel
-            if (submit == false){
-                formRows = Array.from(e.path[8].getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
-            } else {
-                formRows = Array.from(e.path[0].getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
-            }
+            formRows = Array.from(e.target.getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
             sheetData = [];
             formRows.forEach(function(row){
                 let rowData = [];
@@ -127,17 +123,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             return sheetData;
         }
 
-        function ClearInvalid(e,submit=false) {
+        function ClearInvalid(e) {
             function CleanElement(element){
                 if (element.classList.contains('invalid')) {
                     element.classList.remove('invalid')
                 }
             }
-            if (submit == false){
-                formRows = Array.from(e.path[8].getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
-            } else {
-                formRows = Array.from(e.path[0].getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
-            }
+            formRows = Array.from(e.target.getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
             Array.from(formRows).forEach(function(element) {
                 CleanElement(element);
                 Array.from(element.getElementsByTagName('td')).forEach(element => CleanElement(element));
@@ -150,7 +142,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             sheetData = UpdateSheetData(e,true);
             $.ajax({
                 type: "POST",
-                url: e.path[0].action,
+                url: e.target.action,
+                headers: {
+                    'X-CSRF-TOKEN': window.csrf
+                },
                 data: {
                     sheetData
                 },
