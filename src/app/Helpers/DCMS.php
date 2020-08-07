@@ -74,7 +74,7 @@ if (!function_exists('Model')) {
         $model = ($model !== false) ? $model : null;
         // Return name if set as parameter
         $model = (isset($getName) && $getName == 'name') ? explode(".", \Request::route()->getName())[0] : $model;
-        if (!is_object($model)){
+        if (!is_object($model) && $model !== null){
             $prefix = GetPrefix();
             $class = FindClass($prefix)['class'];
             $model = $class::findOrFail($model);
