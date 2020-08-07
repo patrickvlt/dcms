@@ -45,8 +45,9 @@ trait DCMSController
 
     public function create()
     {
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $createView = (isset($this->DCMS()['views']['create'])) ? $this->DCMS()['views']['create'] : 'create';
-        return view($this->DCMS()['routePrefix'].'.'.$createView);
+        return view($prefix.'.'.$createView);
     }
 
     public function destroy($id)
@@ -74,14 +75,14 @@ trait DCMSController
             }
         }
         // Title
-        $title = (isset($this->DCMS()[$createdOrUpdated]['title'])) ? $this->DCMS()[$createdOrUpdated]['title'] : __(FindClass($prefix)['file'].' '.$createdOrUpdated);
+        $title = (isset($this->DCMS()[$createdOrUpdated]['title'])) ? $this->DCMS()[$createdOrUpdated]['title'] : __(FindClass($prefix)['file']).__(' ').__($createdOrUpdated);
         preg_match_all('/__\S*__/m',$title,$matches);
         foreach($matches[0] as $match){
             $prop = str_replace('__','',$match);
             $title = str_replace($match,$object->$prop,$title);
         }
         // Message
-        $message = (isset($this->DCMS()[$createdOrUpdated]['message'])) ? $this->DCMS()[$createdOrUpdated]['message'] : __(FindClass($prefix)['file'].' has been succesfully '.$createdOrUpdated.'.');
+        $message = (isset($this->DCMS()[$createdOrUpdated]['message'])) ? $this->DCMS()[$createdOrUpdated]['message'] : __(FindClass($prefix)['file']).' '.__('has been succesfully').' '.__($createdOrUpdated).'.';
         preg_match_all('/__\S*__/m',$message,$matches);
         foreach($matches[0] as $match){
             $prop = str_replace('__','',$match);
