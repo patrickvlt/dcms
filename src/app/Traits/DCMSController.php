@@ -51,9 +51,8 @@ trait DCMSController
         return view($prefix.'.'.$createView);
     }
 
-    public function store()
+    public function crud($createdOrUpdated,$id=null)
     {
-        
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $class = FindClass($prefix)['class'];
         $file = FindClass($prefix)['file'];
@@ -68,11 +67,27 @@ trait DCMSController
         } catch (\Throwable $th) {
             //throw $th;
         }
-        
-        $request = Validator::make($requestData, (new $classRequest())->rules(), (new $classRequest())->messages());
-        $$prefix = $class::create($request->validated());
 
-        return $this->DCMSJSON($$prefix,'created');
+        $request = Validator::make($requestData, (new $classRequest())->rules(), (new $classRequest())->messages());
+
+        if ($createdOrUpdated == 'created'){
+            $$prefix = $class::create($request->validated());
+        } else if ($createdOrUpdated == 'updated') {
+            $$prefix = $class::findOrFail($id);
+            $$prefix->update($request->validated());
+        }
+
+        return $this->DCMSJSON($$prefix,$createdOrUpdated);
+    }
+
+    public function store()
+    {
+        return $this->crud('created');
+    }
+
+    public function update($id)
+    {
+        return $this->crud('updated',$id);
     }
 
     public function destroy($id)
