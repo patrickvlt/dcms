@@ -10,47 +10,87 @@ $GLOBALS['classFolders'] = [
 
 trait DCMSController
 {
-    public function GetClasses()
+    public function index()
     {
-        $classes = [];
-        foreach ($GLOBALS['classFolders'] as $folder){
-            foreach (scandir(base_path().'/'.$folder) as $file){
-                if (strpos($file, '.php') !== false) {
-                    $re = '/namespace \S*;/m';
-                    $str = file_get_contents(base_path().'/'.$folder.'/'.$file);
-                    preg_match($re, $str, $namespace);
-                    $namespace = str_replace('namespace ','',$namespace[0]);
-                    $namespace = str_replace(';','',$namespace);
-                    $file = str_replace('.php','',$file);
-                    array_push($classes,[
-                        'file' => $file,
-                        'class' => $namespace.'\\'.$file
-                    ]);
-                }
-            }
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $indexQuery = (isset($this->DCMS()['indexQuery'])) ? $this->DCMS()['indexQuery'] : FindClass($prefix)['class']::all();
+        if (request()->ajax()) {
+            return $indexQuery;
         }
-        return $classes;
+        $indexView = (isset($this->DCMS()['views']['index'])) ? $this->DCMS()['views']['index'] : 'index';
+        return view($prefix.'.'.$indexView);
     }
 
-    public function FindClass($prefix)
+    public function show($id)
     {
-        foreach ($this->GetClasses() as $class){
-            if (strtolower($class['file']) == strtolower($prefix)){
-                return $class;
-            }
-        }
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $class = FindClass($prefix)['class'];
+        $$prefix = $class::FindOrFail($id);
+        $showView = (isset($this->DCMS()['views']['show'])) ? $this->DCMS()['views']['show'] : 'show';
+        return view($prefix.'.'.$showView)->with([
+            $prefix => $$prefix
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $class = FindClass($prefix)['class'];
+        $$prefix = $class::FindOrFail($id);
+        $showView = (isset($this->DCMS()['views']['edit'])) ? $this->DCMS()['views']['edit'] : 'edit';
+        return view($prefix.'.'.$showView)->with([
+            $prefix => $$prefix
+        ]);
+    }
+
+    public function create()
+    {
+        $createView = (isset($this->DCMS()['views']['create'])) ? $this->DCMS()['views']['create'] : 'create';
+        return view($this->DCMS()['routePrefix'].'.'.$createView);
     }
 
     public function destroy($id)
     {
-        $prefix = explode('/',request()->route()->uri)[0];
-        $class = $this->FindClass($prefix)['class'];
-        if (request()->ajax()) {
-            $class::findOrFail($id)->delete();
-            return;
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $class = FindClass($prefix)['class'];
+        $class::findOrFail($id)->delete();
+    }
+
+    public function DCMSJSON($object,$createdOrUpdated)
+    {
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+
+        if (isset($this->DCMS()[$createdOrUpdated]['url'])){
+            if (request()->ajax()){
+                $redirect = $this->DCMS()[$createdOrUpdated]['url'];
+            } else {
+                $redirect = redirect()->route($this->DCMS()[$createdOrUpdated]['url']);
+            }
         } else {
-            $class::findOrFail($id)->delete();
-            return redirect()->route($prefix.'.index');
+            if (request()->ajax()){
+                $redirect = '/'.$prefix;
+            } else {
+                $redirect = redirect()->route($prefix.'.index');
+            }
         }
+        // Title
+        $title = (isset($this->DCMS()[$createdOrUpdated]['title'])) ? $this->DCMS()[$createdOrUpdated]['title'] : __(FindClass($prefix)['file'].' '.$createdOrUpdated);
+        preg_match_all('/__\S*__/m',$title,$matches);
+        foreach($matches[0] as $match){
+            $prop = str_replace('__','',$match);
+            $title = str_replace($match,$object->$prop,$title);
+        }
+        // Message
+        $message = (isset($this->DCMS()[$createdOrUpdated]['message'])) ? $this->DCMS()[$createdOrUpdated]['message'] : __(FindClass($prefix)['file'].' has been succesfully '.$createdOrUpdated.'.');
+        preg_match_all('/__\S*__/m',$message,$matches);
+        foreach($matches[0] as $match){
+            $prop = str_replace('__','',$match);
+            $message = str_replace($match,$object->$prop,$message);
+        }
+        return response()->json([
+            'title' => $title,
+            'message' => $message,
+            'url' => $redirect
+        ], 200);
     }
 }

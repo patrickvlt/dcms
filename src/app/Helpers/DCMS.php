@@ -23,6 +23,48 @@ if (!function_exists('MaxSizeServer')) {
     }
 }
 
+if (!function_exists('GetPrefix')) {
+    function GetPrefix()
+    {
+        return explode('/', request()->route()->uri)[0];
+    }
+}
+
+if (!function_exists('GetClasses')) {
+    function GetClasses()
+    {
+        $classes = [];
+        foreach ($GLOBALS['classFolders'] as $folder) {
+            foreach (scandir(base_path() . '/' . $folder) as $file) {
+                if (strpos($file, '.php') !== false) {
+                    $re = '/namespace \S*;/m';
+                    $str = file_get_contents(base_path() . '/' . $folder . '/' . $file);
+                    preg_match($re, $str, $namespace);
+                    $namespace = str_replace('namespace ', '', $namespace[0]);
+                    $namespace = str_replace(';', '', $namespace);
+                    $file = str_replace('.php', '', $file);
+                    array_push($classes, [
+                        'file' => $file,
+                        'class' => $namespace . '\\' . $file
+                    ]);
+                }
+            }
+        }
+        return $classes;
+    }
+}
+
+if (!function_exists('FindClass')) {
+    function FindClass($prefix)
+    {
+        foreach (GetClasses() as $class) {
+            if (strtolower($class['file']) == strtolower($prefix)) {
+                return $class;
+            }
+        }
+    }
+}
+
 if (!function_exists('Model')) {
     function Model($getName = null)
     {
@@ -32,6 +74,11 @@ if (!function_exists('Model')) {
         $model = ($model !== false) ? $model : null;
         // Return name if set as parameter
         $model = (isset($getName) && $getName == 'name') ? explode(".", \Request::route()->getName())[0] : $model;
+        if (!is_object($model)){
+            $prefix = GetPrefix();
+            $class = FindClass($prefix)['class'];
+            $model = $class::findOrFail($model);
+        }
         return $model;
     }
 }
@@ -84,10 +131,10 @@ if (!function_exists('FormRoute')) {
                 $formRoute = route($routeModel . '.store');
                 break;
             case 'edit':
-                $formRoute = route($routeModel . '.update', Model()->id);
+                $formRoute = route($routeModel . '.update', is_object(Model()) ? Model()->id : Model());
                 break;
             case 'update':
-                $formRoute = route($routeModel . '.update', Model()->id);
+                $formRoute = route($routeModel . '.update', is_object(Model()) ? Model()->id : Model());
                 break;
         }
         return $formRoute;
@@ -100,7 +147,8 @@ if (!function_exists('DeleteRoute')) {
     {
         $routeName = \Request::route()->getName();
         $routeModel = explode(".", $routeName)[0];
-        $deleteRoute = (isset(Model()->id)) ? route($routeModel . '.destroy', Model()->id) : null;
+        $model = is_object(Model()) ? Model()->id : Model();
+        $deleteRoute = route($routeModel . '.destroy', $model);
         return $deleteRoute;
     }
 }
@@ -144,7 +192,7 @@ if (!function_exists('ValidateFile')) {
                 $file = (is_array($file)) ? $file[0] : $file;
                 //Validate the uploaded file
                 try {
-                    if ((int)$file->getSize() > (int)$maxSize) {
+                    if ((int) $file->getSize() > (int) $maxSize) {
                         $msg = __('File size can\'t be above ' . MaxSizeServer('mb') . 'MB.');
                         $status = 422;
                     }
@@ -157,15 +205,15 @@ if (!function_exists('ValidateFile')) {
                     $status = 422;
                     break;
                 }
-                if ($status == 422){
+                if ($status == 422) {
                     break;
                 }
             }
-            if ($status == 422){
+            if ($status == 422) {
                 return response()->json(['message' => $msg], $status);
             } else {
-                foreach (request()->file($key) as $file){
-                    $file->store('public/files/'.$type);
+                foreach (request()->file($key) as $file) {
+                    $file->store('public/files/' . $type);
                 }
                 return $file->hashName();
             }

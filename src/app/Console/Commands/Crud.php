@@ -33,6 +33,7 @@ class Crud extends Command
         $console = $this;
 
         $model = ucfirst($console->argument('model'));
+        $prefix = $console->argument('model');
         shell_exec('php artisan make:model ' . $model . ' -c -m -s -f');
         shell_exec('php artisan make:request ' . $model . 'Request');
 
@@ -51,6 +52,25 @@ use App\\Traits\\DCMSController;
 class '.$model.'Controller extends Controller
 {
     use DCMSController;
+
+    function DCMS()
+    {
+        return [
+            "routePrefix" => '.$prefix.',
+            "indexQuery" => '.$model.'::all(),
+            "created" => [
+                "title" => __("'.$model.' created")
+                "message" => __("'.$model.' created on __created_at__")
+            ],
+            "updated" => [
+                "title" => __("__name__ updated")
+                "message" => __("__name__ updated on __created_at__")
+            ],
+            "views" => [
+                "create" => "crud"
+            ]
+        ];
+    }
 }';
         file_put_contents($file, $str);
         $console->info('Added DCMS trait to controller.');

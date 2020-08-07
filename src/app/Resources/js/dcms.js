@@ -12,7 +12,7 @@ window.SweetAlert = false;
 window.AppDateFormat = "DD/MM/YYYY";
 
 // Datatable Settings
-window.AllowNewTab = true;
+window.AllowNewTab = false;
 
 
 /**
@@ -22,7 +22,7 @@ window.AllowNewTab = true;
  */
 
 try {
-    if (window.SweetAlert == true || window.JQAlerts == true){
+    if (window.SweetAlert == true || window.JQAlerts == true) {
         require('./plugins/alerts.js');
     }
     require('./plugins/filepond.js');
@@ -84,7 +84,7 @@ function ReloadDT() {
         // do nothing
     }
     try {
-        $.each($('.datatable'), function (indexInArray, table) { 
+        $.each($('.datatable'), function (indexInArray, table) {
             $(table).KTDatatable('reload');
         });
     } catch (error) {
@@ -111,7 +111,7 @@ window.DisableSubmit = function () {
 }
 window.EnableSubmit = function () {
     document.querySelectorAll('button[type=submit]').forEach(function (element) {
-        element.innerHTML = element.innerHTML.replace(spinner,'');
+        element.innerHTML = element.innerHTML.replace(spinner, '');
         element.disabled = false;
     });
 }
@@ -138,20 +138,20 @@ window.HttpReq = function (formMethod, formAction, formData) {
                 confirm: {
                     text: Lang('Ok'),
                     btnClass: 'btn-success',
-                    action: function(){
-                        if (response.url){
+                    action: function () {
+                        if (response.url) {
                             window.location.href = response.url;
                         }
                     }
                 },
             });
         },
-        error: function(response) {
+        error: function (response) {
             reply = response.responseJSON;
-            if (reply['errors']){
+            if (reply['errors']) {
                 let errorString = '';
                 $.each(reply['errors'], function (key, error) {
-                    errorString = errorString + error[0].replace(':','.') + "<br>";
+                    errorString = errorString + error[0].replace(':', '.') + "<br>";
                 });
                 Alert('error', Lang(reply['message']), errorString, {
                     confirm: {
@@ -161,7 +161,7 @@ window.HttpReq = function (formMethod, formAction, formData) {
                 });
             }
         },
-        complete: function(){
+        complete: function () {
             EnableSubmit();
         }
     });
@@ -174,27 +174,27 @@ window.onload = function () {
         let formAction = e.target.action;
         let formMethod = e.target.method;
         let formData = new FormData(e.target);
-        if (document.querySelectorAll('.filepond--file').length > 0){
+        if (document.querySelectorAll('.filepond--file').length > 0) {
             let loopedNames = [];
             let namesToLoop = [];
-            Array.from(window.fileArray).forEach(function(fileWindow){
+            Array.from(window.fileArray).forEach(function (fileWindow) {
                 namesToLoop.push(fileWindow.input);
             });
-            namesToLoop.forEach(function(name){
-                if (!loopedNames.includes(name)){
+            namesToLoop.forEach(function (name) {
+                if (!loopedNames.includes(name)) {
                     loopedNames.push(name);
                 }
             });
-            loopedNames.forEach(function(name){
+            loopedNames.forEach(function (name) {
                 let curInputs = document.getElementsByName(name);
                 let curFiles = [];
                 formData.delete(name);
-                curInputs.forEach(function(input){
+                curInputs.forEach(function (input) {
                     formData.append(name, input.value);
                 })
             })
         }
-        let formRequest = HttpReq(formMethod,formAction,formData);
+        let formRequest = HttpReq(formMethod, formAction, formData);
     }
     ajaxForms.forEach(element =>
         element.addEventListener('submit', function (e) {
@@ -219,14 +219,17 @@ window.DeleteModel = function (args) {
     var completeMsg = (Lang(args['completeMsg'])) ? Lang(args['completeMsg']) : '';
     var failedTitle = (Lang(args['failedTitle'])) ? Lang(args['failedTitle']) : '';
     var failedMsg = (Lang(args['failedMsg'])) ? Lang(args['failedMsg']) : '';
+    var redirect = (args['redirect']) ? args['redirect'] : '';
+    console.log(args);
+    console.log(redirect);
 
     Alert('warning', confirmTitle, confirmMsg, {
         confirm: {
             text: Lang('OK'),
             btnClass: 'btn-warning',
             action: function () {
-                if (id != null){
-                    if (isArray(id)){
+                if (id != null) {
+                    if (isArray(id)) {
                         let success = true;
                         let deleteRows = $.each(id, function (key, x) {
                             jQuery.ajax({
@@ -235,7 +238,7 @@ window.DeleteModel = function (args) {
                                 headers: {
                                     'X-CSRF-TOKEN': window.csrf
                                 },
-                                url: route.replace('__id__',x),
+                                url: route.replace('__id__', x),
                                 data: {
                                     _method: "DELETE"
                                 },
@@ -244,7 +247,7 @@ window.DeleteModel = function (args) {
                                 }
                             });
                         });
-                        if (success == true){
+                        if (success == true) {
                             ReloadDT();
                             Alert('success', completeTitle, completeMsg, {
                                 confirm: {
@@ -268,7 +271,7 @@ window.DeleteModel = function (args) {
                             },
                             url: route,
                             data: {
-                                _method: "DELETE"
+                                _method: "DELETE",
                             },
                             success: function (response) {
                                 ReloadDT();
@@ -276,9 +279,17 @@ window.DeleteModel = function (args) {
                                     confirm: {
                                         text: Lang('Ok'),
                                         btnClass: 'btn-success',
+                                        action: function() {
+                                            if (redirect !== '') {
+                                                if (window.AllowNewTab == false) {
+                                                    window.location.href = redirect;
+                                                } else {
+                                                    window.open(redirect, '_blank');
+                                                }
+                                            }
+                                        }
                                     }
                                 });
-                                ReloadDT();
                             },
                             error: function () {
                                 Alert('error', failedTitle, failedMsg, {
@@ -302,15 +313,40 @@ window.DeleteModel = function (args) {
 
 /**
 *
+*  Dynamic deleting
+*
+*/
+
+$(document).on('click', 'form [data-action=destroy]', function (e) {
+    e.preventDefault();
+    let element = e.currentTarget;
+    let id = element.dataset.id;
+    let route = element.dataset.destroyRoute.replace('__id__', id);
+    let redirect = (element.dataset.destroyRedirect) ? element.dataset.destroyRedirect : false;
+    DeleteModel({
+        id: id,
+        route: route,
+        confirmTitle: (element.dataset.deleteConfirmTitle) ? Lang(element.dataset.deleteConfirmTitle) : Lang('Delete object'),
+        confirmMsg: (element.dataset.deleteConfirmMessage) ? Lang(element.dataset.deleteConfirmMessage) : Lang('Are you sure you want to delete this object?'),
+        completeTitle: (element.dataset.deleteCompleteTitle) ? Lang(element.dataset.deleteCompleteTitle) : Lang('Deleted object'),
+        completeMsg: (element.dataset.deleteCompleteMessage) ? Lang(element.dataset.deleteCompleteMessage) : Lang('The object has been succesfully deleted.'),
+        failedTitle: (element.dataset.deleteFailedTitle) ? Lang(element.dataset.deleteFailedTitle) : Lang('Deleting failed'),
+        failedMsg: (element.dataset.deleteFailedMessage) ? Lang(element.dataset.deleteFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
+        redirect: redirect
+    });
+});
+
+/**
+*
 *  Merge table columns
 *
 */
 
 
-window.MergeColumns = function(row, column){
+window.MergeColumns = function (row, column) {
     var value = '';
-    if(column.split(',').length > 1){
-        Array.from(column.split(',')).forEach(function(element){
+    if (column.split(',').length > 1) {
+        Array.from(column.split(',')).forEach(function (element) {
             value = value + row[element] + ' ';
         });
     } else {

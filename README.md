@@ -16,171 +16,173 @@ Include these plugins:
 Example HTML code:
 
 ```
-<div class="card card-custom mt-5">
-    <div class="card-header flex-wrap border-0 pt-6 pb-0">
+@extends('layout.app')
+@section('content')
+<!--begin::Card-->
+<div class="card card-custom gutter-b">
+    <div class="card-header flex-wrap py-3">
         <div class="card-title">
-            <h3 class="card-label">{{ __('Posts') }}</h3>
-        </div>
-        <div class="card-toolbar">
-            <div class="dropdown dropdown-inline mr-2">
-                <button type="button" class="btn btn-light-primary font-weight-bolder dropdown-toggle"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="svg-icon svg-icon-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                            height="24px" viewBox="0 0 24 24" version="1.1">
-                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                <rect x="0" y="0" width="24" height="24" />
-                                <path
-                                    d="M3,16 L5,16 C5.55228475,16 6,15.5522847 6,15 C6,14.4477153 5.55228475,14 5,14 L3,14 L3,12 L5,12 C5.55228475,12 6,11.5522847 6,11 C6,10.4477153 5.55228475,10 5,10 L3,10 L3,8 L5,8 C5.55228475,8 6,7.55228475 6,7 C6,6.44771525 5.55228475,6 5,6 L3,6 L3,4 C3,3.44771525 3.44771525,3 4,3 L10,3 C10.5522847,3 11,3.44771525 11,4 L11,19 C11,19.5522847 10.5522847,20 10,20 L4,20 C3.44771525,20 3,19.5522847 3,19 L3,16 Z"
-                                    fill="#000000" opacity="0.3" />
-                                <path
-                                    d="M16,3 L19,3 C20.1045695,3 21,3.8954305 21,5 L21,15.2485298 C21,15.7329761 20.8241635,16.200956 20.5051534,16.565539 L17.8762883,19.5699562 C17.6944473,19.7777745 17.378566,19.7988332 17.1707477,19.6169922 C17.1540423,19.602375 17.1383289,19.5866616 17.1237117,19.5699562 L14.4948466,16.565539 C14.1758365,16.200956 14,15.7329761 14,15.2485298 L14,5 C14,3.8954305 14.8954305,3 16,3 Z"
-                                    fill="#000000" />
-                            </g>
-                        </svg>
-                    </span>Export</button>
-                <div class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
-                    <ul class="navi flex-column navi-hover py-2">
-                        <li class="navi-header font-weight-bolder text-uppercase font-size-sm text-primary pb-2">
-                            Choose an option:</li>
-                        <li class="navi-item">
-                            <a href="#" class="navi-link">
-                                <span class="navi-icon">
-                                    <i class="la la-print"></i>
-                                </span>
-                                <span class="navi-text">Print</span>
-                            </a>
-                        </li>
-                        <li class="navi-item">
-                            <a href="#" class="navi-link">
-                                <span class="navi-icon">
-                                    <i class="la la-copy"></i>
-                                </span>
-                                <span class="navi-text">Copy</span>
-                            </a>
-                        </li>
-                        <li class="navi-item">
-                            <a href="#" class="navi-link">
-                                <span class="navi-icon">
-                                    <i class="la la-file-excel-o"></i>
-                                </span>
-                                <span class="navi-text">Excel</span>
-                            </a>
-                        </li>
-                        <li class="navi-item">
-                            <a href="#" class="navi-link">
-                                <span class="navi-icon">
-                                    <i class="la la-file-text-o"></i>
-                                </span>
-                                <span class="navi-text">CSV</span>
-                            </a>
-                        </li>
-                        <li class="navi-item">
-                            <a href="#" class="navi-link pdfTableBtn" data-table="#kt_datatable">
-                                <span class="navi-icon">
-                                    <i class="la la-file-pdf-o"></i>
-                                </span>
-                                <span class="navi-text">PDF</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <h3 class="card-label">{{ $district->name ?? __('Wijk') }}</h3>
         </div>
     </div>
-    <div class='card-body'>
-        <div class='mb-7'>
-            <div class='row align-items-center'>
-                <div class='col-lg-9 col-xl-8'>
-                    <div class='row align-items-center'>
-                        <div class='col-md-4 my-2 my-md-0'>
-                            <div class='input-icon'>
-                                <input type='text' class='form-control' placeholder={{ __('Search') }}
-                                    id='kt_datatable_search_query' />
-                                <span>
-                                    <i class='flaticon2-search-1 text-muted'></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class='col-2 my-2 my-md-0'>
-                    <div class='d-flex align-items-center'>
-                        <label class='mr-3 mb-0 d-none d-md-block'>Name:</label>
-                        <select class='form-control' data-type='slimselect' data-filter="name">
-                                <option value="">{{ __('All') }}</option>
-                            {{-- @foreach($userNames as $name) --}}
-                                {{-- <option value="{{ $name }}">{{ $name }}</option> --}}
-                            {{-- @endforeach --}}
-                        </select>
-                    </div>
-                </div>
+    <div class="card-body">
+        <form id="modelForm" action="{{ FormRoute() }}" method="POST" data-submit="ajax">
+            @method(FormMethod())
+            @csrf
+            <div class="form-group">
+                <label for="name">{{ __('Naam') }}</label>
+                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name"
+                    aria-describedby="name" value="{{ Model()->name ?? old('name') }}">
             </div>
-        </div>
-        <div class='row py-5'>
-            <div class='col-lg-2'>
-                <div class='input-group'>
-                    <div class='input-group-prepend'>
-                        <span class='input-group-text'>{{ __('ID:') }}</span>
+            @error('name')
+            <div class="invalid-feedback">{{ $errors->first('name') ?? '' }}</div>
+            @enderror
+            <div class="form-group">
+                <label for="activity_id">{{ __('Status') }}</label>
+                <div class="input-group d-flex">
+                    <div class="input-group-prepend"><span class="input-group-text"><i class="las la-tasks"></i></span>
                     </div>
-                    <input type='text' class='form-control' id='kt_datatable_check_input' value='1' />
-                    <div class='input-group-append'>
-                        <button class='btn btn-secondary font-weight-bold' type='button'
-                            id='kt_datatable_check'>{{ __('Select row') }}</button>
-                    </div>
+                    <select class="form-control" data-type="slimselect" data-add-method="post"
+                        data-add-action="/activity" id="activity_id" name="activity_id" aria-describedby="activity_id">
+                        <option>{{ __('Geen') }}</option>
+                        @foreach (\App\Activity::all() as $key => $relatedModel)
+                        <option value="{{ $relatedModel->id }}" @if((Model()==true && Model()->activity_id == $relatedModel->id) || old('activity_id') ==
+                            $relatedModel->id) selected @endif>{{ $relatedModel->status }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
-            <div class='col-lg-10'>
-                <button class='btn btn-light font-weight-bold' type='button'
-                    id='kt_datatable_reload'>{{ __('Reload') }}</button>
-                <button class='btn btn-light font-weight-bold' type='button'
-                    id='kt_datatable_check_all'>{{ __('Select all rows') }}</button>
-                <button class='btn btn-light font-weight-bold' type='button'
-                    id='kt_datatable_uncheck_all'>{{ __('Unselect all rows') }}</button>
-                <button class='btn btn-light font-weight-bold' type='button'
-                    id='kt_datatable_remove_row'>{{ __('Remove active row(s)') }}</button>
+            @error('activity_id')
+            <div class="invalid-feedback">{{ $errors->first('activity_id') ?? '' }}</div>
+            @enderror
+            <div class="form-group">
+                <label for="activities_start">{{ __('Startdatum') }}</label>
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text"><i
+                                class="la la-calendar-o"></i></span>
+                    </div>
+                    <input class="form-control @error('activities_start') is-invalid @enderror" data-type="datepicker"
+                        name="activities_start" autocomplete="off"
+                        value="{{ Model()->activities_start ?? old('activities_start') }}">
+                </div>
+                <small id="activities_startHelp"
+                    class="form-text text-muted">{{ __('Wanneer beginnen de werkzaamheden?') }}</small>
             </div>
-        </div>
-        <div class='datatable datatable-bordered datatable-head-custom' id='post_datatable' data-route='/post'
-            data-edit-route={{ route('post.edit','__id__') }} data-page-size=5 data-pagination=true data-scrolling=true
-            data-include-actions=false data-delete-rows-confirm-title='Delete posts'
-            data-delete-rows-confirm-message='Are you sure you want to delete these rows?'
-            data-delete-rows-complete-title='Deleted posts'
-            data-delete-rows-complete-message='The posts have been deleted.'
-            data-delete-rows-failed-title='Deleting failed'
-            data-delete-rows-failed-message='Deleting has failed. Maybe some posts are still being used.'
-            data-height=500>
-            <div id='tableColumns'>
-                <div data-title='Post' data-column='title' data-width='50' data-type='text'></div>
-                <div data-title='Content' data-column='content' data-width='200' data-max-height='75px'
-                    data-type='text'></div>
-                <div data-title='Thumbnail' data-column='thumbnail' data-width='200' data-type='image'></div>
+            @error('activities_start')
+            <div class="invalid-feedback">{{ $errors->first('activities_start') ?? '' }}</div>
+            @enderror
+            <div class="form-group">
+                <label for="activities_end">{{ __('Einddatum') }}</label>
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text"><i
+                                class="la la-calendar-o"></i></span>
+                    </div>
+                    <input class="form-control @error('activities_end') is-invalid @enderror" data-type="datepicker"
+                        name="activities_end" autocomplete="off"
+                        value="{{ Model()->activities_end ?? old('activities_end') }}">
+                </div>
+                <small id="activities_endHelp"
+                    class="form-text text-muted">{{ __('Wanneer zijn de werkzaamheden afgerond?') }}</small>
             </div>
-        </div>
+            @error('activities_end')
+            <div class="invalid-feedback">{{ $errors->first('activities_end') ?? '' }}</div>
+            @enderror
+            <div class="form-group">
+                <label for="started">{{ __('Zijn de werkzaamheden al gestart?') }}</label>
+                <label class="checkbox checkbox-primary" style="display:none;">
+                    <input type="checkbox" id="started" name="started" aria-describedby="started" value=0 checked>
+                    <span></span>
+                </label>
+                <label class="checkbox checkbox-primary d-flex">
+                    <input type="checkbox" id="started" name="started" aria-describedby="started" value=1
+                        @if((isset(Model()->started) && Model()->started == true) ||
+                    old('started') == 1) checked @endif>
+                    <span class="mr-2"></span>
+                    {{ __('Ja') }}
+                </label>
+                <label for="started" class="form-check-label"></label>
+            </div>
+            @error('started')
+            <div class="invalid-feedback">{{ $errors->first('started') ?? '' }}</div>
+            @enderror
+            <div class="form-group">
+                <label for="finished">{{ __('Zijn de werkzaamheden afgerond?') }}</label>
+                <label class="checkbox checkbox-primary" style="display:none;">
+                    <input type="checkbox" id="finished" name="finished" aria-describedby="finished" value=0 checked>
+                    <span></span>
+                </label>
+                <label class="checkbox checkbox-primary d-flex">
+                    <input type="checkbox" id="finished" name="finished" aria-describedby="finished" value=1
+                        @if((isset(Model()->finished) && Model()->finished == true) ||
+                    old('finished') == 1) checked @endif>
+                    <span class="mr-2"></span>
+                    {{ __('Ja') }}
+                </label>
+                <label for="finished" class="form-check-label"></label>
+            </div>
+            @error('finished')
+            <div class="invalid-feedback">{{ $errors->first('finished') ?? '' }}</div>
+            @enderror
+            <div class="form-group">
+                <label for="contractor_id">{{ __('Aannemer') }}</label>
+                <div class="input-group d-flex">
+                    <div class="input-group-prepend"><span class="input-group-text"><i
+                                class="fas fa-user-hard-hat"></i></span>
+                    </div>
+                    <select class="form-control @error('contractor_id') is-invalid @enderror" data-type="slimselect"
+                        id="contractor_id" name="contractor_id" aria-describedby="contractor_id">
+                        <option>{{ __('Geen') }}</option>
+                        @foreach (\App\Contractor::all() as $key => $relatedModel)
+                        <option value="{{ $relatedModel->id }}" @if((Model()==true && Model()->
+                            contractor_id == $relatedModel->id) || old('contractor_id') ==
+                            $relatedModel->id) selected @endif>{{ $relatedModel->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            @error('contractor_id')
+            <div class="invalid-feedback">{{ $errors->first('contractor_id') ?? '' }}</div>
+            @enderror
+            <div class="form-group">
+                <label for="price_construction">{{ __('Eenmalige aanlegkosten') }}</label>
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text"><i
+                                class="fas fa-euro-sign"></i></span>
+                    </div>
+                    <input type="number" class="form-control @error('price_construction') is-invalid @enderror"
+                        id="price_construction" name="price_construction" aria-describedby="price_construction"
+                        placeholder="{{ __('') }}"
+                        value="{{ Model()->price_construction ?? old('price_construction') }}" step="0.01">
+                </div>
+                <small id="price_constructionHelp"
+                    class="form-text text-muted">{{ __('Wat zijn de kosten voor het aanleggen van de glasvezel?') }}</small>
+            </div>
+            @error('price_construction')
+            <div class="invalid-feedback">{{ $errors->first('price_construction') ?? '' }}</div>
+            @enderror
+
+            @include('field_extra')
+            <br>
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">{{ __('Opslaan') }}</button>
+            </div>
+            @if(Model())
+            <button type="button" class="btn btn-danger"
+                data-id="{{ Model()->id }}" 
+                data-action="destroy"
+                data-destroy-route={{ route('district.destroy','__id__') }}
+                data-destroy-redirect={{ route('district.index') }}
+                data-delete-confirm-title="Verwijder wijk"
+                data-delete-confirm-message="Weet u zeker dat u deze wijk wil verwijderen?"
+                data-delete-complete-title="Wijk verwijderd"
+                data-delete-complete-message="De wijk is verwijderd."
+                data-delete-failed-title="Verwijderen mislukt"
+                data-delete-failed-message="De wijk kan niet verwijderd worden."
+                >{{ __('Verwijder') }}</button>
+            @endif
+        </form>
     </div>
 </div>
+<!--end::Card-->
 @endsection
-@push('footer-scripts')
-<script>
-    DCMSDatatable({
-        table: $('#user_datatable'),
-        // customColumns: [{
-        //     field: 'foo',
-        //     title: 'Example',
-        //     sortable: false,
-        //     order: 1,
-        //     width: 125,
-        //     maxHeight: 10px,
-        //     overflow: 'visible',
-        //     autoHide: true,
-        //     template: function (row) {
-        //         return row.id;
-        //     }
-        // }],
-    });
-    DCMSDatatable({
-        table: $('#post_datatable')
-    });
-</script>
-@endpush
 ```

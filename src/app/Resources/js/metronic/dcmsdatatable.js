@@ -8,15 +8,19 @@ var custColumns;
 window.DCMSDatatable = function (parameters) {
 	$.each(parameters.table, function (key, table) {
 		let columns = [];
-		columns.push({
-			field: '',
-			title: '',
-			sortable: false,
-			width: 30,
-			type: 'number',
-			selector: { class: 'kt-checkbox--solid' },
-			textAlign: 'center'
-		});
+
+		if (table.dataset.includeSelector !== 'false') {
+			columns.push({
+				field: '',
+				title: '',
+				sortable: false,
+				width: 30,
+				type: 'number',
+				selector: { class: 'kt-checkbox--solid' },
+				textAlign: 'center'
+			});
+			$('.kt_datatable_rowcontrols').show();
+		}
 
 		let tableColumns = $(table).find('#tableColumns').children();
 		$.each(tableColumns, function (index, column) {
@@ -133,7 +137,7 @@ window.DCMSDatatable = function (parameters) {
 		if (table.dataset.includeActions == 'true') {
 			columns.push({
 				field: 'Actions',
-				title: 'Actions',
+				title: Lang('Actions'),
 				sortable: false,
 				width: 125,
 				overflow: 'visible',
@@ -294,7 +298,7 @@ window.DCMSDatatable = function (parameters) {
 
 		$(table).parent().find('#kt_datatable_search_status, #kt_datatable_search_type').selectpicker();
 
-		$(document).on('click', '[data-action=edit]', function (e) {
+		$(document).on('click', 'table [data-action=edit]', function (e) {
 			e.preventDefault();
 			let id = e.currentTarget.dataset.id;
 			let route = $(table).data('edit-route').replace('__id__', id);
@@ -305,7 +309,7 @@ window.DCMSDatatable = function (parameters) {
 			}
 		});
 
-		$(document).on('click', '[data-action=destroy]', function (e) {
+		$(document).on('click', 'table [data-action=destroy]', function (e) {
 			e.preventDefault();
 			let id = e.currentTarget.dataset.id;
 			let route = $(table).data('destroy-route').replace('__id__', id);
