@@ -9,10 +9,21 @@ window.JQAlerts = true;
 window.SweetAlert = false;
 
 // Date Format
-window.AppDateFormat = "DD/MM/YYYY";
+window.AppDateFormat = "dd-mm-yyyy";
 
 // Datatable Settings
 window.AllowNewTab = false;
+
+// Locale
+window.language = 'nl';
+
+// Either use locale provided by server, or manually specified language
+window.language = (locale) ? locale : window.language;
+
+// TinyMCE
+window.langFiles = '/js/dcms/tinymce_lang/'+window.language+'.js';
+window.tinyMCEplugins = 'link';
+window.tinyMCEtoolbar = 'insert';
 
 
 /**
@@ -45,7 +56,11 @@ try {
 
 const { extendWith, isArray } = require('lodash');
 
-window.csrf = document.querySelectorAll('meta[name=csrf-token]')[0].content;
+try {
+    window.csrf = document.querySelectorAll('meta[name=csrf-token]')[0].content;
+} catch (error) {
+    console.log('Put a meta tag with name=csrf-token and the CSRF token in <head></head>')
+}
 
 
 /**
@@ -56,9 +71,9 @@ window.csrf = document.querySelectorAll('meta[name=csrf-token]')[0].content;
 
 // There are no translations
 try {
-    var lang = require('../../../resources/lang/' + locale + '.json');
+    var lang = require('../../../resources/lang/' + window.language + '.json');
 } catch (error) {
-    console.log('No translation yet for: ' + locale);
+    console.log('No translation yet for: ' + window.language);
 }
 window.Lang = function (string) {
     try {

@@ -19,7 +19,7 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
                         },
                         success: function (response) {
                             $("#"+Slim.select.element.id).load(location.href + " #"+Slim.select.element.id+">*", "", );
-                            Alert('success', Lang('Optie toegevoegd'), Lang('De nieuwe optie is nu zichtbaar.'), {
+                            Alert('success', Lang('Added option'), Lang('The new option is now available.'), {
                                 confirm: {
                                     text: Lang('Ok'),
                                     btnClass: 'btn-success',
@@ -32,7 +32,7 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
                             $.each(errors, function (indexInArray, error) { 
                                  alertErrors += error[0] + ' <br>';
                             });
-                            Alert('error', Lang('Toevoegen mislukt'), Lang(alertErrors), {
+                            Alert('error', Lang('Failed'), Lang(alertErrors), {
                                 confirm: {
                                     text: Lang('Ok'),
                                     btnClass: 'btn-danger',
