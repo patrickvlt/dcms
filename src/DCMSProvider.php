@@ -18,6 +18,8 @@ class DCMSProvider extends ServiceProvider
             __DIR__.'/app/Resources/sass' => resource_path('sass/dcms')
         ], 'resources');
 
+        $this->loadRoutesFrom(__DIR__.'/routes.php');
+
         // php artisan vendor:publish --tag=resources --force
 
         if ($this->app->runningInConsole()) {
