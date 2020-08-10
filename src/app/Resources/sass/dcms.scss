@@ -20,6 +20,8 @@
 // @import 'https://bossanova.uk/jexcel/v3/jexcel.css';
 // @import 'https://bossanova.uk/jsuites/v2/jsuites.css';
 
+@import 'plugins/splide.min.scss';
+
 .dcmsImg {
     height: 13rem;
     width: 13rem;
@@ -53,5 +55,24 @@
 
 .glideJSimg {
     height: 100%;
-    background-size: 100% 100%;
+    background-size: cover;
+    margin-right: 3px;
+    border-radius: 3px;
+}
+
+.splide__track {
+    justify-content: center !important; 
+    display: flex !important
+}
+
+.splide{
+    margin-bottom: 10px !important;
+}
+
+.splideDelete {
+    // display: none !important;
+    position: relative;
+    right: 33px;
+    z-index: 10000;
+    top: 6px;
 }

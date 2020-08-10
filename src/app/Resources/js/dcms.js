@@ -73,6 +73,7 @@ try {
     require('./plugins/jexcel.js');
     require('./plugins/spotlight.js');
     // require('./plugins/jspdftable.js');
+    require('./plugins/splide.js');
     require('./metronic/dcmsdatatable.js');
 } catch (error) {
     console.log(error);
@@ -214,7 +215,7 @@ window.onload = function () {
                 curInputs.forEach(function (input) {
                     formData.append(name, input.value);
                 })
-            })
+            });
         }
         let formRequest = HttpReq(formMethod, formAction, formData);
     }

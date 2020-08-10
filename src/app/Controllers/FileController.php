@@ -23,7 +23,7 @@ class FileController extends Controller
             $status = 200;
         } else {
             $msg = 'File doesn\'t exist';
-            $status = 200;
+            $status = 422;
         }
         return response()->json([$msg,$status]);
     }

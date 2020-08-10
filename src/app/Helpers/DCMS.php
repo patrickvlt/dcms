@@ -215,7 +215,7 @@ if (!function_exists('ValidateFile')) {
                 foreach (request()->file($key) as $file) {
                     $file->store('public/files/' . $type);
                 }
-                return $file->hashName();
+                return '/storage/files/'.$type.'/'.$file->hashName();
             }
         } else {
             $msg = __('No file to process.');
