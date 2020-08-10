@@ -63,11 +63,11 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
         const pond = FilePond.create(inputElement);
         pond.allowMultiple = (inputElement.dataset.maxFiles > 1) ? true : false;
         pond.maxFiles = inputElement.dataset.maxFiles;
-        pond.maxSize = maxSizeServer;
+        pond.maxSize = window.FilePondMaxFileSize;
         pond.name = inputElement.dataset.name+"[]";
-        pond.instantUpload = true;
+        pond.instantUpload = (inputElement.dataset.instantUpload) ? inputElement.dataset.instantUpload : window.FilePondInstantUpload;
         // pond.allowProcess = false;
-        pond.allowRevert = true,
+        pond.allowRevert = (inputElement.dataset.allowRevert) ? inputElement.dataset.allowRevert : window.FilePondAllowRevert;
         pond.onerror = (res) => {
                 HaltSubmit();
         }
@@ -87,7 +87,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 'X-CSRF-TOKEN': window.csrf
             },
             process: {
-                url: '/file/process/'+inputElement.dataset.mime,
+                url: (window.FilePondProcessRoute) ? window.FilePondProcessRoute : '/dcms/file/process/'+inputElement.dataset.mime,
                 onerror: (res) => {
                     let fileResponse;
                     try {
@@ -95,16 +95,12 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     } catch (error) {
                         fileResponse = Lang('Something went wrong. File is invalid or too big (max ')+maxSizeServer+' MB)';
                     }
-                    if (FilePondJQAlerts == true){
-                        Alert('error', Lang('Upload failed'), Lang(fileResponse), {
-                            confirm: {
-                                text: Lang('Ok'),
-                                btnClass: 'btn-danger',
-                            },
-                        });
-                    } else {
-                        alert(JSON.parse(res)['message']);
-                    }
+                    Alert('error', Lang('Upload failed'), Lang(fileResponse), {
+                        confirm: {
+                            text: Lang('Ok'),
+                            btnClass: 'btn-danger',
+                        },
+                    });
                 }
             },
             revert: {
@@ -112,7 +108,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     'X-CSRF-TOKEN': window.csrf,
                     "Content-Type": "application/json",
                 },
-                url: '/file/delete/'+inputElement.dataset.mime,
+                url: (window.FilePondRevertRoute) ? window.FilePondRevertRoute : '/dcms/file/revert/'+inputElement.dataset.mime,
                 method: 'DELETE',
             }
         }

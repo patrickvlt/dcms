@@ -25,6 +25,36 @@ window.langFiles = '/js/dcms/tinymce_lang/'+window.language+'.js';
 window.tinyMCEplugins = 'link';
 window.tinyMCEtoolbar = 'insert';
 
+// Filepond
+window.FilePondMaxFileSize = 1; //in MB
+window.FilePondMaxFileSize = (maxSizeServer) ? maxSizeServer : window.MaxFileSize;
+window.FilePondAllowRevert = true;
+window.FilePondInstantUpload = true;
+// window.FilePondProcessRoute = ""
+// window.FilePondRevertRoute = ""
+
+/**
+ *
+ *  Translations
+ *
+ */
+
+// There are no translations
+try {
+    var lang = require('../../../resources/lang/' + window.language + '.json');
+} catch (error) {
+    console.log('No translation yet for: ' + window.language);
+}
+window.Lang = function (string) {
+    try {
+        var langVal;
+        langVal = (typeof lang[string] !== 'undefined') ? lang[string] : string;
+        return langVal;
+    } catch (error) {
+        return string;
+    }
+}
+
 
 /**
  *
@@ -60,29 +90,6 @@ try {
     window.csrf = document.querySelectorAll('meta[name=csrf-token]')[0].content;
 } catch (error) {
     console.log('Put a meta tag with name=csrf-token and the CSRF token in <head></head>')
-}
-
-
-/**
- *
- *  Translations
- *
- */
-
-// There are no translations
-try {
-    var lang = require('../../../resources/lang/' + window.language + '.json');
-} catch (error) {
-    console.log('No translation yet for: ' + window.language);
-}
-window.Lang = function (string) {
-    try {
-        var langVal;
-        langVal = (typeof lang[string] !== 'undefined') ? lang[string] : string;
-        return langVal;
-    } catch (error) {
-        return string;
-    }
 }
 
 /**

@@ -89,6 +89,40 @@ On an anchor element, to initialise spotlight.
 When you click on this element, the image will be shown in fullscreen.
 
 ## Filepond
+https://github.com/pqina/filepond
+
+Use:
+```
+data-type="filepond"
+```
+
+On an input element, to initialise Filepond.
+You can also setup other options through data attributes, such as:
+
+```
+data-mime="image"
+data-max-files="1"
+data-instant-upload="true"
+```
+
+Filepond automatically uploads files to a route based on their mime type. This way files are organized, and assigned by file name to objects.
+This also makes uploading and deleting files dynamic, to set everything up efficiently.
+These routes can be changed in the plugin settings in dcms.js.
+
+The route for uploading files is defined in filepond.js:
+
+```
+'/dcms/file/process/'+inputElement.dataset.mime
+```
+
+The route for deleting files is also defined in filepond.js:
+
+```
+'/dcms/file/delete/'+inputElement.dataset.mime
+```
+
+
+
 
 ## jExcel
 https://bossanova.uk/jexcel/v3/

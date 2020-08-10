@@ -1,5 +1,5 @@
 <?php
 
 // Upload
-Route::post('/file/process/{type}', 'App\Http\Controllers\FileController@ProcessFile');
-Route::delete('/file/delete/{type}', 'App\Http\Controllers\FileController@DeleteFile');
+Route::post('/dcms/file/process/{type}', 'App\Http\Controllers\FileController@ProcessFile');
+Route::delete('/dcms/file/delete/{type}', 'App\Http\Controllers\FileController@DeleteFile');
