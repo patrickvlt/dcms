@@ -88,6 +88,50 @@ class="spotlight"
 On an anchor element, to initialise spotlight.
 When you click on this element, the image will be shown in fullscreen.
 
+## Filepond
+
+## jExcel
+https://bossanova.uk/jexcel/v3/
+
+Use:
+```
+data-type="jexcel"
+```
+
+On a table element, to initialise jExcel.
+To easily submit the data to a Laravel controller, put this table element in a form.
+Don't forget to use enctype="multipart/form-data" in your table element.
+
+Then use this in the table element:
+
+```
+data-jexcel-form-selector=""
+```
+
+To specify how many empty rows you want when jExclel loads:
+
+```
+data-jexcel-emptyrows="1" 
+```
+
+To prepare the columns, you can add one tr with th's, and use data attributes to set up the plugin.
+Example code:
+
+```
+<table id="fooTable" data-type="jexcel" data-jexcel-emptyrows="1" data-jexcel-form-selector="#fooSubmit">
+    <tr>
+        <th data-jexcel-type="text" data-jexcel-width="200">{{ __('Foo') }}</th>
+        <th data-jexcel-type="dropdown" data-jexcel-width="200" data-jexcel-url="/bar/sources" data-jexcel-autocomplete="true">{{ __('Bar') }}</th>
+    </tr>
+</table>
+```
+You can use the data-types from jExcel.
+
+To easily retrieve sources for a dropdown, link a dropdown data attribute to a URL/route:
+
+```
+data-jexcel-type="dropdown" data-jexcel-url="/bar/sources"
+```
 
 # Commands
 
