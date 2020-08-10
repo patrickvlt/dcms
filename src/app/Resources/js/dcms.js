@@ -72,7 +72,7 @@ try {
     require('./plugins/datepicker.js');
     require('./plugins/jexcel.js');
     require('./plugins/spotlight.js');
-    require('./plugins/jspdftable.js');
+    // require('./plugins/jspdftable.js');
     require('./metronic/dcmsdatatable.js');
 } catch (error) {
     console.log(error);
@@ -242,8 +242,6 @@ window.DeleteModel = function (args) {
     var failedTitle = (Lang(args['failedTitle'])) ? Lang(args['failedTitle']) : '';
     var failedMsg = (Lang(args['failedMsg'])) ? Lang(args['failedMsg']) : '';
     var redirect = (args['redirect']) ? args['redirect'] : '';
-    console.log(args);
-    console.log(redirect);
 
     Alert('warning', confirmTitle, confirmMsg, {
         confirm: {
