@@ -121,7 +121,6 @@ trait DCMSController
                     }
                 }
                 $$prefix->update($request);
-                // $request = $request;
         }
 
         return $this->DCMSJSON($$prefix,$createdOrUpdated);
@@ -203,7 +202,8 @@ trait DCMSController
             $request = $request->validated();
             $file = $request[$column][0];
             $file->store('public/files/' . $type.'/'.$column);
-            return response()->json('/storage/files/'.$type.'/'.$column.'/'.$file->hashName(),200,[],JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
+            $returnFile = '/storage/files/'.$type.'/'.$column.'/'.$file->hashName();
+            return $returnFile;
         }
     }
 
