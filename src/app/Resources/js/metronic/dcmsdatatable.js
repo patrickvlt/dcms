@@ -142,6 +142,10 @@ window.DCMSDatatable = function (parameters) {
 								deleteControl = '';
 							} 
 							spotlightClass = (value !== null) ? 'spotlight' : '';
+							
+							if (value instanceof Array){
+								value = value[0];
+							}
 							return `<div class="image-input mb-4 mt-4" data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`">
 								<div class="image-input-wrapper `+spotlightClass+`" data-src='`+value+`' style="background-image: url(`+value+`)"></div>
 								`+changeControl+`
