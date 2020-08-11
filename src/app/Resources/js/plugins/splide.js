@@ -52,6 +52,7 @@ $(document).on('click','[data-action="destroy-splide"]',function(element){
     splideColumn = element.dataset.column;
     splideFile = element.dataset.file;
     parentSplide = element.previousSibling;
+    parentDiv = element.parentNode.parentNode.parentNode;
 
     Alert('warning', Lang('Deleting Object'), Lang('Are you sure you want to delete this object?'), {
         confirm: {
@@ -69,6 +70,9 @@ $(document).on('click','[data-action="destroy-splide"]',function(element){
                     complete: function (response) {
                         parentSplide.remove();
                         element.remove();
+                        if ($('.splide__slide').length == 0){
+                            parentDiv.remove();
+                        }
                     }
                 });
             }
