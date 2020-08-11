@@ -364,23 +364,42 @@ class '.$model.'Request extends FormRequest
         return true;
     }
 
-    public function DCMSmodifyRequest()
+    /**
+    * 
+    * DCMS: Modify a request before it is validated, make sure to return an array with keys the request will recognize
+    * 
+    */
+
+    public function beforeValidation()
     {
-        $request = request()->all();
+        // $request = request()->all();
 
-        // Modify store request
-        if (FormMethod() == "POST"){
-        }
-        // Modify update request 
-        else if (FormMethod() == "PUT"){
-        } 
-        // Modify all requests
-        else {
-            //$request["column"] = ($request["someColumn"] == "Foo") ? $request["column"] = null : $request["column"];
-        }
+        // // Modify all requests
+        // $request["foo"] = "bar";
+        // // Modify store request
+        // if (FormMethod() == "POST"){
+        // }
+        // // Modify update request 
+        // else if (FormMethod() == "PUT"){
+        // } 
 
-        return $request;
+        // return $request;
     }
+
+    /**
+    * 
+    * DCMS: Place validation for file uploads here, refer to the Laravel documentation. You can still use messages() to return custom messages.
+    * 
+    */
+
+    public function uploadRules()
+    {
+        return [
+            // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp|max:2000"],
+            // "sheet" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet|max:2000"],
+        ];
+    }
+
 
     /**
      * Get the validation rules that apply to the request.

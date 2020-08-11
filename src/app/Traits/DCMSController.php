@@ -3,6 +3,7 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 $GLOBALS['classFolders'] = [
@@ -55,14 +56,13 @@ trait DCMSController
     {
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $class = FindClass($prefix)['class'];
-        $file = FindClass($prefix)['file'];
 
         $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
         $classRequest = '\App\Http\Requests\\'.$requestFile;
 
         $requestData = request()->all();
         try {
-            $modRequest = (new $classRequest())->DCMSModifyRequest();
+            $modRequest = (new $classRequest())->beforeValidation();
             foreach ($modRequest as $modKey => $modValue){
                 $requestData[$modKey] = $modValue;
             }
@@ -144,5 +144,49 @@ trait DCMSController
             'message' => $message,
             'url' => $redirect
         ], 200);
+    }
+
+    public function ProcessFile($type,$column)
+    {
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $class = FindClass($prefix)['class'];
+        $file = FindClass($prefix)['file'];
+
+        $column = str_replace('[]','',$column);
+
+        $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
+        $classRequest = '\App\Http\Requests\\'.$requestFile;
+        $uploadRules = (new $classRequest())->uploadRules();
+
+        $request = Validator::make(request()->all(), $uploadRules,(new $classRequest())->messages());
+
+        if ($request->fails()){
+            return response()->json($request->errors(),422);
+        }
+        else {
+            $request = $request->validated();
+            $file = $request[$column][0];
+            $file->store('public/files/' . $type.'/'.$column);
+            return response()->json('/storage/files/'.$type.'/'.$column.'/'.$file->hashName(),200);
+        }
+    }
+
+    public function DeleteFile($type,$column)
+    {
+        $column = str_replace('[]','',$column);
+        $path = str_replace('"','',stripslashes(request()->getContent()));
+        $name = explode('/',$path);
+        $name = end($name);
+        $file = 'public/files/'.$type.'/'.$column.'/'.$name;
+        $fileExists = Storage::exists($file);
+        if ($fileExists == true){
+            Storage::delete($file);
+            $msg = 'Deleted succesfully';
+            $status = 200;
+        } else {
+            $msg = 'File doesn\'t exist';
+            $status = 422;
+        }
+        return response()->json([$msg,$status]);
     }
 }
