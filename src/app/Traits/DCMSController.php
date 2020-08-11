@@ -74,7 +74,10 @@ trait DCMSController
         if ($createdOrUpdated == 'created'){
             foreach ($request as $key => $val){
                 if (is_array($val)){
-                    $request[$key] = json_encode($val);
+                    $val = json_encode($val);
+                    $val = stripslashes($val);
+                    $val = str_replace('""','"',$val);
+                    $request[$key] = $val;
                 }
             }
             $$prefix = $class::create($request);
@@ -82,7 +85,12 @@ trait DCMSController
             $$prefix = $class::findOrFail($id);
                 foreach ($request as $key => $val){
                     if (is_array($val)){
-                        $request[$key] = array_merge(json_decode($$prefix->$key),$val);
+                        $existing = json_decode(stripslashes($$prefix->$key));
+                        if ($$prefix->key !== null){
+                            $request[$key] = array_merge(json_decode(stripslashes($$prefix->$key)),$val);
+                        } else {
+                            $request[$key] = json_encode($val);
+                        }
                     }
                 }
             $$prefix->update($request);
@@ -167,7 +175,7 @@ trait DCMSController
             $request = $request->validated();
             $file = $request[$column][0];
             $file->store('public/files/' . $type.'/'.$column);
-            return response()->json('/storage/files/'.$type.'/'.$column.'/'.$file->hashName(),200);
+            return response()->json('/storage/files/'.$type.'/'.$column.'/'.$file->hashName(),200,[],JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT);
         }
     }
 
