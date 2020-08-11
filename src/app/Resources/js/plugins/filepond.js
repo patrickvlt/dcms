@@ -67,7 +67,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
         pond.allowMultiple = (inputElement.dataset.maxFiles > 1) ? true : false;
         pond.maxFiles = inputElement.dataset.maxFiles;
         pond.maxSize = window.FilePondMaxFileSize;
-        pond.name = inputElement.dataset.name+"[]";
+        pond.name = inputElement.dataset.column+"[]";
         pond.instantUpload = (inputElement.dataset.instantUpload) ? inputElement.dataset.instantUpload : window.FilePondInstantUpload;
         // pond.allowProcess = false;
         pond.allowRevert = (inputElement.dataset.allowRevert) ? inputElement.dataset.allowRevert : window.FilePondAllowRevert;
@@ -88,10 +88,10 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
             method: method,
             headers: {
                 'X-CSRF-TOKEN': window.csrf,
-                'accept': 'application/json'
+                // 'accept': 'application/json'
             },
             process: {
-                url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.name,
+                url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.dataset.column.replace('[]',''),
                 onerror: (res) => {
                     let fileResponse, errors = [];
                     fileResponse = JSON.parse(res);

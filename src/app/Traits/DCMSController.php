@@ -90,7 +90,7 @@ trait DCMSController
                     }
                 }
             }
-            $$prefix = $class::create($request);
+            // $$prefix = $class::create($request);
         } else if ($createdOrUpdated == 'updated') {
             $$prefix = $class::findOrFail($id);
                 foreach ($request as $key => $val){

@@ -46,11 +46,12 @@ if (document.querySelectorAll('[data-type=splide]').length > 0) {
 }
 
 $(document).on('click','[data-action="destroy-splide"]',function(element){
-    var element, splidePrefix, splideColumn, splideFile;
+    var element, splidePrefix, splideColumn, splideFile, parentSplide;
     element = element.currentTarget;
     splidePrefix = element.dataset.prefix;
     splideColumn = element.dataset.column;
     splideFile = element.dataset.file;
+    parentSplide = element.previousSibling;
 
     Alert('warning', Lang('Deleting Object'), Lang('Are you sure you want to delete this object?'), {
         confirm: {
@@ -65,8 +66,9 @@ $(document).on('click','[data-action="destroy-splide"]',function(element){
                     headers: {
                         'X-CSRF-TOKEN': window.csrf
                     },
-                    success: function (response) {
-                        
+                    complete: function (response) {
+                        parentSplide.remove();
+                        element.remove();
                     }
                 });
             }
