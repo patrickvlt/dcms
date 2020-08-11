@@ -102,21 +102,28 @@ window.DCMSDatatable = function (parameters) {
 						case 'text':
 							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+value+`</div>`;
 							break;
+						case 'price':
+							let currency = (column.dataset.currency) ? column.dataset.currency : '€';
+							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+currency+value+`,-`+`</div>`;
+							break;
 						case 'image':
+							var changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
+								<i class="fa fa-pen icon-sm text-muted"></i>
+								<input type="file" name="profile_avatar" accept=".png, .jpg, .jpeg">
+								<input type="hidden" name="profile_avatar_remove">
+							</label>`;
+							var deleteControl = `<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="remove" data-toggle="tooltip" title="" data-original-title="Remove avatar">
+								<i class="ki ki-bold-close icon-xs text-muted"></i>
+							</span>`;
+							if (column.dataset.allowControls !== 'true'){
+								changeControl = '';
+								deleteControl = '';
+							} 
 							spotlightClass = (value !== null) ? 'spotlight' : '';
 							return `<div class="image-input mb-4 mt-4" data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`">
 								<div class="image-input-wrapper `+spotlightClass+`" data-src='`+value+`' style="background-image: url(`+value+`)"></div>
-								<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
-									<i class="fa fa-pen icon-sm text-muted"></i>
-									<input type="file" name="profile_avatar" accept=".png, .jpg, .jpeg">
-									<input type="hidden" name="profile_avatar_remove">
-								</label>
-								<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="cancel" data-toggle="tooltip" title="" data-original-title="Cancel avatar">
-									<i class="ki ki-bold-close icon-xs text-muted"></i>
-								</span>
-								<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="remove" data-toggle="tooltip" title="" data-original-title="Remove avatar">
-									<i class="ki ki-bold-close icon-xs text-muted"></i>
-								</span>
+								`+changeControl+`
+								`+deleteControl+`
 							</div>`;
 							break;
 						default:
