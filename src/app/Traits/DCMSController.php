@@ -40,6 +40,7 @@ trait DCMSController
         $class = FindClass($prefix)['class'];
         $$prefix = $class::FindOrFail($id);
         $showView = (isset($this->DCMS()['views']['edit'])) ? $this->DCMS()['views']['edit'] : 'edit';
+
         return view($prefix.'.'.$showView)->with([
             $prefix => $$prefix
         ]);
@@ -73,27 +74,54 @@ trait DCMSController
         $request = $request->validated();
         if ($createdOrUpdated == 'created'){
             foreach ($request as $key => $val){
+                // if value in current request is an array
                 if (is_array($val)){
-                    $val = json_encode($val);
-                    $val = stripslashes($val);
-                    $val = str_replace('""','"',$val);
-                    $request[$key] = $val;
+                    // if value is a file path
+                    if (strpos(implode(" ",$val), '/storage/') !== false) {
+                        $newArr = [];
+                        // remove unnecessary quotes, make a new clean JSON array
+                        foreach ($val as $x){
+                            $x = str_replace('"','',$x);
+                            array_push($newArr,$x);
+                        }
+                        $newArr = json_encode($newArr);
+                        $newArr = str_replace('""','"',$newArr);
+                        $request[$key] = $newArr;
+                    }
                 }
             }
             $$prefix = $class::create($request);
         } else if ($createdOrUpdated == 'updated') {
             $$prefix = $class::findOrFail($id);
                 foreach ($request as $key => $val){
+                    // if value in current request is an array
                     if (is_array($val)){
-                        $existing = json_decode(stripslashes($$prefix->$key));
-                        if ($$prefix->key !== null){
-                            $request[$key] = array_merge(json_decode(stripslashes($$prefix->$key)),$val);
-                        } else {
-                            $request[$key] = json_encode($val);
+                        // if value is a file path
+                        if (strpos(implode(" ",$val), '/storage/') !== false) {
+                            $newArr = [];
+                            // remove unnecessary quotes, make a new clean JSON array
+                            foreach ($val as $x){
+                                $x = str_replace('"','',$x);
+                                array_push($newArr,$x);
+                            }
+                            try {
+                                // check if object has an array for this already
+                                $existing = json_decode($$prefix->$key,true);
+                                if(count($existing) > 0){
+                                    $newArr = array_merge($existing,$newArr);
+                                }
+                            } catch (\Throwable $th) {
+                                //
+                            }
+                            $newArr = json_encode($newArr);
+                            $newArr = str_replace('""','"',$newArr);
+
+                            $request[$key] = $newArr;
                         }
                     }
                 }
-            $$prefix->update($request);
+                $$prefix->update($request);
+                // $request = $request;
         }
 
         return $this->DCMSJSON($$prefix,$createdOrUpdated);
@@ -181,6 +209,9 @@ trait DCMSController
 
     public function DeleteFile($type,$column)
     {
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $class = FindClass($prefix)['class'];
+
         $column = str_replace('[]','',$column);
         $path = str_replace('"','',stripslashes(request()->getContent()));
         $name = explode('/',$path);
@@ -194,6 +225,30 @@ trait DCMSController
         } else {
             $msg = 'File doesn\'t exist';
             $status = 422;
+        }
+        $findInDB = $class::where($column,'like','%'.$name.'%')->get();
+        // if the current class uses this file in any database row
+        if (count($findInDB) > 0){
+            // checking all rows using this file
+            foreach ($findInDB as $key => $model){
+                $model = $model;
+                // json decode the arrays with files
+                $fileArr = json_decode($model->$column);
+                // find the file in the decoded array and remove it
+                foreach ($fileArr as $key => $dbFile) {
+                    if ($dbFile == $path){
+                        unset($fileArr[$key]);
+                    }
+                }
+                if (count($fileArr) == 0){
+                    $fileArr = null;
+                }
+                $model->update([
+                    $column => $fileArr
+                ]);
+            }
+            $msg = 'Deleted succesfully';
+            $status = 200;
         }
         return response()->json([$msg,$status]);
     }
