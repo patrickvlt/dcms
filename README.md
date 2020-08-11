@@ -121,6 +121,7 @@ The route for deleting files is also defined in filepond.js:
 '/dcms/file/delete/'+inputElement.dataset.mime
 ```
 
+## Glide JS
 
 
 

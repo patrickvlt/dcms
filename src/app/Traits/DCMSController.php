@@ -235,13 +235,21 @@ trait DCMSController
                 // json decode the arrays with files
                 $fileArr = json_decode($model->$column);
                 // find the file in the decoded array and remove it
-                foreach ($fileArr as $key => $dbFile) {
-                    if ($dbFile == $path){
-                        unset($fileArr[$key]);
+                if (is_array($fileArr)){
+                    foreach ($fileArr as $key => $dbFile) {
+                        if ($dbFile == $path){
+                            unset($fileArr[$key]);
+                        }
                     }
-                }
-                if (count($fileArr) == 0){
+                } else {
                     $fileArr = null;
+                }
+                try {
+                    if (count($fileArr) == 0){
+                        $fileArr = null;
+                    }
+                } catch (\Throwable $th) {
+                    //
                 }
                 $model->update([
                     $column => $fileArr

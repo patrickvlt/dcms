@@ -61,9 +61,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
 
     function MakePond(inputElement, method = 'POST') {
         const pond = FilePond.create(inputElement);
-        try {
-            console.log(inputElement.dataset.prefix);
-        } catch (error) {
+        if(!inputElement.dataset.prefix){
             console.log('No prefix found. Add a data-prefix to the input element. e.g. (data-prefix="user")')
         }
         pond.allowMultiple = (inputElement.dataset.maxFiles > 1) ? true : false;

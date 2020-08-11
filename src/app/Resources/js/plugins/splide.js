@@ -20,11 +20,17 @@ if (document.querySelectorAll('[data-type=splide]').length > 0) {
             let imagesSource = $(element).data('source');
             let images = '';
             if ($(element).data('source')) {
-                $.each(imagesSource, function (x, image) {
-                    images = images + `<li class="splide__slide"><div class="spotlight glideJSimg" data-src="` + image + `" style="background-image:url('` + image + `')"></div></li><a data-action="destroy-splide" data-prefix="`+glidePrefix+`" data-column="`+glideColumn+`" data-file="`+image+`"><span class="splideDelete btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-toggle="tooltip" data-original-title="` + Lang('Remove') + `">
+                if (typeof imagesSource === 'string' || imagesSource instanceof String){
+                    images = `<li class="splide__slide"><div class="spotlight glideJSimg" data-src="` + imagesSource + `" style="background-image:url('` + imagesSource + `')"></div></li><a data-action="destroy-splide" data-prefix="`+glidePrefix+`" data-column="`+glideColumn+`" data-file="`+imagesSource+`"><span class="splideDelete btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-toggle="tooltip" data-original-title="` + Lang('Remove') + `">
                         <i class="ki ki-bold-close icon-xs text-muted"></i>
                     </span></a>`
-                });
+                } else {
+                    $.each(imagesSource, function (x, image) {
+                        images = images + `<li class="splide__slide"><div class="spotlight glideJSimg" data-src="` + image + `" style="background-image:url('` + image + `')"></div></li><a data-action="destroy-splide" data-prefix="`+glidePrefix+`" data-column="`+glideColumn+`" data-file="`+image+`"><span class="splideDelete btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-toggle="tooltip" data-original-title="` + Lang('Remove') + `">
+                            <i class="ki ki-bold-close icon-xs text-muted"></i>
+                        </span></a>`
+                    });
+                }
             }
             $(splideTrack).append(images);
             new Splide(element, {
