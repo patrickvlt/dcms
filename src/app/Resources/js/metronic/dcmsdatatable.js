@@ -38,7 +38,24 @@ window.DCMSDatatable = function (parameters) {
 					} else {
 						value = row[column.dataset.column];
 					}
+
 					value = (typeof value == 'undefined' || value == null) ? '' : value;
+
+					if (column.dataset.href){
+						let link,columnMatch,linkFromMatch;
+						link = column.dataset.href;
+						if (link.match(/__.*__/gm)){
+							columnMatch = link.match(/__.*__/gm);
+							linkFromMatch = columnMatch[0].replace(/__/g, '');
+							link = link.replace(/__/g, '');
+							if (row[linkFromMatch]){
+								link = link.replace(linkFromMatch,'');
+								link = link + row[linkFromMatch];
+							}
+						}
+						value = `<a href='`+link+`'>`+value+`</a>`;
+					}
+
 					var textColor = (column.dataset.textColor) ? column.dataset.textColor : 'dark';
 					switch (column.dataset.type) {
 						case 'user':
@@ -101,6 +118,10 @@ window.DCMSDatatable = function (parameters) {
 							break;
 						case 'text':
 							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+value+`</div>`;
+							break;
+						case 'icon':
+							let icon = (column.dataset.iconClass) ? `<i class="`+column.dataset.iconClass+` text-muted"></i>` : ``;
+							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+icon+value+`</div>`;
 							break;
 						case 'price':
 							let currency = (column.dataset.currency) ? column.dataset.currency : '€';
