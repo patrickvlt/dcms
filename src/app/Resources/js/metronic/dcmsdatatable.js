@@ -125,6 +125,7 @@ window.DCMSDatatable = function (parameters) {
 							break;
 						case 'price':
 							let currency = (column.dataset.currency) ? column.dataset.currency : '€';
+							value = (value == '') ? 0 : value;
 							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+currency+value+`,-`+`</div>`;
 							break;
 						case 'image':
