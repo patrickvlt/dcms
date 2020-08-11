@@ -71,15 +71,20 @@ trait DCMSController
         }
         $request = Validator::make($requestData, (new $classRequest())->rules(), (new $classRequest())->messages());
         $request = $request->validated();
-        foreach ($request as $key => $val){
-            if (is_array($val)){
-                $request[$key] = json_encode($val);
-            }
-        }
         if ($createdOrUpdated == 'created'){
+            foreach ($request as $key => $val){
+                if (is_array($val)){
+                    $request[$key] = json_encode($val);
+                }
+            }
             $$prefix = $class::create($request);
         } else if ($createdOrUpdated == 'updated') {
             $$prefix = $class::findOrFail($id);
+                foreach ($request as $key => $val){
+                    if (is_array($val)){
+                        $request[$key] = array_merge(json_decode($$prefix->$key),$val);
+                    }
+                }
             $$prefix->update($request);
         }
 
