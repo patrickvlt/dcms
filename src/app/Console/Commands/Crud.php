@@ -95,7 +95,11 @@ class '.$model.'Controller extends Controller
         $file = 'routes/web.php';
         file_put_contents($file, "
 
-Route::resource('" . $model . "', '" . $model . "Controller');", FILE_APPEND);
+Route::resource('" . $model . "', '" . $model . "Controller');
+Route::post('/".$prefix."/file/process/{type}/{column}', '".$model."Controller@ProcessFile');
+Route::delete('/".$prefix."/file/revert/{type}/{column}', '".$model."Controller@DeleteFile')"
+, FILE_APPEND);
+
         $console->info('Added route.');
 
         //Generating columns

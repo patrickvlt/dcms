@@ -61,6 +61,11 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
 
     function MakePond(inputElement, method = 'POST') {
         const pond = FilePond.create(inputElement);
+        try {
+            console.log(inputElement.dataset.prefix);
+        } catch (error) {
+            console.log('No prefix found. Add a data-prefix to the input element. e.g. (data-prefix="user")')
+        }
         pond.allowMultiple = (inputElement.dataset.maxFiles > 1) ? true : false;
         pond.maxFiles = inputElement.dataset.maxFiles;
         pond.maxSize = window.FilePondMaxFileSize;
@@ -84,18 +89,18 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
         pond.server = {
             method: method,
             headers: {
-                'X-CSRF-TOKEN': window.csrf
+                'X-CSRF-TOKEN': window.csrf,
+                'accept': 'application/json'
             },
             process: {
-                url: (window.FilePondProcessRoute) ? window.FilePondProcessRoute : '/dcms/file/process/'+inputElement.dataset.mime,
+                url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.name,
                 onerror: (res) => {
-                    let fileResponse;
-                    try {
-                        fileResponse = JSON.parse(res);
-                    } catch (error) {
-                        fileResponse = Lang('Something went wrong. File is invalid or too big (max ')+maxSizeServer+' MB)';
-                    }
-                    Alert('error', Lang('Upload failed'), Lang(fileResponse), {
+                    let fileResponse, errors = [];
+                    fileResponse = JSON.parse(res);
+                    $.each(fileResponse, function (x, error) { 
+                        errors.push(error[0]);
+                    });
+                    Alert('error', Lang('Upload failed'), errors, {
                         confirm: {
                             text: Lang('Ok'),
                             btnClass: 'btn-danger',
@@ -108,7 +113,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     'X-CSRF-TOKEN': window.csrf,
                     "Content-Type": "application/json",
                 },
-                url: (window.FilePondRevertRoute) ? window.FilePondRevertRoute : '/dcms/file/revert/'+inputElement.dataset.mime,
+                url: '/'+inputElement.dataset.prefix+'/file/revert/'+inputElement.dataset.mime+'/'+inputElement.name,
                 method: 'DELETE',
             }
         }
