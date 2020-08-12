@@ -58,60 +58,59 @@ window.DCMSDatatable = function (parameters) {
 						value = `<a href='`+link+`'>`+value+`</a>`;
 					}
 
-					var textColor = (column.dataset.textColor) ? column.dataset.textColor : 'dark';
+					textColor = (column.dataset.textColor) ? column.dataset.textColor : 'dark';
 					switch (column.dataset.type) {
-						case 'user':
-							var userTitle = '';
-							var userInfo = '';
-							var userImgText = '';
-							var userImg;
+						case 'card':
+							var cardTitle = '';
+							var cardInfo = '';
+							var cardImgText = '';
+							var cardImg;
 							// merge multiple columns to show one value
-							if (column.dataset.userTitle) {
-								userTitle = MergeColumns(row, column.dataset.userTitle);
+							if (column.dataset.cardTitle) {
+								cardTitle = MergeColumns(row, column.dataset.cardTitle);
 							}
-							if (column.dataset.userInfo) {
-								userInfo = MergeColumns(row, column.dataset.userInfo);
+							if (column.dataset.cardInfo) {
+								cardInfo = MergeColumns(row, column.dataset.cardInfo);
 							}
-							// if data-user-image is set and the column has a filled URL
-							if (typeof row[column.dataset.userImage] !== 'undefined' && column.dataset.userImage.length > 1 && (row[column.dataset.userImage] !== column.dataset.userImage && row[column.dataset.userImage] !== null)) {
+							// if data-card-image is set and the column has a filled URL
+							if (typeof row[column.dataset.cardImage] !== 'undefined' && column.dataset.cardImage.length > 1 && (row[column.dataset.cardImage] !== column.dataset.cardImage && row[column.dataset.cardImage] !== null)) {
 								jQuery.ajax({
 									type: "GET",
 									async: false,
 									crossDomain: true,
-									url: row[column.dataset.userImage],
+									url: row[column.dataset.cardImage],
 									success: function (response) {
-										userImg = row[column.dataset.userImage];
-										userImgText = '';
-										return userImgText;
+										cardImg = row[column.dataset.cardImage];
+										cardImgText = '';
+										return cardImgText;
 									},
 									error: function (response) {
-										userImg = 'null';
-										userImgText = userTitle[0].toUpperCase();
-										return userImgText;
+										cardImg = 'null';
+										cardImgText = cardTitle[0].toUpperCase();
+										return cardImgText;
 									}
 								});
 							} else {
-								userImgText = userTitle[0].toUpperCase();
+								cardImgText = cardTitle[0].toUpperCase();
 							}
 
-							var cardColor = (column.dataset.cardColor) ? column.dataset.cardColor : 'primary';
+							var cardColor = (column.dataset.cardColor) ? column.dataset.cardColor : '';
 							var cardTextColor = (column.dataset.cardTextColor) ? column.dataset.cardTextColor : 'primary';
 							var titleColor = (column.dataset.titleColor) ? column.dataset.titleColor : 'primary';
 
 							return `<div data-id='` + row['id'] + `'><span style="width: 250px;"><div class="d-flex align-items-center">
-									<div class="symbol symbol-40 symbol-`+ userColor + ` flex-shrink-0">
-										<div class="symbol-label text-` + cardTextColor + `" style="background-image:url('`+ userImg + `')">` + userImgText + `</div>
+									<div class="symbol symbol-40 symbol-`+ cardColor + ` flex-shrink-0">
+										<div class="symbol-label text-` + cardTextColor + `" style="background-image:url('`+ cardImg + `')">` + cardImgText + `</div>
 									</div>
 									<div class="ml-2">
-										<div class="text-` + titleColor + ` font-weight-bold line-height-sm">`+ userTitle + `</div> <a href="#"
-											class="font-size-sm text-` + textColor + ` text-hover-primary">`+ userInfo + `</a>
+										<div class="text-` + titleColor + ` font-weight-bold line-height-sm">`+ cardTitle + `</div> <a class="font-size-sm text-` + textColor + ` text-hover-primary">`+ cardInfo + `</a>
 									</div>
 									</div>
 								</div>
 							</span>`;
 							break;
 						case 'boolean':
-							if (value !== null && value !== 0 && typeof value !== 'undefined') {
+							if (row[column.dataset.column] !== null && row[column.dataset.column] !== 0 && typeof row[column.dataset.column] !== 'undefined') {
 								return `<i data-id='`+row.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.maxHeight+`"></i>`;
 							}
 							else {

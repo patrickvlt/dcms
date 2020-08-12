@@ -256,12 +256,6 @@ FormRoute() or DeleteRoute()
 
 This returns the action the form will send a request to. This will grab the correct route for the object you're working on.
 
-```
-ValidateFile()
-```
-
-This will validate a file based on the max filesize on a server, extensions you will allow, and how many files at once are allowed.
-This will also store the file in a folder and return the url to that same file.
 
 # DCMS Datatables
 
@@ -277,6 +271,10 @@ Include these plugins:
 Example HTML code:
 
 ```
+<head>
+    <link href="assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+</head>
+
 <div class="card card-custom mt-5">
     <div class="card-header flex-wrap border-0 pt-6 pb-0">
         <div class="card-title">
@@ -351,38 +349,23 @@ Example HTML code:
             data-delete-single-failed-message="{{ __('Het pakket kan niet verwijderd worden.') }}"
             >
             <div id='tableColumns'>
-                <div data-title="{{ __('Provider') }}" data-column='provider' data-type="property" data-property="name" data-width="150"></div>
-                <div data-title="{{ __('Naam') }}" data-column='name' data-width="150"></div>
-                <div data-title="{{ __('Prijs') }}" data-column='price' data-type='price' data-currency='€' data-width="150"></div>
-                <div data-title="{{ __('Snelheid') }}" data-column='speed' data-append=' {{ __('Mbit/s') }}' data-width="150"></div>
-                <div data-title="{{ __('Kanalen') }}" data-column='channels' data-width="150"></div>
-                <div data-title="{{ __('Belminuten') }}" data-column='minutes' data-width="150"></div>
+                <div data-title="{{ __('Name') }}" data-column='name' data-href="__website__" data-width='150'></div>
+                <div data-title="{{ __('User') }}" data-column='name' data-width='200' data-type='card' data-card-color='primary' data-card-title="name" data-card-info="created_at" data-card-image="logo"></div>
+                <div data-title="{{ __('E-mail') }}" data-column='email' data-width='150'></div>
+                <div data-title="{{ __('Logo') }}" data-column='logo' data-type="image" data-width='150'></div>
+                <div data-title="{{ __('Price') }}" data-column='price' data-type="price" data-currency="€" data-width='150'></div>
+                <div data-title="{{ __('Verified') }}" data-column='created_at' data-type="boolean" data-text-color="success" data-width='150'></div>
+                <div data-title="{{ __('Phone number') }}" data-column='phone_nr' data-type='icon' data-icon-class='fas fa-phone mr-2 icon-sm' data-width='150'></div>
+                <div data-title="{{ __('Website') }}" data-column='website' data-type='icon' data-icon-class='fab fa-internet-explorer mr-2 icon-sm' data-width='150'></div>
             </div>
         </div>
     </div>
 </div>
-@endsection
-@push('footer-scripts')
+
+<script src="assets/js/scripts.bundle.js?v=7.0.5"></script>
 <script>
     DCMSDatatable({
-        table: $('#user_datatable'),
-        // customColumns: [{
-        //     field: 'foo',
-        //     title: 'Example',
-        //     sortable: false,
-        //     order: 1,
-        //     width: 125,
-        //     maxHeight: 10px,
-        //     overflow: 'visible',
-        //     autoHide: true,
-        //     template: function (row) {
-        //         return row.id;
-        //     }
-        // }],
-    });
-    DCMSDatatable({
-        table: $('#post_datatable')
+        table: $('.datatable')
     });
 </script>
-@endpush
 ```
