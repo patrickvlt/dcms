@@ -170,5 +170,38 @@ class Help extends Command
 </script>';
             $console->info($print);
         }
+
+        if ($part == 'dcmscontroller'){
+            $print = "
+function DCMS()
+{
+    return [
+        'routePrefix' => 'post',
+        'class' => 'Post',
+        'indexQuery' => Post::all(),
+        'created' => [
+            'title' => __('Post aangemaakt'),
+            'message' => __('The post has been created.'),
+            'url' => '/post'
+        ],
+        'updated' => [
+            'title' => __('__name__ updated'),
+            'message' => __('The post has been updated.'),
+            'url' => '/post'
+        ],
+        'deleted' => [
+            'url' => '/post'
+        ],
+        'request' => 'PostRequest',
+        'views' => [
+            'index' => 'index',
+            'show' => 'crud',
+            'edit' => 'crud',
+            'create' => 'crud'
+        ]
+    ];
+}";
+            $console->info($print);
+        }
     }
 }
