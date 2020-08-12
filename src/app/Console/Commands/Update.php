@@ -28,7 +28,7 @@ class Update extends Command
     public function handle()
     {
         $console = $this;
-        shell_exec('composer clear-cache; composer require pveltrop/dcms --prefer-source -vvv');
+        shell_exec('composer clear-cache; composer update pveltrop/dcms');
         $console->info('Updated DCMS package.');
         
         if ($console->confirm('Do you want to copy the (updated) JS and SASS resources?')){
