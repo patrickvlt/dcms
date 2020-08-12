@@ -91,13 +91,17 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 'accept': 'application/json'
             },
             process: {
-                url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.dataset.column.replace('[]',''),
+                url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.dataset.column,
                 onerror: (res) => {
-                    let fileResponse, errors = [];
-                    fileResponse = JSON.parse(res);
-                    $.each(fileResponse, function (x, error) { 
-                        errors.push(error[0]);
-                    });
+                    let response, errors = [];
+                    response = JSON.parse(res);
+                    if (response instanceof Object){
+                        $.each(response, function (x, error) { 
+                            errors.push(error[0]);
+                        });
+                    } else {
+                        errors = res.replace(/"/g,'');
+                    }
                     Alert('error', Lang('Upload failed'), errors, {
                         confirm: {
                             text: Lang('Ok'),
@@ -111,7 +115,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     'X-CSRF-TOKEN': window.csrf,
                     "Content-Type": "application/json",
                 },
-                url: '/'+inputElement.dataset.prefix+'/file/revert/'+inputElement.dataset.mime+'/'+inputElement.name,
+                url: '/'+inputElement.dataset.prefix+'/file/revert/'+inputElement.dataset.mime+'/'+inputElement.dataset.column,
                 method: 'DELETE',
             }
         }

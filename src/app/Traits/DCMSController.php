@@ -183,27 +183,39 @@ trait DCMSController
 
     public function ProcessFile($type,$column)
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = FindClass($prefix)['class'];
-        $file = FindClass($prefix)['file'];
-
-        $column = str_replace('[]','',$column);
-
-        $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
-        $classRequest = '\App\Http\Requests\\'.$requestFile;
-        $uploadRules = (new $classRequest())->uploadRules();
-
-        $request = Validator::make(request()->all(), $uploadRules,(new $classRequest())->messages());
-
-        if ($request->fails()){
-            return response()->json($request->errors(),422);
+        $abort = false;
+        foreach (request()->file() as $key => $file) {
+            if ($file[0]->getSize() == false){
+                $abort = true;
+                break;
+            }
         }
-        else {
-            $request = $request->validated();
-            $file = $request[$column][0];
-            $file->store('public/files/' . $type.'/'.$column);
-            $returnFile = '/storage/files/'.$type.'/'.$column.'/'.$file->hashName();
-            return $returnFile;
+        if ($abort == true){
+            return response()->json(__('File is above ').MaxSizeServer('mb').'MB.',422);
+        }
+        if ($abort == false){
+            $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+            $class = FindClass($prefix)['class'];
+            $file = FindClass($prefix)['file'];
+
+            $column = str_replace('[]','',$column);
+
+            $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
+            $classRequest = '\App\Http\Requests\\'.$requestFile;
+            $uploadRules = (new $classRequest())->uploadRules();
+
+            $request = Validator::make(request()->all(), $uploadRules,(new $classRequest())->messages());
+
+            if ($request->fails()){
+                return response()->json($request->errors(),422);
+            }
+            else {
+                $request = $request->validated();
+                $file = $request[$column][0];
+                $file->store('public/files/' . $type.'/'.$column);
+                $returnFile = '/storage/files/'.$type.'/'.$column.'/'.$file->hashName();
+                return $returnFile;
+            }
         }
     }
 
