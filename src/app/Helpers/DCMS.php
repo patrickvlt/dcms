@@ -66,19 +66,13 @@ if (!function_exists('FindClass')) {
 }
 
 if (!function_exists('Model')) {
-    function Model($getName = null)
+    function Model()
     {
-        $routeParams = request()->route()->parameters();
-        $model = ($routeParams !== null) ? reset($routeParams) : null;
-        // Return model with attributes or return nothing if creating
-        $model = ($model !== false) ? $model : null;
-        // Return name if set as parameter
-        $model = (isset($getName) && $getName == 'name') ? explode(".", \Request::route()->getName())[0] : $model;
-        if (!is_object($model) && $model !== null){
-            $prefix = GetPrefix();
-            $class = FindClass($prefix)['class'];
-            $model = $class::findOrFail($model);
-        }
+        $controller = request()->route()->controller;
+        $class = (new $controller())->DCMSClass();
+        $prefix = (new $controller())->DCMSPrefix();
+        $id = (request()->route()->parameters()) ? request()->route()->parameters()[$prefix] : null;
+        $model = $class::find($id);
         return $model;
     }
 }
@@ -150,76 +144,5 @@ if (!function_exists('DeleteRoute')) {
         $model = is_object(Model()) ? Model()->id : Model();
         $deleteRoute = route($routeModel . '.destroy', $model);
         return $deleteRoute;
-    }
-}
-
-// Images helpers
-
-if (!function_exists('ValidateFile')) {
-    function ValidateFile($key, $type = null, $maxFiles = 1, $maxSize = null)
-    {
-        $maxSize == null ? $maxSize = MaxSizeServer('bytes') : $maxSize;
-        $msg = null;
-        $status = 200;
-        $files = request()->file($key);
-        //Extensions
-        switch ($type) {
-            case 'image':
-                $extensions = [
-                    'image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg', 'image/webp'
-                ];
-                break;
-            case 'sheet':
-                $extensions = [
-                    'application/octet-stream', 'application/vnd.ms-excel', 'application/msexcel', 'application/x-msexcel', 'application/x-excel', 'application/x-dos_ms_excel', 'application/xls', 'application/x-xls', 'application/', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                ];
-                break;
-        }
-        if (!empty($files)) {
-            try {
-                if (sizeof($files) > $maxFiles) {
-                    $status = 422;
-                    $msg = __('Too many files were uploaded at once.');
-                }
-            } catch (\Throwable $th) {
-                //t
-            }
-            $msg = __('Upload succeeded');
-            $status = 200;
-            $processedFiles = [];
-            //Loop through sent files
-            foreach ($files as $file) {
-                $file = (is_array($file)) ? $file[0] : $file;
-                //Validate the uploaded file
-                try {
-                    if ((int) $file->getSize() > (int) $maxSize) {
-                        $msg = __('File size can\'t be above ' . MaxSizeServer('mb') . 'MB.');
-                        $status = 422;
-                    }
-                    if (!in_array($file->getMimeType(), $extensions)) {
-                        $msg = __('File is invalid.');
-                        $status = 422;
-                    }
-                } catch (\Throwable $th) {
-                    $msg = __('Invalid file or it\'s size is above ' . MaxSizeServer('mb') . 'MB.');
-                    $status = 422;
-                    break;
-                }
-                if ($status == 422) {
-                    break;
-                }
-            }
-            if ($status == 422) {
-                return response()->json(['message' => $msg], $status);
-            } else {
-                foreach (request()->file($key) as $file) {
-                    $file->store('public/files/' . $type);
-                }
-                return '/storage/files/'.$type.'/'.$file->hashName();
-            }
-        } else {
-            $msg = __('No file to process.');
-            $status = 422;
-        }
     }
 }

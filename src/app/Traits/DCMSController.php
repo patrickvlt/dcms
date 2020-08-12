@@ -12,21 +12,32 @@ $GLOBALS['classFolders'] = [
 
 trait DCMSController
 {
+    public function DCMSPrefix(){
+        return (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+    }
+
+    public function DCMSClass(){
+        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->DCMSPrefix())['class'];
+    }
+
+    public function DCMSModel(){
+        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->DCMSPrefix())['file'];
+    }
+
     public function index()
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $indexQuery = (isset($this->DCMS()['indexQuery'])) ? $this->DCMS()['indexQuery'] : FindClass($prefix)['class']::all();
+        $indexQuery = (isset($this->DCMS()['indexQuery'])) ? $this->DCMS()['indexQuery'] : FindClass($this->DCMSPrefix())['class']::all();
         if (request()->ajax()) {
             return $indexQuery;
         }
         $indexView = (isset($this->DCMS()['views']['index'])) ? $this->DCMS()['views']['index'] : 'index';
-        return view($prefix.'.'.$indexView);
+        return view($this->DCMSPrefix().'.'.$indexView);
     }
 
     public function show($id)
     {
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = FindClass($prefix)['class'];
+        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
         $$prefix = $class::FindOrFail($id);
         $showView = (isset($this->DCMS()['views']['show'])) ? $this->DCMS()['views']['show'] : 'show';
         return view($prefix.'.'.$showView)->with([
@@ -37,7 +48,7 @@ trait DCMSController
     public function edit($id)
     {
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = FindClass($prefix)['class'];
+        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
         $$prefix = $class::FindOrFail($id);
         $showView = (isset($this->DCMS()['views']['edit'])) ? $this->DCMS()['views']['edit'] : 'edit';
 
@@ -56,7 +67,7 @@ trait DCMSController
     public function crud($createdOrUpdated,$id=null)
     {
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = FindClass($prefix)['class'];
+        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
 
         $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
         $classRequest = '\App\Http\Requests\\'.$requestFile;
@@ -139,7 +150,7 @@ trait DCMSController
     public function destroy($id)
     {
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = FindClass($prefix)['class'];
+        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
         $class::findOrFail($id)->delete();
     }
 
@@ -195,7 +206,7 @@ trait DCMSController
         }
         if ($abort == false){
             $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-            $class = FindClass($prefix)['class'];
+            $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
             $file = FindClass($prefix)['file'];
 
             $column = str_replace('[]','',$column);
@@ -222,7 +233,7 @@ trait DCMSController
     public function DeleteFile($type,$column)
     {
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = FindClass($prefix)['class'];
+        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
 
         $column = str_replace('[]','',$column);
         $path = str_replace('"','',stripslashes(request()->getContent()));
