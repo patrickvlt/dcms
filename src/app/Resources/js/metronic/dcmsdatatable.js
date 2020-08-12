@@ -24,7 +24,7 @@ window.DCMSDatatable = function (parameters) {
 
 		let tableColumns = $(table).find('#tableColumns').children();
 		$.each(tableColumns, function (index, column) {
-			let textColor, value, spotlightClass;
+			let textColor, value, spotlightClass, prepend, append;
 			let newColumn = {
 				field: column.dataset.title,
 				title: column.dataset.title,
@@ -40,6 +40,8 @@ window.DCMSDatatable = function (parameters) {
 					}
 
 					value = (typeof value == 'undefined' || value == null) ? '' : value;
+					prepend = (typeof column.dataset.prepend !== 'undefined' && column.dataset.prepend !== null) ? column.dataset.prepend : '';
+					append = (typeof column.dataset.append !== 'undefined' && column.dataset.append !== null) ? column.dataset.append : '';
 
 					if (column.dataset.href){
 						let link,columnMatch,linkFromMatch;
@@ -117,16 +119,16 @@ window.DCMSDatatable = function (parameters) {
 							}
 							break;
 						case 'text':
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+value+`</div>`;
+							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
 							break;
 						case 'icon':
 							let icon = (column.dataset.iconClass) ? `<i class="`+column.dataset.iconClass+` text-muted"></i>` : ``;
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+icon+value+`</div>`;
+							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
 							break;
 						case 'price':
 							let currency = (column.dataset.currency) ? column.dataset.currency : '€';
 							value = (value == '') ? 0 : value;
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+currency+value+`,-`+`</div>`;
+							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+currency+prepend+value+append+`,-`+`</div>`;
 							break;
 						case 'image':
 							var changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
@@ -148,13 +150,13 @@ window.DCMSDatatable = function (parameters) {
 							}
 
 							return `<div class="image-input mb-4 mt-4" data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`">
-								<div class="image-input-wrapper `+spotlightClass+`" data-src='`+value+`' style="background-image: url(`+value+`)"></div>
+								<div class="image-input-wrapper `+spotlightClass+`" data-src='`+prepend+value+append+`' style="background-image: url(`+prepend+value+append+`)"></div>
 								`+changeControl+`
 								`+deleteControl+`
 							</div>`;
 							break;
 						default:
-							return `<div data-id='` + row['id'] + `' class="text-`+textColor+`">` + value + `</div>`;
+							return `<div data-id='` + row['id'] + `' class="text-`+textColor+`">` +prepend+value+append+ `</div>`;
 							break;
 					}
 				},
