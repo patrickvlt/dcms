@@ -28,7 +28,7 @@ class Publish extends Command
     public function handle()
     {
         $console = $this;
-        shell_exec('php artisan vendor:publish --provider="Pveltrop\DCMS\DCMSProvider" --tag=resources');
+        shell_exec('php artisan vendor:publish --provider="Pveltrop\DCMS\DCMSProvider" --tag=resources --force');
         $console->info('Updated DCMS resources.');
     }
 }

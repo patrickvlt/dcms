@@ -217,12 +217,16 @@ trait DCMSController
         $name = explode('/',$path);
         $name = end($name);
         $file = 'public/files/'.$type.'/'.$column.'/'.$name;
-        $fileExists = Storage::exists($file);
-        if ($fileExists == true){
+        if (Storage::exists($file) == true){
             Storage::delete($file);
             $msg = 'Deleted succesfully';
+        } 
+        else if (Storage::exists($path)){
+            Storage::delete($path);
+            $msg = 'Deleted succesfully';
             $status = 200;
-        } else {
+        }
+        else {
             $msg = 'File doesn\'t exist';
             $status = 422;
         }
@@ -231,9 +235,9 @@ trait DCMSController
         if (count($findInDB) > 0){
             // checking all rows using this file
             foreach ($findInDB as $key => $model){
-                $model = $model;
+                $colValue = $model->$column;
                 // json decode the arrays with files
-                $fileArr = json_decode($model->$column);
+                $fileArr = json_decode($colValue,true);
                 // find the file in the decoded array and remove it
                 if (is_array($fileArr)){
                     foreach ($fileArr as $key => $dbFile) {
@@ -244,12 +248,13 @@ trait DCMSController
                 } else {
                     $fileArr = null;
                 }
-                try {
+                if (is_array($fileArr)){
                     if (count($fileArr) == 0){
                         $fileArr = null;
                     }
-                } catch (\Throwable $th) {
-                    //
+                }
+                if ($fileArr !== null){
+                    $fileArr = json_encode(array_values($fileArr));
                 }
                 $model->update([
                     $column => $fileArr

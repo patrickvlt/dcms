@@ -88,7 +88,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
             method: method,
             headers: {
                 'X-CSRF-TOKEN': window.csrf,
-                // 'accept': 'application/json'
+                'accept': 'application/json'
             },
             process: {
                 url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.dataset.column.replace('[]',''),

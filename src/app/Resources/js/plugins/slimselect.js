@@ -7,10 +7,10 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
         document.querySelectorAll('[data-type=slimselect]').forEach(function (element){
             let Slim = new SlimSelect({
                 select: element,
-                addable: (element.dataset.addMethod !== null && typeof element.dataset.addMethod !== 'undefined' && element.dataset.addAction !== null && typeof element.dataset.addAction !== 'undefined') ? function(value){
+                addable: (element.dataset.addRoute !== null && typeof element.dataset.addRoute !== 'undefined') ? function(value){
                     $.ajax({
-                        type: Slim.select.element.dataset.addMethod,
-                        url: Slim.select.element.dataset.addAction,
+                        type: 'POST',
+                        url: Slim.select.element.dataset.addRoute,
                         headers: {
                             'X-CSRF-TOKEN': window.csrf
                         },
@@ -19,7 +19,7 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
                         },
                         success: function (response) {
                             $("#"+Slim.select.element.id).load(location.href + " #"+Slim.select.element.id+">*", "", );
-                            Alert('success', Lang('Added option'), Lang('The new option is now available.'), {
+                            Alert('success', Lang('Optie toegevoegd'), Lang('De nieuwe optie is nu zichtbaar.'), {
                                 confirm: {
                                     text: Lang('Ok'),
                                     btnClass: 'btn-success',
@@ -32,7 +32,7 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
                             $.each(errors, function (indexInArray, error) { 
                                  alertErrors += error[0] + ' <br>';
                             });
-                            Alert('error', Lang('Failed'), Lang(alertErrors), {
+                            Alert('error', Lang('Toevoegen mislukt'), Lang(alertErrors), {
                                 confirm: {
                                     text: Lang('Ok'),
                                     btnClass: 'btn-danger',
