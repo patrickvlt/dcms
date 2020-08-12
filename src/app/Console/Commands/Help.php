@@ -162,6 +162,11 @@ class Help extends Command
     </div>
 </div>
 
+<script>
+    var locale = "{{ App::getLocale() }}"; 
+    var maxSizeServer = {!! MaxSizeServer() !!};
+</script>
+<script src="/js/dcms/dcms.js"></script>
 <script src="assets/js/scripts.bundle.js?v=7.0.5"></script>
 <script>
     DCMSDatatable({
