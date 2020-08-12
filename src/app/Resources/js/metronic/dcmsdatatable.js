@@ -33,13 +33,13 @@ window.DCMSDatatable = function (parameters) {
 				type: column.dataset.type,
 				align: (column.dataset.align) ? column.dataset.align : 'center',
 				template: function (row) {
-					if (column.dataset.type == 'property' && row[column.dataset.column] !== null){
-						value = row[column.dataset.column][column.dataset.property];
-					} else {
-						value = row[column.dataset.column];
+					if (column.dataset.object && row[column.dataset.object] !== null){
+						row = row[column.dataset.object];
 					}
-
+					
+					value = row[column.dataset.column];
 					value = (typeof value == 'undefined' || value == null) ? '' : value;
+					
 					prepend = (typeof column.dataset.prepend !== 'undefined' && column.dataset.prepend !== null) ? column.dataset.prepend : '';
 					append = (typeof column.dataset.append !== 'undefined' && column.dataset.append !== null) ? column.dataset.append : '';
 
@@ -61,17 +61,10 @@ window.DCMSDatatable = function (parameters) {
 					textColor = (column.dataset.textColor) ? column.dataset.textColor : 'dark';
 					switch (column.dataset.type) {
 						case 'card':
-							var cardTitle = '';
-							var cardInfo = '';
+							var cardTitle = (row[column.dataset.cardTitle]) ? row[column.dataset.cardTitle] : '';
+							var cardInfo = (row[column.dataset.cardInfo]) ? row[column.dataset.cardInfo] : '';;
 							var cardImgText = '';
 							var cardImg;
-							// merge multiple columns to show one value
-							if (column.dataset.cardTitle) {
-								cardTitle = MergeColumns(row, column.dataset.cardTitle);
-							}
-							if (column.dataset.cardInfo) {
-								cardInfo = MergeColumns(row, column.dataset.cardInfo);
-							}
 							// if data-card-image is set and the column has a filled URL
 							if (typeof row[column.dataset.cardImage] !== 'undefined' && column.dataset.cardImage.length > 1 && (row[column.dataset.cardImage] !== column.dataset.cardImage && row[column.dataset.cardImage] !== null)) {
 								jQuery.ajax({
@@ -95,7 +88,7 @@ window.DCMSDatatable = function (parameters) {
 							}
 
 							var cardColor = (column.dataset.cardColor) ? column.dataset.cardColor : '';
-							var cardTextColor = (column.dataset.cardTextColor) ? column.dataset.cardTextColor : 'primary';
+							var cardTextColor = (column.dataset.cardTextColor) ? column.dataset.cardTextColor : 'white';
 							var titleColor = (column.dataset.titleColor) ? column.dataset.titleColor : 'primary';
 
 							return `<div data-id='` + row['id'] + `'><span style="width: 250px;"><div class="d-flex align-items-center">
