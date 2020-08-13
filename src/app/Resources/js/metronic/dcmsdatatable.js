@@ -24,7 +24,7 @@ window.DCMSDatatable = function (parameters) {
 
 		let tableColumns = $(table).find('#tableColumns').children();
 		$.each(tableColumns, function (index, column) {
-			let textColor, value, spotlightClass, prepend, append;
+			let textColor, value, spotlightClass, prepend, append, target;
 			let newColumn = {
 				field: column.dataset.title,
 				title: column.dataset.title,
@@ -47,6 +47,7 @@ window.DCMSDatatable = function (parameters) {
 					if (column.dataset.href){
 						let link,columnMatch,linkFromMatch;
 						link = column.dataset.href;
+						target = (column.dataset.target) ? column.dataset.target : '';
 						if (link.match(/__.*__/gm)){
 							columnMatch = link.match(/__.*__/gm);
 							linkFromMatch = columnMatch[0].replace(/__/g, '');
@@ -56,7 +57,7 @@ window.DCMSDatatable = function (parameters) {
 								link = link + row[linkFromMatch];
 							}
 						}
-						value = `<a href='`+link+`'>`+value+`</a>`;
+						value = `<a data-target='`+target+`' data-action="link" href='`+link+`'>`+value+`</a>`;
 					}
 
 					textColor = (column.dataset.textColor) ? column.dataset.textColor : 'dark';
@@ -115,7 +116,7 @@ window.DCMSDatatable = function (parameters) {
 							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
 							break;
 						case 'icon':
-							let icon = (column.dataset.iconClass) ? `<i class="`+column.dataset.iconClass+` text-muted"></i>` : ``;
+							let icon = (column.dataset.iconClass && (typeof row[column.dataset.column] !== 'undefined' && row[column.dataset.column] !== null)) ? `<i class="d-inline `+column.dataset.iconClass+` text-muted"></i>` : ``;
 							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
 							break;
 						case 'price':
@@ -335,6 +336,17 @@ window.DCMSDatatable = function (parameters) {
 				window.location.href = route;
 			} else {
 				window.open(route, '_blank');
+			}
+		});
+		
+		$(document).on('click', 'table [data-action=link]', function (e) {
+			e.preventDefault();
+			let link = e.currentTarget.href;
+			let target = e.currentTarget.dataset.target;
+			if (target == '_blank'){
+				window.open(link, '_blank');
+			} else {
+				window.location.href = link;
 			}
 		});
 
