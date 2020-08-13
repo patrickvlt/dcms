@@ -94,7 +94,17 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.dataset.column,
                 onerror: (res) => {
                     let response, errors = [];
-                    response = JSON.parse(res);
+                    try {
+                        response = JSON.parse(res);
+                    } catch (error) {
+                        Alert('error', Lang('Upload failed'), '', {
+                            confirm: {
+                                text: Lang('Ok'),
+                                btnClass: 'btn-danger',
+                            },
+                        });
+                        return;
+                    };
                     if (response instanceof Object){
                         $.each(response, function (x, error) { 
                             errors.push(error[0]);
