@@ -30,6 +30,7 @@ window.DCMSDatatable = function (parameters) {
 				title: column.dataset.title,
 				order: column.dataset.order,
 				width: column.dataset.width,
+				autoHide: column.dataset.autoHide,
 				type: column.dataset.type,
 				align: (column.dataset.align) ? column.dataset.align : 'center',
 				template: function (row) {
@@ -169,7 +170,7 @@ window.DCMSDatatable = function (parameters) {
 				sortable: false,
 				width: 125,
 				overflow: 'visible',
-				autoHide: true,
+				autoHide: false,
 				template: function (row) {
 					return `<td class="text-right pr-0">
 						<button class="btn btn-icon btn-light btn-hover-primary btn-sm mx-3" data-action="edit" data-id="`+ row['id'] + `">
