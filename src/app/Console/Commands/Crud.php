@@ -58,6 +58,7 @@ class '.$model.'Controller extends Controller
         // All these settings are optional, DCMS uses default routes and messages, you can override these
         return [
             "routePrefix" => '.$prefix.',
+            "class" => '.$model.'
             "indexQuery" => '.$model.'::all(),
             "created" => [
                 "title" => __("'.$model.' created")
@@ -69,6 +70,10 @@ class '.$model.'Controller extends Controller
                 "message" => __("__name__ updated on __created_at__"),
                 "url" => "/'.$prefix.'"
             ],
+            "deleted" => [
+                "url" => "/'.$prefix.'"
+            ],
+            "request" => "'.$model.'Request",
             "views" => [
                 "index" => "index",
                 "show" => "crud",
@@ -95,9 +100,7 @@ class '.$model.'Controller extends Controller
         $file = 'routes/web.php';
         file_put_contents($file, "
 
-Route::resource('" . $model . "', '" . $model . "Controller');
-Route::post('/".$prefix."/file/process/{type}/{column}', '".$model."Controller@ProcessFile');
-Route::delete('/".$prefix."/file/revert/{type}/{column}', '".$model."Controller@DeleteFile')"
+Route::resource('" . $model . "', '" . $model . "Controller');"
 , FILE_APPEND);
 
         $console->info('Added route.');
@@ -399,8 +402,8 @@ class '.$model.'Request extends FormRequest
     public function uploadRules()
     {
         return [
-            // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp|max:2000"],
-            // "sheet" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet|max:2000"],
+            // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp", "max:2000"],
+            // "sheet" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet", "max:2000"],
         ];
     }
 
