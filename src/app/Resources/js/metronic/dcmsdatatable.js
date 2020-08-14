@@ -5,6 +5,8 @@ const { sortBy, isSet } = require("lodash");
 var tables = $('.datatable');
 var custColumns;
 
+require('./ktdatatable.js');
+
 window.DCMSDatatable = function (parameters) {
 	$.each(parameters.table, function (key, table) {
 		let columns = [];
@@ -23,22 +25,36 @@ window.DCMSDatatable = function (parameters) {
 		}
 
 		let tableColumns = $(table).find('#tableColumns').children();
+
 		$.each(tableColumns, function (index, column) {
-			let textColor, value, spotlightClass, prepend, append, target;
+			let textColor, value, spotlightClass, prepend, append, target, useRow, sortable;
+
+			if (column.dataset.sortable == 'false'){
+				sortable = false;
+			} else if (typeof column.dataset.sortable == 'undefined' || column.dataset.sortable == null){
+				sortable = true;
+			} 
+			else {
+				sortable = true;
+			}
+
 			let newColumn = {
-				field: column.dataset.title,
+				field: column.dataset.column,
 				title: column.dataset.title,
 				order: column.dataset.order,
 				width: column.dataset.width,
 				autoHide: column.dataset.autoHide,
 				type: column.dataset.type,
+				sortable: sortable,
 				align: (column.dataset.align) ? column.dataset.align : 'center',
 				template: function (row) {
-					if (column.dataset.object && row[column.dataset.object] !== null){
-						row = row[column.dataset.object];
+					if (typeof column.dataset.object !== 'undefined' && row[column.dataset.object] !== null){
+						useRow = row[column.dataset.object];
+					} else {
+						useRow = row;
 					}
 					
-					value = row[column.dataset.column];
+					value = useRow[column.dataset.column];
 					value = (typeof value == 'undefined' || value == null) ? '' : value;
 					
 					prepend = (typeof column.dataset.prepend !== 'undefined' && column.dataset.prepend !== null) ? column.dataset.prepend : '';
@@ -52,9 +68,9 @@ window.DCMSDatatable = function (parameters) {
 							columnMatch = link.match(/__.*__/gm);
 							linkFromMatch = columnMatch[0].replace(/__/g, '');
 							link = link.replace(/__/g, '');
-							if (row[linkFromMatch]){
+							if (useRow[linkFromMatch]){
 								link = link.replace(linkFromMatch,'');
-								link = link + row[linkFromMatch];
+								link = link + useRow[linkFromMatch];
 							}
 						}
 						value = `<a data-target='`+target+`' data-action="link" href='`+link+`'>`+value+`</a>`;
@@ -63,19 +79,19 @@ window.DCMSDatatable = function (parameters) {
 					textColor = (column.dataset.textColor) ? column.dataset.textColor : 'dark';
 					switch (column.dataset.type) {
 						case 'card':
-							var cardTitle = (row[column.dataset.cardTitle]) ? row[column.dataset.cardTitle] : '';
-							var cardInfo = (row[column.dataset.cardInfo]) ? row[column.dataset.cardInfo] : '';;
+							var cardTitle = (useRow[column.dataset.cardTitle]) ? useRow[column.dataset.cardTitle] : '';
+							var cardInfo = (useRow[column.dataset.cardInfo]) ? useRow[column.dataset.cardInfo] : '';;
 							var cardImgText = '';
 							var cardImg;
 							// if data-card-image is set and the column has a filled URL
-							if (typeof row[column.dataset.cardImage] !== 'undefined' && column.dataset.cardImage.length > 1 && (row[column.dataset.cardImage] !== column.dataset.cardImage && row[column.dataset.cardImage] !== null)) {
+							if (typeof useRow[column.dataset.cardImage] !== 'undefined' && column.dataset.cardImage.length > 1 && (useRow[column.dataset.cardImage] !== column.dataset.cardImage && useRow[column.dataset.cardImage] !== null)) {
 								jQuery.ajax({
 									type: "GET",
 									async: false,
 									crossDomain: true,
-									url: row[column.dataset.cardImage],
+									url: useRow[column.dataset.cardImage],
 									success: function (response) {
-										cardImg = row[column.dataset.cardImage];
+										cardImg = useRow[column.dataset.cardImage];
 										cardImgText = '';
 										return cardImgText;
 									},
@@ -93,7 +109,7 @@ window.DCMSDatatable = function (parameters) {
 							var cardTextColor = (column.dataset.cardTextColor) ? column.dataset.cardTextColor : 'white';
 							var titleColor = (column.dataset.titleColor) ? column.dataset.titleColor : 'primary';
 
-							return `<div data-id='` + row['id'] + `'><span style="width: 250px;"><div class="d-flex align-items-center">
+							return `<div data-id='` + useRow['id'] + `'><span style="width: 250px;"><div class="d-flex align-items-center">
 									<div class="symbol symbol-40 symbol-`+ cardColor + ` flex-shrink-0">
 										<div class="symbol-label text-` + cardTextColor + `" style="background-image:url('`+ cardImg + `')">` + cardImgText + `</div>
 									</div>
@@ -105,24 +121,24 @@ window.DCMSDatatable = function (parameters) {
 							</span>`;
 							break;
 						case 'boolean':
-							if (row[column.dataset.column] !== null && row[column.dataset.column] !== 0 && typeof row[column.dataset.column] !== 'undefined') {
-								return `<i data-id='`+row.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.maxHeight+`"></i>`;
+							if (useRow[column.dataset.column] !== null && useRow[column.dataset.column] !== 0 && typeof useRow[column.dataset.column] !== 'undefined') {
+								return `<i data-id='`+useRow.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.maxHeight+`"></i>`;
 							}
 							else {
 								return '';
 							}
 							break;
 						case 'text':
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
+							return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
 							break;
 						case 'icon':
-							let icon = (column.dataset.iconClass && (typeof row[column.dataset.column] !== 'undefined' && row[column.dataset.column] !== null)) ? `<i class="d-inline `+column.dataset.iconClass+` text-muted"></i>` : ``;
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
+							let icon = (column.dataset.iconClass && (typeof useRow[column.dataset.column] !== 'undefined' && useRow[column.dataset.column] !== null)) ? `<i class="d-inline `+column.dataset.iconClass+` text-muted"></i>` : ``;
+							return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
 							break;
 						case 'price':
 							let currency = (column.dataset.currency) ? column.dataset.currency : '€';
 							value = (value == '') ? 0 : value;
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+currency+prepend+value+append+`,-`+`</div>`;
+							return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+currency+prepend+value+append+`,-`+`</div>`;
 							break;
 						case 'image':
 							var changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
@@ -143,14 +159,14 @@ window.DCMSDatatable = function (parameters) {
 								value = value[0];
 							}
 
-							return `<div class="image-input mb-4 mt-4" data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`">
+							return `<div class="image-input mb-4 mt-4" data-id='`+useRow.id+`' style="max-height:`+column.dataset.maxHeight+`">
 								<div class="image-input-wrapper `+spotlightClass+`" data-src='`+prepend+value+append+`' style="background-image: url(`+prepend+value+append+`)"></div>
 								`+changeControl+`
 								`+deleteControl+`
 							</div>`;
 							break;
 						default:
-							return `<div data-id='` + row['id'] + `' class="text-`+textColor+`">` +prepend+value+append+ `</div>`;
+							return prepend+value+append;
 							break;
 					}
 				},
@@ -212,21 +228,6 @@ window.DCMSDatatable = function (parameters) {
 				},
 			});
 		}
-
-		function sortByKey(array, key) {
-			return array.sort(function(a, b) {
-				var x = a[key]; var y = b[key];
-				return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-			});
-		}
-
-		columns.sort(function(a, b) {
-		var keyA = a.order,
-			keyB = b.order;
-		if (keyA < keyB) return -1;
-		if (keyA > keyB) return 1;
-		return 0;
-		});
 
 		let datatable = $(table).KTDatatable({
 			// datasource definition
@@ -298,6 +299,14 @@ window.DCMSDatatable = function (parameters) {
 			$(table).KTDatatable('setActiveAll', false);
 		});
 
+		$(table).parent().find('#kt_datatable_sort_asc').on('click', function() {
+			datatable.sort('name', 'asc');
+		});
+
+		$(table).parent().find('#kt_datatable_sort_desc').on('click', function() {
+			datatable.sort('name', 'desc');
+		});
+
 		$(table).parent().find('#kt_datatable_remove_row').on('click', function () {
 			let activeIds = [];
 			let cells = $('.datatable-row-active').find('[data-id');
@@ -320,10 +329,23 @@ window.DCMSDatatable = function (parameters) {
 			});
 		});
 
+		window.KTAllowMoreOn = [];
+
 		$.each($(table).parent().find('[data-filter]'), function (key, filter) {
-			$(filter).on('change', function () {
-				datatable.search(this.value, this.dataset.filter);
-			});
+			if (filter.type !== 'checkbox'){
+				$(filter).on('change', function (filter) {
+					(this.dataset.allowBigger == 'true' && !window.KTAllowMoreOn.includes(this.dataset.filter)) ? window.KTAllowMoreOn.push(this.dataset.filter) : '';
+					datatable.search(this.value, this.dataset.filter);
+				});
+			} else {
+				$(filter).on('change', function (filter) {
+					if (this.checked == true){
+						datatable.search("1", this.dataset.filter);
+					} else {
+						datatable.search("", this.dataset.filter);
+					}
+				});
+			}
 		});
 
 		$(table).parent().find('#kt_datatable_search_status, #kt_datatable_search_type').selectpicker();
