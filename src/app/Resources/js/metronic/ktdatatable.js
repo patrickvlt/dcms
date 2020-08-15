@@ -1,5 +1,7 @@
 "use strict";
 
+const { lang } = require("moment");
+
 // Component Definition
 var KTApp = function() {
     /** @type {object} colors State colors **/
@@ -8771,8 +8773,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 		// By default the stirngs will be in the plugin source and here can override it
 		translate: {
 			records: {
-				processing: 'Please wait...',
-				noRecords: 'No records found',
+				processing: Lang('Please wait..'),
+				noRecords: Lang('No records found'),
 			},
 			toolbar: {
 				pagination: {
