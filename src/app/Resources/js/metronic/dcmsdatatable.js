@@ -21,10 +21,14 @@ window.DCMSDatatable = function (parameters) {
 				selector: { class: 'kt-checkbox--solid' },
 				textAlign: 'center'
 			});
-			$('.kt_datatable_rowcontrols').show();
+			$('[data-type="kt-selector"]').show();
 		}
 
-		let tableColumns = $(table).find('#tableColumns').children();
+		if (table.dataset.includeControls !== 'false') {
+			$('[data-type="kt-controls"]').show();
+		}
+
+		let tableColumns = $(table).find('[data-type="kt-columns"]').children();
 
 		$.each(tableColumns, function (index, column) {
 			let textColor, value, spotlightClass, prepend, append, target, useRow, sortable;
@@ -258,7 +262,7 @@ window.DCMSDatatable = function (parameters) {
 			pagination: (table.dataset.pagination) == 'false' ? false : true,
 
 			search: {
-				input: $(table).parent().find('#kt_datatable_search_query'),
+				input: $($(table).data('parent')).find('[data-action="search"]'),
 				key: 'generalSearch'
 			},
 
@@ -267,49 +271,49 @@ window.DCMSDatatable = function (parameters) {
 
 		});
 
-		$(table).parent().find('#kt_datatable_init').on('click', function () {
+		$($(table).data('parent')).find('[data-action="init"]').on('click', function () {
 			datatable = $(table).KTDatatable(options);
 		});
 
-		$(table).parent().find('#kt_datatable_reload').on('click', function () {
+		$($(table).data('parent')).find('[data-action="reload"]').on('click', function () {
 			$(table).KTDatatable('reload');
 		});
 
-		// get checked record and get value by column name
-		$(table).parent().find('#kt_datatable_get').on('click', function () {
-			// select active rows
-			datatable.rows('.datatable-row-active');
-			// check selected nodes
-			if (datatable.nodes().length > 0) {
-				// get column by field name and get the column nodes
-				var value = datatable.columns('CompanyName').nodes().text();
-			}
-		});
+		// // get checked record and get value by column name
+		// $($(table).data('parent')).find('#kt_datatable_get').on('click', function () {
+		// 	// select active rows
+		// 	datatable.rows('.datatable-row-active');
+		// 	// check selected nodes
+		// 	if (datatable.nodes().length > 0) {
+		// 		// get column by field name and get the column nodes
+		// 		var value = datatable.columns('CompanyName').nodes().text();
+		// 	}
+		// });
 
-		$(table).parent().find('#kt_datatable_check').on('click', function () {
+		$($(table).data('parent')).find('[data-action="check"]').on('click', function () {
 			var input = $('#kt_datatable_check_input').val();
 			datatable.setActive(input);
 		});
 
-		$(table).parent().find('#kt_datatable_check_all').on('click', function () {
+		$($(table).data('parent')).find('[data-action="check-all"]').on('click', function () {
 			$(table).KTDatatable('setActiveAll', true);
 		});
 
-		$(table).parent().find('#kt_datatable_uncheck_all').on('click', function () {
+		$($(table).data('parent')).find('[data-action="uncheck-all"]').on('click', function () {
 			$(table).KTDatatable('setActiveAll', false);
 		});
 
-		$(table).parent().find('#kt_datatable_sort_asc').on('click', function() {
+		$($(table).data('parent')).find('[data-action="sort-asc"]').on('click', function() {
 			datatable.sort('name', 'asc');
 		});
 
-		$(table).parent().find('#kt_datatable_sort_desc').on('click', function() {
+		$($(table).data('parent')).find('[data-action="sort-desc"]').on('click', function() {
 			datatable.sort('name', 'desc');
 		});
 
-		$(table).parent().find('#kt_datatable_remove_row').on('click', function () {
+		$($(table).data('parent')).find('[data-action="remove-rows"]').on('click', function () {
 			let activeIds = [];
-			let cells = $('.datatable-row-active').find('[data-id');
+			let cells = $(table).find('.datatable-row-active').find('[data-id');
 
 			$.each(cells, function (x, cell) {
 				let cellId = $(cell).data('id');
@@ -331,7 +335,7 @@ window.DCMSDatatable = function (parameters) {
 
 		window.KTAllowMoreOn = [];
 
-		$.each($(table).parent().find('[data-filter]'), function (key, filter) {
+		$.each($($(table).data('parent')).find('[data-filter]'), function (key, filter) {
 			if (filter.type !== 'checkbox'){
 				$(filter).on('change', function (filter) {
 					(this.dataset.allowBigger == 'true' && !window.KTAllowMoreOn.includes(this.dataset.filter)) ? window.KTAllowMoreOn.push(this.dataset.filter) : '';
@@ -347,8 +351,6 @@ window.DCMSDatatable = function (parameters) {
 				});
 			}
 		});
-
-		$(table).parent().find('#kt_datatable_search_status, #kt_datatable_search_type').selectpicker();
 
 		$(document).on('click', 'table [data-action=edit]', function (e) {
 			e.preventDefault();
