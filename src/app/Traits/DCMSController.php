@@ -222,6 +222,9 @@ trait DCMSController
             }
             else {
                 $request = $request->validated();
+                if (count($request) <= 0){
+                    return response()->json(__('File is invalid.'),422);
+                }
                 $file = $request[$column][0];
                 $file->store('public/files/' . $type.'/'.$column);
                 $returnFile = '/storage/files/'.$type.'/'.$column.'/'.$file->hashName();
