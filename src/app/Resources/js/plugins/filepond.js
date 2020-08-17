@@ -112,12 +112,22 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     } else {
                         errors = res.replace(/"/g,'');
                     }
-                    Alert('error', Lang('Upload failed'), errors, {
-                        confirm: {
-                            text: Lang('Ok'),
-                            btnClass: 'btn-danger',
-                        },
-                    });
+                    if (response.status !== 500 && response.status !== 404){
+                        Alert('error', Lang('Upload failed'), Lang('An error occurred on the server. Contact support if this problem persists.'), {
+                            confirm: {
+                                text: Lang('Ok'),
+                                btnClass: 'btn-danger',
+                            },
+                        });
+                    }
+                    if (response.status == 422){
+                        Alert('error', Lang('Upload failed'), errors, {
+                            confirm: {
+                                text: Lang('Ok'),
+                                btnClass: 'btn-danger',
+                            },
+                        });
+                    }
                 }
             },
             revert: {

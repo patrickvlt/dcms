@@ -1,5 +1,3 @@
-const { lang } = require('moment');
-
 require('./assets/splide.min.js');
 
 if (document.querySelectorAll('[data-type=splide]').length > 0) {

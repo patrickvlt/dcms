@@ -1,7 +1,5 @@
 "use strict";
 
-const { lang } = require("moment");
-
 // Component Definition
 var KTApp = function() {
     /** @type {object} colors State colors **/
