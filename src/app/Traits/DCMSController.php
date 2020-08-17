@@ -101,7 +101,7 @@ trait DCMSController
                     }
                 }
             }
-            // $$prefix = $class::create($request);
+            $$prefix = $class::create($request);
         } else if ($createdOrUpdated == 'updated') {
             $$prefix = $class::findOrFail($id);
                 foreach ($request as $key => $val){
@@ -208,11 +208,11 @@ trait DCMSController
             $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
             $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
             $file = FindClass($prefix)['file'];
+            $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
+            $classRequest = '\App\Http\Requests\\'.$requestFile;
 
             $column = str_replace('[]','',$column);
 
-            $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
-            $classRequest = '\App\Http\Requests\\'.$requestFile;
             $uploadRules = (new $classRequest())->uploadRules();
 
             $request = Validator::make(request()->all(), $uploadRules,(new $classRequest())->messages());
@@ -287,5 +287,80 @@ trait DCMSController
             $status = 200;
         }
         return response()->json([$msg,$status]);
+    }
+
+    public function ImportSheet()
+    {
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
+        $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
+        $classRequest = '\App\Http\Requests\\'.$requestFile;
+
+        // which column belongs to which request attribute? e.g. 'name' => 1, 'created_at' => 5
+        $importCols = (isset($this->DCMS()['import']['columns'])) ? $this->DCMS()['import']['columns'] : GetPrefix();
+
+        $importData = request()->sheetData;
+        //prepare sheet validation variables
+        $customRequest = new \Illuminate\Http\Request();
+        $customRequest->setMethod('POST');
+        $x = 1;
+        $errors = [];
+        $failed = false;
+        $nullableColumns = [];
+
+        foreach ((new $classRequest())->rules() as $key => $rule){
+            if (preg_match('/nullable/',$rule) || !preg_match('/required/',$rule)){
+                array_push($nullableColumns,$key);
+            }
+        }
+
+        if (!empty($importData)) {
+            foreach ($importData as $row) {
+                foreach ($row as $col){
+                    // check if required columns arent empty
+                    if ($col == null || $col == '' && !in_array($col,$nullableColumns)){
+                        array_push($errors, ['line' => $x]);
+                        $failed = true;
+                    }
+                }
+
+                // if data is ready for validation, add to the request
+                if ($failed == false) {
+                    foreach ($importCols as $x => $col){
+                        $validateData[$x] = $row[$col];
+                    }
+                    $customRequest->request->add($validateData);
+                    $this->validate($customRequest, (new $classRequest())->rules(), (new $classRequest())->messages());
+                }
+                $x++;
+            }
+            // if failed, return a JSON response
+            if ($failed == true) {
+                return response()->json(['response' => [
+                    'title' => (isset($this->DCMS()['import']['failed']['title'])) ? $this->DCMS()['import']['failed']['title'] : __('Import failed'),
+                    'message' => (isset($this->DCMS()['import']['failed']['message'])) ? $this->DCMS()['import']['failed']['message'] : __('Some fields contain invalid data.'),
+                ], 'errors' => $errors], 422);
+            } else {
+                //if succeeded, create objects and return a JSON response
+                foreach ($importData as $row) {
+                    $passedData = [];
+                    //assign request keys to predefined keys to columns
+                    foreach ($importCols as $x => $col){
+                        $passedData[$x] = $row[$col];
+                    }
+                    $class::create($passedData);
+                }
+            }
+        } else {
+            return response()->json(['response' => [
+                'title' => (isset($this->DCMS()['import']['empty']['title'])) ? $this->DCMS()['import']['empty']['title'] : __('Import failed'),
+                'message' => (isset($this->DCMS()['import']['empty']['message'])) ? $this->DCMS()['import']['empty']['message'] : __('Please fill in data to import.'),
+            ]], 422);
+        }
+
+        return response()->json(['response' => [
+            'title' => (isset($this->DCMS()['import']['finished']['title'])) ? $this->DCMS()['import']['finished']['title'] : __('Import finished'),
+            'message' => (isset($this->DCMS()['import']['finished']['message'])) ? $this->DCMS()['import']['finished']['message'] : __('All data has been succesfully imported.'),
+        ], 'url' => '/address'], 200);
     }
 }

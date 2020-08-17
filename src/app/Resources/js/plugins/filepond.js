@@ -61,16 +61,16 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
 
     function MakePond(inputElement, method = 'POST') {
         const pond = FilePond.create(inputElement);
-        if(!inputElement.dataset.prefix){
+        if(!inputElement.dataset.filepondPrefix){
             console.log('No prefix found. Add a data-prefix to the input element. e.g. (data-prefix="user")')
         }
-        pond.allowMultiple = (inputElement.dataset.maxFiles > 1) ? true : false;
-        pond.maxFiles = inputElement.dataset.maxFiles;
+        pond.allowMultiple = (inputElement.dataset.filepondMaxFiles > 1) ? true : false;
+        pond.maxFiles = inputElement.dataset.filepondMaxFiles;
         pond.maxSize = window.FilePondMaxFileSize;
-        pond.name = inputElement.dataset.column+"[]";
-        pond.instantUpload = (inputElement.dataset.instantUpload) ? inputElement.dataset.instantUpload : window.FilePondInstantUpload;
+        pond.name = inputElement.dataset.filepondColumn+"[]";
+        pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.FilePondInstantUpload;
         // pond.allowProcess = false;
-        pond.allowRevert = (inputElement.dataset.allowRevert) ? inputElement.dataset.allowRevert : window.FilePondAllowRevert;
+        pond.allowRevert = (inputElement.dataset.filepondAllowRevert) ? inputElement.dataset.filepondAllowRevert : window.FilePondAllowRevert;
         pond.onerror = (res) => {
                 HaltSubmit();
         }
@@ -91,7 +91,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 'accept': 'application/json'
             },
             process: {
-                url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.dataset.column,
+                url: '/'+inputElement.dataset.filepondPrefix+'/file/process/'+inputElement.dataset.filepondMime+'/'+inputElement.dataset.filepondColumn,
                 onerror: (res) => {
                     let response, errors = [];
                     try {
@@ -125,7 +125,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     'X-CSRF-TOKEN': window.csrf,
                     "Content-Type": "application/json",
                 },
-                url: '/'+inputElement.dataset.prefix+'/file/revert/'+inputElement.dataset.mime+'/'+inputElement.dataset.column,
+                url: '/'+inputElement.dataset.filepondPrefix+'/file/revert/'+inputElement.dataset.filepondMime+'/'+inputElement.dataset.filepondColumn,
                 method: 'DELETE',
             }
         }

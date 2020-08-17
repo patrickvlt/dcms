@@ -261,25 +261,25 @@ body[class*=jconfirm-no-scroll-] {
 }
 
 .jconfirm .jconfirm-box.jconfirm-type-blue {
-    border-top: solid 7px #13cae1;
+    border-top: solid 7px var(--primary);
     -webkit-animation-name: type-blue;
     animation-name: type-blue
 }
 
 .jconfirm .jconfirm-box.jconfirm-type-green {
-    border-top: solid 7px #2ecc71;
+    border-top: solid 7px var(--success);
     -webkit-animation-name: type-green;
     animation-name: type-green
 }
 
 .jconfirm .jconfirm-box.jconfirm-type-red {
-    border-top: solid 7px #e74c3c;
+    border-top: solid 7px var(--danger);
     -webkit-animation-name: type-red;
     animation-name: type-red
 }
 
 .jconfirm .jconfirm-box.jconfirm-type-orange {
-    border-top: solid 7px #f1c40f;
+    border-top: solid 7px var(--warning);
     -webkit-animation-name: type-orange;
     animation-name: type-orange
 }
@@ -291,7 +291,7 @@ body[class*=jconfirm-no-scroll-] {
 }
 
 .jconfirm .jconfirm-box.jconfirm-type-dark {
-    border-top: solid 7px #34495e;
+    border-top: solid 7px var(--dark);
     -webkit-animation-name: type-dark;
     animation-name: type-dark
 }

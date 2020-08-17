@@ -7867,7 +7867,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
                                         matched++;
                                     }
                                 } else {
-                                    if (filter.toString().toLowerCase() == recordValueToString || recordValueToString.indexOf(filter.toString().toLowerCase()) !== -1) {
+                                    // if (filter.toString().toLowerCase() == recordValueToString || recordValueToString.indexOf(filter.toString().toLowerCase()) !== -1) {
+                                    if (filter.toString().toLowerCase() == recordValueToString) {
                                         matched++;
                                     }
                                 }
@@ -8185,8 +8186,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 			 */
 			setActive: function(cell) {
 				if (typeof cell === 'string') {
-					// set by checkbox id
-					cell = $(datatable.tableBody).find('.' + pfx + 'checkbox-single > [type="checkbox"][value="' + cell + '"]');
+                    // set by checkbox id
+                    cell = $(datatable.tableBody).find('.' + pfx + 'checkbox-single > [type="checkbox"][value="' + cell + '"]');
 				}
 
 				$(cell).prop('checked', true);

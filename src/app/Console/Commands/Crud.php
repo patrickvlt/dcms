@@ -79,6 +79,23 @@ class '.$model.'Controller extends Controller
                 "show" => "crud",
                 "edit" => "crud",
                 "create" => "crud"
+            ],
+            // for jExcel imports
+            "import" => [
+                // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
+                "columns" => [
+                    "name" => 0,
+                    "created_at" => 5
+                ],
+                // // finished or failed custom messages
+                //"finished" => [
+                //    "title" => __("Import succeeded"),
+                //    "message" => __("All data has been imported."),
+                //],
+                //"failed" => [
+                //    "title" => __("Import failed"),
+                //    "message" => __("Some fields contain invalid data."),
+                //]
             ]
         ];
     }

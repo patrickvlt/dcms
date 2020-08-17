@@ -30,8 +30,6 @@ window.FilePondMaxFileSize = 1; //in MB
 window.FilePondMaxFileSize = (maxSizeServer) ? maxSizeServer : window.MaxFileSize;
 window.FilePondAllowRevert = true;
 window.FilePondInstantUpload = true;
-// window.FilePondProcessRoute = ""
-// window.FilePondRevertRoute = ""
 
 /**
  *
@@ -192,7 +190,7 @@ window.HttpReq = function (formMethod, formAction, formData) {
 
 
 window.onload = function () {
-    let ajaxForms = document.querySelectorAll('[data-submit=ajax]')
+    let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
     function SubmitAjax(e) {
         let formAction = e.target.action;
         let formMethod = e.target.method;

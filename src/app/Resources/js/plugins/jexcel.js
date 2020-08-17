@@ -64,10 +64,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 });
                 header.hidden = true;
             }
-            if (header.dataset.jexcelUrl !== null && typeof header.dataset.jexcelUrl !== 'undefined'){
+            if (header.dataset.jexcelFetchUrl !== null && typeof header.dataset.jexcelFetchUrl !== 'undefined'){
+                let fetchColumn = (header.dataset.jexcelFetchColumn) ? header.dataset.jexcelFetchColumn : 'id';
                 $.ajax({
                     type: "GET",
-                    url: header.dataset.jexcelUrl,
+                    url: header.dataset.jexcelFetchUrl,
                     async: false,
                     headers: {
                         'X-CSRF-TOKEN': window.csrf
@@ -75,7 +76,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     success: function (response) {
                         let columnSource = [];
                         response.forEach(function(object){
-                            columnSource.push({"id": String(object.id), "name": String(object.value)});
+                            columnSource.push({"id": String(object['id']), "name": String(object[fetchColumn])});
                         })
                         ColumnPush(columnSource);
                     }
@@ -102,27 +103,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         // execute this code after table is initalised
         currentForm.style.display = 'block';
 
-        // execute this code after table is initalised
-        htmlTable.addEventListener('change',function (e) {
-            UpdateSheetData(e);
-        });
-
-        function UpdateSheetData(e) {
-            // define form rows from jexcel
-            formRows = Array.from(e.target.getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
-            sheetData = [];
-            formRows.forEach(function(row){
-                let rowData = [];
-                Array.from(row.cells).forEach(function(cell){
-                    if(!cell.classList.contains('jexcel_row')){
-                        rowData.push(cell.textContent);
-                    }
-                });
-                sheetData.push(rowData);
-            });
-            return sheetData;
-        }
-
         function ClearInvalid(e) {
             function CleanElement(element){
                 if (element.classList.contains('invalid')) {
@@ -139,7 +119,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         currentForm.addEventListener("submit", function(e){
             e.preventDefault();
             ClearInvalid(e,true);
-            sheetData = UpdateSheetData(e,true);
+            sheetData = table.getData();
             $.ajax({
                 type: "POST",
                 url: e.target.action,
@@ -159,12 +139,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     $.each(reply.errors, function (key, error) {
                                         alertMsg += error[0] + "<br>";
                                         Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function(cell){
-                                            if(error.indexOf(cell.textContent) > -1 && cell.textContent !== ""){
+                                            if(String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== ""){
                                                 cell.classList.add('invalid');
                                             };
                                         });
                                     });
-                                    Alert('error', Lang('Importeren mislukt'), alertMsg, {
+                                    Alert('error', Lang('Import failed'), alertMsg, {
                                         confirm: {
                                             text: Lang('Ok'),
                                             btnClass: 'btn-danger',
@@ -178,7 +158,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                             }
                                         });
                                     });
-                                    Alert('error', Lang('Importeren mislukt'), reply.message, {
+                                    Alert('error', reply.response.title, reply.response.message, {
                                         confirm: {
                                             text: Lang('Ok'),
                                             btnClass: 'btn-danger',
@@ -188,7 +168,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 break;
 
                             case 200:
-                                Alert('success', Lang('Importeren gelukt'), reply.message, {
+                                Alert('success', reply.response.title, reply.response.message, {
                                     confirm: {
                                         text: Lang('Ok'),
                                         btnClass: 'btn-success',
