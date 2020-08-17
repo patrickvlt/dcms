@@ -57,16 +57,16 @@ class '.$model.'Controller extends Controller
     {
         // All these settings are optional, DCMS uses default routes and messages, you can override these
         return [
-            "routePrefix" => '.$prefix.',
-            "class" => '.$model.'
+            "routePrefix" => "'.$prefix.'",
+            "class" => "'.$model.'",
             "indexQuery" => '.$model.'::all(),
             "created" => [
-                "title" => __("'.$model.' created")
+                "title" => __("'.$model.' created"),
                 "message" => __("'.$model.' created on __created_at__"),
                 "url" => "/'.$prefix.'"
             ],
             "updated" => [
-                "title" => __("__name__ updated")
+                "title" => __("__name__ updated"),
                 "message" => __("__name__ updated on __created_at__"),
                 "url" => "/'.$prefix.'"
             ],
