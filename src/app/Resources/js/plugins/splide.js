@@ -52,7 +52,7 @@ $(document).on('click','[data-splide-action="destroy"]',function(element){
     parentSplide = element.previousSibling;
     parentDiv = element.parentNode.parentNode.parentNode;
 
-    Alert('warning', Lang('Deleting Object'), Lang('Are you sure you want to delete this object?'), {
+    Alert('warning', Lang('Deleting object'), Lang('Are you sure you want to delete this object?'), {
         confirm: {
             text: Lang('Ok'),
             btnClass: 'btn-warning',
