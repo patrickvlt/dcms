@@ -7865,8 +7865,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
                                         matched++;
                                     }
                                 } else {
-                                    // if (filter.toString().toLowerCase() == recordValueToString || recordValueToString.indexOf(filter.toString().toLowerCase()) !== -1) {
-                                    if (filter.toString().toLowerCase() == recordValueToString) {
+                                    if (filter.toString().toLowerCase() == recordValueToString || recordValueToString.indexOf(filter.toString().toLowerCase()) !== -1) {
+                                    // if (filter.toString().toLowerCase() == recordValueToString) {
                                         matched++;
                                     }
                                 }
