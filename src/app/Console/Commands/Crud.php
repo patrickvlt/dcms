@@ -32,10 +32,11 @@ class Crud extends Command
     {
         $console = $this;
 
-        $model = ucfirst($console->argument('model'));
-        $prefix = $console->argument('model');
-        shell_exec('php artisan make:model ' . $model . ' -c -m -s -f');
+        $model = $console->argument('model');
+        $prefix = strtolower($console->argument('model'));
+        shell_exec('php artisan make:model ' . $model . ' -c -m');
         shell_exec('php artisan make:request ' . $model . 'Request');
+        $enableSeed = false;
 
         $console->info('Created model, migration, request, seeder, factory and controller for: ' . $model . '.');
 
@@ -47,6 +48,7 @@ namespace App\\Http\\Controllers;
 
 use Illuminate\\Http\\Request;
 
+use App\\'.$model.';
 use App\\Traits\\DCMSController; 
 
 class '.$model.'Controller extends Controller
@@ -57,47 +59,70 @@ class '.$model.'Controller extends Controller
     {
         // All these settings are optional, DCMS uses default routes and messages, you can override these
         return [
-            "routePrefix" => '.$prefix.',
+            "routePrefix" => "'.$prefix.'",
+            "class" => "'.$model.'",
             "indexQuery" => '.$model.'::all(),
             "created" => [
-                "title" => __("'.$model.' created")
+                "title" => __("'.$model.' created"),
                 "message" => __("'.$model.' created on __created_at__"),
                 "url" => "/'.$prefix.'"
             ],
             "updated" => [
-                "title" => __("__name__ updated")
+                "title" => __("__name__ updated"),
                 "message" => __("__name__ updated on __created_at__"),
                 "url" => "/'.$prefix.'"
             ],
+            "deleted" => [
+                "url" => "/'.$prefix.'"
+            ],
+            "request" => "'.$model.'Request",
             "views" => [
                 "index" => "index",
                 "show" => "crud",
                 "edit" => "crud",
                 "create" => "crud"
+            ],
+            // for jExcel imports
+            "import" => [
+                // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
+                "columns" => [
+                    "name" => 0,
+                    "created_at" => 5
+                ],
+                // // finished or failed custom messages
+                //"finished" => [
+                //    "title" => __("Import succeeded"),
+                //    "message" => __("All data has been imported."),
+                //],
+                //"failed" => [
+                //    "title" => __("Import failed"),
+                //    "message" => __("Some fields contain invalid data."),
+                //]
             ]
         ];
+    }
+
+    // if you want to override store or update functions, uncomment and use this
+    // DCMSJSON returns the dynamic JSON response after creating/updating
+
+    public function store('.$model.'Request $request, '.$model.' '.$prefix.'){
+        return $this->DCMSJSON($$prefix,"created");
+    }
+
+    public function update('.$model.'Request $request, '.$model.' '.$prefix.'){
+        return $this->DCMSJSON($$prefix,"updated");
     }
 }';
         file_put_contents($file, $str);
         $console->info('Added DCMS trait to controller.');
 
-        //Adding seeder to database seed
-        $file = 'database/seeds/DatabaseSeeder.php';
-        $str = file_get_contents($file);
-        $str = str_replace('  }
-}', ('      $this->call(' . $model . 'Seeder::class);
-    }
-}'), $str);
-        file_put_contents($file, $str);
-        $console->info('Added seeder to DatabaseSeeder.');
-
         //Adding route
         $file = 'routes/web.php';
         file_put_contents($file, "
 
-Route::resource('" . $model . "', '" . $model . "Controller');
-Route::post('/".$prefix."/file/process/{type}/{column}', '".$model."Controller@ProcessFile');
-Route::delete('/".$prefix."/file/revert/{type}/{column}', '".$model."Controller@DeleteFile')"
+Route::resource('" . $prefix . "', '" . $model . "Controller');
+Route::post('/" . $prefix . "/file/process/{type}/{column}', '" . $model . "Controller@ProcessFile');
+Route::delete('/" . $prefix . "/file/revert/{type}/{column}', '" . $model . "Controller@DeleteFile');"
 , FILE_APPEND);
 
         $console->info('Added route.');
@@ -112,13 +137,15 @@ Route::delete('/".$prefix."/file/revert/{type}/{column}', '".$model."Controller@
                 $dbColumn = $console->ask('What\'s the name of the column?');
                 $dbType = $console->ask('What kind of database column is this?');
                 $nullable = ($console->confirm('Make this column nullable?')) ? 1 : 0;
+                $required = ($console->confirm('Make this column required?')) ? 1 : 0;
                 $unsigned = ($console->confirm('Make this column unsigned?')) ? 1 : 0;
 
                 $column['attributes'] = [
                     'name' => $dbColumn,
                     'type' => $dbType,
                     'nullable' => $nullable,
-                    'unsigned' => $unsigned
+                    'unsigned' => $unsigned,
+                    'required' => $required
                 ];
 
                 if ($console->confirm('Is this column related to another column?')){
@@ -163,8 +190,8 @@ Route::delete('/".$prefix."/file/revert/{type}/{column}', '".$model."Controller@
 
                     $column['validation'] = $validationRules;
                 }
-
-                if ($console->confirm('Do you want to seed: '.$dbColumn.'?')){
+                $enableSeed = $console->confirm('Do you want to seed: '.$dbColumn.'?');
+                if ($enableSeed){
                     $column['seed'] = $console->ask('Enter the seed data (faker function, string, anything you want)');
                 }
 
@@ -184,43 +211,6 @@ Route::delete('/".$prefix."/file/revert/{type}/{column}', '".$model."Controller@
 
         //Adding DCMS Trait and relationship(s) to model
         $modelFile = 'app/' . $model . '.php';
-        
-        // Generating factory
-        $file = $factory;
-        $tab = '        ';
-        $fakerEntries = '';
-        foreach ($columns as $name => $column){
-            if (array_key_exists('seed',$column)){
-                $fakerEntries .= '"'.$name.'" => '.$column['seed'].','."\n".$tab;
-            }
-        }
-        $str = '<?php
-
-/** @var \\Illuminate\\Database\\Eloquent\\Factory $factory */
-
-use App\\'.$model.';
-use Faker\\Generator as Faker;
-use Illuminate\\Support\\Str;
-
-/*
-|--------------------------------------------------------------------------
-| Model Factories
-|--------------------------------------------------------------------------
-|
-| This directory should contain each of the model factory definitions for
-| your application. Factories provide a convenient way to generate new
-| model instances for testing / seeding your application\'s database.
-|
-*/
-
-$factory->define('.$model.'::class, function (Faker $faker) {
-    return [
-        '.$fakerEntries.'
-    ];
-});';
-
-        file_put_contents($file, $str);
-        $console->info('Configured factory.');
 
         // Generating migration
         $file = $migration;
@@ -275,10 +265,58 @@ class Create'.$model.'sTable extends Migration
         file_put_contents($file, $str);
         $console->info('Configured migration.');
 
-        //configure seeder
-        $file = 'database/seeds/'.$model.'Seeder.php';
-        $amount = $console->ask('How many objects should be seeded? Enter a number.');
-        $str = "<?php
+        if($enableSeed){
+            //Adding seeder to database seed
+            $file = 'database/seeds/DatabaseSeeder.php';
+            $str = file_get_contents($file);
+            $str = str_replace('  }
+}', ('      $this->call(' . $model . 'Seeder::class);
+    }
+}'), $str);
+            file_put_contents($file, $str);
+            $console->info('Added seeder to DatabaseSeeder.');
+
+            // Generating factory
+            $file = $factory;
+            $tab = '        ';
+            $fakerEntries = '';
+            foreach ($columns as $name => $column){
+                if (array_key_exists('seed',$column)){
+                    $fakerEntries .= '"'.$name.'" => '.$column['seed'].','."\n".$tab;
+                }
+            }
+            $str = '<?php
+
+/** @var \\Illuminate\\Database\\Eloquent\\Factory $factory */
+
+use App\\'.$model.';
+use Faker\\Generator as Faker;
+use Illuminate\\Support\\Str;
+
+/*
+|--------------------------------------------------------------------------
+| Model Factories
+|--------------------------------------------------------------------------
+|
+| This directory should contain each of the model factory definitions for
+| your application. Factories provide a convenient way to generate new
+| model instances for testing / seeding your application\'s database.
+|
+*/
+
+$factory->define('.$model.'::class, function (Faker $faker) {
+    return [
+        '.$fakerEntries.'
+    ];
+});';
+
+            file_put_contents($file, $str);
+            $console->info('Configured factory.');
+            
+            //configure seeder
+            $file = 'database/seeds/'.$model.'Seeder.php';
+            $amount = $console->ask('How many objects should be seeded? Enter a number.');
+            $str = "<?php
 
 use Illuminate\\Database\\Seeder;
 
@@ -296,8 +334,9 @@ class ".$model."Seeder extends Seeder
 }
 ";
 
-        file_put_contents($file, $str);
-        $console->info('Configured migration.');
+            file_put_contents($file, $str);
+            $console->info('Configured seeder.');
+        }
 
         //configure model
         $file = $modelFile;
@@ -342,6 +381,7 @@ class '.$model.' extends Model
             if (array_key_exists('validation',$column)){
                 $ruleRow = '';
                 $rules = ($column['attributes']['nullable'] == 1) ? '"nullable", ' : '';
+                $rules = ($column['attributes']['required'] == 1) ? '"required", ' : '';
                 foreach ($column['validation'] as $x => $rule){
                     $rules .= '"'.$rule.'", ';
                 }
@@ -399,8 +439,8 @@ class '.$model.'Request extends FormRequest
     public function uploadRules()
     {
         return [
-            // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp|max:2000"],
-            // "sheet" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet|max:2000"],
+            // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp", "max:2000"],
+            // "sheet" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet", "max:2000"],
         ];
     }
 

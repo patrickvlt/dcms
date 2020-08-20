@@ -7,16 +7,17 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
         document.querySelectorAll('[data-type=slimselect]').forEach(function (element){
             let Slim = new SlimSelect({
                 select: element,
-                addable: (element.dataset.addRoute !== null && typeof element.dataset.addRoute !== 'undefined') ? function(value){
+                addable: (element.dataset.slimselectAddRoute !== null && typeof element.dataset.slimselectAddRoute !== 'undefined') ? function(value){
+                    let column = (element.dataset.slimselectAddColumn !== null && typeof element.dataset.slimselectAddColumn !== 'undefined') ? element.dataset.slimselectAddColumn : '';
+                    var data = {};
+                    data[column] = value;
                     $.ajax({
                         type: 'POST',
-                        url: Slim.select.element.dataset.addRoute,
+                        url: Slim.select.element.dataset.slimselectAddRoute,
                         headers: {
                             'X-CSRF-TOKEN': window.csrf
                         },
-                        data: {
-                            status: value
-                        },
+                        data: data,
                         success: function (response) {
                             $("#"+Slim.select.element.id).load(location.href + " #"+Slim.select.element.id+">*", "", );
                             Alert('success', Lang('Optie toegevoegd'), Lang('De nieuwe optie is nu zichtbaar.'), {

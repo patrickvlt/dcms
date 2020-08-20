@@ -170,7 +170,30 @@ class Help extends Command
 <script src="assets/js/scripts.bundle.js?v=7.0.5"></script>
 <script>
     DCMSDatatable({
-        table: $(\'.datatable\')
+        table: $(".datatable"),
+        //customColumns: [{
+        //    field: Lang("Totaal"),
+        //    title: Lang("Totaal"),
+        //    order: 5,
+        //    sortable: false,
+        //    width: 200,
+        //    autoHide: false,
+        //    textAlign: "center",
+        //    template: function (row) {
+        //        let pricePerMonth = row.price;
+        //        let oneOffCosts = row.one_off_costs;
+        //        let discount = row.discount;
+        //
+        //        let totalCosts = pricePerMonth * 12 - discount;
+        //
+        //        let priceDiv = (row.price) ? `<div><p class="pricePerMonth">`+Lang("Prijs per maand:")+` €`+pricePerMonth+`,-`+`</p></div>` : ";
+        //        let oneOffCostsDiv = (row.one_off_costs) ? `<div><p class="oneOffCosts">`+Lang("Eenmalige kosten:")+` €`+oneOffCosts+`,-`+`</p></div>` : ";
+        //        let discountDiv = (row.discount) ? `<div><p class="discount">`+Lang("Korting:")+discount+`</p></div>` : ";
+        //        let totalDiv = `<br><div><p class="totalCosts">`+Lang("Totaal:")+` €`+totalCosts+`,-`+`</p></div>`;
+        //
+        //        return priceDiv + oneOffCostsDiv + discountDiv + totalDiv;
+        //    }
+        //}]
     });
 </script>';
             $console->info($print);

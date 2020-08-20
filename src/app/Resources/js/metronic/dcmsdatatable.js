@@ -5,11 +5,13 @@ const { sortBy, isSet } = require("lodash");
 var tables = $('.datatable');
 var custColumns;
 
+require('./ktdatatable.js');
+
 window.DCMSDatatable = function (parameters) {
 	$.each(parameters.table, function (key, table) {
 		let columns = [];
 
-		if (table.dataset.includeSelector !== 'false') {
+		if (table.dataset.ktIncludeSelector !== 'false') {
 			columns.push({
 				field: '',
 				title: '',
@@ -19,61 +21,81 @@ window.DCMSDatatable = function (parameters) {
 				selector: { class: 'kt-checkbox--solid' },
 				textAlign: 'center'
 			});
-			$('.kt_datatable_rowcontrols').show();
+			$('[data-kt-type="selector"]').show();
 		}
 
-		let tableColumns = $(table).find('#tableColumns').children();
+		if (table.dataset.ktIncludeControls !== 'false') {
+			$('[data-kt-type="controls"]').show();
+		}
+
+		let tableColumns = $(table).find('[data-kt-type="columns"]').children();
+
 		$.each(tableColumns, function (index, column) {
-			let textColor, value, spotlightClass, prepend, append;
+			let textColor, value, spotlightClass, prepend, append, target, useRow, sortable;
+
+			if (column.dataset.ktSortable == 'false'){
+				sortable = false;
+			} else if (typeof column.dataset.ktSortable == 'undefined' || column.dataset.ktSortable == null){
+				sortable = true;
+			} 
+			else {
+				sortable = true;
+			}
+
 			let newColumn = {
-				field: column.dataset.title,
-				title: column.dataset.title,
-				order: column.dataset.order,
-				width: column.dataset.width,
-				type: column.dataset.type,
-				align: (column.dataset.align) ? column.dataset.align : 'center',
+				field: column.dataset.ktColumn,
+				title: column.dataset.ktTitle,
+				order: column.dataset.ktOrder,
+				width: column.dataset.ktWidth,
+				autoHide: column.dataset.ktAutoHide,
+				type: column.dataset.ktType,
+				sortable: sortable,
+				align: (column.dataset.ktAlign) ? column.dataset.ktAlign : 'center',
 				template: function (row) {
-					if (column.dataset.object && row[column.dataset.object] !== null){
-						row = row[column.dataset.object];
+					if (typeof column.dataset.ktObject !== 'undefined' && row[column.dataset.ktObject] !== null){
+						useRow = row[column.dataset.ktObject];
+					} else {
+						useRow = row;
 					}
 					
-					value = row[column.dataset.column];
+					value = useRow[column.dataset.ktColumn];
 					value = (typeof value == 'undefined' || value == null) ? '' : value;
 					
-					prepend = (typeof column.dataset.prepend !== 'undefined' && column.dataset.prepend !== null) ? column.dataset.prepend : '';
-					append = (typeof column.dataset.append !== 'undefined' && column.dataset.append !== null) ? column.dataset.append : '';
+					prepend = (typeof column.dataset.ktPrepend !== 'undefined' && column.dataset.ktPrepend !== null) ? column.dataset.ktPrepend : '';
+					append = (typeof column.dataset.ktAppend !== 'undefined' && column.dataset.ktAppend !== null) ? column.dataset.ktAppend : '';
 
-					if (column.dataset.href){
+					if (column.dataset.ktHref){
 						let link,columnMatch,linkFromMatch;
-						link = column.dataset.href;
+						link = column.dataset.ktHref;
+						target = (column.dataset.ktTarget) ? column.dataset.ktTarget : '';
 						if (link.match(/__.*__/gm)){
 							columnMatch = link.match(/__.*__/gm);
 							linkFromMatch = columnMatch[0].replace(/__/g, '');
 							link = link.replace(/__/g, '');
-							if (row[linkFromMatch]){
+							if (useRow[linkFromMatch]){
 								link = link.replace(linkFromMatch,'');
-								link = link + row[linkFromMatch];
+								link = link + useRow[linkFromMatch];
 							}
 						}
-						value = `<a href='`+link+`'>`+value+`</a>`;
+						value = `<a data-kt-target='`+target+`' data-kt-action="link" href='`+link+`'>`+value+`</a>`;
 					}
 
-					textColor = (column.dataset.textColor) ? column.dataset.textColor : 'dark';
-					switch (column.dataset.type) {
+					textColor = (column.dataset.ktTextColor) ? column.dataset.ktTextColor : 'dark';
+					switch (column.dataset.ktType) {
 						case 'card':
-							var cardTitle = (row[column.dataset.cardTitle]) ? row[column.dataset.cardTitle] : '';
-							var cardInfo = (row[column.dataset.cardInfo]) ? row[column.dataset.cardInfo] : '';;
+							var cardTitle = (useRow[column.dataset.ktCardTitle]) ? useRow[column.dataset.ktCardTitle] : '';
+							var cardInfo = (useRow[column.dataset.ktCardInfo]) ? useRow[column.dataset.ktCardInfo] : '';;
 							var cardImgText = '';
 							var cardImg;
 							// if data-card-image is set and the column has a filled URL
-							if (typeof row[column.dataset.cardImage] !== 'undefined' && column.dataset.cardImage.length > 1 && (row[column.dataset.cardImage] !== column.dataset.cardImage && row[column.dataset.cardImage] !== null)) {
+							if (typeof useRow[column.dataset.ktCardImage] !== 'undefined' && column.dataset.ktCardImage.length > 1 && (useRow[column.dataset.ktCardImage] !== column.dataset.ktCardImage && useRow[column.dataset.ktCardImage] !== null)) {
 								jQuery.ajax({
 									type: "GET",
 									async: false,
 									crossDomain: true,
-									url: row[column.dataset.cardImage],
+									url: useRow[column.dataset.ktCardImage],
 									success: function (response) {
-										cardImg = row[column.dataset.cardImage];
+										cardImg = useRow[column.dataset.ktCardImage];
 										cardImgText = '';
 										return cardImgText;
 									},
@@ -87,11 +109,11 @@ window.DCMSDatatable = function (parameters) {
 								cardImgText = cardTitle[0].toUpperCase();
 							}
 
-							var cardColor = (column.dataset.cardColor) ? column.dataset.cardColor : '';
-							var cardTextColor = (column.dataset.cardTextColor) ? column.dataset.cardTextColor : 'white';
-							var titleColor = (column.dataset.titleColor) ? column.dataset.titleColor : 'primary';
+							var cardColor = (column.dataset.ktCardColor) ? column.dataset.ktCardColor : '';
+							var cardTextColor = (column.dataset.ktCardTextColor) ? column.dataset.ktCardTextColor : 'white';
+							var titleColor = (column.dataset.ktTitleColor) ? column.dataset.ktTitleColor : 'primary';
 
-							return `<div data-id='` + row['id'] + `'><span style="width: 250px;"><div class="d-flex align-items-center">
+							return `<div data-id='` + useRow['id'] + `'><span style="width: 250px;"><div class="d-flex align-items-center">
 									<div class="symbol symbol-40 symbol-`+ cardColor + ` flex-shrink-0">
 										<div class="symbol-label text-` + cardTextColor + `" style="background-image:url('`+ cardImg + `')">` + cardImgText + `</div>
 									</div>
@@ -103,35 +125,35 @@ window.DCMSDatatable = function (parameters) {
 							</span>`;
 							break;
 						case 'boolean':
-							if (row[column.dataset.column] !== null && row[column.dataset.column] !== 0 && typeof row[column.dataset.column] !== 'undefined') {
-								return `<i data-id='`+row.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.maxHeight+`"></i>`;
+							if (useRow[column.dataset.ktColumn] !== null && useRow[column.dataset.ktColumn] !== 0 && typeof useRow[column.dataset.ktColumn] !== 'undefined') {
+								return `<i data-id='`+useRow.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.ktMaxHeight+`"></i>`;
 							}
 							else {
 								return '';
 							}
 							break;
 						case 'text':
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
+							return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
 							break;
 						case 'icon':
-							let icon = (column.dataset.iconClass) ? `<i class="`+column.dataset.iconClass+` text-muted"></i>` : ``;
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
+							let icon = (column.dataset.iconClass && (typeof useRow[column.dataset.ktColumn] !== 'undefined' && useRow[column.dataset.ktColumn] !== null)) ? `<i class="d-inline `+column.dataset.ktIconClass+` text-muted"></i>` : ``;
+							return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
 							break;
 						case 'price':
-							let currency = (column.dataset.currency) ? column.dataset.currency : '€';
+							let currency = (column.dataset.ktCurrency) ? column.dataset.ktCurrency : '€';
 							value = (value == '') ? 0 : value;
-							return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`" class="text-`+textColor+`">`+currency+prepend+value+append+`,-`+`</div>`;
+							return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+currency+prepend+value+append+`,-`+`</div>`;
 							break;
 						case 'image':
-							var changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
+							var changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
 								<i class="fa fa-pen icon-sm text-muted"></i>
 								<input type="file" name="profile_avatar" accept=".png, .jpg, .jpeg">
 								<input type="hidden" name="profile_avatar_remove">
 							</label>`;
-							var deleteControl = `<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-action="remove" data-toggle="tooltip" title="" data-original-title="Remove avatar">
+							var deleteControl = `<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="remove" data-toggle="tooltip" title="" data-original-title="Remove avatar">
 								<i class="ki ki-bold-close icon-xs text-muted"></i>
 							</span>`;
-							if (column.dataset.allowControls !== 'true'){
+							if (column.dataset.ktAllowControls !== 'true'){
 								changeControl = '';
 								deleteControl = '';
 							} 
@@ -141,14 +163,14 @@ window.DCMSDatatable = function (parameters) {
 								value = value[0];
 							}
 
-							return `<div class="image-input mb-4 mt-4" data-id='`+row.id+`' style="max-height:`+column.dataset.maxHeight+`">
+							return `<div class="image-input mb-4 mt-4" data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`">
 								<div class="image-input-wrapper `+spotlightClass+`" data-src='`+prepend+value+append+`' style="background-image: url(`+prepend+value+append+`)"></div>
 								`+changeControl+`
 								`+deleteControl+`
 							</div>`;
 							break;
 						default:
-							return `<div data-id='` + row['id'] + `' class="text-`+textColor+`">` +prepend+value+append+ `</div>`;
+							return prepend+value+append;
 							break;
 					}
 				},
@@ -162,17 +184,17 @@ window.DCMSDatatable = function (parameters) {
 			});
 		}
 
-		if (table.dataset.includeActions == 'true') {
+		if (table.dataset.ktIncludeActions == 'true') {
 			columns.push({
 				field: 'Actions',
 				title: Lang('Actions'),
 				sortable: false,
 				width: 125,
 				overflow: 'visible',
-				autoHide: true,
+				autoHide: false,
 				template: function (row) {
 					return `<td class="text-right pr-0">
-						<button class="btn btn-icon btn-light btn-hover-primary btn-sm mx-3" data-action="edit" data-id="`+ row['id'] + `">
+						<button class="btn btn-icon btn-light btn-hover-primary btn-sm mx-3" data-kt-action="edit" data-id="`+ row['id'] + `">
 							<span class="svg-icon svg-icon-md svg-icon-primary">
 								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
 									height="24px" viewBox="0 0 24 24" version="1.1">
@@ -190,7 +212,7 @@ window.DCMSDatatable = function (parameters) {
 								</svg>
 							</span>
 						</button>
-						<button class="btn btn-icon btn-light btn-hover-primary btn-sm" data-action="destroy" data-id="`+ row['id'] + `">
+						<button class="btn btn-icon btn-light btn-hover-primary btn-sm" data-kt-action="destroy" data-id="`+ row['id'] + `">
 							<span class="svg-icon svg-icon-md svg-icon-primary">
 								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
 									height="24px" viewBox="0 0 24 24" version="1.1">
@@ -211,21 +233,6 @@ window.DCMSDatatable = function (parameters) {
 			});
 		}
 
-		function sortByKey(array, key) {
-			return array.sort(function(a, b) {
-				var x = a[key]; var y = b[key];
-				return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-			});
-		}
-
-		columns.sort(function(a, b) {
-		var keyA = a.order,
-			keyB = b.order;
-		if (keyA < keyB) return -1;
-		if (keyA > keyB) return 1;
-		return 0;
-		});
-
 		let datatable = $(table).KTDatatable({
 			// datasource definition
 			data: {
@@ -233,10 +240,10 @@ window.DCMSDatatable = function (parameters) {
 				source: {
 					read: {
 						method: 'GET',
-						url: table.dataset.route,
+						url: table.dataset.ktRoute,
 					},
 				},
-				pageSize: parseInt(table.dataset.pageSize), // display 20 records per page
+				pageSize: parseInt(table.dataset.ktPageSize), // display 20 records per page
 				serverPaging: false,
 				serverFiltering: false,
 				serverSorting: false,
@@ -244,18 +251,18 @@ window.DCMSDatatable = function (parameters) {
 
 			// layout definition
 			layout: {
-				scroll: (table.dataset.scrolling) == 'false' ? false : true, // enable/disable datatable scroll both horizontal and vertical when needed.
-				height: parseInt(table.dataset.height), // datatable's body's fixed height
+				scroll: (table.dataset.ktScrolling) == 'false' ? false : true, // enable/disable datatable scroll both horizontal and vertical when needed.
+				height: parseInt(table.dataset.ktHeight), // datatable's body's fixed height
 				footer: false, // display/hide footer
 			},
 
 			// column sorting
 			sortable: true,
 
-			pagination: (table.dataset.pagination) == 'false' ? false : true,
+			pagination: (table.dataset.ktPagination) == 'false' ? false : true,
 
 			search: {
-				input: $(table).parent().find('#kt_datatable_search_query'),
+				input: $($(table).data('kt-parent')).find('[data-kt-action="search"]'),
 				key: 'generalSearch'
 			},
 
@@ -264,41 +271,33 @@ window.DCMSDatatable = function (parameters) {
 
 		});
 
-		$(table).parent().find('#kt_datatable_init').on('click', function () {
+		$($(table).data('kt-parent')).find('[data-kt-action="init"]').on('click', function () {
 			datatable = $(table).KTDatatable(options);
 		});
 
-		$(table).parent().find('#kt_datatable_reload').on('click', function () {
+		$($(table).data('kt-parent')).find('[data-kt-action="reload"]').on('click', function () {
 			$(table).KTDatatable('reload');
 		});
 
-		// get checked record and get value by column name
-		$(table).parent().find('#kt_datatable_get').on('click', function () {
-			// select active rows
-			datatable.rows('.datatable-row-active');
-			// check selected nodes
-			if (datatable.nodes().length > 0) {
-				// get column by field name and get the column nodes
-				var value = datatable.columns('CompanyName').nodes().text();
-			}
-		});
-
-		$(table).parent().find('#kt_datatable_check').on('click', function () {
-			var input = $('#kt_datatable_check_input').val();
-			datatable.setActive(input);
-		});
-
-		$(table).parent().find('#kt_datatable_check_all').on('click', function () {
+		$($(table).data('kt-parent')).find('[data-kt-action="check-all"]').on('click', function () {
 			$(table).KTDatatable('setActiveAll', true);
 		});
 
-		$(table).parent().find('#kt_datatable_uncheck_all').on('click', function () {
+		$($(table).data('kt-parent')).find('[data-kt-action="uncheck-all"]').on('click', function () {
 			$(table).KTDatatable('setActiveAll', false);
 		});
 
-		$(table).parent().find('#kt_datatable_remove_row').on('click', function () {
+		$($(table).data('kt-parent')).find('[data-kt-action="sort-asc"]').on('click', function() {
+			datatable.sort('name', 'asc');
+		});
+
+		$($(table).data('kt-parent')).find('[data-kt-action="sort-desc"]').on('click', function() {
+			datatable.sort('name', 'desc');
+		});
+
+		$($(table).data('kt-parent')).find('[data-kt-action="remove-rows"]').on('click', function () {
 			let activeIds = [];
-			let cells = $('.datatable-row-active').find('[data-id');
+			let cells = $($(table).data('kt-parent')).find('.datatable-row-active').find('[data-id');
 
 			$.each(cells, function (x, cell) {
 				let cellId = $(cell).data('id');
@@ -306,30 +305,45 @@ window.DCMSDatatable = function (parameters) {
 					activeIds.push(cellId);
 				}
 			});
+			
 			DeleteModel({
 				id: activeIds,
-				route: $(table).data('destroy-route'),
-				confirmTitle: (table.dataset.deleteRowsConfirmTitle) ? Lang(table.dataset.deleteRowsConfirmTitle) : Lang('Delete rows'),
-				confirmMsg: (table.dataset.deleteRowsConfirmMessage) ? Lang(table.dataset.deleteRowsConfirmMessage) : Lang('Are you sure you want to delete these rows?'),
-				completeTitle: (table.dataset.deleteRowsCompleteTitle) ? Lang(table.dataset.deleteRowsCompleteTitle) : Lang('Deleted rows'),
-				completeMsg: (table.dataset.deleteRowsCompleteMessage) ? Lang(table.dataset.deleteRowsCompleteMessage) : Lang('The rows have been succesfully deleted.'),
-				failedTitle: (table.dataset.deleteRowsFailedTitle) ? Lang(table.dataset.deleteRowsFailedTitle) : Lang('Deleting failed'),
-				failedMsg: (table.dataset.deleteRowsFailedMessage) ? Lang(table.dataset.deleteRowsFailedMessage) : Lang('The rows can\'t be deleted. They might still be required somewhere.'),
+				route: $(table).data('kt-destroy-route'),
+				confirmTitle: (table.dataset.ktDeleteRowsConfirmTitle) ? Lang(table.dataset.ktDeleteRowsConfirmTitle) : Lang('Delete rows'),
+				confirmMsg: (table.dataset.ktDeleteRowsConfirmMessage) ? Lang(table.dataset.ktDeleteRowsConfirmMessage) : Lang('Are you sure you want to delete these rows?'),
+				completeTitle: (table.dataset.ktDeleteRowsCompleteTitle) ? Lang(table.dataset.ktDeleteRowsCompleteTitle) : Lang('Deleted rows'),
+				completeMsg: (table.dataset.ktDeleteRowsCompleteMessage) ? Lang(table.dataset.ktDeleteRowsCompleteMessage) : Lang('The rows have been succesfully deleted.'),
+				failedTitle: (table.dataset.ktDeleteRowsFailedTitle) ? Lang(table.dataset.ktDeleteRowsFailedTitle) : Lang('Deleting failed'),
+				failedMsg: (table.dataset.ktDeleteRowsFailedMessage) ? Lang(table.dataset.ktDeleteRowsFailedMessage) : Lang('The rows can\'t be deleted. They might still be required somewhere.'),
 			});
 		});
 
-		$.each($(table).parent().find('[data-filter]'), function (key, filter) {
-			$(filter).on('change', function () {
-				datatable.search(this.value, this.dataset.filter);
-			});
+		window.KTAllowMoreOn = [];
+
+		$.each($($(table).data('kt-parent')).find('[data-kt-filter]'), function (key, filter) {
+			function FilterKTTable(filter){
+				if (filter.type !== 'checkbox'){
+					$(filter).on('change', function (filter) {
+						(filter.currentTarget.dataset.ktAllowBigger == 'true' && !window.KTAllowMoreOn.includes(filter.currentTarget.dataset.ktFilter)) ? window.KTAllowMoreOn.push(filter.currentTarget.dataset.ktFilter) : '';
+						datatable.search(filter.currentTarget.value, filter.currentTarget.dataset.ktFilter);
+					});
+				} else {
+					$(filter).on('change', function (filter) {
+						if (this.checked == true){
+							datatable.search("1", this.dataset.ktFilter);
+						} else {
+							datatable.search("", this.dataset.ktFilter);
+						}
+					});
+				}
+			}
+			FilterKTTable(filter);
 		});
 
-		$(table).parent().find('#kt_datatable_search_status, #kt_datatable_search_type').selectpicker();
-
-		$(document).on('click', 'table [data-action=edit]', function (e) {
+		$(document).on('click', 'table [data-kt-action=edit]', function (e) {
 			e.preventDefault();
 			let id = e.currentTarget.dataset.id;
-			let route = $(table).data('edit-route').replace('__id__', id);
+			let route = $(table).data('kt-edit-route').replace('__id__', id);
 			if (window.AllowNewTab == false){
 				window.location.href = route;
 			} else {
@@ -337,19 +351,41 @@ window.DCMSDatatable = function (parameters) {
 			}
 		});
 
-		$(document).on('click', 'table [data-action=destroy]', function (e) {
+		$(document).on('click', 'table [data-kt-action=select]', function (e) {
 			e.preventDefault();
 			let id = e.currentTarget.dataset.id;
-			let route = $(table).data('destroy-route').replace('__id__', id);
+			let route = $(table).data('kt-edit-route').replace('__id__', id);
+			if (window.AllowNewTab == false){
+				window.location.href = route;
+			} else {
+				window.open(route, '_blank');
+			}
+		});
+		
+		$(document).on('click', 'table [data-kt-action=link]', function (e) {
+			e.preventDefault();
+			let link = e.currentTarget.href;
+			let target = e.currentTarget.dataset.ktTarget;
+			if (target == '_blank'){
+				window.open(link, '_blank');
+			} else {
+				window.location.href = link;
+			}
+		});
+
+		$(document).on('click', 'table [data-kt-action=destroy]', function (e) {
+			e.preventDefault();
+			let id = e.currentTarget.dataset.id;
+			let route = $(table).data('kt-destroy-route').replace('__id__', id);
 			DeleteModel({
 				id: id,
 				route: route,
-				confirmTitle: (table.dataset.deleteSingleConfirmTitle) ? Lang(table.dataset.deleteSingleConfirmTitle) : Lang('Delete object'),
-				confirmMsg: (table.dataset.deleteSingleConfirmMessage) ? Lang(table.dataset.deleteSingleConfirmMessage) : Lang('Are you sure you want to delete this object?'),
-				completeTitle: (table.dataset.deleteSingleCompleteTitle) ? Lang(table.dataset.deleteSingleCompleteTitle) : Lang('Deleted object'),
-				completeMsg: (table.dataset.deleteSingleCompleteMessage) ? Lang(table.dataset.deleteSingleCompleteMessage) : Lang('The object has been succesfully deleted.'),
-				failedTitle: (table.dataset.deleteSingleFailedTitle) ? Lang(table.dataset.deleteSingleFailedTitle) : Lang('Deleting failed'),
-				failedMsg: (table.dataset.deleteSingleFailedMessage) ? Lang(table.dataset.deleteSingleFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
+				confirmTitle: (table.dataset.ktDeleteSingleConfirmTitle) ? Lang(table.dataset.ktDeleteSingleConfirmTitle) : Lang('Delete object'),
+				confirmMsg: (table.dataset.ktDeleteSingleConfirmMessage) ? Lang(table.dataset.ktDeleteSingleConfirmMessage) : Lang('Are you sure you want to delete this object?'),
+				completeTitle: (table.dataset.ktDeleteSingleCompleteTitle) ? Lang(table.dataset.ktDeleteSingleCompleteTitle) : Lang('Deleted object'),
+				completeMsg: (table.dataset.ktDeleteSingleCompleteMessage) ? Lang(table.dataset.ktDeleteSingleCompleteMessage) : Lang('The object has been succesfully deleted.'),
+				failedTitle: (table.dataset.ktDeleteSingleFailedTitle) ? Lang(table.dataset.ktDeleteSingleFailedTitle) : Lang('Deleting failed'),
+				failedMsg: (table.dataset.ktDeleteSingleFailedMessage) ? Lang(table.dataset.ktDeleteSingleFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
 			});
 		});
 	});
