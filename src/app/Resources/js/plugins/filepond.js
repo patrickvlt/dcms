@@ -60,17 +60,19 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
     window.fileArray = [];
 
     function MakePond(inputElement, method = 'POST') {
+        var revertKey;
         const pond = FilePond.create(inputElement);
-        if(!inputElement.dataset.prefix){
+        revertKey = (inputElement.dataset.filepondRevertKey) ? '/'+inputElement.dataset.filepondRevertKey : '';
+        if(!inputElement.dataset.filepondPrefix){
             console.log('No prefix found. Add a data-prefix to the input element. e.g. (data-prefix="user")')
         }
-        pond.allowMultiple = (inputElement.dataset.maxFiles > 1) ? true : false;
-        pond.maxFiles = inputElement.dataset.maxFiles;
+        pond.allowMultiple = (inputElement.dataset.filepondMaxFiles > 1) ? true : false;
+        pond.maxFiles = inputElement.dataset.filepondMaxFiles;
         pond.maxSize = window.FilePondMaxFileSize;
-        pond.name = inputElement.dataset.column+"[]";
-        pond.instantUpload = (inputElement.dataset.instantUpload) ? inputElement.dataset.instantUpload : window.FilePondInstantUpload;
+        pond.name = inputElement.dataset.filepondColumn+"[]";
+        pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.FilePondInstantUpload;
         // pond.allowProcess = false;
-        pond.allowRevert = (inputElement.dataset.allowRevert) ? inputElement.dataset.allowRevert : window.FilePondAllowRevert;
+        pond.allowRevert = (inputElement.dataset.filepondAllowRevert) ? inputElement.dataset.filepondAllowRevert : window.FilePondAllowRevert;
         pond.onerror = (res) => {
                 HaltSubmit();
         }
@@ -91,10 +93,20 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 'accept': 'application/json'
             },
             process: {
-                url: '/'+inputElement.dataset.prefix+'/file/process/'+inputElement.dataset.mime+'/'+inputElement.dataset.column,
+                url: '/'+inputElement.dataset.filepondPrefix+'/file/process/'+inputElement.dataset.filepondMime+'/'+inputElement.dataset.filepondColumn,
                 onerror: (res) => {
                     let response, errors = [];
-                    response = JSON.parse(res);
+                    try {
+                        response = JSON.parse(res);
+                    } catch (error) {
+                        Alert('error', Lang('Upload failed'), '', {
+                            confirm: {
+                                text: Lang('Ok'),
+                                btnClass: 'btn-danger',
+                            },
+                        });
+                        return;
+                    };
                     if (response instanceof Object){
                         $.each(response, function (x, error) { 
                             errors.push(error[0]);
@@ -102,12 +114,22 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     } else {
                         errors = res.replace(/"/g,'');
                     }
-                    Alert('error', Lang('Upload failed'), errors, {
-                        confirm: {
-                            text: Lang('Ok'),
-                            btnClass: 'btn-danger',
-                        },
-                    });
+                    if (response.status !== 500 && response.status !== 404){
+                        Alert('error', Lang('Upload failed'), Lang('An error occurred on the server. Contact support if this problem persists.'), {
+                            confirm: {
+                                text: Lang('Ok'),
+                                btnClass: 'btn-danger',
+                            },
+                        });
+                    }
+                    if (response.status == 422){
+                        Alert('error', Lang('Upload failed'), errors, {
+                            confirm: {
+                                text: Lang('Ok'),
+                                btnClass: 'btn-danger',
+                            },
+                        });
+                    }
                 }
             },
             revert: {
@@ -115,7 +137,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     'X-CSRF-TOKEN': window.csrf,
                     "Content-Type": "application/json",
                 },
-                url: '/'+inputElement.dataset.prefix+'/file/revert/'+inputElement.dataset.mime+'/'+inputElement.dataset.column,
+                url: '/'+inputElement.dataset.filepondPrefix+'/file/revert/'+inputElement.dataset.filepondMime+'/'+inputElement.dataset.filepondColumn+revertKey,
                 method: 'DELETE',
             }
         }

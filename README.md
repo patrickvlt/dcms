@@ -94,9 +94,9 @@ https://github.com/pqina/filepond
 Use:
 ```
 data-type="filepond"
-data-prefix="brand"
-data-column="logo"
-data-mime="image"
+data-filepond-prefix="brand"
+data-filepond-column="logo"
+data-filepond-mime="image"
 ```
 
 On an input element, to initialise Filepond.
@@ -105,6 +105,7 @@ You can also setup other options through data attributes, such as:
 ```
 data-max-files="1"
 data-instant-upload="true"
+data-filepond-revert-key="value"
 ```
 
 Filepond automatically uploads files to a route based on their mime type. This way files are organized, and assigned by file name to objects.
