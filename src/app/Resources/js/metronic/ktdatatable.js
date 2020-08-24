@@ -7830,9 +7830,21 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 			 * @returns {*}
 			 */
 			filterArray: function(list, args, operator) {
+
+                $.each(args, function (key, arg) { 
+                    if (window.KTRemoveFilters.includes(key)){
+                        args[key] = '';
+                    }
+                });
+
+                if (window.KTDebug == true){
+                    console.log(args);
+                }
+
+
 				if (typeof list !== 'object') {
 					return [];
-				}
+                }
 
 				if (typeof operator === 'undefined') operator = 'AND';
 
@@ -7861,12 +7873,16 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
                             var recordValueToInt = parseInt(recordValue);
 							filterValue.forEach(function(filter, x) {
                                 if (window.KTAllowMoreOn.includes(m_key)){
-                                    if (recordValueToInt >= parseInt(filterValue)){
+                                    if (parseFloat(recordValue) >= parseFloat(filterValue)){
                                         matched++;
                                     }
-                                } else {
+                                } else if (window.KTAllowLessOn.includes(m_key)) {
+                                    if (parseFloat(recordValue) <= parseFloat(filterValue)){
+                                        matched++;
+                                    }
+                                }
+                                else {
                                     if (filter.toString().toLowerCase() == recordValueToString || recordValueToString.indexOf(filter.toString().toLowerCase()) !== -1) {
-                                    // if (filter.toString().toLowerCase() == recordValueToString) {
                                         matched++;
                                     }
                                 }
