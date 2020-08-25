@@ -36,7 +36,7 @@ class Crud extends Command
         $prefix = strtolower($console->argument('model'));
         shell_exec('php artisan make:model ' . $model . ' -c -m');
         shell_exec('php artisan make:request ' . $model . 'Request');
-        $enableSeed = false;
+        $GLOBALS['enableSeed'] = false;
 
         $console->info('Created model, migration, request, seeder, factory and controller for: ' . $model . '.');
 
@@ -105,11 +105,11 @@ class '.$model.'Controller extends Controller
     // if you want to override store or update functions, uncomment and use this
     // DCMSJSON returns the dynamic JSON response after creating/updating
 
-    public function store('.$model.'Request $request, '.$model.' '.$prefix.'){
+    public function store('.$model.'Request $request, '.$model.' $'.$prefix.'){
         return $this->DCMSJSON($$prefix,"created");
     }
 
-    public function update('.$model.'Request $request, '.$model.' '.$prefix.'){
+    public function update('.$model.'Request $request, '.$model.' $'.$prefix.'){
         return $this->DCMSJSON($$prefix,"updated");
     }
 }';
@@ -122,7 +122,7 @@ class '.$model.'Controller extends Controller
 
 Route::resource('" . $prefix . "', '" . $model . "Controller');
 Route::post('/" . $prefix . "/file/process/{type}/{column}', '" . $model . "Controller@ProcessFile');
-Route::delete('/" . $prefix . "/file/revert/{type}/{column}', '" . $model . "Controller@DeleteFile');"
+Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $model . "Controller@DeleteFile');"
 , FILE_APPEND);
 
         $console->info('Added route.');
@@ -190,8 +190,8 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}', '" . $model . "Con
 
                     $column['validation'] = $validationRules;
                 }
-                $enableSeed = $console->confirm('Do you want to seed: '.$dbColumn.'?');
-                if ($enableSeed){
+                $GLOBALS['enableSeed'] = $console->confirm('Do you want to seed: '.$dbColumn.'?');
+                if ($GLOBALS['enableSeed']){
                     $column['seed'] = $console->ask('Enter the seed data (faker function, string, anything you want)');
                 }
 
@@ -204,8 +204,10 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}', '" . $model . "Con
                 goto NewColumn;
             }
         }
+        $files = scandir(base_path().'/database/migrations', SCANDIR_SORT_DESCENDING);
+        $migration = base_path().'/database/migrations/'.$files[0];
 
-        $migration = $console->ask('Paste the path to the migration file for: '.$model);
+
         $request = 'app/Http/Requests/'.$model.'Request.php';
         $factory = 'database/factories/'.$model.'Factory.php';
 
@@ -229,43 +231,14 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}', '" . $model . "Con
                 $migEntries .= '$table->foreign("'.$column['foreign']['foreign_column'].'")->references("'.$column['foreign']['references'].'")->on("'.$column['foreign']['table'].'")'.$onUpdate.$onDelete.';'."\n".'            ';
             }
         }
-        $str = '<?php
-
-use Illuminate\\Database\\Migrations\\Migration;
-use Illuminate\\Database\\Schema\\Blueprint;
-use Illuminate\\Support\\Facades\\Schema;
-
-class Create'.$model.'sTable extends Migration
-{
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        Schema::create("'.strtolower($model).'s", function (Blueprint $table) {
-            $table->id();
-            '.$migEntries.'
-            $table->timestamps();
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::dropIfExists("'.strtolower($model).'s");
-    }
-}
-';
+        $migContent = '$table->id();
+            '.$migEntries.'';
+        $str = file_get_contents($file);
+        $str = str_replace('$table->id();',$migContent, $str);
         file_put_contents($file, $str);
         $console->info('Configured migration.');
-
-        if($enableSeed){
+        
+        if($GLOBALS['enableSeed']){
             //Adding seeder to database seed
             $file = 'database/seeds/DatabaseSeeder.php';
             $str = file_get_contents($file);
@@ -292,17 +265,6 @@ class Create'.$model.'sTable extends Migration
 use App\\'.$model.';
 use Faker\\Generator as Faker;
 use Illuminate\\Support\\Str;
-
-/*
-|--------------------------------------------------------------------------
-| Model Factories
-|--------------------------------------------------------------------------
-|
-| This directory should contain each of the model factory definitions for
-| your application. Factories provide a convenient way to generate new
-| model instances for testing / seeding your application\'s database.
-|
-*/
 
 $factory->define('.$model.'::class, function (Faker $faker) {
     return [
@@ -371,8 +333,6 @@ class '.$model.' extends Model
 
         file_put_contents($file, $str);
         $console->info('Configured model.');
-
-        $console->info('Generated full CRUD for: ' . $model . '.');
 
         //configure model
         $file = $request;
