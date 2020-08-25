@@ -188,8 +188,7 @@ window.HttpReq = function (formMethod, formAction, formData) {
     });
 }
 
-
-window.onload = function () {
+document.addEventListener("DOMContentLoaded", function(){
     let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
     function SubmitAjax(e) {
         let formAction = e.target.action;
@@ -222,12 +221,12 @@ window.onload = function () {
             e.preventDefault();
             SubmitAjax(e);
         }));
-}
+});
 
 
 /**
  *
- *  Delete from a table or form
+ *  Delete from a table or formTitle
  *
  */
 

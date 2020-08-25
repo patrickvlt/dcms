@@ -18,10 +18,12 @@ if (document.querySelectorAll('[data-type=splide]').length > 0) {
             let imagesSource = $(element).data('splide-source');
             let images = '';
             if ($(element).data('splide-source')) {
+                // if one single URL, most of the time a string
                 if (typeof imagesSource === 'string' || imagesSource instanceof String){
                     images = `<li class="splide__slide"><div class="spotlight glideJSimg" data-src="` + imagesSource + `" style="background-image:url('` + imagesSource + `')"></div></li><a data-splide-action="destroy" data-splide-prefix="`+glidePrefix+`" data-splide-column="`+glideColumn+`" data-splide-file="`+imagesSource+`"><span class="splideDelete btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-splide-toggle="tooltip" data-splide-original-title="` + Lang('Remove') + `">
                         <i class="ki ki-bold-close icon-xs text-muted"></i>
                     </span></a>`
+                // if source is an array
                 } else {
                     $.each(imagesSource, function (x, image) {
                         images = images + `<li class="splide__slide"><div class="spotlight glideJSimg" data-src="` + image + `" style="background-image:url('` + image + `')"></div></li><a data-splide-action="destroy" data-splide-prefix="`+glidePrefix+`" data-splide-column="`+glideColumn+`" data-splide-file="`+image+`"><span class="splideDelete btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-splide-toggle="tooltip" data-splide-original-title="` + Lang('Remove') + `">
@@ -39,8 +41,12 @@ if (document.querySelectorAll('[data-type=splide]').length > 0) {
                     height: glideBreakpoints,
                 }
             }).mount();
+            if ($(element).find('.glideJSimg').length <= 1){
+                $(element).find('.splide__arrows').hide();
+                $(element).find('.splide__pagination').hide();
+            }
         });
-    });
+    }); 
 }
 
 $(document).on('click','[data-splide-action="destroy"]',function(element){
@@ -48,6 +54,7 @@ $(document).on('click','[data-splide-action="destroy"]',function(element){
     element = element.currentTarget;
     splidePrefix = element.dataset.splidePrefix;
     splideColumn = element.dataset.splideColumn;
+    splideRevertKey = (element.dataset.splideRevertKey) ? '/'+element.dataset.splideRevertKey : '/'+splideColumn;
     splideFile = element.dataset.splideFile;
     parentSplide = element.previousSibling;
     parentDiv = element.parentNode.parentNode.parentNode;
@@ -59,7 +66,7 @@ $(document).on('click','[data-splide-action="destroy"]',function(element){
             action: function() {
                 $.ajax({
                     type: "DELETE",
-                    url: "/"+splidePrefix+"/file/revert/image/"+splideColumn,
+                    url: "/"+splidePrefix+"/file/revert/image/"+splideColumn+splideRevertKey,
                     data: splideFile,
                     dataType: "dataType",
                     headers: {

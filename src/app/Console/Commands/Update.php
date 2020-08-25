@@ -28,14 +28,8 @@ class Update extends Command
     public function handle()
     {
         $console = $this;
-        shell_exec('composer clear-cache; composer update pveltrop/dcms');
-        $console->info('Updated DCMS package.');
-        
-        if ($console->confirm('Do you want to copy the (updated) JS and SASS resources?')){
-            shell_exec('php artisan vendor:publish --provider="Pveltrop\DCMS\DCMSProvider" --tag=resources');
-            $console->info('Updated DCMS resources.');
-        }
-        
-        $console->info('Finished updating DCMS.');
+        shell_exec('cp -a '.base_path().'/resources/js/dcms/. '. base_path().'/vendor/pveltrop/dcms/src/app/Resources/js');
+        shell_exec('cp -a '.base_path().'/resources/sass/dcms/. '. base_path().'/vendor/pveltrop/dcms/src/app/Resources/sass');
+        $console->info('Updated DCMS package. You can make a merge request for your changes.');
     }
 }
