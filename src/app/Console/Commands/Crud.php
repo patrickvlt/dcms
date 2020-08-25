@@ -105,13 +105,13 @@ class '.$model.'Controller extends Controller
     // if you want to override store or update functions, uncomment and use this
     // DCMSJSON returns the dynamic JSON response after creating/updating
 
-    public function store('.$model.'Request $request, '.$model.' $'.$prefix.'){
-        return $this->DCMSJSON($$prefix,"created");
-    }
+    // public function store('.$model.'Request $request, '.$model.' $'.$prefix.'){
+    //     return $this->DCMSJSON($$prefix,"created");
+    // }
 
-    public function update('.$model.'Request $request, '.$model.' $'.$prefix.'){
-        return $this->DCMSJSON($$prefix,"updated");
-    }
+    // public function update('.$model.'Request $request, '.$model.' $'.$prefix.'){
+    //     return $this->DCMSJSON($$prefix,"updated");
+    // }
 }';
         file_put_contents($file, $str);
         $console->info('Added DCMS trait to controller.');
