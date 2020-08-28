@@ -15,7 +15,7 @@ window.AppDateFormat = "dd-mm-yyyy";
 window.AllowNewTab = false;
 
 // Locale
-window.language = 'nl';
+window.language = 'en';
 
 // Either use locale provided by server, or manually specified language
 window.language = (locale) ? locale : window.language;
@@ -27,9 +27,13 @@ window.tinyMCEtoolbar = 'insert';
 
 // Filepond
 window.FilePondMaxFileSize = 1; //in MB
-window.FilePondMaxFileSize = (maxSizeServer) ? maxSizeServer : window.MaxFileSize;
 window.FilePondAllowRevert = true;
 window.FilePondInstantUpload = true;
+try {
+    window.FilePondMaxFileSize = maxSizeServer;
+} catch (error) {
+    window.FilePondMaxFileSize = window.FilePondMaxFileSize;
+}
 
 /**
  *
@@ -371,4 +375,25 @@ window.MergeColumns = function (row, column) {
         value = row[column];
     }
     return value;
+}
+
+/**
+*
+*  Load links in modal
+*
+*/
+
+window.LoadInModal = function (url, modal){
+    $.get(url, function (data) {
+        el = $('#global_modal');
+        el.find('.modal-content').html(data);
+        el.modal('show');
+        if (el.find('[data-modal-init').length == 1) {
+            let callback = el.find('[data-modal-init]').data('modal-init');
+            var fn = window[callback];
+            if (typeof fn === 'function') {
+                fn(el);
+            }
+        }
+    });
 }

@@ -36,6 +36,7 @@ window.DCMSDatatable = function (parameters) {
 		let tableColumns = $(table).find('[data-kt-type="columns"]').children();
 
 		$.each(tableColumns, function (index, column) {
+			
 			let textColor, value, spotlightClass, prepend, append, target, useRow, sortable;
 
 			if (column.dataset.ktSortable == 'false'){
@@ -341,7 +342,11 @@ window.DCMSDatatable = function (parameters) {
 						datatable.search(filter.currentTarget.value, filter.currentTarget.dataset.ktFilter);
 					} else {
 						if (this.checked == true) {
-							datatable.search("1", this.dataset.ktFilter);
+							if (this.value && this.value !== 'on'){
+								datatable.search(this.value, this.dataset.ktFilter);
+							} else {
+								datatable.search("1", this.dataset.ktFilter);
+							}
 						} else {
 							datatable.search("", this.dataset.ktFilter);
 						}
@@ -355,7 +360,11 @@ window.DCMSDatatable = function (parameters) {
 			let id = e.currentTarget.dataset.id;
 			let route = $(table).data('kt-edit-route').replace('__id__', id);
 			if (window.AllowNewTab == false){
-				window.location.href = route;
+				if ($(this).data('kt-load-in-modal')){
+					window.LoadInModal(route,$(this).data('kt-load-in-modal'))
+				} else {
+					window.location.href = route;
+				}
 			} else {
 				window.open(route, '_blank');
 			}
