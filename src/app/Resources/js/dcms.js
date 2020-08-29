@@ -15,7 +15,7 @@ window.AppDateFormat = "dd-mm-yyyy";
 window.AllowNewTab = false;
 
 // Locale
-window.language = 'en';
+window.language = 'nl';
 
 // Either use locale provided by server, or manually specified language
 window.language = (locale) ? locale : window.language;
