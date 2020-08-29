@@ -15,7 +15,7 @@ window.AppDateFormat = "dd-mm-yyyy";
 window.AllowNewTab = false;
 
 // Locale
-window.language = 'nl';
+window.language = 'en';
 
 // Either use locale provided by server, or manually specified language
 window.language = (locale) ? locale : window.language;
@@ -27,9 +27,13 @@ window.tinyMCEtoolbar = 'insert';
 
 // Filepond
 window.FilePondMaxFileSize = 1; //in MB
-window.FilePondMaxFileSize = (maxSizeServer) ? maxSizeServer : window.MaxFileSize;
 window.FilePondAllowRevert = true;
 window.FilePondInstantUpload = true;
+try {
+    window.FilePondMaxFileSize = maxSizeServer;
+} catch (error) {
+    window.FilePondMaxFileSize = window.FilePondMaxFileSize;
+}
 
 /**
  *
@@ -335,21 +339,21 @@ window.DeleteModel = function (args) {
 *
 */
 
-$(document).on('click', 'form [data-action=destroy]', function (e) {
+$(document).on('click', 'form [data-dcms-action=destroy]', function (e) {
     e.preventDefault();
     let element = e.currentTarget;
-    let id = element.dataset.id;
-    let route = element.dataset.destroyRoute.replace('__id__', id);
-    let redirect = (element.dataset.destroyRedirect) ? element.dataset.destroyRedirect : false;
+    let id = element.dataset.dcmsId;
+    let route = element.dataset.dcmsDestroyRoute.replace('__id__', id);
+    let redirect = (element.dataset.dcmsDestroyRedirect) ? element.dataset.dcmsDestroyRedirect : false;
     DeleteModel({
         id: id,
         route: route,
-        confirmTitle: (element.dataset.deleteConfirmTitle) ? Lang(element.dataset.deleteConfirmTitle) : Lang('Delete object'),
-        confirmMsg: (element.dataset.deleteConfirmMessage) ? Lang(element.dataset.deleteConfirmMessage) : Lang('Are you sure you want to delete this object?'),
-        completeTitle: (element.dataset.deleteCompleteTitle) ? Lang(element.dataset.deleteCompleteTitle) : Lang('Deleted object'),
-        completeMsg: (element.dataset.deleteCompleteMessage) ? Lang(element.dataset.deleteCompleteMessage) : Lang('The object has been succesfully deleted.'),
-        failedTitle: (element.dataset.deleteFailedTitle) ? Lang(element.dataset.deleteFailedTitle) : Lang('Deleting failed'),
-        failedMsg: (element.dataset.deleteFailedMessage) ? Lang(element.dataset.deleteFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
+        confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang('Delete object'),
+        confirmMsg: (element.dataset.dcmsDeleteConfirmMessage) ? Lang(element.dataset.dcmsDeleteConfirmMessage) : Lang('Are you sure you want to delete this object?'),
+        completeTitle: (element.dataset.dcmsDeleteCompleteTitle) ? Lang(element.dataset.dcmsDeleteCompleteTitle) : Lang('Deleted object'),
+        completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang('The object has been succesfully deleted.'),
+        failedTitle: (element.dataset.dcmsDeleteFailedTitle) ? Lang(element.dataset.dcmsDeleteFailedTitle) : Lang('Deleting failed'),
+        failedMsg: (element.dataset.dcmsDeleteFailedMessage) ? Lang(element.dataset.dcmsDeleteFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
         redirect: redirect
     });
 });
@@ -371,4 +375,25 @@ window.MergeColumns = function (row, column) {
         value = row[column];
     }
     return value;
+}
+
+/**
+*
+*  Load links in modal
+*
+*/
+
+window.LoadInModal = function (url, modal){
+    $.get(url, function (data) {
+        el = $('#global_modal');
+        el.find('.modal-content').html(data);
+        el.modal('show');
+        if (el.find('[data-modal-init').length == 1) {
+            let callback = el.find('[data-modal-init]').data('modal-init');
+            var fn = window[callback];
+            if (typeof fn === 'function') {
+                fn(el);
+            }
+        }
+    });
 }
