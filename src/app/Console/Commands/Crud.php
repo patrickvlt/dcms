@@ -327,6 +327,8 @@ use Illuminate\\Database\\Eloquent\\Model;
 class '.$model.' extends Model
 {
     use DCMSModel;
+
+    protected $guarded = ["id"];
     
     '.$relEntries.'
 }';

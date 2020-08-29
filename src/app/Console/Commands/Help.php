@@ -70,27 +70,26 @@ class Help extends Command
         }
         if ($part == 'dcmsdatatable'){
             $print = 
-'<head>
+`<head>
     <link href="assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
 </head>
 
-<div class="card card-custom mt-5">
+<div class="card card-custom mt-5" id="tableParent">
     <div class="card-header flex-wrap border-0 pt-6 pb-0">
         <div class="card-title">
-            <h3 class="card-label">{{ __(\'Alles In Een Pakketten\') }}</h3>
+            <h3 class="card-label">{{ __('Categories') }}</h3>
         </div>
     </div>
-    <div class=\'card-body\'>
-        <div class=\'mb-7\'>
-            <div class=\'row align-items-center\'>
-                <div class=\'col-lg-9 col-xl-8\'>
-                    <div class=\'row align-items-center\'>
-                        <div class=\'col-md-4 my-2 my-md-0\'>
-                            <div class=\'input-icon\'>
-                                <input type=\'text\' class=\'form-control\' placeholder={{ __(\'Zoeken\') }}
-                                    id=\'kt_datatable_search_query\' />
+    <div class='card-body'>
+        <div class='mb-7'>
+            <div class='row align-items-center'>
+                <div class='col-lg-9 col-xl-8'>
+                    <div class='row align-items-center'>
+                        <div class='col-md-4 my-2 my-md-0'>
+                            <div class='input-icon'>
+                                <input type='text' class='form-control' placeholder={{ __('Search') }} data-kt-action="search" />
                                 <span>
-                                    <i class=\'flaticon2-search-1 text-muted\'></i>
+                                    <i class='flaticon2-search-1 text-muted'></i>
                                 </span>
                             </div>
                         </div>
@@ -98,65 +97,51 @@ class Help extends Command
                 </div>
             </div>
         </div>
-        <div class=\'row py-5\'>
-            <div class=\'col-lg-2\'>
-                <div class="kt_datatable_rowcontrols" style="display:none">
-                    <div class=\'input-group\'>
-                        <div class=\'input-group-prepend\'>
-                            <span class=\'input-group-text\'>{{ __(\'ID:\') }}</span>
-                        </div>
-                        <input type=\'text\' class=\'form-control\' id=\'kt_datatable_check_input\' value=\'1\' />
-                        <div class=\'input-group-append\'>
-                            <button class=\'btn btn-secondary font-weight-bold\' type=\'button\'
-                                id=\'kt_datatable_check\'>{{ __(\'Selecteer rij\') }}</button>
-                        </div>
+        <div class='row py-5'>
+            <div class='col-lg-2'>
+            <div data-kt-type="selector" style="display:none">
+                <div class='input-group'>
+                    <div class='input-group-prepend'>
+                        <span class='input-group-text'>{{ __('ID:') }}</span>
                     </div>
+                    <input type='text' class='form-control' data-kt-filter="id" />
                 </div>
             </div>
-            <div class=\'col-lg-10\'>
-                <button class=\'btn btn-light font-weight-bold\' type=\'button\'
-                    id=\'kt_datatable_reload\'>{{ __(\'Vernieuwen\') }}</button>
-                <div class="kt_datatable_rowcontrols" style="display:none">
-                    <button class=\'btn btn-light font-weight-bold\' type=\'button\'
-                        id=\'kt_datatable_check_all\'>{{ __(\'Selecteer alle rijen\') }}</button>
-                    <button class=\'btn btn-light font-weight-bold\' type=\'button\'
-                        id=\'kt_datatable_uncheck_all\'>{{ __(\'Deselecteer alle rijen\') }}</button>
-                    <button class=\'btn btn-light font-weight-bold\' type=\'button\'
-                        id=\'kt_datatable_remove_row\'>{{ __(\'Verwijder geselecteerde rijen\') }}</button>
+            </div>
+            <div class='col-lg-10'>
+                <div data-kt-type="controls" style="display:none">
+                    <button class='btn btn-light font-weight-bold' type='button' data-kt-action="reload">{{ __('Refresh') }}</button>
+                    <button class='btn btn-light font-weight-bold' type='button' data-kt-action="check-all">{{ __('Select all rows') }}</button>
+                    <button class='btn btn-light font-weight-bold' type='button' data-kt-action="uncheck-all" >{{ __('Deselect all rows') }}</button>
+                    <button class='btn btn-light font-weight-bold' type='button' data-kt-action="remove-rows">{{ __('Delete selected rows') }}</button>
                 </div>
             </div>
         </div>
-        <div class=\'datatable datatable-bordered datatable-head-custom\' id=\'pkgaioDT\' data-route=\'/pkgaio\'
-            data-edit-route={{ route(\'pkgaio.edit\',\'__id__\') }}
-            data-destroy-route={{ route(\'pkgaio.destroy\',\'__id__\') }} data-page-size=20 data-pagination=true
-            data-scrolling=false data-include-actions=true data-include-selector=true
-            data-delete-rows-confirm-title=\'{{ __(\'Verwijder pakketten\') }}\'
-            data-delete-rows-confirm-message=\'{{ __(\'Weet u zeker dat u deze pakketten wil verwijderen?\') }}\'
-            data-delete-rows-complete-title=\'{{ __(\'Pakketten verwijderd\') }}\'
-            data-delete-rows-complete-message=\'{{ __(\'De pakketten zijn verwijderd.\') }}\'
-            data-delete-rows-failed-title=\'{{ __(\'Verwijderen mislukt\') }}\'
-            data-delete-rows-failed-message=\'{{ __(\'De pakketten konden niet verwijderd worden.\') }}\'
-            data-delete-single-confirm-title="{{ __(\'Verwijder pakket\') }}"
-            data-delete-single-confirm-message="{{ __(\'Weet u zeker dat u dit pakket wil verwijderen?\') }}"
-            data-delete-single-complete-title="{{ __(\'Pakket verwijderd\') }}"
-            data-delete-single-complete-message="{{ __(\'Het pakket is verwijderd.\') }}"
-            data-delete-single-failed-title="{{ __(\'Verwijderen mislukt\') }}"
-            data-delete-single-failed-message="{{ __(\'Het pakket kan niet verwijderd worden.\') }}">
-            <div id=\'tableColumns\'>
-                <div data-title="{{ __(\'Name\') }}" data-column=\'name\' data-href="__website__" data-width=\'150\'></div>
-                <div data-title="{{ __(\'User\') }}" data-column=\'name\' data-width=\'200\' data-type=\'card\'
-                    data-card-color=\'primary\' data-card-title="name" data-card-info="created_at" data-card-image="logo">
-                </div>
-                <div data-title="{{ __(\'E-mail\') }}" data-column=\'email\' data-width=\'150\'></div>
-                <div data-title="{{ __(\'Logo\') }}" data-column=\'logo\' data-type="image" data-width=\'150\'></div>
-                <div data-title="{{ __(\'Price\') }}" data-column=\'price\' data-type="price" data-currency="€"
-                    data-width=\'150\'></div>
-                <div data-title="{{ __(\'Verified\') }}" data-column=\'created_at\' data-type="boolean"
-                    data-text-color="success" data-width=\'150\'></div>
-                <div data-title="{{ __(\'Phone number\') }}" data-column=\'phone_nr\' data-type=\'icon\'
-                    data-icon-class=\'fas fa-phone mr-2 icon-sm\' data-width=\'150\'></div>
-                <div data-title="{{ __(\'Website\') }}" data-column=\'website\' data-type=\'icon\'
-                    data-icon-class=\'fab fa-internet-explorer mr-2 icon-sm\' data-width=\'150\'></div>
+        <div class='datatable datatable-bordered datatable-head-custom' 
+            data-kt-route='/category' 
+            data-kt-parent="#tableParent"
+            data-kt-edit-route={{ route('category.edit','__id__') }}
+            data-kt-destroy-route={{ route('category.destroy','__id__') }} 
+            data-kt-page-size=10 
+            data-kt-pagination=true
+            data-kt-scrolling=false 
+            data-kt-include-actions=true 
+            data-kt-include-selector=true
+            data-kt-delete-rows-confirm-title="{{ __('Delete categories') }}"
+            data-kt-delete-rows-confirm-message="{{ __('Are you sure you want to delete these categories?') }}"
+            data-kt-delete-rows-complete-title="{{ __('Categories deleted') }}"
+            data-kt-delete-rows-complete-message="{{ __('The categories have been deleted.') }}"
+            data-kt-delete-rows-failed-title="{{ __('Deleting failed') }}"
+            data-kt-delete-rows-failed-message="{{ __('The categories couldn\'t be deleted.') }}"
+            data-kt-delete-single-confirm-title='{{ __('Delete category') }}'
+            data-kt-delete-single-confirm-message='{{ __('Are you sure you want to delete this category?') }}'
+            data-kt-delete-single-complete-title='{{ __('Deleted category') }}'
+            data-kt-delete-single-complete-message='{{ __('The category is deleted.') }}'
+            data-kt-delete-single-failed-title='{{ __('Deleting failed') }}'
+            data-kt-delete-single-failed-message='{{ __('This category couldn\'t be deleted.') }}'
+            >
+            <div data-kt-type="columns">
+                <div data-kt-title="{{ __('Category') }}" data-kt-column="name" data-kt-width="100"></div>
             </div>
         </div>
     </div>
@@ -172,30 +157,18 @@ class Help extends Command
     DCMSDatatable({
         table: $(".datatable"),
         //customColumns: [{
-        //    field: Lang("Totaal"),
-        //    title: Lang("Totaal"),
+        //    field: column,
+        //    title: Lang("Column"),
         //    order: 5,
         //    sortable: false,
         //    width: 200,
         //    autoHide: false,
         //    textAlign: "center",
         //    template: function (row) {
-        //        let pricePerMonth = row.price;
-        //        let oneOffCosts = row.one_off_costs;
-        //        let discount = row.discount;
-        //
-        //        let totalCosts = pricePerMonth * 12 - discount;
-        //
-        //        let priceDiv = (row.price) ? `<div><p class="pricePerMonth">`+Lang("Prijs per maand:")+` €`+pricePerMonth+`,-`+`</p></div>` : ";
-        //        let oneOffCostsDiv = (row.one_off_costs) ? `<div><p class="oneOffCosts">`+Lang("Eenmalige kosten:")+` €`+oneOffCosts+`,-`+`</p></div>` : ";
-        //        let discountDiv = (row.discount) ? `<div><p class="discount">`+Lang("Korting:")+discount+`</p></div>` : ";
-        //        let totalDiv = `<br><div><p class="totalCosts">`+Lang("Totaal:")+` €`+totalCosts+`,-`+`</p></div>`;
-        //
-        //        return priceDiv + oneOffCostsDiv + discountDiv + totalDiv;
         //    }
         //}]
     });
-</script>';
+</script>`;
             $console->info($print);
         }
 
