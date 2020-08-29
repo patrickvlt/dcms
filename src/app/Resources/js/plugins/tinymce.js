@@ -7,7 +7,7 @@ if (document.querySelectorAll('[data-type=tinymce]').length > 0) {
           language_url: window.langFiles,
           language: window.locale,
           plugins: window.tinyMCEplugins,
-          menubar: window.tinyMCEtoolbar,
+          toolbar1: window.tinyMCEtoolbar,
         });
     });
 }

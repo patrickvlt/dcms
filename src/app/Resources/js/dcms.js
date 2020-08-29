@@ -22,8 +22,8 @@ window.language = (locale) ? locale : window.language;
 
 // TinyMCE
 window.langFiles = '/js/dcms/tinymce_lang/'+window.language+'.js';
-window.tinyMCEplugins = 'link';
-window.tinyMCEtoolbar = 'insert';
+window.tinyMCEplugins = 'print preview fullpage searchreplace autolink directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists textcolor wordcount imagetools  contextmenu colorpicker textpattern help';
+window.tinyMCEtoolbar = 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat';
 
 // Filepond
 window.FilePondMaxFileSize = 1; //in MB
