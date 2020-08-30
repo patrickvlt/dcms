@@ -31,7 +31,11 @@ trait DCMSController
             return $indexQuery;
         }
         $indexView = (isset($this->DCMS()['views']['index'])) ? $this->DCMS()['views']['index'] : 'index';
-        return view($this->DCMSPrefix().'.'.$indexView);
+
+        $vars = method_exists($this,'beforeIndex') ? $this->beforeIndex() : null;
+        return view($this->DCMSPrefix().'.'.$indexView)->with(
+            $vars
+        );
     }
 
     public function show($id)
@@ -40,8 +44,11 @@ trait DCMSController
         $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
         $$prefix = $class::FindOrFail($id);
         $showView = (isset($this->DCMS()['views']['show'])) ? $this->DCMS()['views']['show'] : 'show';
+
+        $vars = method_exists($this,'beforeShow') ? $this->beforeShow($id) : null;
         return view($prefix.'.'.$showView)->with([
-            $prefix => $$prefix
+            $prefix => $$prefix,
+            $vars
         ]);
     }
 
@@ -52,8 +59,10 @@ trait DCMSController
         $$prefix = $class::FindOrFail($id);
         $showView = (isset($this->DCMS()['views']['edit'])) ? $this->DCMS()['views']['edit'] : 'edit';
 
+        $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($prefix.'.'.$showView)->with([
-            $prefix => $$prefix
+            $prefix => $$prefix,
+            $vars
         ]);
     }
 
@@ -61,7 +70,11 @@ trait DCMSController
     {
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $createView = (isset($this->DCMS()['views']['create'])) ? $this->DCMS()['views']['create'] : 'create';
-        return view($prefix.'.'.$createView);
+
+        $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
+        return view($prefix.'.'.$createView)->with(
+            $vars
+        );
     }
 
     public function crud($createdOrUpdated,$id=null)
