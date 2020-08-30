@@ -81,8 +81,9 @@ trait DCMSController
     {
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
+        $file = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($prefix)['file'];
 
-        $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
+        $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $file.'Request';
         $classRequest = '\App\Http\Requests\\'.$requestFile;
 
         $requestData = request()->all();
