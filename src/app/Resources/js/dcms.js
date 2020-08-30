@@ -65,6 +65,7 @@ window.Lang = function (string) {
  */
 
 try {
+    require('./plugins/toastr.js');
     if (window.SweetAlert == true || window.JQAlerts == true) {
         require('./plugins/alerts.js');
     }
@@ -195,6 +196,7 @@ window.HttpReq = function (formMethod, formAction, formData) {
 document.addEventListener("DOMContentLoaded", function(){
     let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
     function SubmitAjax(e) {
+        tinyMCE.triggerSave();
         let formAction = e.target.action;
         let formMethod = e.target.method;
         let formData = new FormData(e.target);
@@ -396,4 +398,18 @@ window.LoadInModal = function (url, modal){
             }
         }
     });
+}
+
+/**
+*
+*  Copy text to clipboard
+*/
+
+window.textToClipBoard = function (text) {
+    var dummy = document.createElement("textarea");
+    document.body.appendChild(dummy);
+    dummy.value = text;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
 }

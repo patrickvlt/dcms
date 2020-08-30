@@ -22,6 +22,9 @@
 // @import 'https://bossanova.uk/jsuites/v2/jsuites.css';
 
 @import "plugins/splide.min.scss";
+@import "plugins/splide.scss";
+
+@import "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css";
 
 .dcmsImg {
     height: 13rem;
@@ -54,26 +57,6 @@
     display: inline-block;
 }
 
-.glideJSimg {
-    height: 100%;
-    background-size: cover;
-    margin-right: 3px;
-    border-radius: 3px;
-    background-position: center;
-}
-
-.splide__track {
-    justify-content: center !important;
-    display: flex !important;
-}
-
-.splide {
-    margin-bottom: 10px !important;
-}
-
-.splideDelete {
-    position: relative;
-    right: 33px;
-    z-index: 10000;
-    top: 6px;
+[data-type=filepond] {
+    display:none;
 }

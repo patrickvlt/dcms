@@ -95,7 +95,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
             process: {
                 url: '/'+inputElement.dataset.filepondPrefix+'/file/process/'+inputElement.dataset.filepondMime+'/'+inputElement.dataset.filepondColumn,
                 onerror: (res) => {
-                    let response, errors = [];
+                    let response, errors = '';
                     try {
                         response = JSON.parse(res);
                     } catch (error) {
@@ -107,14 +107,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                         });
                         return;
                     };
-                    if (response instanceof Object){
-                        $.each(response, function (x, error) { 
-                            errors.push(error[0]);
-                        });
-                    } else {
-                        errors = res.replace(/"/g,'');
-                    }
-                    if (response.status !== 500 && response.status !== 404){
+                    if (!response.errors){
                         Alert('error', Lang('Upload failed'), Lang('An error occurred on the server. Contact support if this problem persists.'), {
                             confirm: {
                                 text: Lang('Ok'),
@@ -122,7 +115,12 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                             },
                         });
                     }
-                    if (response.status == 422){
+                    if (response.errors){
+                        $.each(response.errors, function (x, objWithErrors) { 
+                            $.each(objWithErrors, function (x, error) { 
+                                errors += error + '<br>'
+                            });
+                        });
                         Alert('error', Lang('Upload failed'), errors, {
                             confirm: {
                                 text: Lang('Ok'),
@@ -141,8 +139,8 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 method: 'DELETE',
             }
         }
+        $('[data-type=filepond]').show();
     }
-    
     window.addEventListener('DOMContentLoaded', (event) => {
         const inputElement = document.querySelector('input[data-type=filepond]');
         document.querySelectorAll('input[data-type=filepond]').forEach(function (element){

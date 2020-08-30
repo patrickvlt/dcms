@@ -1,5 +1,5 @@
 if (document.querySelectorAll('[data-type=datepicker]').length > 0) {
-    window.addEventListener('DOMContentLoaded', (event) => {
+    // window.addEventListener('DOMContentLoaded', (event) => {
         $.each($("[data-type=datepicker]"), function (x, element) { 
             var autoClose, format, weekStart;
             autoClose = ($(element).data('datepicker-auto-close')) ? $(element).data('datepicker-auto-close') : true;
@@ -13,5 +13,5 @@ if (document.querySelectorAll('[data-type=datepicker]').length > 0) {
                 todayHighlight: true,
             });
         });
-    })
+    // })
 }

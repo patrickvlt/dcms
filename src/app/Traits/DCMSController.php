@@ -26,6 +26,9 @@ trait DCMSController
 
     public function index()
     {
+        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
+        
         $indexQuery = (isset($this->DCMS()['indexQuery'])) ? $this->DCMS()['indexQuery'] : FindClass($this->DCMSPrefix())['class']::all();
         if (request()->ajax()) {
             return $indexQuery;
@@ -33,9 +36,7 @@ trait DCMSController
         $indexView = (isset($this->DCMS()['views']['index'])) ? $this->DCMS()['views']['index'] : 'index';
 
         $vars = method_exists($this,'beforeIndex') ? $this->beforeIndex() : null;
-        return view($this->DCMSPrefix().'.'.$indexView)->with(
-            $vars
-        );
+        return view($prefix.'.'.$indexView)->with($vars);
     }
 
     public function show($id)
@@ -46,10 +47,7 @@ trait DCMSController
         $showView = (isset($this->DCMS()['views']['show'])) ? $this->DCMS()['views']['show'] : 'show';
 
         $vars = method_exists($this,'beforeShow') ? $this->beforeShow($id) : null;
-        return view($prefix.'.'.$showView)->with([
-            $prefix => $$prefix,
-            $vars
-        ]);
+        return view($prefix.'.'.$showView,compact($$prefix))->with($vars);
     }
 
     public function edit($id)
@@ -57,13 +55,10 @@ trait DCMSController
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
         $$prefix = $class::FindOrFail($id);
-        $showView = (isset($this->DCMS()['views']['edit'])) ? $this->DCMS()['views']['edit'] : 'edit';
+        $editView = (isset($this->DCMS()['views']['edit'])) ? $this->DCMS()['views']['edit'] : 'edit';
 
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
-        return view($prefix.'.'.$showView)->with([
-            $prefix => $$prefix,
-            $vars
-        ]);
+        return view($prefix.'.'.$editView,compact($$prefix))->with($vars);
     }
 
     public function create()
@@ -72,9 +67,7 @@ trait DCMSController
         $createView = (isset($this->DCMS()['views']['create'])) ? $this->DCMS()['views']['create'] : 'create';
 
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
-        return view($prefix.'.'.$createView)->with(
-            $vars
-        );
+        return view($prefix.'.'.$createView)->with($vars);
     }
 
     public function crud($createdOrUpdated,$id=null)
@@ -216,13 +209,20 @@ trait DCMSController
             }
         }
         if ($abort == true){
-            return response()->json(__('File is above ').MaxSizeServer('mb').'MB.',422);
+            return response()->json([
+                'message' => __('Upload failed'),
+                'errors' => [
+                    'file' => [
+                        __('File is above ').MaxSizeServer('mb').'MB.'
+                    ]
+                ]
+            ], 422);
         }
         if ($abort == false){
             $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
             $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
             $file = FindClass($prefix)['file'];
-            $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
+            $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $file.'Request';
             $classRequest = '\App\Http\Requests\\'.$requestFile;
 
             $column = str_replace('[]','',$column);
@@ -230,9 +230,13 @@ trait DCMSController
             $uploadRules = (new $classRequest())->uploadRules();
 
             $request = Validator::make(request()->all(), $uploadRules,(new $classRequest())->messages());
-
-            if ($request->fails()){
-                return response()->json($request->errors(),422);
+            if ($request->failed()) {
+                return response()->json([
+                    'message' => __('Upload failed'),
+                    'errors' => [
+                        $request->errors()
+                    ]
+                ], 422);
             }
             else {
                 $request = $request->validated();
