@@ -55,63 +55,75 @@ class '.$model.'Controller extends Controller
 {
     use DCMSController;
 
-    function DCMS()
-    {
-        // All these settings are optional, DCMS uses default routes and messages, you can override these
-        return [
-            "routePrefix" => "'.$prefix.'",
-            "class" => "'.$model.'",
-            "indexQuery" => '.$model.'::all(),
-            "created" => [
-                "title" => __("'.$model.' created"),
-                "message" => __("'.$model.' created on __created_at__"),
-                "url" => "/'.$prefix.'"
-            ],
-            "updated" => [
-                "title" => __("__name__ updated"),
-                "message" => __("__name__ updated on __created_at__"),
-                "url" => "/'.$prefix.'"
-            ],
-            "deleted" => [
-                "url" => "/'.$prefix.'"
-            ],
-            "request" => "'.$model.'Request",
-            "views" => [
-                "index" => "index",
-                "show" => "crud",
-                "edit" => "crud",
-                "create" => "crud"
-            ],
-            // for jExcel imports
-            "import" => [
-                // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
-                "columns" => [
-                    "name" => 0,
-                    "created_at" => 5
-                ],
-                // // finished or failed custom messages
-                //"finished" => [
-                //    "title" => __("Import succeeded"),
-                //    "message" => __("All data has been imported."),
-                //],
-                //"failed" => [
-                //    "title" => __("Import failed"),
-                //    "message" => __("Some fields contain invalid data."),
-                //]
-            ]
-        ];
-    }
+    // All the code below is optional, you can use this as a reference or to override variables/functions.
 
-    // if you want to override store or update functions, uncomment and use this
-    // DCMSJSON returns the dynamic JSON response after creating/updating
+    // // This function defines all the settings for DCMS for the current object.
+    // // This will help pointing the controller to the right route, class, use the right messages in alerts, etc.
+    // function DCMS()
+    // {
+    //     return [
+    //         "routePrefix" => "'.$prefix.'",
+    //         "class" => "'.$model.'",
+    //         "indexQuery" => '.$model.'::all(),
+    //         "created" => [
+    //             "title" => __("'.$model.' created"),
+    //             "message" => __("'.$model.' created on __created_at__"),
+    //             "url" => "/'.$prefix.'"
+    //         ],
+    //         "updated" => [
+    //             "title" => __("__name__ updated"),
+    //             "message" => __("__name__ updated on __created_at__"),
+    //             "url" => "/'.$prefix.'"
+    //         ],
+    //         "deleted" => [
+    //             "url" => "/'.$prefix.'"
+    //         ],
+    //         "request" => "'.$model.'Request",
+    //         "views" => [
+    //             "index" => "index",
+    //             "show" => "crud",
+    //             "edit" => "crud",
+    //             "create" => "crud"
+    //         ],
+    //         // for jExcel imports
+    //         "import" => [
+    //             // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
+    //             "columns" => [
+    //                 "name" => 0,
+    //                 "created_at" => 5
+    //             ],
+    //             // finished or failed custom messages
+    //             "finished" => [
+    //                 "title" => __("Import succeeded"),
+    //                 "message" => __("All data has been imported."),
+    //             ],
+    //             "failed" => [
+    //                 "title" => __("Import failed"),
+    //                 "message" => __("Some fields contain invalid data."),
+    //             ]
+    //         ]
+    //     ];
+    // }
+
+    // // if you want to override store or update functions, uncomment and use this    
+    // // DCMSJSON returns the dynamic JSON response after creating/updating
 
     // public function store('.$model.'Request $request, '.$model.' $'.$prefix.'){
-    //     return $this->DCMSJSON($$prefix,"created");
+    //     return $this->DCMSJSON($'.$prefix.',"created");
     // }
 
     // public function update('.$model.'Request $request, '.$model.' $'.$prefix.'){
-    //     return $this->DCMSJSON($$prefix,"updated");
+    //     return $this->DCMSJSON($'.$prefix.',"updated");
     // }
+
+    // // if you want to pass variables to the default Laravel functions, but still use DCMS functions, you can do it like below:
+    // // NOTE: remember to define the same default parameters for these functions. Like beforeEdit($id), beforeIndex(), for example.
+
+    public function beforeIndex(){
+        $someVar = "someValue";
+        $someArr = [];
+        return compact("someVar","someArr");
+    }
 }';
         file_put_contents($file, $str);
         $console->info('Added DCMS trait to controller.');

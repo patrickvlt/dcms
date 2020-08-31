@@ -12,6 +12,10 @@ $GLOBALS['classFolders'] = [
 
 trait DCMSController
 {
+    public function DCMS(){
+        // leave this empty
+    }
+
     public function DCMSPrefix(){
         return (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
     }
@@ -86,7 +90,7 @@ trait DCMSController
                 $requestData[$modKey] = $modValue;
             }
         } catch (\Throwable $th) {
-            //throw $th;
+            dd($th);
         }
         $request = Validator::make($requestData, (new $classRequest())->rules(), (new $classRequest())->messages());
         $request = $request->validated();
@@ -241,7 +245,14 @@ trait DCMSController
             else {
                 $request = $request->validated();
                 if (count($request) <= 0){
-                    return response()->json(__('File is invalid.'),422);
+                    return response()->json([
+                        'message' => __('Upload failed'),
+                        'errors' => [
+                            'file' => [
+                                __('File couldn\'t get validated.')
+                            ]
+                        ]
+                    ], 422);
                 }
                 $file = $request[$column][0];
                 $file->store('public/files/' . $type.'/'.$column);
