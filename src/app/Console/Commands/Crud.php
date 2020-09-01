@@ -119,11 +119,17 @@ class '.$model.'Controller extends Controller
     // // if you want to pass variables to the default Laravel functions, but still use DCMS functions, you can do it like below:
     // // NOTE: remember to define the same default parameters for these functions. Like beforeEdit($id), beforeIndex(), for example.
 
-    public function beforeIndex(){
-        $someVar = "someValue";
-        $someArr = [];
-        return compact("someVar","someArr");
-    }
+    // public function beforeIndex(){
+    //     $someVar = "someValue";
+    //     $someArr = [];
+    //     return compact("someVar","someArr");
+    // }
+
+    // public function beforeEdit($id){
+    //     $someVar = "someValue";
+    //     $someArr = [];
+    //     return compact("someVar","someArr");
+    // }
 }';
         file_put_contents($file, $str);
         $console->info('Added DCMS trait to controller.');
@@ -204,7 +210,7 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $
                 }
                 $GLOBALS['enableSeed'] = $console->confirm('Do you want to seed: '.$dbColumn.'?');
                 if ($GLOBALS['enableSeed']){
-                    $column['seed'] = $console->ask('Enter the seed data (faker function, string, anything you want)');
+                    $column['seed'] = $console->ask('Enter the seed data without a ; at the end (for example, $faker->word(), or "Seed this sentence" ).');
                 }
 
                 $columns[$dbColumn] = $column;
@@ -348,7 +354,7 @@ class '.$model.' extends Model
         file_put_contents($file, $str);
         $console->info('Configured model.');
 
-        //configure model
+        //configure request
         $file = $request;
         $reqEntries = '';
         foreach ($columns as $column){
@@ -390,7 +396,7 @@ class '.$model.'Request extends FormRequest
 
     public function beforeValidation()
     {
-        // $request = request()->all();
+        $request = request()->all();
 
         // // Modify all requests
         // $request["foo"] = "bar";
@@ -401,7 +407,7 @@ class '.$model.'Request extends FormRequest
         // else if (FormMethod() == "PUT"){
         // } 
 
-        // return $request;
+        return $request;
     }
 
     /**

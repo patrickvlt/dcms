@@ -14,6 +14,9 @@ document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x)
     function defaultImgString(img,dcars,dcarPrefix,dcarColumn){
         return `<div class="dCar-div">
             <div class="dCar-controls">
+                <a class="dcarBtn spotlight" href="`+img+`" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
+                    <i class="fas fa-eye"></i>
+                </span></a>
                 <a class="dcarBtn" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
                     <i class="fas fa-copy"></i>
                 </span></a>
@@ -72,36 +75,38 @@ document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x)
 })
 
 if (document.querySelectorAll('[data-type=dcarousel]').length > 0){
-    const gap = 300;
+    document.querySelectorAll('[data-type=dcarousel').forEach(function(element){
+        const gap = 500;
 
-    const carousel = document.getElementById("dCar-carousel"),
-      content = document.getElementById("dCar-content"),
-      next = document.getElementById("dCar-next"),
-      prev = document.getElementById("dCar-prev");
+        const carousel = element.querySelector("#dCar-carousel"),
+          content = element.querySelector("#dCar-content"),
+          next = element.querySelector("#dCar-next"),
+          prev = element.querySelector("#dCar-prev");
 
-    next.addEventListener("click", e => {
-        carousel.scrollBy(width + gap, 0);
-        if (carousel.scrollWidth !== 0) {
-        prev.style.display = "flex";
-        }
-        if (content.scrollWidth - width - gap <= carousel.scrollLeft + width) {
-        next.style.display = "none";
-        }
-    });
+        next.addEventListener("click", e => {
+            carousel.scrollBy(width + gap, 0);
+            if (carousel.scrollWidth !== 0) {
+            prev.style.display = "flex";
+            }
+            if (content.scrollWidth - width - gap <= carousel.scrollLeft + width) {
+            next.style.display = "none";
+            }
+        });
 
-    prev.addEventListener("click", e => {
-        carousel.scrollBy(-(width + gap), 0);
-        if (carousel.scrollLeft - width - gap <= 0) {
-        prev.style.display = "none";
-        }
-        if (!content.scrollWidth - width - gap <= carousel.scrollLeft + width) {
-        next.style.display = "flex";
-        }
-    });
+        prev.addEventListener("click", e => {
+            carousel.scrollBy(-(width + gap), 0);
+            if (carousel.scrollLeft - width - gap <= 0) {
+            prev.style.display = "none";
+            }
+            if (!content.scrollWidth - width - gap <= carousel.scrollLeft + width) {
+            next.style.display = "flex";
+            }
+        });
 
 
-    let width = carousel.offsetWidth;
-    window.addEventListener("resize", e => (width = carousel.offsetWidth));
+        let width = carousel.offsetWidth;
+        window.addEventListener("resize", e => (width = carousel.offsetWidth));
+    })
 }
 
 $(document).on('click','[data-dCar-action="destroy"]',function(element){
@@ -152,3 +157,11 @@ $(document).on('click','[data-dCar-action="copy"]',function(element){
     textToClipBoard(img);
     toastr.info(Lang('Image copied to clipboard.'))
 })
+
+$(document).on('mouseenter','.dCar-div',function () {
+    $(this).find('.dCar-controls').css('visibility','visible');
+  });
+
+$(document).on('mouseleave','.dCar-div',function () {
+    $(this).find('.dCar-controls').css('visibility','hidden');
+});

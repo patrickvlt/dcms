@@ -75,7 +75,6 @@ require('./plugins/datepicker.js');
 require('./plugins/jexcel.js');
 require('./plugins/spotlight.js');
 require('./plugins/filepond.js');
-// require('./plugins/jspdftable.js');
 require('./metronic/dcmsdatatable.js');
 
 /**
