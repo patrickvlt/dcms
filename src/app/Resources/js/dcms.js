@@ -64,23 +64,19 @@ window.Lang = function (string) {
  *
  */
 
-try {
-    require('./plugins/toastr.js');
-    if (window.SweetAlert == true || window.JQAlerts == true) {
-        require('./plugins/alerts.js');
-    }
-    require('./plugins/carousel.js');
-    require('./plugins/slimselect.js');
-    require('./plugins/tinymce.js');
-    require('./plugins/datepicker.js');
-    require('./plugins/jexcel.js');
-    require('./plugins/spotlight.js');
-    require('./plugins/filepond.js');
-    // require('./plugins/jspdftable.js');
-    require('./metronic/dcmsdatatable.js');
-} catch (error) {
-    console.log(error);
+require('./plugins/toastr.js');
+if (window.SweetAlert == true || window.JQAlerts == true) {
+    require('./plugins/alerts.js');
 }
+require('./plugins/carousel.js');
+require('./plugins/slimselect.js');
+require('./plugins/tinymce.js');
+require('./plugins/datepicker.js');
+require('./plugins/jexcel.js');
+require('./plugins/spotlight.js');
+require('./plugins/filepond.js');
+// require('./plugins/jspdftable.js');
+require('./metronic/dcmsdatatable.js');
 
 /**
  *
