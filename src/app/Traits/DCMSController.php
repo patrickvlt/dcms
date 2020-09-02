@@ -90,7 +90,7 @@ trait DCMSController
                 $requestData[$modKey] = $modValue;
             }
         } catch (\Throwable $th) {
-            dd($th);
+            //
         }
         $request = Validator::make($requestData, (new $classRequest())->rules(), (new $classRequest())->messages());
         $request = $request->validated();
