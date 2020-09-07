@@ -7880,6 +7880,10 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
                                     if (parseFloat(recordValue) <= parseFloat(filterValue)){
                                         matched++;
                                     }
+                                } else if (window.KTForceExactOn.includes(m_key)) {
+                                    if (recordValue == filterValue){
+                                        matched++;
+                                    }
                                 }
                                 else {
                                     if (filter.toString().toLowerCase() == recordValueToString || recordValueToString.indexOf(filter.toString().toLowerCase()) !== -1) {

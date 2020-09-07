@@ -331,6 +331,7 @@ window.DCMSDatatable = function (parameters) {
 
 		window.KTAllowMoreOn = [];
 		window.KTAllowLessOn = [];
+		window.KTForceExactOn = [];
 		window.KTRemoveFilters = [];
 
 		$.each($($(table).data('kt-parent')).find('[data-kt-filter]'), function (key, filter) {
@@ -339,6 +340,7 @@ window.DCMSDatatable = function (parameters) {
 					if (filter.currentTarget.type !== 'checkbox') {
 						(filter.currentTarget.dataset.ktAllowMore == 'true' && !window.KTAllowMoreOn.includes(filter.currentTarget.dataset.ktFilter)) ? window.KTAllowMoreOn.push(filter.currentTarget.dataset.ktFilter): '';
 						(filter.currentTarget.dataset.ktAllowLess == 'true' && !window.KTAllowLessOn.includes(filter.currentTarget.dataset.ktFilter)) ? window.KTAllowLessOn.push(filter.currentTarget.dataset.ktFilter): '';
+						(filter.currentTarget.dataset.ktForceExact == 'true' && !window.KTForceExactOn.includes(filter.currentTarget.dataset.ktFilter)) ? window.KTForceExactOn.push(filter.currentTarget.dataset.ktFilter): '';
 						datatable.search(filter.currentTarget.value, filter.currentTarget.dataset.ktFilter);
 					} else {
 						if (this.checked == true) {
