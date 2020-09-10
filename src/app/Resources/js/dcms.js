@@ -1,12 +1,11 @@
+import Swal from './plugins/assets/sweetalert.js';
+window.Swal = Swal;
+
 /**
 *
 *  Plugin Settings
 *
 */
-
-// Alerts - pick one
-window.JQAlerts = true;
-window.SweetAlert = false;
 
 // Date Format
 window.AppDateFormat = "dd-mm-yyyy";
@@ -41,12 +40,12 @@ try {
  *
  */
 
-// There are no translations
 try {
     var lang = require('../../../resources/lang/' + window.language + '.json');
 } catch (error) {
     console.log('No translation yet for: ' + window.language);
 }
+
 window.Lang = function (string) {
     try {
         var langVal;
@@ -65,9 +64,6 @@ window.Lang = function (string) {
  */
 
 require('./plugins/toastr.js');
-if (window.SweetAlert == true || window.JQAlerts == true) {
-    require('./plugins/alerts.js');
-}
 require('./plugins/carousel.js');
 require('./plugins/slimselect.js');
 require('./plugins/tinymce.js');
@@ -155,30 +151,29 @@ window.HttpReq = function (formMethod, formAction, formData) {
             'X-CSRF-TOKEN': window.csrf
         },
         success: function (response) {
-            Alert('success', Lang((response['title']) ? response['title'] : 'Succesfully created'), Lang((response['message']) ? response['message'] : 'Your request was successful.'), {
-                confirm: {
-                    text: Lang('Ok'),
-                    btnClass: 'btn-success',
-                    action: function () {
-                        if (response.url) {
-                            window.location.href = response.url;
-                        }
+            Swal.fire({
+                title: Lang((response['title']) ? response['title'] : 'Succesfully created'),
+                text: Lang((response['message']) ? response['message'] : 'Your request was successful.'),
+                icon: "success"
+            }).then(function(result){
+                if (result.value){
+                    if (response.url) {
+                        window.location.href = response.url;
                     }
-                },
+                }
             });
         },
         error: function (response) {
-            reply = response.responseJSON;
+            var reply = response.responseJSON;
             if (reply['errors']) {
                 let errorString = '';
                 $.each(reply['errors'], function (key, error) {
                     errorString = errorString + error[0].replace(':', '.') + "<br>";
                 });
-                Alert('error', Lang(reply['message']), errorString, {
-                    confirm: {
-                        text: Lang('Ok'),
-                        btnClass: 'btn-danger',
-                    }
+                Swal.fire({
+                    title: Lang(reply['message']),
+                    html: errorString,
+                    icon: "error"
                 });
             }
         },
@@ -242,90 +237,72 @@ window.DeleteModel = function (args) {
     var failedMsg = (Lang(args['failedMsg'])) ? Lang(args['failedMsg']) : '';
     var redirect = (args['redirect']) ? args['redirect'] : '';
 
-    Alert('warning', confirmTitle, confirmMsg, {
-        confirm: {
-            text: Lang('OK'),
-            btnClass: 'btn-warning',
-            action: function () {
-                if (id != null) {
-                    if (isArray(id)) {
-                        let success = true;
-                        let deleteRows = $.each(id, function (key, x) {
-                            jQuery.ajax({
-                                type: "POST",
-                                async: false,
-                                headers: {
-                                    'X-CSRF-TOKEN': window.csrf
-                                },
-                                url: route.replace('__id__', x),
-                                data: {
-                                    _method: "DELETE"
-                                },
-                                error: function () {
-                                    success = false;
-                                }
-                            });
-                        });
-                        if (success == true) {
-                            ReloadDT();
-                            Alert('success', completeTitle, completeMsg, {
-                                confirm: {
-                                    text: Lang('Ok'),
-                                    btnClass: 'btn-success',
-                                }
-                            });
-                        } else {
-                            Alert('error', failedTitle, failedMsg, {
-                                confirm: {
-                                    text: Lang('Ok'),
-                                    btnClass: 'btn-danger',
-                                }
-                            });
-                        }
-                    } else {
+    Swal.fire({
+        showCancelButton: true,
+        title: confirmTitle,
+        html: confirmMsg,
+        icon: "warning"
+    }).then(function(result){
+        if (result.value){
+            if (id != null) {
+                if (isArray(id)) {
+                    let success = true;
+                    let deleteRows = $.each(id, function (key, x) {
                         jQuery.ajax({
                             type: "POST",
+                            async: false,
                             headers: {
                                 'X-CSRF-TOKEN': window.csrf
                             },
-                            url: route,
+                            url: route.replace('__id__', x),
                             data: {
-                                _method: "DELETE",
-                            },
-                            success: function (response) {
-                                ReloadDT();
-                                Alert('success', completeTitle, completeMsg, {
-                                    confirm: {
-                                        text: Lang('Ok'),
-                                        btnClass: 'btn-success',
-                                        action: function() {
-                                            if (redirect !== '') {
-                                                if (window.AllowNewTab == false) {
-                                                    window.location.href = redirect;
-                                                } else {
-                                                    window.open(redirect, '_blank');
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
+                                _method: "DELETE"
                             },
                             error: function () {
-                                Alert('error', failedTitle, failedMsg, {
-                                    confirm: {
-                                        text: Lang('Ok'),
-                                        btnClass: 'btn-danger',
-                                    }
-                                });
+                                success = false;
                             }
                         });
+                    });
+                    if (success == true) {
+                        ReloadDT();
+                        Swal.fire(completeTitle, completeMsg, 'success');
+                    } else {
+                        Swal.fire(failedTitle, failedMsg, 'error');
                     }
+                } else {
+                    jQuery.ajax({
+                        type: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': window.csrf
+                        },
+                        url: route,
+                        data: {
+                            _method: "DELETE",
+                        },
+                        success: function (response) {
+                            ReloadDT();
+                            Swal.fire({
+                                title: completeTitle,
+                                text: completeMsg,
+                                icon: "success"
+                            }).then(function(result){
+                                if (result.value){
+                                    if (redirect !== '') {
+                                        if (window.AllowNewTab == false) {
+                                            window.location.href = redirect;
+                                        } else {
+                                            window.open(redirect, '_blank');
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function () {
+                            Swal.fire(failedTitle, failedMsg, 'error');
+                        }
+                    });
                 }
             }
-        },
-        cancel: {
-            text: Lang('Cancel'),
-            btnClass: 'btn-dark',
         }
     });
 };

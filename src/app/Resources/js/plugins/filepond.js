@@ -83,6 +83,9 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     "input": pond.name,
                     "file": file.serverId
                 })
+                if (document.querySelectorAll('[data-type=jexcel]').length > 0) { 
+                    console.log($(inputElement).next('table'));
+                }
                 EnableSubmit();
             }
         }
@@ -99,21 +102,15 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     try {
                         response = JSON.parse(res);
                     } catch (error) {
-                        Alert('error', Lang('Upload failed'), '', {
-                            confirm: {
-                                text: Lang('Ok'),
-                                btnClass: 'btn-danger',
-                            },
-                        });
+                        Swal.fire(Lang('Upload failed'), '', 'error')
                         return;
                     };
                     if (!response.errors){
-                        Alert('error', Lang('Upload failed'), Lang('An error occurred on the server. Contact support if this problem persists.'), {
-                            confirm: {
-                                text: Lang('Ok'),
-                                btnClass: 'btn-danger',
-                            },
-                        });
+                        Swal.fire({
+                            title: Lang('Upload failed'),
+                            html: Lang('An error occurred on the server.') + "<br>" + Lang('Contact support if this problem persists.'),
+                            icon: "error"
+                        })
                     }
                     if (response.errors){
                         $.each(response.errors, function (x, objWithErrors) { 
@@ -121,12 +118,11 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                                 errors += error + '<br>'
                             });
                         });
-                        Alert('error', Lang('Upload failed'), errors, {
-                            confirm: {
-                                text: Lang('Ok'),
-                                btnClass: 'btn-danger',
-                            },
-                        });
+                        Swal.fire({
+                            title: Lang('Upload failed'),
+                            html: errors,
+                            icon: "error"
+                        })
                     }
                 }
             },

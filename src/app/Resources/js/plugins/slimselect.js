@@ -20,25 +20,23 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
                         data: data,
                         success: function (response) {
                             $("#"+Slim.select.element.id).load(location.href + " #"+Slim.select.element.id+">*", "", );
-                            Alert('success', Lang('Optie toegevoegd'), Lang('De nieuwe optie is nu zichtbaar.'), {
-                                confirm: {
-                                    text: Lang('Ok'),
-                                    btnClass: 'btn-success',
-                                }
-                            });
+                            Swal.fire(Lang('Added new option'),Lang('The new option is now available.'),'success');
                         },
                         error: function(response){
                             let errors = response.responseJSON.errors;
                             let alertErrors = '';
-                            $.each(errors, function (indexInArray, error) { 
-                                 alertErrors += error[0] + ' <br>';
-                            });
-                            Alert('error', Lang('Toevoegen mislukt'), Lang(alertErrors), {
-                                confirm: {
-                                    text: Lang('Ok'),
-                                    btnClass: 'btn-danger',
-                                }
-                            });
+                            if (typeof errors !== 'undefined' && errors !== null){
+                                $.each(errors, function (indexInArray, error) { 
+                                     alertErrors += error[0] + ' <br>';
+                                });
+                            } else {
+                                alertErrors = Lang('An unknown error has occurred.') + "<br>" + Lang("Contact support if this problem persists.")
+                            }
+                            Swal.fire({
+                                title: Lang('Adding option failed'),
+                                html: alertErrors,
+                                icon: "error"
+                            })
                         }
                     });
                 } : null

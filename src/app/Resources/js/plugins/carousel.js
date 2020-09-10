@@ -120,33 +120,29 @@ $(document).on('click','[data-dCar-action="destroy"]',function(element){
     dCarFile = element.dataset.dcarFile;
 
     parentDiv = element.parentNode.parentNode;
-    
-    Alert('warning', Lang('Deleting object'), Lang('Are you sure you want to delete this object?'), {
-        confirm: {
-            text: Lang('Ok'),
-            btnClass: 'btn-warning',
-            action: function() {
-                $.ajax({
-                    type: "DELETE",
-                    url: "/"+dCarPrefix+"/file/revert/image/"+dCarColumn+dCarRevertKey,
-                    data: dCarFile,
-                    dataType: "dataType",
-                    headers: {
-                        'X-CSRF-TOKEN': window.csrf
-                    },
-                    complete: function (response) {
-                        if (parentCar.querySelectorAll('.dCar-div').length == 1){
-                            $(parentCar).remove();
-                        } else {
-                            $(parentDiv).remove();
-                        }
+
+    Swal.fire({
+        title: Lang('Deleting file'),
+        text: Lang('Are you sure you want to delete this file?'),
+        icon: "warning"
+    }).then(function(result){
+        if (result.value){
+            $.ajax({
+                type: "DELETE",
+                url: "/"+dCarPrefix+"/file/revert/image/"+dCarColumn+dCarRevertKey,
+                data: dCarFile,
+                dataType: "dataType",
+                headers: {
+                    'X-CSRF-TOKEN': window.csrf
+                },
+                complete: function (response) {
+                    if (parentCar.querySelectorAll('.dCar-div').length == 1){
+                        $(parentCar).remove();
+                    } else {
+                        $(parentDiv).remove();
                     }
-                });
-            }
-        },
-        cancel: {
-            text: Lang('Cancel'),
-            btnClass: 'btn-dark'
+                }
+            });
         }
     });
 })
