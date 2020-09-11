@@ -1,6 +1,9 @@
 <?php
 
-namespace Pveltrop\DCMS\Http\Controllers;
+namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class DCMSFilepondController extends Controller
 {
@@ -24,10 +27,9 @@ class DCMSFilepondController extends Controller
             ], 422);
         }
         if ($abort == false){
-            $class = FindClass($prefix)['class'];
             $file = FindClass($prefix)['file'];
-            dd($file);
-            $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $file.'Request';
+            $controller = '\App\Http\Controllers\\'.$file.'Controller';
+            $requestFile = (isset((new $controller())->DCMS()['request'])) ? (new $controller())->DCMS()['request'] : $file.'Request';
             $classRequest = '\App\Http\Requests\\'.$requestFile;
 
             $column = str_replace('[]','',$column);
@@ -63,11 +65,14 @@ class DCMSFilepondController extends Controller
         }
     }
 
-    public function DeleteFile($type,$column,$revertKey=null)
+    public function DeleteFile($prefix,$type,$column,$revertKey=null)
     {
         // Get route prefix and the class it belongs to
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
+        $file = FindClass($prefix)['file'];
+        $controller = '\App\Http\Controllers\\'.$file.'Controller';
+
+        $prefix = (isset((new $controller())->DCMS()['routePrefix'])) ? (new $controller())->DCMS()['routePrefix'] : GetPrefix();
+        $class = (isset((new $controller())->DCMS()['class'])) ? FindClass(strtolower((new $controller())->DCMS()['class']))['class'] : FindClass($prefix)['class'];
 
         // Get column for request and folder structure
         $column = str_replace('[]','',$column);
@@ -76,9 +81,10 @@ class DCMSFilepondController extends Controller
         // Get filename
         $name = explode('/',$path);
         $name = end($name);
-        $name = explode('.',$name);
-        unset($name[count($name)-1]);
-        $name = $name[0];
+        // Without extension for DB
+        $dbName = explode('.',$name);
+        unset($dbName[count($dbName)-1]);
+        $dbName = $dbName[0];
 
         $file = 'public/files/'.$type.'/'.$column.'/'.$name;
 
@@ -98,7 +104,7 @@ class DCMSFilepondController extends Controller
 
         // If a revert key was sent, use this to locate the value in the database, instead of the default column
         $column = ($revertKey) ? $revertKey : $column;
-        $findInDB = $class::where($column,'like','%'.$name.'%')->get();
+        $findInDB = $class::where($column,'like','%'.$dbName.'%')->get();
         // if the current class uses this file in any database row
         if (count($findInDB) > 0){
             // checking all rows using this file

@@ -3,13 +3,8 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-
-$GLOBALS['classFolders'] = [
-    'app'
-];
 
 trait DCMSController
 {
@@ -19,14 +14,6 @@ trait DCMSController
 
     public function DCMSPrefix(){
         return (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-    }
-
-    public function DCMSClass(){
-        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->DCMSPrefix())['class'];
-    }
-
-    public function DCMSModel(){
-        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->DCMSPrefix())['file'];
     }
 
     public function index()

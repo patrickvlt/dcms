@@ -109,7 +109,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 'accept': 'application/json'
             },
             process: {
-                url: '/' + inputElement.dataset.filepondPrefix + '/file/process/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
+                url: '/dcms/file/process/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
                 onerror: (res) => {
                     let response, errors = '';
                     try {
@@ -144,7 +144,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     'X-CSRF-TOKEN': window.csrf,
                     "Content-Type": "application/json",
                 },
-                url: '/' + inputElement.dataset.filepondPrefix + '/file/revert/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn + revertKey,
+                url: '/dcms/file/revert/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn + revertKey,
                 method: 'DELETE',
             }
         }

@@ -34,7 +34,7 @@ if (!function_exists('GetClasses')) {
     function GetClasses()
     {
         $classes = [];
-        foreach ($GLOBALS['classFolders'] as $folder) {
+        foreach (config('dcms.classfolders') as $folder) {
             foreach (scandir(base_path() . '/' . $folder) as $file) {
                 if (strpos($file, '.php') !== false) {
                     $re = '/namespace \S*;/m';
@@ -144,5 +144,45 @@ if (!function_exists('DeleteRoute')) {
         $model = is_object(Model()) ? Model()->id : Model();
         $deleteRoute = route($routeModel . '.destroy', $model);
         return $deleteRoute;
+    }
+}
+
+if (!function_exists('RemoveDir')) {
+    function RemoveDir($dir)
+    {
+        if (!file_exists($dir)) {
+            return true;
+        }
+        if (!is_dir($dir)) {
+            return unlink($dir);
+        }
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+
+            if (!RemoveDir($dir . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+        }
+        return rmdir($dir);
+    }
+}
+
+if (!function_exists('CopyDir')) {
+    function CopyDir($src, $dst)
+    {
+        $dir = opendir($src);
+        @mkdir($dst);
+        while (false !== ($file = readdir($dir))) {
+            if (($file != '.') && ($file != '..')) {
+                if (is_dir($src . '/' . $file)) {
+                    CopyDir($src . '/' . $file, $dst . '/' . $file);
+                } else {
+                    copy($src . '/' . $file, $dst . '/' . $file);
+                }
+            }
+        }
+        closedir($dir);
     }
 }

@@ -28,8 +28,20 @@ class Update extends Command
     public function handle()
     {
         $console = $this;
-        shell_exec('cp -a '.base_path().'/resources/js/dcms/. '. base_path().'/vendor/pveltrop/dcms/src/app/Resources/js');
-        shell_exec('cp -a '.base_path().'/resources/sass/dcms/. '. base_path().'/vendor/pveltrop/dcms/src/app/Resources/sass');
-        $console->info('Updated DCMS package. You can make a merge request for your changes.');
+        $rootjs = base_path() . '/resources/js/dcms/';
+        $rootscss = base_path() . '/resources/sass/dcms/';
+        $vendorjs = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/js';
+        $vendorscss = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/sass';
+
+        RemoveDir($vendorjs);
+        RemoveDir($vendorscss);
+
+        CopyDir($rootjs,$vendorjs);
+        CopyDir($rootscss,$vendorscss);
+
+        print("\n".shell_exec('composer show pveltrop/dcms --all')."\n");
+
+        $console->info('Updated DCMS vendor package. Make a merge request to propose changes.');
+        print("\n");
     }
 }
