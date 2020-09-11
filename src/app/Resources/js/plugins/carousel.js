@@ -3,9 +3,9 @@
 var dcars = 0;
 
 document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x){
-    var carousel, imgSource, imgElement, dcarPrefix, dcarColumn, defaultImgString;
+    var carousel, dcarSrc, imgElement, dcarPrefix, dcarColumn, defaultImgString;
 
-    imgSource = element.dataset.dcarSrc;
+    dcarSrc = element.dataset.dcarSrc;
     dcarPrefix = element.dataset.dcarPrefix;
     dcarColumn = element.dataset.dcarColumn;
     imgElement = '';
@@ -28,21 +28,21 @@ document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x)
         </div>`;
     }
     
-    if (typeof imgSource === 'string' || imgSource instanceof String){
-        if (imgSource.match(/\[/g) && imgSource.match(/\]/g)){
-            imgSource = JSON.parse(imgSource);
+    if (typeof dcarSrc === 'string' || dcarSrc instanceof String){
+        if (dcarSrc.match(/\[/g) && dcarSrc.match(/\]/g)){
+            dcarSrc = JSON.parse(dcarSrc);
             // loop through array and make image elements
-            Array.from(imgSource).forEach(function (img,y){
+            Array.from(dcarSrc).forEach(function (img,y){
                 imgElement = imgElement + defaultImgString(img);
             })
         } else {
-            if (imgSource.match(/youtube/g)){
+            if (dcarSrc.match(/youtube/g)){
                 element.style.marginTop = '0px';
                 imgElement = `<div class="dCar-div w-100">
-                <iframe class="dCar-iframe" src="`+imgSource+`" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe class="dCar-iframe" src="`+dcarSrc+`" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>`;
             } else {
-                imgElement = defaultImgString(imgSource);
+                imgElement = defaultImgString(dcarSrc);
             }
         }
     }
@@ -129,7 +129,7 @@ $(document).on('click','[data-dCar-action="destroy"]',function(element){
         if (result.value){
             $.ajax({
                 type: "DELETE",
-                url: "/"+dCarPrefix+"/file/revert/image/"+dCarColumn+dCarRevertKey,
+                url: "/dcms/file/revert/"+dCarPrefix+"/image/"+dCarColumn,
                 data: dCarFile,
                 dataType: "dataType",
                 headers: {

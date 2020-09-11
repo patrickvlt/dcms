@@ -12,8 +12,17 @@ trait DCMSController
         // leave this empty
     }
 
+    // The three functions below are for the Model helper function in DCMS.php
     public function DCMSPrefix(){
         return (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
+    }
+
+    public function DCMSClass(){
+        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->DCMSPrefix())['class'];
+    }
+
+    public function DCMSModel(){
+        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->DCMSPrefix())['file'];
     }
 
     public function index()
