@@ -265,14 +265,23 @@ trait DCMSController
 
     public function DeleteFile($type,$column,$revertKey=null)
     {
+        // Get route prefix and the class it belongs to
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
 
+        // Get column for request and folder structure
         $column = str_replace('[]','',$column);
         $path = str_replace('"','',stripslashes(request()->getContent()));
+
+        // Get filename
         $name = explode('/',$path);
         $name = end($name);
+        $name = explode('.',$name);
+        unset($name[count($name)-1]);
+        $name = $name[0];
+
         $file = 'public/files/'.$type.'/'.$column.'/'.$name;
+
         if (Storage::exists($file) == true){
             Storage::delete($file);
             $msg = 'Deleted succesfully';
@@ -286,6 +295,8 @@ trait DCMSController
             $msg = 'File doesn\'t exist';
             $status = 422;
         }
+
+        // If a revert key was sent, use this to locate the value in the database, instead of the default column
         $column = ($revertKey) ? $revertKey : $column;
         $findInDB = $class::where($column,'like','%'.$name.'%')->get();
         // if the current class uses this file in any database row
@@ -305,11 +316,13 @@ trait DCMSController
                 } else {
                     $fileArr = null;
                 }
+                // Double check if theres an array with files
                 if (is_array($fileArr)){
                     if (count($fileArr) == 0){
                         $fileArr = null;
                     }
                 }
+                // Rewrite file array to insert in the database
                 if ($fileArr !== null){
                     $fileArr = json_encode(array_values($fileArr));
                 }
