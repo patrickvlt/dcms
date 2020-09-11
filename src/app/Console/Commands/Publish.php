@@ -38,6 +38,7 @@ class Publish extends Command
 
         CopyDir($vendorjs,$rootjs);
         CopyDir($vendorscss,$rootscss);
+        copy(base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php', base_path() . '/config/dcms.php');
 
         print("\n".shell_exec('composer show pveltrop/dcms --all')."\n");
         print("\n".shell_exec('git status')."\n");

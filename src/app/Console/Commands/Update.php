@@ -38,6 +38,7 @@ class Update extends Command
 
         CopyDir($rootjs,$vendorjs);
         CopyDir($rootscss,$vendorscss);
+        copy(base_path() . '/config/dcms.php', base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php');
 
         print("\n".shell_exec('composer show pveltrop/dcms --all')."\n");
 
