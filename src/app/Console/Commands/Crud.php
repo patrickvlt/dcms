@@ -92,6 +92,17 @@ class '.$model.'Controller extends Controller
     //                 "name" => 0,
     //                 "created_at" => 5
     //             ],
+    //             // which classes/route prefixes to use when trying to autocorrect?
+    //             "autocorrect" => [
+    //                 "foo" => [
+    //                     // which column/cell in jExcel
+    //                     "column" => 1,
+    //                     // which fields to compare with
+    //                     "fields" => [
+    //                         "bar"
+    //                     ]
+    //                 ]
+    //             ],
     //             // finished or failed custom messages
     //             "finished" => [
     //                 "title" => __("Import succeeded"),
