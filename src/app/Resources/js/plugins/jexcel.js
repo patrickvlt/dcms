@@ -177,31 +177,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 });
             })
         }
+        
+        MakeTable();
 
-        $.ajax({
-            type: "GET",
-            url: "jexcel.csv",
-            dataType: "text",
-            success: function (file) {
-                var parseData, data, dropdownHeaders = [], objects;
-                parseData = Papa.parse(file);
-                window.parseData = parseData.data;
-                MakeTable(parseData.data);
-            },
-            error: function () {
-                MakeTable();
-            },
-        });
-
-        $(currentForm).on('click','#fixData',function(button){
+        $(currentForm).on('click','#fixSheet',function(button){
             var dropdownHeaders = [];
             $.each($(htmlTable).find('th'), function (x, th) {
                 if ($(th).data('jexcel-type') == 'dropdown'){
                     let ajUrl = $(th).data('jexcel-fetch-url');
                     dropdownHeaders.push({
-                        cell: th.cellIndex, 
+                        column: th.cellIndex, 
                         text: th.textContent,
-                        column: $(th).data('jexcel-fetch-column')
                     })
                 } 
             });
@@ -212,7 +198,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 },
                 url: $(this).data('jexcel-fix-route'),
                 data: {
-                    data: window.parseData,
+                    data: table.getData(),
                     th: dropdownHeaders,
                 },
                 success: function (file) {
@@ -222,22 +208,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         icon: "warning"
                     }).then(function(result){
                         if (result.value){
-                            Swal.fire({
-                                title: Lang('Data correction complete'),
-                                showCancelButton: true,
-                                html: Lang('Do you want to replace your current data?'),
-                                icon: "success"
-                            }).then(function(result){
-                                if (result.value){
-                                    $(currentForm).find('table').jexcel('setData',file,false);
-
-                                }
-                            });
+                            $(currentForm).find('table').jexcel('setData',file,false);
+                            toastr.success(Lang('Sheet has been updated.'))
                         }
                     });
                 },
                 error: function () {
-                    Swal.fire(Lang('Autofill failed'),Lang('The provided data couldn\'t be fixed.'),'error')
+                    Swal.fire(Lang('Data correction failed'),Lang('The provided data couldn\'t be fixed.'),'error')
                 },
             });
         })

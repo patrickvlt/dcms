@@ -1,6 +1,7 @@
 import * as FilePond from './assets/filepond.min.js';
 import FilePondPluginImagePreview from './assets/filepond.preview.min.js';
 import FilePondPluginFileValidateSize from './assets/filepond.maxsize.min.js';
+import Papa from './assets/jexcel/papaparse.min.js';
 
 if (document.querySelectorAll('[data-type=filepond]').length > 0) {
 
@@ -14,7 +15,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
     FilePond.registerPlugin(FilePondPluginFileValidateSize);
 
     FilePond.setOptions({
-        labelIdle: Lang('Drag & drop your files or ') + '<span class=\'filepond--label-action\'>' + Lang('Browse') + '</span>',
+        labelIdle: Lang('Drag & drop your files or ') + '<span class=\'filepond--label-action\'>' + Lang('browse') + '</span>',
         labelInvalidField: Lang('Field contains invalid files'),
         labelFileWaitingForSize: Lang('Waiting for size'),
         labelFileSizeNotAvailable: Lang('Size not available'),
@@ -60,31 +61,43 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
     window.fileArray = [];
 
     function MakePond(inputElement, method = 'POST') {
-        var revertKey;
+        var revertKey, parseData;
         const pond = FilePond.create(inputElement);
-        revertKey = (inputElement.dataset.filepondRevertKey) ? '/'+inputElement.dataset.filepondRevertKey : '';
-        if(!inputElement.dataset.filepondPrefix){
+        revertKey = (inputElement.dataset.filepondRevertKey) ? '/' + inputElement.dataset.filepondRevertKey : '';
+        if (!inputElement.dataset.filepondPrefix) {
             console.log('No prefix found. Add a data-prefix to the input element. e.g. (data-prefix="user")')
         }
         pond.allowMultiple = (inputElement.dataset.filepondMaxFiles > 1) ? true : false;
         pond.maxFiles = inputElement.dataset.filepondMaxFiles;
         pond.maxSize = window.FilePondMaxFileSize;
-        pond.name = inputElement.dataset.filepondColumn+"[]";
+        pond.name = inputElement.dataset.filepondColumn + "[]";
         pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.FilePondInstantUpload;
         // pond.allowProcess = false;
         pond.allowRevert = (inputElement.dataset.filepondAllowRevert) ? inputElement.dataset.filepondAllowRevert : window.FilePondAllowRevert;
         pond.onerror = (res) => {
-                HaltSubmit();
+            HaltSubmit();
         }
         pond.onprocessfile = (error, file) => {
             HaltSubmit();
-            if (!error){
+            if (!error) {
                 window.fileArray.push({
                     "input": pond.name,
                     "file": file.serverId
                 })
-                if (document.querySelectorAll('[data-type=jexcel]').length > 0) { 
-                    console.log($(inputElement).next('table'));
+                if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
+                    document.querySelectorAll('[data-type=jexcel]').forEach(function (table) {
+                        $.ajax({
+                            type: "GET",
+                            url: file.serverId,
+                            async: false,
+                            dataType: "text",
+                            success: function (file) {
+                                parseData = Papa.parse(file);
+                                window.parseData = parseData.data;
+                                $(table).jexcel('setData', window.parseData, false);
+                            }
+                        });
+                    });
                 }
                 EnableSubmit();
             }
@@ -96,7 +109,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 'accept': 'application/json'
             },
             process: {
-                url: '/'+inputElement.dataset.filepondPrefix+'/file/process/'+inputElement.dataset.filepondMime+'/'+inputElement.dataset.filepondColumn,
+                url: '/' + inputElement.dataset.filepondPrefix + '/file/process/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
                 onerror: (res) => {
                     let response, errors = '';
                     try {
@@ -105,16 +118,16 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                         Swal.fire(Lang('Upload failed'), '', 'error')
                         return;
                     };
-                    if (!response.errors){
+                    if (!response.errors) {
                         Swal.fire({
                             title: Lang('Upload failed'),
                             html: Lang('An error occurred on the server.') + "<br>" + Lang('Contact support if this problem persists.'),
                             icon: "error"
                         })
                     }
-                    if (response.errors){
-                        $.each(response.errors, function (x, objWithErrors) { 
-                            $.each(objWithErrors, function (x, error) { 
+                    if (response.errors) {
+                        $.each(response.errors, function (x, objWithErrors) {
+                            $.each(objWithErrors, function (x, error) {
                                 errors += error + '<br>'
                             });
                         });
@@ -131,7 +144,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     'X-CSRF-TOKEN': window.csrf,
                     "Content-Type": "application/json",
                 },
-                url: '/'+inputElement.dataset.filepondPrefix+'/file/revert/'+inputElement.dataset.filepondMime+'/'+inputElement.dataset.filepondColumn+revertKey,
+                url: '/' + inputElement.dataset.filepondPrefix + '/file/revert/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn + revertKey,
                 method: 'DELETE',
             }
         }
@@ -139,7 +152,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
     }
     window.addEventListener('DOMContentLoaded', (event) => {
         const inputElement = document.querySelector('input[data-type=filepond]');
-        document.querySelectorAll('input[data-type=filepond]').forEach(function (element){
+        document.querySelectorAll('input[data-type=filepond]').forEach(function (element) {
             MakePond(element);
         });
         document.querySelectorAll('.filepond--drop-label').forEach(element => element.classList.add('input-group-text'));

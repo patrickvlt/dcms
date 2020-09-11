@@ -19,7 +19,8 @@
 
 @import "plugins/carousel.scss";
 
-@import url("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
+@import "plugins/toastr.scss";
+// @import url("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
 
 .dcmsImg {
     height: 13rem;
@@ -73,4 +74,17 @@
 
 .swal2-icon.swal2-warning::before {
     content: "" !important;
+}
+
+.toast-top-right {
+    top: 130px;
+}
+
+.toast {
+    opacity: 1 !important;
+}
+
+.jexcel {
+    table-layout: auto;
+    width: 100%;
 }

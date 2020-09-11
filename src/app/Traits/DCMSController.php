@@ -3,6 +3,7 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -264,23 +265,14 @@ trait DCMSController
 
     public function DeleteFile($type,$column,$revertKey=null)
     {
-        // Get route prefix and the class it belongs to
         $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
         $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
 
-        // Get column for request and folder structure
         $column = str_replace('[]','',$column);
         $path = str_replace('"','',stripslashes(request()->getContent()));
-
-        // Get filename
         $name = explode('/',$path);
         $name = end($name);
-        $name = explode('.',$name);
-        unset($name[count($name)-1]);
-        $name = $name[0];
-
         $file = 'public/files/'.$type.'/'.$column.'/'.$name;
-
         if (Storage::exists($file) == true){
             Storage::delete($file);
             $msg = 'Deleted succesfully';
@@ -294,8 +286,6 @@ trait DCMSController
             $msg = 'File doesn\'t exist';
             $status = 422;
         }
-
-        // If a revert key was sent, use this to locate the value in the database, instead of the default column
         $column = ($revertKey) ? $revertKey : $column;
         $findInDB = $class::where($column,'like','%'.$name.'%')->get();
         // if the current class uses this file in any database row
@@ -315,13 +305,11 @@ trait DCMSController
                 } else {
                     $fileArr = null;
                 }
-                // Double check if theres an array with files
                 if (is_array($fileArr)){
                     if (count($fileArr) == 0){
                         $fileArr = null;
                     }
                 }
-                // Rewrite file array to insert in the database
                 if ($fileArr !== null){
                     $fileArr = json_encode(array_values($fileArr));
                 }
@@ -397,18 +385,62 @@ trait DCMSController
                     $class::create($passedData);
                 }
             }
-        // Either use JSON responses defined in your controller, or default DCMS messages
         } else {
             return response()->json(['response' => [
                 'title' => (isset($this->DCMS()['import']['empty']['title'])) ? $this->DCMS()['import']['empty']['title'] : __('Import failed'),
                 'message' => (isset($this->DCMS()['import']['empty']['message'])) ? $this->DCMS()['import']['empty']['message'] : __('Please fill in data to import.'),
             ]], 422);
         }
+
         return response()->json(['response' => [
             'title' => (isset($this->DCMS()['import']['finished']['title'])) ? $this->DCMS()['import']['finished']['title'] : __('Import finished'),
             'message' => (isset($this->DCMS()['import']['finished']['message'])) ? $this->DCMS()['import']['finished']['message'] : __('All data has been succesfully imported.'),
         ], 'url' => '/address'], 200);
     }
 
-    
+    public function FixSheet()
+    {
+        // Get data from ajax request at jexcel table
+        $data = request()->data;
+        $th = request()->th;
+
+        // Get data from controller, class and columns to use for autocorrection
+        $columns = (isset($this->DCMS()['import']['autocorrect'])) ? $this->DCMS()['import']['autocorrect'] : null;        
+        if ($columns == null){
+            return false;
+        }
+        function searchForColumn($column, $array) {
+           foreach ($array as $key => $val) {
+               if ($val['column'] == $column) {
+                   return $key;
+               }
+           }
+           return null;
+        }
+        // Loop through table dropdown columns
+        foreach ($th as $y => $header){
+            $column = searchForColumn($header['column'],$columns);
+            // Find the class which belongs to the provided prefix, sent from jexcel
+            $class = FindClass(strtolower($column))['class'];
+            $class = new $class;
+            // Loop through data the user has sent
+            foreach ($data as $x => $row){
+                // Make a query for each Table Header
+                $query = $class::query();
+                $fields = $columns[$column]['fields'];
+                // Strip whitespace from value and loop through the class` table to find a match
+                $value = $data[$x][$header['column']];
+                $value = str_replace(" ","",$value);
+                foreach ($fields as $field) {
+                    $query->orWhere($field, 'LIKE', '%'.$value.'%');
+                }
+                $match = $query->get()->first();
+                // If a match is found, replace the cells value by the id from the match
+                $data[$x][$header['column']] = !empty($match) ? $match['id'] : $data[$x][$header['column']];
+            }
+        }
+
+
+        return $data;
+    }
 }
