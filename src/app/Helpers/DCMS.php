@@ -8,10 +8,6 @@ if (!function_exists('MaxSizeServer')) {
         $memory_limit = (int) (ini_get('memory_limit'));
         $upload_mb = min($max_upload, $max_post, $memory_limit);
         switch ($type) {
-            case 'mb':
-                return $upload_mb;
-                break;
-
             case 'bytes':
                 return $upload_mb * pow(1024, 2);
                 break;
@@ -43,10 +39,10 @@ if (!function_exists('GetClasses')) {
                     $namespace = str_replace('namespace ', '', $namespace[0]);
                     $namespace = str_replace(';', '', $namespace);
                     $file = str_replace('.php', '', $file);
-                    array_push($classes, [
+                    $classes[] = [
                         'file' => $file,
                         'class' => $namespace . '\\' . $file
-                    ]);
+                    ];
                 }
             }
         }
@@ -72,8 +68,7 @@ if (!function_exists('Model')) {
         $class = (new $controller())->DCMSClass();
         $prefix = (new $controller())->DCMSPrefix();
         $id = (request()->route()->parameters()) ? request()->route()->parameters()[$prefix] : null;
-        $model = $class::find($id);
-        return $model;
+        return $class::find($id);
     }
 }
 
@@ -81,7 +76,7 @@ if (!function_exists('FormMethod')) {
     // Which @method to return
     function FormMethod()
     {
-        $routeName = \Request::route()->getName();
+        $routeName = request()->route()->getName();
         $routeAction = explode(".", $routeName)[1];
         $formMethod = null;
         switch ($routeAction) {
@@ -101,10 +96,9 @@ if (!function_exists('RoutePrefix')) {
     // Return store or update route for form
     function RoutePrefix()
     {
-        $routeName = \Request::route()->getName();
+        $routeName = request()->route()->getName();
         try {
             $routeModel = explode(".", $routeName)[0];
-            $routeAction = explode(".", $routeName)[1];
         } catch (\Throwable $th) {
             $routeModel = $routeName;
         }
@@ -116,7 +110,7 @@ if (!function_exists('FormRoute')) {
     // Return store or update route for form
     function FormRoute()
     {
-        $routeName = \Request::route()->getName();
+        $routeName = request()->route()->getName();
         $routeModel = explode(".", $routeName)[0];
         $routeAction = explode(".", $routeName)[1];
         $formRoute = null;
@@ -124,10 +118,8 @@ if (!function_exists('FormRoute')) {
             case 'create':
                 $formRoute = route($routeModel . '.store');
                 break;
-            case 'edit':
-                $formRoute = route($routeModel . '.update', is_object(Model()) ? Model()->id : Model());
-                break;
             case 'update':
+            case 'edit':
                 $formRoute = route($routeModel . '.update', is_object(Model()) ? Model()->id : Model());
                 break;
         }
@@ -139,11 +131,10 @@ if (!function_exists('DeleteRoute')) {
     // Return delete route for form
     function DeleteRoute()
     {
-        $routeName = \Request::route()->getName();
+        $routeName = request()->route()->getName();
         $routeModel = explode(".", $routeName)[0];
         $model = is_object(Model()) ? Model()->id : Model();
-        $deleteRoute = route($routeModel . '.destroy', $model);
-        return $deleteRoute;
+        return route($routeModel . '.destroy', $model);
     }
 }
 
