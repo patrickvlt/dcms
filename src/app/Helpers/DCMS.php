@@ -36,8 +36,7 @@ if (!function_exists('GetClasses')) {
                     $re = '/namespace \S*;/m';
                     $str = file_get_contents(base_path() . '/' . $folder . '/' . $file);
                     preg_match($re, $str, $namespace);
-                    $namespace = str_replace('namespace ', '', $namespace[0]);
-                    $namespace = str_replace(';', '', $namespace);
+                    $namespace = str_replace(array('namespace ', ';'), '', $namespace[0]);
                     $file = str_replace('.php', '', $file);
                     $classes[] = [
                         'file' => $file,
