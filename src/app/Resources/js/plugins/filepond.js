@@ -72,7 +72,6 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
         pond.maxSize = window.FilePondMaxFileSize;
         pond.name = inputElement.dataset.filepondColumn + "[]";
         pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.FilePondInstantUpload;
-        // pond.allowProcess = false;
         pond.allowRevert = (inputElement.dataset.filepondAllowRevert) ? inputElement.dataset.filepondAllowRevert : window.FilePondAllowRevert;
         pond.onerror = (res) => {
             HaltSubmit();
@@ -86,17 +85,19 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 })
                 if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
                     document.querySelectorAll('[data-type=jexcel]').forEach(function (table) {
-                        $.ajax({
-                            type: "GET",
-                            url: file.serverId,
-                            async: false,
-                            dataType: "text",
-                            success: function (file) {
-                                parseData = Papa.parse(file);
-                                window.parseData = parseData.data;
-                                $(table).jexcel('setData', window.parseData, false);
-                            }
-                        });
+                        if (document.querySelector(inputElement.dataset.filepondTableSelector)){
+                            $.ajax({
+                                type: "GET",
+                                url: file.serverId,
+                                async: false,
+                                dataType: "text",
+                                success: function (file) {
+                                    parseData = Papa.parse(file);
+                                    window.parseData = parseData.data;
+                                    $(table).jexcel('setData', window.parseData, false);
+                                }
+                            });
+                        }
                     });
                 }
                 EnableSubmit();
@@ -109,7 +110,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 'accept': 'application/json'
             },
             process: {
-                url: '/dcms/file/process/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
+                url: (inputElement.dataset.filepondProcessUrl) ? inputElement.dataset.filepondProcessUrl : '/dcms/file/process/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
                 onerror: (res) => {
                     let response, errors = '';
                     try {
@@ -144,7 +145,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     'X-CSRF-TOKEN': window.csrf,
                     "Content-Type": "application/json",
                 },
-                url: '/dcms/file/revert/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
+                url: (inputElement.dataset.filepondRevertUrl) ? inputElement.dataset.filepondRevertUrl : '/dcms/file/revert/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
                 method: 'DELETE',
             }
         }
