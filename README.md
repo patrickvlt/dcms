@@ -82,6 +82,7 @@ You can also setup other options through data attributes, such as:
 data-filepond-max-files="1"
 data-filepond-instant-upload="true"
 data-filepond-revert-key="value"
+data-filepond-table-selector="#addressTable"
 ```
 
 Filepond automatically uploads files to a route based on their mime type. This way files are organized, and assigned by file name to objects.
@@ -103,8 +104,7 @@ data-filepond-table-selector="#addressTable"
 
 Complete code example:
 ```html
-<input data-type="filepond" data-filepond-mime="sheet" data-filepond-prefix="address" data-filepond-max-files="1" data-filepond-column="addressSheet"
-type="file" id="sheet" name="sheet[]" aria-describedby="sheet" />
+<input data-type="filepond" data-filepond-mime="sheet" data-filepond-prefix="address" data-filepond-max-files="1" data-filepond-column="addressSheet" data-filepond-table-selector="#addressTable" type="file" id="sheet" name="sheet[]" aria-describedby="sheet" />
 ```
 
 ## Carousel
