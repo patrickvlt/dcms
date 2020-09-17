@@ -64,9 +64,8 @@ if (!function_exists('FindClass')) {
 if (!function_exists('Model')) {
     function Model()
     {
-        $controller = request()->route()->controller;
-        $class = (new $controller())->DCMSClass();
-        $prefix = (new $controller())->DCMSPrefix();
+        $class = request()->route()->controller->class;
+        $prefix = request()->route()->controller->prefix;
         $id = (request()->route()->parameters()) ? request()->route()->parameters()[$prefix] : null;
         return $class::find($id);
     }

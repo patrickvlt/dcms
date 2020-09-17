@@ -9,34 +9,34 @@ use Illuminate\Support\Facades\Validator;
 
 trait DCMSController
 {
-    protected $prefix;
-    protected $class;
-    protected $file;
-    protected $requestFile;
-    protected $classRequest;
-    protected $indexQuery;
-    protected $indexView;
-    protected $showView;
-    protected $editView;
-    protected $createView;
-    protected $createdUrl;
-    protected $createdTitle;
-    protected $createdMessage;
-    protected $updatedUrl;
-    protected $updatedTitle;
-    protected $updatedMessage;
-    protected $deletedUrl;
-    protected $deletedTitle;
-    protected $deletedMessage;
-    protected $importCols;
-    protected $importFailedTitle;
-    protected $importFailedMessage;
-    protected $importEmptyTitle;
-    protected $importEmptyMessage;
-    protected $importFinishedTitle;
-    protected $importFinishedMessage;
-    protected $importedUrl;
-    protected $autoFixColumns;
+    public $prefix;
+    public $class;
+    public $file;
+    public $requestFile;
+    public $classRequest;
+    public $indexQuery;
+    public $indexView;
+    public $showView;
+    public $editView;
+    public $createView;
+    public $createdUrl;
+    public $createdTitle;
+    public $createdMessage;
+    public $updatedUrl;
+    public $updatedTitle;
+    public $updatedMessage;
+    public $deletedUrl;
+    public $deletedTitle;
+    public $deletedMessage;
+    public $importCols;
+    public $importFailedTitle;
+    public $importFailedMessage;
+    public $importEmptyTitle;
+    public $importEmptyMessage;
+    public $importFinishedTitle;
+    public $importFinishedMessage;
+    public $importedUrl;
+    public $autoFixColumns;
 
     // This returns void by default
     public function DCMS(): void {}
@@ -83,18 +83,18 @@ trait DCMSController
         $this->autoFixColumns = $this->DCMS()['import']['autocorrect'] ?? null;
     }
 
-    // The three functions below are for the Model helper function in DCMS.php
-    public function DCMSPrefix(){
-        return $this->DCMS()['routePrefix'] ?? GetPrefix();
-    }
-
-    public function DCMSClass(){
-        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->DCMSPrefix())['class'];
-    }
-
-    public function DCMSModel(){
-        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->DCMSPrefix())['file'];
-    }
+//    // The three functions below are for the Model helper function in DCMS.php
+//    public function DCMSPrefix(){
+//        return $this->DCMS()['routePrefix'] ?? GetPrefix();
+//    }
+//
+//    public function DCMSClass(){
+//        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->DCMSPrefix())['class'];
+//    }
+//
+//    public function DCMSModel(){
+//        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->DCMSPrefix())['file'];
+//    }
 
     public function index()
     {
