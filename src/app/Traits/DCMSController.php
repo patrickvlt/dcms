@@ -3,6 +3,7 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
+use App\Classes\DCMS\PHPExcel;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -95,10 +96,22 @@ trait DCMSController
     public function fetch()
     {
         $query = ($this->indexQuery) ?? $this->class::query();
-        $columns = ($this->searchFields) ?? [];
         $datatable = '\\App\\Datatables\\'.$this->file.'Datatable';
 
-        return (new $datatable($query, $columns))->render();
+        return (new $datatable($query))->render();
+    }
+
+    public function export(){
+        $data = $this->class::all()->toArray();
+        $headers = [];
+        if (isset($data[0])){
+            foreach ($data[0] as $key => $val){
+                $headers[] = $key;
+            }
+        } else {
+            $data = [];
+        }
+        PHPExcel::download($headers,$data);
     }
 
     public function show($id)

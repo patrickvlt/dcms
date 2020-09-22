@@ -6,22 +6,23 @@
  * Time: 19:57
  */
 
-namespace App\Classes;
+namespace App\Classes\DCMS;
 
 class Datatable
 {
-    public function __construct($query, $searchFields){
+    public function __construct($query, $searchFields=null){
         $this->query = $query;
         $this->searchFields = $searchFields;
     }
 
     /**
      * Build conditional where clauses
+     * Override this function in custom datatable to use more clauses
      * @param $field
      * @param $value
      */
 
-    public function filter($field, $value)
+    public function filter($field=[], $value=[])
     {
         switch ($field) {
             default:
@@ -56,19 +57,34 @@ class Datatable
             $this->query->orderBy($params['sort']['field'],$params['sort']['sort']);
         }
 
-        // Perform general search on remaining results
-        $data = $this->query->toArray() ?? $this->query->get()->toArray();
+        // Query may already have been executed dynamically
+        try {
+            $data = $this->query->toArray();
+        } catch (\Exception $e) {
+            // If query hasnt been executed yet
+            $data = $this->query->get()->toArray();
+        }
 
+        // Perform general search on remaining results
         if (isset($params['query']['generalSearch'])){
             $search = $params['query']['generalSearch'];
             // Filter the results array from previous query
-            $data = array_filter($data, function ($row) use ($search) {
+            $data = array_filter($data, function ($row) use ($search, $data) {
                 // Loop through searchable columns
-                foreach($this->searchFields as $field){
+                if (isset($this->searchFields)){
+                    $searchColumns = $this->searchFields;
+                } else {
+                    foreach ($data[0] as $key => $val){
+                        $searchColumns[] = $key;
+                    }
+                }
+                foreach($searchColumns as $key => $field){;
                     // Check if field exists in this array
                     if (isset($row[$field])){
                         // Check if search value is found in this field
-                        if (strpos(strtolower($row[$field]), strtolower($search)) !== false){
+                        // Skip if value is an array, most likely a relation/FK
+                        // To search in relations, define a column to another table, e.g.: posts.user_id
+                        if (!is_array($row[$field]) && strpos(strtolower($row[$field]), strtolower($search)) !== false){
                             return $row;
                         }
                     } else if (count(explode('.',$field)) > 1){
