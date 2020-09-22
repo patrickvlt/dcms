@@ -106,24 +106,26 @@ class Datatable
 
         // Retrieve pagination parameters, to paginate the results and return a meta response
         $total = count($data);
-        $perPage = $params['pagination']['perpage'] ?? 5;
-        $page = $params['pagination']['page']-1 ?? 0;
-
-        // Paginate the results
-        $paginatedData = array_chunk($data, $perPage, true);
-        $pages = count($paginatedData);
+        $perPage = isset($params['pagination']['perpage']) ? $params['pagination']['perpage'] : null;
+        $page = isset($params['pagination']['page']) ? $params['pagination']['page']-1 : null;
 
         // Make response object with meta
         $response = (object) '';
-        $response->meta = [
-            'page' => $params['pagination']['page'],
-            'pages' => $pages,
-            'perpage' => $perPage,
-            'total' => $total,
-        ];
 
-        // Use the page parameter as an array index
-        $response->data = $paginatedData[$params['pagination']['page']-1] ?? $paginatedData;
+        // Paginate the results
+        if (isset($page,$perPage)){
+            $paginatedData = array_chunk($data, $perPage, true);
+            $pages = count($paginatedData);
+            $response->meta = [
+                'page' => $page+1,
+                'pages' => $pages,
+                'perpage' => $perPage,
+                'total' => $total,
+            ];
+            $response->data = $paginatedData[$page];
+        } else {
+            $response->data = $data;
+        }
 
         return response()->json($response);
     }

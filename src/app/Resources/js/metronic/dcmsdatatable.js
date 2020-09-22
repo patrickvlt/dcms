@@ -247,6 +247,7 @@ window.DCMSDatatable = function (parameters) {
             return a.order > b.order ? 1 : 0
         })
 
+        let pagination = (table.dataset.ktPagination) == 'false' ? false : true;
         let pageSize = (table.dataset.ktPageSize) ? parseInt(table.dataset.ktPageSize) : 10;
 
         let datatable = $(table).KTDatatable({
@@ -260,7 +261,7 @@ window.DCMSDatatable = function (parameters) {
                     },
                 },
                 pageSize: pageSize, // display 20 records per page
-                serverPaging: true,
+                serverPaging: (table.dataset.ktPagination) == 'false' ? false : true,
                 serverFiltering: true,
                 serverSorting: true,
             },
@@ -275,7 +276,7 @@ window.DCMSDatatable = function (parameters) {
             // column sorting
             sortable: true,
 
-            pagination: (table.dataset.ktPagination) == 'false' ? false : true,
+            pagination: pagination,
 
             search: {
                 input: $($(table).data('kt-parent')).find('[data-kt-action="search"]'),

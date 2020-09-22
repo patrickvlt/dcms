@@ -101,7 +101,8 @@ trait DCMSController
         return (new $datatable($query))->render();
     }
 
-    public function export(){
+    public function export(): void
+    {
         $data = $this->class::all()->toArray();
         $headers = [];
         if (isset($data[0])){
