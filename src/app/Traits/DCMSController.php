@@ -92,6 +92,15 @@ trait DCMSController
         return view($this->prefix.'.'.$this->indexView)->with($vars);
     }
 
+    public function fetch()
+    {
+        $query = ($this->indexQuery) ?? $this->class::query();
+        $columns = ($this->searchFields) ?? [];
+        $datatable = '\\App\\Datatables\\'.$this->file.'Datatable';
+
+        return (new $datatable($query, $columns))->render();
+    }
+
     public function show($id)
     {
         ${$this->prefix} = $this->class::FindOrFail($id);
@@ -146,32 +155,32 @@ trait DCMSController
             ${$this->prefix} = $this->class::create($request);
         } else if ($createdOrUpdated === 'updated') {
             ${$this->prefix} = $this->class::findOrFail($id);
-                // This is for files
-                foreach ($request as $key => $val){
-                    // If request has an array, and points to storage, convert it to a JSON array
-                    if (is_array($val) && strpos(implode(" ", $val), '/storage/') !== false) {
-                        $newArr = [];
-                        // remove unnecessary quotes, make a new clean JSON array
-                        foreach ($val as $x){
-                            $x = str_replace('"','',$x);
-                            $newArr[] = $x;
-                        }
-                        try {
-                            // check if object has an array for this already
-                            $existing = json_decode(${$this->prefix}->$key,true);
-                            if(count($existing) > 0){
-                                $newArr = array_merge($existing,$newArr);
-                            }
-                        } catch (\Throwable $th) {
-                            //
-                        }
-                        $newArr = json_encode($newArr);
-                        $newArr = str_replace('""','"',$newArr);
-
-                        $request[$key] = $newArr;
+            // This is for files
+            foreach ($request as $key => $val){
+                // If request has an array, and points to storage, convert it to a JSON array
+                if (is_array($val) && strpos(implode(" ", $val), '/storage/') !== false) {
+                    $newArr = [];
+                    // remove unnecessary quotes, make a new clean JSON array
+                    foreach ($val as $x){
+                        $x = str_replace('"','',$x);
+                        $newArr[] = $x;
                     }
+                    try {
+                        // check if object has an array for this already
+                        $existing = json_decode(${$this->prefix}->$key,true);
+                        if(count($existing) > 0){
+                            $newArr = array_merge($existing,$newArr);
+                        }
+                    } catch (\Throwable $th) {
+                        //
+                    }
+                    $newArr = json_encode($newArr);
+                    $newArr = str_replace('""','"',$newArr);
+
+                    $request[$key] = $newArr;
                 }
-                ${$this->prefix}->update($request);
+            }
+            ${$this->prefix}->update($request);
         }
 
         return $this->DCMSJSON(${$this->prefix},$createdOrUpdated);
@@ -306,12 +315,12 @@ trait DCMSController
 
         // Search for a column and retrieve its value
         function searchForColumn($column, $array) {
-           foreach ($array as $key => $val) {
-               if ($val['column'] == $column) {
-                   return $key;
-               }
-           }
-           return null;
+            foreach ($array as $key => $val) {
+                if ($val['column'] == $column) {
+                    return $key;
+                }
+            }
+            return null;
         }
         // Loop through table dropdown columns
         foreach ($th as $y => $header){
