@@ -152,45 +152,40 @@ trait DCMSController
         $request = $request->validated();
         if ($createdOrUpdated === 'created'){
             // This is for files
-            foreach ($request as $key => $val){
-                // If request has an array, and points to storage, convert it to a JSON array
-                if (is_array($val) && strpos(implode(" ", $val), '/storage/') !== false) {
-                    $newArr = [];
-                    // remove unnecessary quotes, make a new clean JSON array
-                    foreach ($val as $x){
-                        $x = str_replace('"','',$x);
-                        $newArr[] = $x;
-                    }
-                    $newArr = json_encode($newArr);
-                    $newArr = str_replace('""','"',$newArr);
-                    $request[$key] = $newArr;
-                }
-            }
+//            foreach ($request as $key => $val){
+//                // If request has an array, and points to storage, convert it to a JSON array
+//                if (is_array($val) && strpos(implode(" ", $val), '/storage/') !== false) {
+//                    $newArr = [];
+//                    // remove unnecessary quotes, make a new clean JSON array
+//                    foreach ($val as $x){
+//                        $x = str_replace('"','',$x);
+//                        $newArr[] = $x;
+//                    }
+//                    $newArr = json_encode($newArr);
+//                    $newArr = str_replace('""','"',$newArr);
+//                    $request[$key] = $newArr;
+//                }
+//            }
             ${$this->prefix} = $this->class::create($request);
         } else if ($createdOrUpdated === 'updated') {
             ${$this->prefix} = $this->class::findOrFail($id);
             // This is for files
             foreach ($request as $key => $val){
                 // If request has an array, and points to storage, convert it to a JSON array
-                if (is_array($val) && strpos(implode(" ", $val), '/storage/') !== false) {
+                if (is_array($val) && (strpos(implode(" ", $val), '/storage/') !== false)) {
                     $newArr = [];
-                    // remove unnecessary quotes, make a new clean JSON array
                     foreach ($val as $x){
-                        $x = str_replace('"','',$x);
                         $newArr[] = $x;
                     }
                     try {
                         // check if object has an array for this already
-                        $existing = json_decode(${$this->prefix}->$key,true);
+                        $existing = ${$this->prefix}->$key;
                         if(count($existing) > 0){
                             $newArr = array_merge($existing,$newArr);
                         }
                     } catch (\Throwable $th) {
                         //
                     }
-                    $newArr = json_encode($newArr);
-                    $newArr = str_replace('""','"',$newArr);
-
                     $request[$key] = $newArr;
                 }
             }

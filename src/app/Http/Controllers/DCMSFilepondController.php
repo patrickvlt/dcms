@@ -118,10 +118,8 @@ class DCMSFilepondController extends Controller
         if (count($findInDB) > 0){
             // checking all rows using this file
             foreach ($findInDB as $key => $model){
-                $colValue = $model->$column;
-                // json decode the arrays with files
-                $fileArr = json_decode($colValue,true);
-                // find the file in the decoded array and remove it
+                // Check if column is an array or string, then remove this
+                $fileArr = $model->$column;
                 if (is_array($fileArr)){
                     foreach ($fileArr as $y => $dbFile) {
                         if ($dbFile == $path){
@@ -137,7 +135,7 @@ class DCMSFilepondController extends Controller
                 }
                 // Rewrite file array to insert in the database
                 if ($fileArr !== null){
-                    $fileArr = json_encode(array_values($fileArr));
+                    $fileArr = array_values($fileArr);
                 }
                 $model->update([
                     $column => $fileArr
