@@ -275,7 +275,6 @@ window.DCMSDatatable = function (parameters) {
 
             // column sorting
             sortable: true,
-
             pagination: pagination,
 
             search: {
@@ -342,22 +341,38 @@ window.DCMSDatatable = function (parameters) {
 
         $.each($($(table).data('kt-parent')).find('[data-kt-filter]'), function (key, filter) {
             $(filter).on('change', function (filter) {
-                if (!filter.currentTarget.dataset.ktFilterCustom){
+                var currentQuery;
+
+                if (!filter.currentTarget.dataset.ktFilterCustom) {
                     if (filter.currentTarget.type !== 'checkbox') {
                         (filter.currentTarget.dataset.ktAllowMore == 'true' && !window.KTAllowMoreOn.includes(filter.currentTarget.dataset.ktFilter)) ? window.KTAllowMoreOn.push(filter.currentTarget.dataset.ktFilter): '';
                         (filter.currentTarget.dataset.ktAllowLess == 'true' && !window.KTAllowLessOn.includes(filter.currentTarget.dataset.ktFilter)) ? window.KTAllowLessOn.push(filter.currentTarget.dataset.ktFilter): '';
                         (filter.currentTarget.dataset.ktForceExact == 'true' && !window.KTForceExactOn.includes(filter.currentTarget.dataset.ktFilter)) ? window.KTForceExactOn.push(filter.currentTarget.dataset.ktFilter): '';
-                        datatable.search(filter.currentTarget.value, filter.currentTarget.dataset.ktFilter);
+                        if (!filter.currentTarget.dataset.ktFilterCustom){
+                            datatable.search(filter.currentTarget.value, filter.currentTarget.dataset.ktFilter);
+                        }
                     } else {
+                        let filterValue;
                         if (this.checked == true) {
                             if (this.value && this.value !== 'on'){
-                                datatable.search(this.value, this.dataset.ktFilter);
+                                filterValue = this.value;
                             } else {
-                                datatable.search("1", this.dataset.ktFilter);
+                                filterValue = '1';
                             }
                         } else {
-                            datatable.search("", this.dataset.ktFilter);
+                            window.KTRemoveFilters.push(filter.currentTarget.dataset.ktFilter);
+                            // Remove unchecked elements from the query;
+                            currentQuery = datatable.getDataSourceParam('query');
+                            $.each(datatable.getDataSourceParam('query'), function (key, val) {
+                                if (key == filter.currentTarget.dataset.ktFilter){
+                                    currentQuery[key] = '';
+                                }
+                            });
+                            // Query adjustment for server side request
+                            datatable.setDataSourceParam('query',currentQuery);
+                            filterValue = '';
                         }
+                        datatable.search(filterValue, this.dataset.ktFilter);
                     }
                 }
             });

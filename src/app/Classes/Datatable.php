@@ -113,7 +113,7 @@ class Datatable
         $response = (object) '';
 
         // Paginate the results
-        if (isset($page,$perPage)){
+        if (isset($page,$perPage) && count($data) > 0){
             $paginatedData = array_chunk($data, $perPage, true);
             $pages = count($paginatedData);
             $response->meta = [
