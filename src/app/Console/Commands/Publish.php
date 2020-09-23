@@ -43,7 +43,9 @@ class Publish extends Command
         print("\n".shell_exec('composer show pveltrop/dcms --all')."\n");
         print("\n".shell_exec('git status')."\n");
 
-        $console->info('Published DCMS resources.');
+        $console->comment('');
+        $console->comment('Published DCMS resources.');
+        $console->comment('');
         print("\n");
     }
 }

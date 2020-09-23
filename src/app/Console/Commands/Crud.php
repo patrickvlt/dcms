@@ -38,7 +38,9 @@ class Crud extends Command
         shell_exec('php artisan make:request ' . $model . 'Request');
         $GLOBALS['enableSeed'] = false;
 
-        $console->info('Created model, migration, request, seeder, factory and controller for: ' . $model . '.');
+        $console->comment('');
+        $console->comment('Created model, migration, request, seeder, factory and controller for: ' . $model . '.');
+        $console->comment('');
 
         //Adding DCMS Trait to controller
         $file = 'app/Http/Controllers/' . $model . 'Controller.php';
@@ -154,7 +156,10 @@ class '.$model.'Controller extends Controller
     // }
 }';
         file_put_contents($file, $str);
-        $console->info('Added DCMS trait to controller.');
+
+        $console->comment('');
+        $console->comment('Added DCMS trait to controller.');
+        $console->comment('');
 
         //Adding route
         $file = 'routes/web.php';
@@ -165,7 +170,9 @@ Route::post('/" . $prefix . "/file/process/{type}/{column}', '" . $model . "Cont
 Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $model . "Controller@DeleteFile');"
 , FILE_APPEND);
 
-        $console->info('Added route.');
+        $console->comment('');
+        $console->comment('Added route.');
+        $console->comment('');
 
         //Generating columns
         $columns = [];
@@ -194,7 +201,9 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $
                     $otherTable = $console->ask('Which table does this column reference to?');
                     $referenceColumnName = $console->ask('Which column from '.$otherTable.' is being referenced to?');
                     $referenceColumnClass = $console->ask('Which class does '.$referenceColumnName.' use? (e.g. Post)');
-                    $console->info('Define the relationship below. This is case sensitive. See the Laravel docs for more information');
+                    $console->comment('');
+                    $console->comment('Define the relationship below. This is case sensitive. See the Laravel docs for more information');
+                    $console->comment('');
                     $relation = $console->ask('What\'s the relation between these columns? From '.$dbColumn.' to --> '.$referenceColumnName);
                     $relationFunction = $console->ask('Define the function name to call this relationship from: '.$foreignColumnName);
 
@@ -276,7 +285,10 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $
         $str = file_get_contents($file);
         $str = str_replace('$table->id();',$migContent, $str);
         file_put_contents($file, $str);
-        $console->info('Configured migration.');
+
+        $console->comment('');
+        $console->comment('Configured migration.');
+        $console->comment('');
 
         if($GLOBALS['enableSeed']){
             //Adding seeder to database seed
@@ -287,7 +299,10 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $
     }
 }'), $str);
             file_put_contents($file, $str);
-            $console->info('Added seeder to DatabaseSeeder.');
+
+            $console->comment('');
+            $console->comment('Added seeder to DatabaseSeeder.');
+            $console->comment('');
 
             // Generating factory
             $file = $factory;
@@ -311,9 +326,11 @@ $factory->define('.$model.'::class, function (Faker $faker) {
         '.$fakerEntries.'
     ];
 });';
-
             file_put_contents($file, $str);
-            $console->info('Configured factory.');
+
+            $console->comment('');
+            $console->comment('Generated factory.');
+            $console->comment('');
 
             //configure seeder
             $file = 'database/seeds/'.$model.'Seeder.php';
@@ -335,9 +352,11 @@ class ".$model."Seeder extends Seeder
     }
 }
 ";
-
             file_put_contents($file, $str);
-            $console->info('Configured seeder.');
+
+            $console->comment('');
+            $console->comment('Generated seeder.');
+            $console->comment('');
         }
 
         //configure model
@@ -361,20 +380,19 @@ class ".$model."Seeder extends Seeder
 
 namespace App;
 
-use App\\Traits\\DCMSModel;
 use Illuminate\\Database\\Eloquent\\Model;
 
 class '.$model.' extends Model
 {
-    use DCMSModel;
-
     protected $guarded = ["id"];
 
     '.$relEntries.'
 }';
 
         file_put_contents($file, $str);
-        $console->info('Configured model.');
+        $console->comment('');
+        $console->comment('Generated model.');
+        $console->comment('');
 
         //configure request
         $file = $request;
@@ -469,10 +487,12 @@ class '.$model.'Request extends FormRequest
         ';
 
         file_put_contents($file, $str);
-        $console->info('Configured request.');
+        $console->comment('');
+        $console->comment('Generated custom request.');
+        $console->comment('');
 
-
-
-        $console->info('Generated full CRUD for: ' . $model . '.');
+        $console->comment('');
+        $console->comment('Generated full CRUD for: ' . $model . '.');
+        $console->comment('');
     }
 }
