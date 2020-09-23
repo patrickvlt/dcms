@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace Pveltrop\DCMS\Console\Commands;
 
 use Illuminate\Console\Command;
 
@@ -18,7 +18,7 @@ class Datatable extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Generate a new (DCMS) Datatable instance.';
 
     /**
      * Create a new command instance.
