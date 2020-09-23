@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Classes\DCMS;
+namespace Pveltrop\DCMS\Classes;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;

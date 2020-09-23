@@ -6,7 +6,7 @@
  * Time: 19:57
  */
 
-namespace App\Classes\DCMS;
+namespace Pveltrop\DCMS\Classes;
 
 class Datatable
 {

@@ -3,7 +3,7 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
-use App\Classes\DCMS\PHPExcel;
+use Pveltrop\DCMS\Classes\PHPExcel;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;

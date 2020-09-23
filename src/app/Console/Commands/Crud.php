@@ -12,7 +12,7 @@ class Crud extends Command
      * @var string
      */
 
-    protected $signature = 'dcms:crud {model}';
+    protected $signature = 'dcms:make-crud {model}';
 
     /**
      * The console command description.
@@ -49,7 +49,7 @@ namespace App\\Http\\Controllers;
 use Illuminate\\Http\\Request;
 
 use App\\'.$model.';
-use App\\Traits\\DCMSController; 
+use App\\Traits\\DCMSController;
 
 class '.$model.'Controller extends Controller
 {
@@ -116,7 +116,7 @@ class '.$model.'Controller extends Controller
     //     ];
     // }
 
-    // // if you want to override store or update functions, uncomment and use this    
+    // // if you want to override store or update functions, uncomment and use this
     // // DCMSJSON returns the dynamic JSON response after creating/updating
 
     // public function store('.$model.'Request $request, '.$model.' $'.$prefix.'){
@@ -266,7 +266,7 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $
         $str = str_replace('$table->id();',$migContent, $str);
         file_put_contents($file, $str);
         $console->info('Configured migration.');
-        
+
         if($GLOBALS['enableSeed']){
             //Adding seeder to database seed
             $file = 'database/seeds/DatabaseSeeder.php';
@@ -303,7 +303,7 @@ $factory->define('.$model.'::class, function (Faker $faker) {
 
             file_put_contents($file, $str);
             $console->info('Configured factory.');
-            
+
             //configure seeder
             $file = 'database/seeds/'.$model.'Seeder.php';
             $amount = $console->ask('How many objects should be seeded? Enter a number.');
@@ -339,7 +339,7 @@ class ".$model."Seeder extends Seeder
     {
         return $this->'.$column['foreign']['relation'].'('.$column['foreign']['class'].'::class, \''.$column['foreign']['foreign_column'].'\', \''.$column['foreign']['references'].'\');
     }
-    
+
     ';
                     }
                 } catch (\Throwable $th) {
@@ -358,7 +358,7 @@ class '.$model.' extends Model
     use DCMSModel;
 
     protected $guarded = ["id"];
-    
+
     '.$relEntries.'
 }';
 
@@ -400,9 +400,9 @@ class '.$model.'Request extends FormRequest
     }
 
     /**
-    * 
+    *
     * DCMS: Modify a request before it is validated, make sure to return an array with keys the request will recognize
-    * 
+    *
     */
 
     public function beforeValidation()
@@ -414,17 +414,17 @@ class '.$model.'Request extends FormRequest
         // // Modify store request
         // if (FormMethod() == "POST"){
         // }
-        // // Modify update request 
+        // // Modify update request
         // else if (FormMethod() == "PUT"){
-        // } 
+        // }
 
         return $request;
     }
 
     /**
-    * 
+    *
     * DCMS: Place validation for file uploads here, refer to the Laravel documentation. You can still use messages() to return custom messages.
-    * 
+    *
     */
 
     public function uploadRules()

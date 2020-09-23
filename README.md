@@ -112,7 +112,7 @@ To easily view a gallery of uploaded files (right above a Filepond input, for ex
 ```html
 @if(Model() && Model()->banner)
 <div data-type="dcarousel" 
-data-dcar-src="{{ Model()->banner }}"
+data-dcar-src="{{ json_encode(Model()->banner) }}"
 data-dcar-prefix="post"
 data-dcar-column="banner"
 >
@@ -293,7 +293,7 @@ FormRoute() or DeleteRoute()
 This returns the action the form will send a request to. This will grab the correct route for the object you're working on.
 
 
-# DCMS Datatables
+# DCMS (KT) Datatables
 This is a simple JS function which easily initalises KTDatatable, working with data attributes. 
 Purchase a Metronic license if you wish to use these tables.
 
@@ -302,7 +302,7 @@ To initialise a dynamic KTDatatable, use this code in your HTML as a reference:
 ```html
 <div id="tableDiv">
     <div class='datatable datatable-bordered datatable-head-custom'
-    data-kt-route='/api/fetchObjects'
+    data-kt-route='/api/fetch'
     data-kt-parent="#tableParentDiv">
         <div data-kt-type='columns'>
             <div data-kt-title="{{ __('Speed') }}" data-kt-order=1 data-kt-column='speed' data-kt-append=' Mbit/s' data-kt-width='100'></div>
@@ -375,7 +375,7 @@ data-kt-delete-single-failed-message="{{ __('The object couldn\'t be deleted.') 
 You can define the columns in your HTML element, and in JavaScript (example below).
 These columns will work together, you can order them with the data-kt-order attribute or order property in JavaScript.
 
-To define columns in your HTML element:
+## To define columns in your HTML element:
 
 ```html
 <!-- Place this div in your datatable element, make sure data-kt-type="columns" is set -->
@@ -409,12 +409,12 @@ Make the column hide automatically, or let it stay on top
 data-kt-auto-hide=false
 ```
 
-Turn value into clickable link:
+### Turn value into clickable link:
 
 To turn the value into a link, make sure your column has a valid URL.
 For example, if your column is "website": use data-kt-href="__website__" to generate the URL.
-The low stripes will trigger DCMS to replace the link with the correct value.
-If you don't use low stripes, you have to define a static URL, or else you will redirect users literally to __website__.
+The low dashes will trigger DCMS to replace the link with the correct value.
+If you don't use low dashes, you have to define a static URL, or else you will redirect users literally to __website__.
 Then finally, use data-kt-target to specify if you want the link to open in a new tab.
 Example:
 
@@ -424,9 +424,12 @@ Example:
 
 You can also specify a type. These are predefined templates in DCMS.
 Choose one with the data-kt-type="" attribute.
-The following types are available:
 
-card: Generate a small card with a title and/or image with text in the column. (Note: data-kt-card-image should point to a column in your database)
+### The following types (data-kt-type) are available:
+
+<h4>card</h4>
+
+Generate a small card with a title and/or image with text in the column. (Note: data-kt-card-image should point to a column in your database)
 ```
 data-kt-card-title=""
 data-kt-card-info=""
@@ -435,15 +438,24 @@ data-kt-card-color=""
 data-kt-card-title-color=""
 data-kt-card-text-color=""
 ```
-boolean: Generate a column which checks itself if the value is 1
-icon: Place an icon before the text
-price: Turn the value into a price, combine with data-kt-currency to place a currency sign in front of it:
-```
-data-kt-currency="€"
-```
-image: Show an image in this column, clickable since it has a spotlight class.
+<h4>boolean</h4> 
+Generate a column which checks itself if the value is 1
 
-You can also define custom columns in JavaScript, these will work together with your HTML columns.
+<h4>icon</h4> 
+Place an icon before the text
+
+<h4>price</h4>
+Turn the value into a price, combine with data-kt-currency to place a currency sign in front of it:
+
+```
+data-kt-type="price" data-kt-currency="€"
+```
+<h4>image</h4>
+Show an image in this column, clickable since it has a spotlight class.
+
+
+### Define KTDatatable columns in JavaScript
+Note: It doesn't matter if you define them in HTML or JavaScript. The columns will be merged together into one datatable.
 
 ```html
 <script>
@@ -452,7 +464,7 @@ You can also define custom columns in JavaScript, these will work together with 
         // You can define columns in JavaScript aswell, these will be "merged" with your defined columns in your HTML element
         customColumns: [
         {
-            field: Lang('Package'),
+            field: 'package_name',
             title: Lang('Package'),
             // This will order your columns.
             order: 5,
@@ -470,4 +482,54 @@ You can also define custom columns in JavaScript, these will work together with 
         }]
     });
 </script>
+```
+
+### KTDatatable (backend)
+Controller:
+
+```php
+public function fetch()
+{
+    $query = Package::select('*', 'name as package_name')->selectRaw('mediaboxes_included + mediaboxes_extra AS total_mediaboxes')->with(['provider' => function ($query) {
+        $query->select('*','name as provider_name');
+    }]);
+
+    return (new PackageDatatable($query))->render();
+}
+```
+
+Datatable:
+
+```php
+<?php
+
+namespace App\Datatables;
+
+use Pveltrop\DCMS\Classes\Datatable;
+
+class PackageDatatable extends Datatable
+{
+    /**
+     * @param $field
+     * @param $value
+     */
+
+    public function filter($field=[], $value=[])
+    {
+        switch ($field) {
+            case 'total_mediaboxes':
+                $this->query->whereRaw('(mediaboxes_included + mediaboxes_extra) >= '.$value);
+                break;
+            case 'price':
+                $this->query->where($field, '<=', $value);
+                break;
+            case 'speed':
+                $this->query->where($field, '>=', $value);
+                break;
+            default:
+                $this->query->where($field, '=', $value);
+        }
+    }
+}
+
 ```
