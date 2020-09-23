@@ -76,6 +76,23 @@ class '.$model.'Datatable extends Datatable
 }';
         $path = 'app/Datatables/'.$model.'Datatable.php';
         file_put_contents($path,$content);
+
+        $console->info('Use this code to call the new Datatable:');
+        $console->info(
+'public function fetch()
+{
+    $query = '.$model.'::select(\'*\', \'name as something_name\')->selectRaw(\'column_one + column_two AS total_columns\')->with([\'relation\' => function ($query) {
+        $query->select(\'*\');
+    }]);
+
+    // Specify which columns to search in
+    // If no columns are passed as parameter, all columns will be searched
+    // $searchInColumns = [\'id\',\'name\',\'email\'];
+    // return (new '.$model.'Datatable($query,$searchInColumns))->render();
+
+    return (new '.$model.'Datatable($query))->render();
+}');
+
         $console->info('Generated a '.$model.' Datatable instance in: '.$path);
     }
 }
