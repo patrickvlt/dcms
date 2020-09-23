@@ -20,7 +20,7 @@ class Crud extends Command
      * @var string
      */
 
-    protected $description = 'Generate a full crud.';
+    protected $description = 'Generate full crud functionality.';
 
     /**
      * Execute the console command.
@@ -76,6 +76,9 @@ class '.$model.'Controller extends Controller
     //             "url" => "/'.$prefix.'"
     //         ],
     //         "deleted" => [
+    //             "url" => "/'.$prefix.'"
+    //         ],
+    //         "imported" => [
     //             "url" => "/'.$prefix.'"
     //         ],
     //         "request" => "'.$model.'Request",
@@ -140,6 +143,14 @@ class '.$model.'Controller extends Controller
     //     $someVar = "someValue";
     //     $someArr = [];
     //     return compact("someVar","someArr");
+    // }
+
+    // public function fetch()
+    // {
+    //     // Get class to make a query for
+    //     $query = '.$model.'::query();
+    //
+    //     return (new '.$model.'Datatable($query))->render();
     // }
 }';
         file_put_contents($file, $str);
