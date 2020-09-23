@@ -337,7 +337,6 @@ window.DCMSDatatable = function (parameters) {
         window.KTAllowMoreOn = [];
         window.KTAllowLessOn = [];
         window.KTForceExactOn = [];
-        window.KTRemoveFilters = [];
 
         $.each($($(table).data('kt-parent')).find('[data-kt-filter]'), function (key, filter) {
             $(filter).on('change', function (filter) {
@@ -352,7 +351,7 @@ window.DCMSDatatable = function (parameters) {
                             datatable.search(filter.currentTarget.value, filter.currentTarget.dataset.ktFilter);
                         }
                     } else {
-                        let filterValue;
+                        let filterValue
                         if (this.checked == true) {
                             if (this.value && this.value !== 'on'){
                                 filterValue = this.value;
@@ -360,7 +359,6 @@ window.DCMSDatatable = function (parameters) {
                                 filterValue = '1';
                             }
                         } else {
-                            window.KTRemoveFilters.push(filter.currentTarget.dataset.ktFilter);
                             // Remove unchecked elements from the query;
                             currentQuery = datatable.getDataSourceParam('query');
                             $.each(datatable.getDataSourceParam('query'), function (key, val) {
