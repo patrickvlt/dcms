@@ -8,7 +8,8 @@
         "crud boost"
     ],
     "require": {
-        "airmanbzh/php-html-generator": "1.0.*"
+        "airmanbzh/php-html-generator": "1.0.*",
+        "phpoffice/phpspreadsheet": "1.14.*"
     },
     "homepage": "https://pv-media.nl",
     "license": "MIT",
