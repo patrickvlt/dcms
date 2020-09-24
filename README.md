@@ -494,10 +494,10 @@ public function fetch()
         $query->select('*','name as provider_name');
     }]);
 
-    // Specify which columns to search in
-    // If no columns are passed as parameter, all columns will be searched
-    $searchInColumns = ['id','name','email'];
-    return (new PackageDatatable($query,$searchInColumns))->render();
+    // // Specify which columns to search in
+    // // If no columns are passed as parameter, all columns will be searched
+    // $searchInColumns = ['id','name','email'];
+    // return (new PackageDatatable($query,$searchInColumns))->render();
 
     return (new PackageDatatable($query))->render();
 }
