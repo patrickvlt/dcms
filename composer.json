@@ -7,6 +7,9 @@
         "dynamic",
         "crud boost"
     ],
+    "require": {
+        "airmanbzh/php-html-generator": "1.0.*"
+    },
     "homepage": "https://pv-media.nl",
     "license": "MIT",
     "authors": [{
