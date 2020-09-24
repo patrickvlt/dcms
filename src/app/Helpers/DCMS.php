@@ -22,7 +22,9 @@ if (!function_exists('MaxSizeServer')) {
 if (!function_exists('GetPrefix')) {
     function GetPrefix()
     {
-        return explode('/', request()->route()->uri)[0];
+        if(!app()->runningInConsole()){
+            return explode('/', request()->route()->uri)[0];
+        }
     }
 }
 

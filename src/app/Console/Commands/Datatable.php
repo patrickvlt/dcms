@@ -77,7 +77,10 @@ class '.$model.'Datatable extends Datatable
         $path = 'app/Datatables/'.$model.'Datatable.php';
         file_put_contents($path,$content);
 
-        $console->info('Use this code to call the new Datatable:');
+        $console->comment('');
+        $console->comment('Use this code to call the new Datatable:');
+        $console->comment('');
+
         $console->info(
 'public function fetch()
 {
@@ -93,6 +96,8 @@ class '.$model.'Datatable extends Datatable
     return (new '.$model.'Datatable($query))->render();
 }');
 
-        $console->info('Generated a '.$model.' Datatable instance in: '.$path);
+        $console->comment('');
+        $console->comment('Generated '.$model.' Datatable in: '.$path);
+        $console->comment('');
     }
 }

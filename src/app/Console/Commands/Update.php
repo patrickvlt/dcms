@@ -42,7 +42,10 @@ class Update extends Command
 
         print("\n".shell_exec('composer show pveltrop/dcms --all')."\n");
 
-        $console->info('Updated DCMS vendor package. Make a merge request to propose changes.');
+        $console->comment('');
+        $console->comment('Updated DCMS vendor package. Create a merge request to propose changes.');
+        $console->comment('');
+
         print("\n");
     }
 }

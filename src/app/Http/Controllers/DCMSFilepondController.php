@@ -15,16 +15,18 @@ class DCMSFilepondController extends Controller
 
     public function __construct()
     {
-        // Route prefix
-        $this->prefix = request()->route()->prefix;
-        // Get class file
-        $this->file = FindClass($this->prefix)['file'];
-        // Get class with namespace, by route prefix
-        $this->class = FindClass($this->prefix)['class'];
-        // Get class request file
-        $this->requestFile = ($this->file . 'Request');
-        // Get class request with namespace
-        $this->classRequest = '\App\Http\Requests\\'.$this->requestFile;
+        if(!app()->runningInConsole()){
+            // Route prefix
+            $this->prefix = request()->route()->prefix;
+            // Get class file
+            $this->file = FindClass($this->prefix)['file'];
+            // Get class with namespace, by route prefix
+            $this->class = FindClass($this->prefix)['class'];
+            // Get class request file
+            $this->requestFile = ($this->file . 'Request');
+            // Get class request with namespace
+            $this->classRequest = '\App\Http\Requests\\'.$this->requestFile;
+        }
     }
 
     public function ProcessFile($prefix,$type,$column)

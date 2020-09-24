@@ -44,44 +44,46 @@ trait DCMSController
 
     public function __construct()
     {
-        // Route prefix
-        $this->prefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
-        // Get class file
-        $this->file = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->prefix)['file'];
-        // Get class with namespace, by route prefix
-        $this->class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->prefix)['class'];
-        // Get class request file
-        $this->requestFile = $this->DCMS()['request'] ?? ($this->file . 'Request');
-        // Get class request with namespace
-        $this->classRequest = '\App\Http\Requests\\'.$this->requestFile;
-        // Default index query
-        $this->indexQuery = $this->DCMS()['indexQuery'] ?? $this->class::all();
-        // CRUD views
-        $this->indexView = $this->DCMS()['views']['index'] ?? 'index';
-        $this->showView = $this->DCMS()['views']['show'] ?? 'show';
-        $this->editView = $this->DCMS()['views']['edit'] ?? 'edit';
-        $this->createView = $this->DCMS()['views']['create'] ?? 'create';
-        // JSON CRUD responses
-        $this->createdUrl = $this->DCMS()['created']['url'] ?? '/'.$this->prefix;
-        $this->createdTitle = $this->DCMS()['created']['title'] ?? __($this->file).__(' ').__('created');
-        $this->createdMessage = $this->DCMS()['created']['message'] ?? __($this->file).__(' ').__('has been successfully created');
-        $this->updatedUrl = $this->DCMS()['updated']['url'] ?? '/'.$this->prefix;
-        $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __($this->file).__(' ').__('updated');
-        $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __($this->file).__(' ').__('has been successfully updated');
-        $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? '/'.$this->prefix;
-        $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __($this->file).__(' ').__('deleted');
-        $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __($this->file).__(' ').__('has been successfully deleted');
-        // jExcel imports
-        $this->importCols = $this->DCMS()['import']['columns'] ?? new \RuntimeException("No columns defined for jExcel imports.");
-        $this->importFailedTitle = $this->DCMS()['import']['failed']['title'] ?? __('Import failed');
-        $this->importFailedMessage = $this->DCMS()['import']['failed']['message'] ?? __('Some fields contain invalid data.');
-        $this->importEmptyTitle = $this->DCMS()['import']['empty']['title'] ?? __('Import failed');
-        $this->importEmptyMessage = $this->DCMS()['import']['empty']['message'] ?? __('Please fill in data to import.');
-        $this->importFinishedTitle = $this->DCMS()['import']['finished']['title'] ?? __('Import finished');
-        $this->importFinishedMessage = $this->DCMS()['import']['finished']['message'] ?? __('All data has been succesfully imported.');
-        $this->importedUrl = $this->DCMS()['imported']['url'] ?? '/'.$this->prefix;
-        // jExcel autocorrect columns
-        $this->autoFixColumns = $this->DCMS()['import']['autocorrect'] ?? null;
+        if (!app()->runningInConsole()) {
+            // Route prefix
+            $this->prefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
+            // Get class file
+            $this->file = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->prefix)['file'];
+            // Get class with namespace, by route prefix
+            $this->class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->prefix)['class'];
+            // Get class request file
+            $this->requestFile = $this->DCMS()['request'] ?? ($this->file . 'Request');
+            // Get class request with namespace
+            $this->classRequest = '\App\Http\Requests\\'.$this->requestFile;
+            // Default index query
+            $this->indexQuery = $this->DCMS()['indexQuery'] ?? $this->class::all();
+            // CRUD views
+            $this->indexView = $this->DCMS()['views']['index'] ?? 'index';
+            $this->showView = $this->DCMS()['views']['show'] ?? 'show';
+            $this->editView = $this->DCMS()['views']['edit'] ?? 'edit';
+            $this->createView = $this->DCMS()['views']['create'] ?? 'create';
+            // JSON CRUD responses
+            $this->createdUrl = $this->DCMS()['created']['url'] ?? '/'.$this->prefix;
+            $this->createdTitle = $this->DCMS()['created']['title'] ?? __($this->file).__(' ').__('created');
+            $this->createdMessage = $this->DCMS()['created']['message'] ?? __($this->file).__(' ').__('has been successfully created');
+            $this->updatedUrl = $this->DCMS()['updated']['url'] ?? '/'.$this->prefix;
+            $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __($this->file).__(' ').__('updated');
+            $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __($this->file).__(' ').__('has been successfully updated');
+            $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? '/'.$this->prefix;
+            $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __($this->file).__(' ').__('deleted');
+            $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __($this->file).__(' ').__('has been successfully deleted');
+            // jExcel imports
+            $this->importCols = $this->DCMS()['import']['columns'] ?? new \RuntimeException("No columns defined for jExcel imports.");
+            $this->importFailedTitle = $this->DCMS()['import']['failed']['title'] ?? __('Import failed');
+            $this->importFailedMessage = $this->DCMS()['import']['failed']['message'] ?? __('Some fields contain invalid data.');
+            $this->importEmptyTitle = $this->DCMS()['import']['empty']['title'] ?? __('Import failed');
+            $this->importEmptyMessage = $this->DCMS()['import']['empty']['message'] ?? __('Please fill in data to import.');
+            $this->importFinishedTitle = $this->DCMS()['import']['finished']['title'] ?? __('Import finished');
+            $this->importFinishedMessage = $this->DCMS()['import']['finished']['message'] ?? __('All data has been succesfully imported.');
+            $this->importedUrl = $this->DCMS()['imported']['url'] ?? '/'.$this->prefix;
+            // jExcel autocorrect columns
+            $this->autoFixColumns = $this->DCMS()['import']['autocorrect'] ?? null;
+        }
     }
 
     public function index()
