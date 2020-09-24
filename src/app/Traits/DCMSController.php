@@ -62,13 +62,13 @@ trait DCMSController
         $this->editView = $this->DCMS()['views']['edit'] ?? 'edit';
         $this->createView = $this->DCMS()['views']['create'] ?? 'create';
         // JSON CRUD responses
-        $this->createdUrl = $this->DCMS()['created']['url'] ?? null;
+        $this->createdUrl = $this->DCMS()['created']['url'] ?? '/'.$this->prefix;
         $this->createdTitle = $this->DCMS()['created']['title'] ?? __($this->file).__(' ').__('created');
         $this->createdMessage = $this->DCMS()['created']['message'] ?? __($this->file).__(' ').__('has been successfully created');
-        $this->updatedUrl = $this->DCMS()['updated']['url'] ?? null;
+        $this->updatedUrl = $this->DCMS()['updated']['url'] ?? '/'.$this->prefix;
         $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __($this->file).__(' ').__('updated');
         $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __($this->file).__(' ').__('has been successfully updated');
-        $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? null;
+        $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? '/'.$this->prefix;
         $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __($this->file).__(' ').__('deleted');
         $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __($this->file).__(' ').__('has been successfully deleted');
         // jExcel imports
@@ -79,7 +79,7 @@ trait DCMSController
         $this->importEmptyMessage = $this->DCMS()['import']['empty']['message'] ?? __('Please fill in data to import.');
         $this->importFinishedTitle = $this->DCMS()['import']['finished']['title'] ?? __('Import finished');
         $this->importFinishedMessage = $this->DCMS()['import']['finished']['message'] ?? __('All data has been succesfully imported.');
-        $this->importedUrl = $this->DCMS()['imported']['url'] ?? null;
+        $this->importedUrl = $this->DCMS()['imported']['url'] ?? '/'.$this->prefix;
         // jExcel autocorrect columns
         $this->autoFixColumns = $this->DCMS()['import']['autocorrect'] ?? null;
     }
@@ -140,32 +140,25 @@ trait DCMSController
     public function crud($createdOrUpdated,$id=null)
     {
         $requestData = request()->all();
-        try {
-            $modRequest = (new $this->classRequest())->beforeValidation();
+        // Merge with modified request from beforeValidation()
+        $modRequest = (new $this->classRequest());
+        $modRequest = method_exists($modRequest,'beforeValidation') ? $modRequest->beforeValidation() : false;
+        if ($modRequest){
             foreach ($modRequest as $modKey => $modValue){
                 $requestData[$modKey] = $modValue;
             }
-        } catch (\Throwable $th) {
-            //
         }
         $request = Validator::make($requestData, (new $this->classRequest())->rules(), (new $this->classRequest())->messages());
         $request = $request->validated();
+        // Merge with modified request from afterValidation()
+        $modRequest = (new $this->classRequest());
+        $modRequest = method_exists($modRequest,'afterValidation') ? $modRequest->afterValidation($request) : false;
+        if ($modRequest){
+            foreach ($modRequest as $modKey => $modValue){
+                $request[$modKey] = $modValue;
+            }
+        }
         if ($createdOrUpdated === 'created'){
-            // This is for files
-//            foreach ($request as $key => $val){
-//                // If request has an array, and points to storage, convert it to a JSON array
-//                if (is_array($val) && strpos(implode(" ", $val), '/storage/') !== false) {
-//                    $newArr = [];
-//                    // remove unnecessary quotes, make a new clean JSON array
-//                    foreach ($val as $x){
-//                        $x = str_replace('"','',$x);
-//                        $newArr[] = $x;
-//                    }
-//                    $newArr = json_encode($newArr);
-//                    $newArr = str_replace('""','"',$newArr);
-//                    $request[$key] = $newArr;
-//                }
-//            }
             ${$this->prefix} = $this->class::create($request);
         } else if ($createdOrUpdated === 'updated') {
             ${$this->prefix} = $this->class::findOrFail($id);
@@ -212,11 +205,11 @@ trait DCMSController
 
     public function DCMSJSON($object,$createdOrUpdated)
     {
-        if (isset($this->createdUrl)){
+        if ((isset($this->createdUrl) && $createdOrUpdated == 'created') || (isset($this->updatedUrl) && $createdOrUpdated == 'updated')){
             if (request()->ajax()){
                 $redirect = $this->{$createdOrUpdated.'Url'};
             } else {
-                $redirect = redirect()->route($this->{$createdOrUpdated.'Url'});
+                return redirect($this->{$createdOrUpdated.'Url'});
             }
         } else {
             if (request()->ajax()){

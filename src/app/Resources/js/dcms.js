@@ -175,6 +175,12 @@ window.HttpReq = function (formMethod, formAction, formData) {
                     html: errorString,
                     icon: "error"
                 });
+            } else {
+                Swal.fire({
+                    title: Lang('Unknown error'),
+                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                    icon: "error"
+                })
             }
         },
         complete: function () {

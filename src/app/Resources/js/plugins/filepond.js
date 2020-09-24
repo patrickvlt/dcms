@@ -122,7 +122,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     if (!response.errors) {
                         Swal.fire({
                             title: Lang('Upload failed'),
-                            html: Lang('An error occurred on the server.') + "<br>" + Lang('Contact support if this problem persists.'),
+                            html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                             icon: "error"
                         })
                     }

@@ -411,15 +411,35 @@ class '.$model.'Request extends FormRequest
     }
 
     /**
-    *
-    * DCMS: Modify a request before it is validated, make sure to return an array with keys the request will recognize
-    *
-    */
+     * Modify request before it gets validated
+     *
+     * @return array
+     */
 
     public function beforeValidation()
     {
         $request = request()->all();
 
+        // // Modify all requests
+        // $request["foo"] = "bar";
+        // // Modify store request
+        // if (FormMethod() == "POST"){
+        // }
+        // // Modify update request
+        // else if (FormMethod() == "PUT"){
+        // }
+
+        return $request;
+    }
+
+    /**
+     * Modify request after it has been validated, before the data gets stored
+     *
+     * @return array
+     */
+
+    public function afterValidation($request)
+    {
         // // Modify all requests
         // $request["foo"] = "bar";
         // // Modify store request
@@ -442,7 +462,7 @@ class '.$model.'Request extends FormRequest
     {
         return [
             // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp", "max:2000"],
-            // "sheet" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet", "max:2000"],
+            // "sheet.*" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet", "max:2000"],
         ];
     }
 
