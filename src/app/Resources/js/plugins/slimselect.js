@@ -1,9 +1,5 @@
-require('./assets/slimselect.min.js');
-
-import SlimSelect from './assets/slimselect.min.js';
-
 if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
-    window.addEventListener('DOMContentLoaded', (event) => {
+    onReady(function(){
         document.querySelectorAll('[data-type=slimselect]').forEach(function (element){
             let Slim = new SlimSelect({
                 select: element,
@@ -26,8 +22,8 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
                             let errors = response.responseJSON.errors;
                             let alertErrors = '';
                             if (typeof errors !== 'undefined' && errors !== null){
-                                $.each(errors, function (indexInArray, error) { 
-                                     alertErrors += error[0] + ' <br>';
+                                $.each(errors, function (indexInArray, error) {
+                                    alertErrors += error[0] + ' <br>';
                                 });
                             } else {
                                 alertErrors = Lang('An unknown error has occurred.') + "<br>" + Lang("Contact support if this problem persists.")

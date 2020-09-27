@@ -1,26 +1,4 @@
-@import "plugins/lineawesome.scss";
-// @import url('https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css');
-
-@import "plugins/slimselect.scss";
-// @import url('https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.0/slimselect.min.css');
-
-@import "plugins/filepond.scss";
-@import "plugins/filepond_preview.scss";
-// @import url('https://unpkg.com/filepond/dist/filepond.css');
-// @import url('https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css');
-
-
-@import "plugins/jexcel.scss";
-@import "plugins/jsuites.scss";
-// @import 'https://bossanova.uk/jexcel/v3/jexcel.css';
-// @import 'https://bossanova.uk/jsuites/v2/jsuites.css';
-
-@import "plugins/sweetalert.scss";
-
 @import "plugins/carousel.scss";
-
-@import "plugins/toastr.scss";
-// @import url("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
 
 .dcmsImg {
     height: 13rem;
@@ -47,6 +25,20 @@
 
 .ss-main .ss-single-selected .ss-arrow span {
     padding: 2px !important;
+}
+
+.ss-main, .ss-single-selected {
+    max-height: 50px !important;
+}
+
+.ss-main {
+    padding: 0px 15px !important;
+}
+
+.ss-main .ss-single-selected {
+    height: 100% !important;
+    padding: 0px !important;
+    border: 1px !important;
 }
 
 .kt_datatable_rowcontrols {
@@ -88,3 +80,13 @@
     table-layout: auto;
     width: 100%;
 }
+
+.jexcel > tbody.draggable > tr > td::before {
+    min-width: 30px;
+}
+
+.ss-main .ss-single-selected {
+    height: 24px;
+    margin-left: -1px;
+}
+

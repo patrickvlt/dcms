@@ -1,10 +1,6 @@
 "use strict";
-import './assets/jexcel/jszip.js';
-import './assets/jexcel/jsuites.js';
-import jexcel from './assets/jexcel/jexcel.js';
-import Papa from './assets/jexcel/papaparse.min.js';
 
-window.addEventListener('DOMContentLoaded', (event) => {
+onReady(function(){
     var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table;
 
     if (document.querySelectorAll('[data-type=jexcel]').length >= 1){
@@ -87,14 +83,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             table = jexcel(htmlTable, {
                 data: (data !== null) ? data : dataFill,
-                columns: sheetDynColumns,
                 columnDrag: true,
+                colWidths: sheetDynColumns.map(function(el){ return (el.width) ? el.width : 100; }),
+                columns: sheetDynColumns,
                 allowInsertColumn: false,
                 allowManualInsertColumn: false,
                 text: jExcelTrans
             });
-            // execute this code after table is initalised
-            currentForm.style.display = 'block';
+            if (currentForm){
+                currentForm.style.display = 'block';
+            }
 
             function ClearInvalid(e) {
                 function CleanElement(element){
@@ -109,75 +107,77 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 });
             }
 
-            currentForm.addEventListener("submit", function(e){
-                e.preventDefault();
-                ClearInvalid(e,true);
-                sheetData = table.getData();
-                $.ajax({
-                    type: "POST",
-                    url: e.target.action,
-                    headers: {
-                        'X-CSRF-TOKEN': window.csrf
-                    },
-                    data: {
-                        sheetData
-                    },
-                    complete: function (response) {
-                        let reply = response.responseJSON;
-                        if (typeof reply !== 'undefined') {
-                            var alertMsg = '';
-                            switch (response.status) {
-                                case 422:
-                                    if (reply.message == 'The given data was invalid.'){
-                                        $.each(reply.errors, function (key, error) {
-                                            alertMsg += error[0] + "<br>";
-                                            Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function(cell){
-                                                if(String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== ""){
-                                                    cell.classList.add('invalid');
-                                                };
+            if (currentForm){
+                currentForm.addEventListener("submit", function(e){
+                    e.preventDefault();
+                    ClearInvalid(e,true);
+                    sheetData = table.getData();
+                    $.ajax({
+                        type: "POST",
+                        url: e.target.action,
+                        headers: {
+                            'X-CSRF-TOKEN': window.csrf
+                        },
+                        data: {
+                            sheetData
+                        },
+                        complete: function (response) {
+                            let reply = response.responseJSON;
+                            if (typeof reply !== 'undefined') {
+                                var alertMsg = '';
+                                switch (response.status) {
+                                    case 422:
+                                        if (reply.message == 'The given data was invalid.'){
+                                            $.each(reply.errors, function (key, error) {
+                                                alertMsg += error[0] + "<br>";
+                                                Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function(cell){
+                                                    if(String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== ""){
+                                                        cell.classList.add('invalid');
+                                                    };
+                                                });
                                             });
-                                        });
-                                        Swal.fire({
-                                            title: Lang('Import failed'),
-                                            html: alertMsg,
-                                            icon: "error"
-                                        })
-                                    } else {
-                                        Array.from(reply.errors).forEach(function(error){
-                                            formRows.forEach(function(row){
-                                                if (error.line == row.rowIndex){
-                                                    row.classList.add('invalid');
-                                                }
+                                            Swal.fire({
+                                                title: Lang('Import failed'),
+                                                html: alertMsg,
+                                                icon: "error"
+                                            })
+                                        } else {
+                                            Array.from(reply.errors).forEach(function(error){
+                                                formRows.forEach(function(row){
+                                                    if (error.line == row.rowIndex){
+                                                        row.classList.add('invalid');
+                                                    }
+                                                });
                                             });
-                                        });
+                                            Swal.fire({
+                                                title: reply.response.title,
+                                                html: reply.response.message,
+                                                icon: "error"
+                                            })
+                                        }
+                                        break;
+
+                                    case 200:
                                         Swal.fire({
                                             title: reply.response.title,
                                             html: reply.response.message,
-                                            icon: "error"
-                                        })
-                                    }
-                                    break;
-
-                                case 200:
-                                    Swal.fire({
-                                        title: reply.response.title,
-                                        html: reply.response.message,
-                                        icon: "success"
-                                    }).then(function(result){
-                                        if (result.value){
-                                            if (reply.url){
-                                                window.location.href = reply.url;
+                                            icon: "success"
+                                        }).then(function(result){
+                                            if (result.value){
+                                                if (reply.url){
+                                                    window.location.href = reply.url;
+                                                }
                                             }
-                                        }
-                                    });
-                                    break;
+                                        });
+                                        break;
+                                }
                             }
                         }
-                    }
-                });
-            })
+                    });
+                })
+            }
         }
-        
+
         MakeTable();
 
         $(currentForm).on('click','#fixSheet',function(button){
@@ -186,10 +186,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if ($(th).data('jexcel-type') == 'dropdown'){
                     let ajUrl = $(th).data('jexcel-fetch-url');
                     dropdownHeaders.push({
-                        column: th.cellIndex, 
+                        column: th.cellIndex,
                         text: th.textContent,
                     })
-                } 
+                }
             });
             $.ajax({
                 type: "POST",
@@ -219,5 +219,4 @@ window.addEventListener('DOMContentLoaded', (event) => {
             });
         })
     });
-    // make next table
-});
+})

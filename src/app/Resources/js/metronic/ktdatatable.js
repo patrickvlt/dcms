@@ -295,7 +295,7 @@ var KTApp = function() {
                     var el = $(target);
                 el.block(params);
                 } catch (error) {
-                    
+
                 }
             }
         },
@@ -329,7 +329,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 
 // Initialize KTApp class on document ready
 $(document).ready(function() {
-    KTApp.init(KTAppSettings);
+    try {
+        KTApp.init(KTAppSettings);
+    } catch (error) {
+        //
+    }
 });
 
 "use strict";
@@ -767,7 +771,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 "use strict";
 // DOCS: https://javascript.info/cookie
 
-// Component Definition 
+// Component Definition
 var KTCookie = function() {
   return {
     // returns the cookie with the given name,
@@ -822,7 +826,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 
 "use strict";
 
-// Component Definition 
+// Component Definition
 var KTDialog = function(options) {
     // Main object
     var the = this;
@@ -1217,7 +1221,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 
 "use strict";
 
-// Component Definition 
+// Component Definition
 var KTImageInput = function(elementId, options) {
     // Main object
     var the = this;
@@ -4783,7 +4787,7 @@ var KTUtil = function() {
                 if (left < 0) {
                     return true;
                 } else if (left * 2 > width) {
-                    
+
                     //return true;
                 }
             }
@@ -4792,7 +4796,7 @@ var KTUtil = function() {
                 if (windowWidth < left + width) {
                     return true;
                 } else {
-                    
+
                     //return true;
                 }
             }
@@ -7753,7 +7757,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 			 */
 			localDataUpdate: function() {
                 var params = Plugin.getDataSourceParam();
-                
+
 				if (typeof datatable.originalDataSet === 'undefined') {
 					datatable.originalDataSet = datatable.dataSet;
 				}
@@ -7774,7 +7778,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 				// if server filter enable, don't pass local filter
 				if (typeof params.query === 'object' && !Plugin.getOption('data.serverFiltering')) {
                     params.query = params.query || {};
-                    
+
 					var nestedSearch = function(obj) {
 						for (var field in obj) {
 							if (!obj.hasOwnProperty(field)) continue;
@@ -7831,7 +7835,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 			 */
 			filterArray: function(list, args, operator) {
 
-                $.each(args, function (key, arg) { 
+                $.each(args, function (key, arg) {
                     if (window.KTRemoveFilters.includes(key)){
                         args[key] = '';
                     }
@@ -9636,7 +9640,7 @@ var KTLayoutHeaderMenu = function() {
 				state: 'mobile-toggle-active'
 			}
 		});
-		
+
 		_menuObject = new KTMenu(_menuElement, {
 			submenu: {
 				desktop: 'dropdown',

@@ -1,13 +1,13 @@
 import * as tinymce from './assets/tinymce.js';
 
 if (document.querySelectorAll('[data-type=tinymce]').length > 0) {
-    window.addEventListener('DOMContentLoaded', (event) => {
+    onReady(function(){
         tinymce.init({
-          selector: '[data-type=tinymce]',
-          language_url: window.langFiles,
-          language: window.locale,
-          plugins: window.tinyMCEplugins,
-          toolbar1: window.tinyMCEtoolbar,
+            selector: '[data-type=tinymce]',
+            language_url: window.langFiles,
+            language: window.locale,
+            plugins: window.tinyMCEplugins,
+            toolbar1: window.tinyMCEtoolbar,
         });
-    });
+    })
 }

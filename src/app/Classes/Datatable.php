@@ -111,19 +111,26 @@ class Datatable
 
         // Make response object with meta
         $response = (object) '';
-
-        // Paginate the results
+        // Paginate the results if page and perpage parameters are present
         if (isset($page,$perPage) && count($data) > 0){
             $paginatedData = array_chunk($data, $perPage, true);
             $pages = count($paginatedData);
+            // If page/key exists in paginated data array, return this data
+            if (isset($paginatedData[$page])){
+                $response->data = $paginatedData[$page];
+                // If it doesnt exist, set the meta page to 1 and array key to 0
+            } else {
+                $response->data = $paginatedData[0];
+                $page = 0;
+            }
             $response->meta = [
                 'page' => $page+1,
                 'pages' => $pages,
                 'perpage' => $perPage,
                 'total' => $total,
             ];
-            $response->data = $paginatedData[$page];
         } else {
+            // Return all data if no pagination parameters are present
             $response->data = $data;
         }
 
