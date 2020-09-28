@@ -4,6 +4,13 @@
  *
  */
 
+var dcmsConfig;
+try {
+    dcmsConfig = require('../../../dcms.json');
+} catch (error){
+    dcmsConfig = {};
+}
+
 window.LoadJS = function(module) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
@@ -26,40 +33,40 @@ if (typeof Vue == 'undefined'){
     LoadJS('https://vuejs.org/js/vue.js');
 }
 
-if (typeof Swal == 'undefined'){
+if (typeof Swal == 'undefined' && (dcmsConfig.plugins.swal !== false)){
     LoadJS('https://cdn.jsdelivr.net/npm/sweetalert2@10');
 }
 
-if (typeof toastr == 'undefined'){
+if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr !== false)){
     LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css');
     LoadJS('https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.js');
 }
 
-if (typeof SlimSelect == 'undefined'){
+if (typeof SlimSelect == 'undefined' && (dcmsConfig.plugins.slimselect !== false)){
     LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.0/slimselect.min.css');
     LoadJS('https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.0/slimselect.min.js');
 }
 
-if (typeof datepicker == 'undefined'){
+if (typeof datepicker == 'undefined' && (dcmsConfig.plugins.datepicker !== false)){
     LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css');
     LoadJS('https://code.jquery.com/ui/1.12.1/jquery-ui.min.js');
 }
 
-if (typeof clockpicker == 'undefined'){
+if (typeof clockpicker == 'undefined' && (dcmsConfig.plugins.clockpicker !== false)){
     LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.css');
     LoadJS('https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js');
 }
 
-if (typeof jexcel == 'undefined'){
+if (typeof jexcel == 'undefined' && (dcmsConfig.plugins.jexcel !== false)){
     LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.4.1/jexcel.min.css');
     LoadJS('https://cdn.jsdelivr.net/npm/jexcel@3.9.1/dist/jexcel.min.js');
 }
-if (typeof jsuites == 'undefined'){
+if (typeof jsuites == 'undefined' && (dcmsConfig.plugins.jsuites !== false)){
     LoadCSS('https://cdn.jsdelivr.net/npm/jsuites@3.5.4/dist/jsuites.css');
     LoadJS('https://cdn.jsdelivr.net/npm/jsuites@3.5.4/dist/jsuites.min.js');
 }
 
-if (typeof FilePond == 'undefined'){
+if (typeof FilePond == 'undefined' && (dcmsConfig.plugins.filepond !== false)){
     LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/filepond/4.20.1/filepond.min.css');
     LoadCSS('https://cdn.jsdelivr.net/npm/filepond-plugin-image-preview@4.6.4/dist/filepond-plugin-image-preview.css');
     LoadJS('https://cdnjs.cloudflare.com/ajax/libs/filepond/4.20.1/filepond.min.js');
@@ -298,7 +305,7 @@ onReady(function(){
 
     /**
      *
-     *  Delete from a table or formTitle
+     *  Delete from a table or form
      *
      */
 

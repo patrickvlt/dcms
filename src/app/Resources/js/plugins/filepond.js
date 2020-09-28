@@ -1,7 +1,3 @@
-// import * as FilePond from './assets/filepond.min.js';
-// import FilePondPluginImagePreview from './assets/filepond.preview.min.js';
-// import FilePondPluginFileValidateSize from './assets/filepond.maxsize.min.js';
-
 onReady(function(){
     if (document.querySelectorAll('[data-type=filepond]').length > 0) {
         /**
