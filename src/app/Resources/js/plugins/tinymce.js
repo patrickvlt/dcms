@@ -1,5 +1,3 @@
-import * as tinymce from './assets/tinymce.js';
-
 if (document.querySelectorAll('[data-type=tinymce]').length > 0) {
     onReady(function(){
         tinymce.init({

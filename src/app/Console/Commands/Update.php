@@ -29,15 +29,23 @@ class Update extends Command
     {
         $console = $this;
         $rootjs = base_path() . '/resources/js/dcms/';
+        $rootjsassets = base_path() . '/public/js/dcms/assets';
         $rootscss = base_path() . '/resources/sass/dcms/';
+        $rootcssassets = base_path() . '/public/css/dcms/assets';
         $vendorjs = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/js';
+        $vendorjsassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/js/assets';
         $vendorscss = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/sass';
+        $vendorcssassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/assets';
 
         RemoveDir($vendorjs);
+        RemoveDir($vendorjsassets);
         RemoveDir($vendorscss);
+        RemoveDir($vendorcssassets);
 
         CopyDir($rootjs,$vendorjs);
+        CopyDir($rootjsassets,$vendorjsassets);
         CopyDir($rootscss,$vendorscss);
+        CopyDir($rootcssassets,$vendorcssassets);
         copy(base_path() . '/config/dcms.php', base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php');
 
         print("\n".shell_exec('composer show pveltrop/dcms --all')."\n");

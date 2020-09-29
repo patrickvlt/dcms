@@ -11,67 +11,79 @@ try {
     dcmsConfig = {};
 }
 
-window.LoadJS = function(module) {
+if (typeof process.env.MIX_DCMS_ENV == 'undefined'){
+    console.log('No environment defined for DCMS. Define this in your .env as MIX_DCMS_ENV.')
+}
+
+window.LoadJS = function(plugin, pluginPath='cdn') {
     var script = document.createElement('script');
     script.type = 'text/javascript';
-    script.src = module;
+    script.src = (process.env.MIX_DCMS_ENV == 'local') ? plugin['local']['js'] : plugin[pluginPath]['js'];
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(script, s);
 }
 
 let cssLink, cssTag;
-window.LoadCSS = function(module) {
+window.LoadCSS = function(plugin,pluginPath='cdn') {
     cssLink = document.createElement('link');
     cssLink.rel = 'stylesheet';
     cssLink.type = 'text/css';
-    cssLink.href = module;
+    cssLink.href = (process.env.MIX_DCMS_ENV == 'local') ? plugin['local']['css'] : plugin[pluginPath]['css'];
     cssTag = document.getElementsByTagName('head')[0];
     cssTag.append(cssLink);
 }
 
-if (typeof Vue == 'undefined'){
-    LoadJS('https://vuejs.org/js/vue.js');
+if (typeof Vue == 'undefined' && (dcmsConfig.plugins.vue.enable !== false)){
+    LoadJS(dcmsConfig.plugins.vue);
 }
 
-if (typeof Swal == 'undefined' && (dcmsConfig.plugins.swal !== false)){
-    LoadJS('https://cdn.jsdelivr.net/npm/sweetalert2@10');
+if (typeof Swal == 'undefined' && (dcmsConfig.plugins.sweetalert2.enable !== false)){
+    LoadJS(dcmsConfig.plugins.sweetalert2);
 }
 
-if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr !== false)){
-    LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css');
-    LoadJS('https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.js');
+if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr.enable !== false)){
+    LoadCSS(dcmsConfig.plugins.toastr);
+    LoadJS(dcmsConfig.plugins.toastr);
 }
 
-if (typeof SlimSelect == 'undefined' && (dcmsConfig.plugins.slimselect !== false)){
-    LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.0/slimselect.min.css');
-    LoadJS('https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.0/slimselect.min.js');
+if (typeof SlimSelect == 'undefined' && document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect.enable !== false)){
+    LoadCSS(dcmsConfig.plugins.slimselect);
+    LoadJS(dcmsConfig.plugins.slimselect);
 }
 
-if (typeof datepicker == 'undefined' && (dcmsConfig.plugins.datepicker !== false)){
-    LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css');
-    LoadJS('https://code.jquery.com/ui/1.12.1/jquery-ui.min.js');
+if (typeof datepicker == 'undefined' && document.querySelectorAll('[data-type=datepicker]').length > 0 && (dcmsConfig.plugins.datepicker.enable !== false)){
+    LoadCSS(dcmsConfig.plugins.datepicker);
+    LoadJS(dcmsConfig.plugins.datepicker);
 }
 
-if (typeof clockpicker == 'undefined' && (dcmsConfig.plugins.clockpicker !== false)){
-    LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.css');
-    LoadJS('https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js');
+if (typeof clockpicker == 'undefined' && document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker !== false)){
+    LoadCSS(dcmsConfig.plugins.clockpicker);
+    LoadJS(dcmsConfig.plugins.clockpicker);
 }
 
-if (typeof jexcel == 'undefined' && (dcmsConfig.plugins.jexcel !== false)){
-    LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.4.1/jexcel.min.css');
-    LoadJS('https://cdn.jsdelivr.net/npm/jexcel@3.9.1/dist/jexcel.min.js');
+if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel !== false)){
+    LoadCSS(dcmsConfig.plugins.jexcel);
+    LoadJS(dcmsConfig.plugins.jexcel);
 }
-if (typeof jsuites == 'undefined' && (dcmsConfig.plugins.jsuites !== false)){
-    LoadCSS('https://cdn.jsdelivr.net/npm/jsuites@3.5.4/dist/jsuites.css');
-    LoadJS('https://cdn.jsdelivr.net/npm/jsuites@3.5.4/dist/jsuites.min.js');
+if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites !== false)){
+    LoadCSS(dcmsConfig.plugins.jsuites);
+    LoadJS(dcmsConfig.plugins.jsuites);
 }
 
-if (typeof FilePond == 'undefined' && (dcmsConfig.plugins.filepond !== false)){
-    LoadCSS('https://cdnjs.cloudflare.com/ajax/libs/filepond/4.20.1/filepond.min.css');
-    LoadCSS('https://cdn.jsdelivr.net/npm/filepond-plugin-image-preview@4.6.4/dist/filepond-plugin-image-preview.css');
-    LoadJS('https://cdnjs.cloudflare.com/ajax/libs/filepond/4.20.1/filepond.min.js');
-    LoadJS('https://cdn.jsdelivr.net/npm/filepond-plugin-image-preview@4.6.4/dist/filepond-plugin-image-preview.min.js');
-    LoadJS('https://cdn.jsdelivr.net/npm/filepond-plugin-file-validate-size@2.2.1/dist/filepond-plugin-file-validate-size.min.js');
+if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa !== false)){
+    LoadJS(dcmsConfig.plugins.papa,'local');
+}
+
+if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond !== false)){
+    LoadCSS(dcmsConfig.plugins.filepond);
+    LoadJS(dcmsConfig.plugins.filepond);
+    LoadCSS(dcmsConfig.plugins.filepondImagePreview);
+    LoadJS(dcmsConfig.plugins.filepondImagePreview);
+    LoadJS(dcmsConfig.plugins.filepondValidateSize);
+}
+
+if (typeof tinymce == 'undefined' && document.querySelectorAll('[data-type=tinymce]').length > 0 && (dcmsConfig.plugins.tinymce !== false)){
+    LoadJS(dcmsConfig.plugins.tinymce,'local');
 }
 
 window.onReady = function(yourMethod) {
@@ -203,9 +215,9 @@ require('./plugins/slimselect.js');
 require('./plugins/tinymce.js');
 require('./plugins/dateclockpicker.js');
 require('./plugins/jexcel.js');
-require('./plugins/assets/spotlight.js');
 require('./plugins/filepond.js');
 require('./metronic/dcmsdatatable.js');
+require('../../../public/js/dcms/assets/spotlight.js');
 
 /**
  *  Initialise DCMS when all modules are loaded
