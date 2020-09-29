@@ -1,5 +1,5 @@
 if (document.querySelectorAll('[data-type=datepicker]').length > 0) {
-    onReady(function () {
+    hasLoaded('datepicker',function () {
         $.each($("[data-type=datepicker]"), function (x, element) {
             var autoClose, format, weekStart;
             autoClose = ($(element).data('datepicker-auto-close') !== 'false') ? 'true' : 'false';
@@ -16,7 +16,7 @@ if (document.querySelectorAll('[data-type=datepicker]').length > 0) {
     })
 }
 if (document.querySelectorAll('[data-type=clockpicker]').length > 0) {
-    onReady(function () {
+    hasLoaded('clockpicker',function () {
         $.each($("[data-type=clockpicker]"), function (x, element) {
             var autoClose, format, weekStart;
             autoClose = ($(element).data('clockpicker-auto-close') !== 'false') ? true : false;

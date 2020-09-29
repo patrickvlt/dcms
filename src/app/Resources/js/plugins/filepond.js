@@ -1,5 +1,7 @@
-onReady(function(){
-    if (document.querySelectorAll('[data-type=filepond]').length > 0) {
+if (document.querySelectorAll('[data-type=filepond]').length > 0) {
+
+    hasLoaded(['FilePond','FilePondPluginImagePreview','FilePondPluginFileValidateSize'],function(){
+
         /**
          *
          *  Register any plugins
@@ -151,5 +153,5 @@ onReady(function(){
             MakePond(element);
         });
         document.querySelectorAll('.filepond--drop-label').forEach(element => element.classList.add('input-group-text'));
-    }
-})
+    })
+}

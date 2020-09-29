@@ -15,7 +15,7 @@ if (typeof process.env.MIX_DCMS_ENV == 'undefined'){
     console.log('No environment defined for DCMS. Define this in your .env as MIX_DCMS_ENV.')
 }
 
-window.LoadJS = function(plugin, pluginPath='cdn') {
+window.LoadJS = function(pluginFunction, plugin, pluginPath='cdn') {
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = (process.env.MIX_DCMS_ENV == 'local') ? plugin['local']['js'] : plugin[pluginPath]['js'];
@@ -34,56 +34,56 @@ window.LoadCSS = function(plugin,pluginPath='cdn') {
 }
 
 if (typeof Vue == 'undefined' && (dcmsConfig.plugins.vue.enable !== false)){
-    LoadJS(dcmsConfig.plugins.vue);
+    LoadJS('Vue',dcmsConfig.plugins.vue);
 }
 
 if (typeof Swal == 'undefined' && (dcmsConfig.plugins.sweetalert2.enable !== false)){
-    LoadJS(dcmsConfig.plugins.sweetalert2);
+    LoadJS('Swal',dcmsConfig.plugins.sweetalert2);
 }
 
 if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr.enable !== false)){
     LoadCSS(dcmsConfig.plugins.toastr);
-    LoadJS(dcmsConfig.plugins.toastr);
+    LoadJS('toastr',dcmsConfig.plugins.toastr);
 }
 
 if (typeof SlimSelect == 'undefined' && document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect.enable !== false)){
     LoadCSS(dcmsConfig.plugins.slimselect);
-    LoadJS(dcmsConfig.plugins.slimselect);
+    LoadJS('SlimSelect',dcmsConfig.plugins.slimselect);
 }
 
 if (typeof datepicker == 'undefined' && document.querySelectorAll('[data-type=datepicker]').length > 0 && (dcmsConfig.plugins.datepicker.enable !== false)){
     LoadCSS(dcmsConfig.plugins.datepicker);
-    LoadJS(dcmsConfig.plugins.datepicker);
+    LoadJS('datepicker',dcmsConfig.plugins.datepicker);
 }
 
 if (typeof clockpicker == 'undefined' && document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker !== false)){
     LoadCSS(dcmsConfig.plugins.clockpicker);
-    LoadJS(dcmsConfig.plugins.clockpicker);
+    LoadJS('clockpicker',dcmsConfig.plugins.clockpicker);
 }
 
 if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel !== false)){
     LoadCSS(dcmsConfig.plugins.jexcel);
-    LoadJS(dcmsConfig.plugins.jexcel);
+    LoadJS('jexcel',dcmsConfig.plugins.jexcel);
 }
 if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites !== false)){
     LoadCSS(dcmsConfig.plugins.jsuites);
-    LoadJS(dcmsConfig.plugins.jsuites);
+    LoadJS('jsuites',dcmsConfig.plugins.jsuites);
 }
 
 if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa !== false)){
-    LoadJS(dcmsConfig.plugins.papa,'local');
+    LoadJS('Papa',dcmsConfig.plugins.papa,'local');
 }
 
 if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond !== false)){
     LoadCSS(dcmsConfig.plugins.filepond);
-    LoadJS(dcmsConfig.plugins.filepond);
+    LoadJS('FilePond',dcmsConfig.plugins.filepond);
     LoadCSS(dcmsConfig.plugins.filepondImagePreview);
-    LoadJS(dcmsConfig.plugins.filepondImagePreview);
-    LoadJS(dcmsConfig.plugins.filepondValidateSize);
+    LoadJS('FilePondPluginImagePreview',dcmsConfig.plugins.filepondImagePreview);
+    LoadJS('FilePondPluginFileValidateSize',dcmsConfig.plugins.filepondValidateSize);
 }
 
 if (typeof tinymce == 'undefined' && document.querySelectorAll('[data-type=tinymce]').length > 0 && (dcmsConfig.plugins.tinymce !== false)){
-    LoadJS(dcmsConfig.plugins.tinymce,'local');
+    LoadJS('tinymce',dcmsConfig.plugins.tinymce,'local');
 }
 
 window.onReady = function(yourMethod) {
@@ -92,6 +92,22 @@ window.onReady = function(yourMethod) {
             clearInterval(readyStateCheckInterval);
             yourMethod();
         }
+    }, 10);
+}
+
+window.hasLoaded = function(plugins,yourMethod) {
+    plugins = (typeof plugins == 'string') ? [plugins] : plugins;
+    var success = 0;
+    var readyStateCheckInterval = setInterval(function() {
+        plugins.forEach(function(plugin,x){
+            if (typeof window[plugin] !== 'undefined') {
+                clearInterval(readyStateCheckInterval);
+                success++;
+                if (success == plugins.length){
+                    yourMethod();
+                }
+            }
+        })
     }, 10);
 }
 
@@ -220,264 +236,258 @@ require('./metronic/dcmsdatatable.js');
 require('../../../public/js/dcms/assets/spotlight.js');
 
 /**
- *  Initialise DCMS when all modules are loaded
+ *
+ *  AJAX Submits
+ *
  */
 
-onReady(function(){
-    /**
-     *
-     *  AJAX Submits
-     *
-     */
-
-    window.HttpReq = function (formMethod, formAction, formData) {
-        DisableSubmit();
-        $.ajax({
-            type: formMethod,
-            url: formAction,
-            processData: false,
-            contentType: false,
-            data: formData,
-            headers: {
-                'X-CSRF-TOKEN': window.csrf
-            },
-            success: function (response) {
-                Swal.fire({
-                    title: Lang((response['title']) ? response['title'] : 'Succesfully created'),
-                    text: Lang((response['message']) ? response['message'] : 'Your request was successful.'),
-                    icon: "success"
-                }).then(function(result){
-                    if (result.value){
-                        if (response.url) {
-                            window.location.href = response.url;
-                        }
+window.HttpReq = function (formMethod, formAction, formData) {
+    DisableSubmit();
+    $.ajax({
+        type: formMethod,
+        url: formAction,
+        processData: false,
+        contentType: false,
+        data: formData,
+        headers: {
+            'X-CSRF-TOKEN': window.csrf
+        },
+        success: function (response) {
+            Swal.fire({
+                title: Lang((response['title']) ? response['title'] : 'Succesfully created'),
+                text: Lang((response['message']) ? response['message'] : 'Your request was successful.'),
+                icon: "success"
+            }).then(function(result){
+                if (result.value){
+                    if (response.url) {
+                        window.location.href = response.url;
                     }
-                });
-            },
-            error: function (response) {
-                var reply = response.responseJSON;
-                if (reply['errors']) {
-                    let errorString = '';
-                    $.each(reply['errors'], function (key, error) {
-                        errorString = errorString + error[0].replace(':', '.') + "<br>";
-                    });
-                    Swal.fire({
-                        title: Lang(reply['message']),
-                        html: errorString,
-                        icon: "error"
-                    });
-                } else {
-                    Swal.fire({
-                        title: Lang('Unknown error'),
-                        html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
-                        icon: "error"
-                    })
                 }
-            },
-            complete: function () {
-                EnableSubmit();
+            });
+        },
+        error: function (response) {
+            var reply = response.responseJSON;
+            if (reply['errors']) {
+                let errorString = '';
+                $.each(reply['errors'], function (key, error) {
+                    errorString = errorString + error[0].replace(':', '.') + "<br>";
+                });
+                Swal.fire({
+                    title: Lang(reply['message']),
+                    html: errorString,
+                    icon: "error"
+                });
+            } else {
+                Swal.fire({
+                    title: Lang('Unknown error'),
+                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                    icon: "error"
+                })
+            }
+        },
+        complete: function () {
+            EnableSubmit();
+        }
+    });
+}
+
+let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
+function SubmitAjax(e) {
+    tinyMCE.triggerSave();
+    let formAction = e.target.action;
+    let formMethod = e.target.method;
+    let formData = new FormData(e.target);
+    if (document.querySelectorAll('.filepond--file').length > 0) {
+        let loopedNames = [];
+        let namesToLoop = [];
+        Array.from(window.fileArray).forEach(function (fileWindow) {
+            namesToLoop.push(fileWindow.input);
+        });
+        namesToLoop.forEach(function (name) {
+            if (!loopedNames.includes(name)) {
+                loopedNames.push(name);
             }
         });
+        loopedNames.forEach(function (name) {
+            let curInputs = document.getElementsByName(name);
+            let curFiles = [];
+            formData.delete(name);
+            curInputs.forEach(function (input) {
+                formData.append(name, input.value);
+            })
+        });
     }
-
-    let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
-    function SubmitAjax(e) {
-        tinyMCE.triggerSave();
-        let formAction = e.target.action;
-        let formMethod = e.target.method;
-        let formData = new FormData(e.target);
-        if (document.querySelectorAll('.filepond--file').length > 0) {
-            let loopedNames = [];
-            let namesToLoop = [];
-            Array.from(window.fileArray).forEach(function (fileWindow) {
-                namesToLoop.push(fileWindow.input);
-            });
-            namesToLoop.forEach(function (name) {
-                if (!loopedNames.includes(name)) {
-                    loopedNames.push(name);
-                }
-            });
-            loopedNames.forEach(function (name) {
-                let curInputs = document.getElementsByName(name);
-                let curFiles = [];
-                formData.delete(name);
-                curInputs.forEach(function (input) {
-                    formData.append(name, input.value);
-                })
-            });
-        }
-        let formRequest = HttpReq(formMethod, formAction, formData);
-    }
-    ajaxForms.forEach(element =>
-        element.addEventListener('submit', function (e) {
-            e.preventDefault();
-            SubmitAjax(e);
-        }));
+    let formRequest = HttpReq(formMethod, formAction, formData);
+}
+ajaxForms.forEach(element =>
+    element.addEventListener('submit', function (e) {
+        e.preventDefault();
+        SubmitAjax(e);
+    }));
 
 
-    /**
-     *
-     *  Delete from a table or form
-     *
-     */
+/**
+ *
+ *  Delete from a table or form
+ *
+ */
 
-    window.DeleteModel = function (args) {
-        var id = (args['id']) ? args['id'] : null;
-        var route = (args['route']) ? args['route'] : null;
-        var confirmTitle = (Lang(args['confirmTitle'])) ? Lang(args['confirmTitle']) : '';
-        var confirmMsg = (Lang(args['confirmMsg'])) ? Lang(args['confirmMsg']) : '';
-        var completeTitle = (Lang(args['completeTitle'])) ? Lang(args['completeTitle']) : '';
-        var completeMsg = (Lang(args['completeMsg'])) ? Lang(args['completeMsg']) : '';
-        var failedTitle = (Lang(args['failedTitle'])) ? Lang(args['failedTitle']) : '';
-        var failedMsg = (Lang(args['failedMsg'])) ? Lang(args['failedMsg']) : '';
-        var redirect = (args['redirect']) ? args['redirect'] : '';
+window.DeleteModel = function (args) {
+    var id = (args['id']) ? args['id'] : null;
+    var route = (args['route']) ? args['route'] : null;
+    var confirmTitle = (Lang(args['confirmTitle'])) ? Lang(args['confirmTitle']) : '';
+    var confirmMsg = (Lang(args['confirmMsg'])) ? Lang(args['confirmMsg']) : '';
+    var completeTitle = (Lang(args['completeTitle'])) ? Lang(args['completeTitle']) : '';
+    var completeMsg = (Lang(args['completeMsg'])) ? Lang(args['completeMsg']) : '';
+    var failedTitle = (Lang(args['failedTitle'])) ? Lang(args['failedTitle']) : '';
+    var failedMsg = (Lang(args['failedMsg'])) ? Lang(args['failedMsg']) : '';
+    var redirect = (args['redirect']) ? args['redirect'] : '';
 
-        Swal.fire({
-            showCancelButton: true,
-            title: confirmTitle,
-            html: confirmMsg,
-            icon: "warning"
-        }).then(function(result){
-            if (result.value){
-                if (id != null) {
-                    if (isArray(id)) {
-                        let success = true;
-                        let deleteRows = $.each(id, function (key, x) {
-                            jQuery.ajax({
-                                type: "POST",
-                                async: false,
-                                headers: {
-                                    'X-CSRF-TOKEN': window.csrf
-                                },
-                                url: route.replace('__id__', x),
-                                data: {
-                                    _method: "DELETE"
-                                },
-                                error: function () {
-                                    success = false;
-                                }
-                            });
-                        });
-                        if (success == true) {
-                            ReloadDT();
-                            Swal.fire(completeTitle, completeMsg, 'success');
-                        } else {
-                            Swal.fire(failedTitle, failedMsg, 'error');
-                        }
-                    } else {
+    Swal.fire({
+        showCancelButton: true,
+        title: confirmTitle,
+        html: confirmMsg,
+        icon: "warning"
+    }).then(function(result){
+        if (result.value){
+            if (id != null) {
+                if (isArray(id)) {
+                    let success = true;
+                    let deleteRows = $.each(id, function (key, x) {
                         jQuery.ajax({
                             type: "POST",
+                            async: false,
                             headers: {
                                 'X-CSRF-TOKEN': window.csrf
                             },
-                            url: route,
+                            url: route.replace('__id__', x),
                             data: {
-                                _method: "DELETE",
-                            },
-                            success: function (response) {
-                                ReloadDT();
-                                Swal.fire({
-                                    title: completeTitle,
-                                    text: completeMsg,
-                                    icon: "success"
-                                }).then(function(result){
-                                    if (result.value){
-                                        if (redirect !== '') {
-                                            if (window.AllowNewTab == false) {
-                                                window.location.href = redirect;
-                                            } else {
-                                                window.open(redirect, '_blank');
-                                            }
-                                        }
-                                    }
-                                });
+                                _method: "DELETE"
                             },
                             error: function () {
-                                Swal.fire(failedTitle, failedMsg, 'error');
+                                success = false;
                             }
                         });
+                    });
+                    if (success == true) {
+                        ReloadDT();
+                        Swal.fire(completeTitle, completeMsg, 'success');
+                    } else {
+                        Swal.fire(failedTitle, failedMsg, 'error');
                     }
+                } else {
+                    jQuery.ajax({
+                        type: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': window.csrf
+                        },
+                        url: route,
+                        data: {
+                            _method: "DELETE",
+                        },
+                        success: function (response) {
+                            ReloadDT();
+                            Swal.fire({
+                                title: completeTitle,
+                                text: completeMsg,
+                                icon: "success"
+                            }).then(function(result){
+                                if (result.value){
+                                    if (redirect !== '') {
+                                        if (window.AllowNewTab == false) {
+                                            window.location.href = redirect;
+                                        } else {
+                                            window.open(redirect, '_blank');
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function () {
+                            Swal.fire(failedTitle, failedMsg, 'error');
+                        }
+                    });
                 }
             }
-        });
-    };
-
-    /**
-     *
-     *  Dynamic deleting
-     *
-     */
-
-    $(document).on('click', 'form [data-dcms-action=destroy]', function (e) {
-        e.preventDefault();
-        let element = e.currentTarget;
-        let id = element.dataset.dcmsId;
-        let route = element.dataset.dcmsDestroyRoute.replace('__id__', id);
-        let redirect = (element.dataset.dcmsDestroyRedirect) ? element.dataset.dcmsDestroyRedirect : false;
-        DeleteModel({
-            id: id,
-            route: route,
-            confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang('Delete object'),
-            confirmMsg: (element.dataset.dcmsDeleteConfirmMessage) ? Lang(element.dataset.dcmsDeleteConfirmMessage) : Lang('Are you sure you want to delete this object?'),
-            completeTitle: (element.dataset.dcmsDeleteCompleteTitle) ? Lang(element.dataset.dcmsDeleteCompleteTitle) : Lang('Deleted object'),
-            completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang('The object has been succesfully deleted.'),
-            failedTitle: (element.dataset.dcmsDeleteFailedTitle) ? Lang(element.dataset.dcmsDeleteFailedTitle) : Lang('Deleting failed'),
-            failedMsg: (element.dataset.dcmsDeleteFailedMessage) ? Lang(element.dataset.dcmsDeleteFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
-            redirect: redirect
-        });
-    });
-
-    /**
-     *
-     *  Merge table columns
-     *
-     */
-
-
-    window.MergeColumns = function (row, column) {
-        var value = '';
-        if (column.split(',').length > 1) {
-            Array.from(column.split(',')).forEach(function (element) {
-                value = value + row[element] + ' ';
-            });
-        } else {
-            value = row[column];
         }
-        return value;
-    }
+    });
+};
 
-    /**
-     *
-     *  Load links in modal
-     *
-     */
+/**
+ *
+ *  Dynamic deleting
+ *
+ */
 
-    window.LoadInModal = function (url, modal){
-        $.get(url, function (data) {
-            el = $('#global_modal');
-            el.find('.modal-content').html(data);
-            el.modal('show');
-            if (el.find('[data-modal-init').length == 1) {
-                let callback = el.find('[data-modal-init]').data('modal-init');
-                var fn = window[callback];
-                if (typeof fn === 'function') {
-                    fn(el);
-                }
-            }
+$(document).on('click', 'form [data-dcms-action=destroy]', function (e) {
+    e.preventDefault();
+    let element = e.currentTarget;
+    let id = element.dataset.dcmsId;
+    let route = element.dataset.dcmsDestroyRoute.replace('__id__', id);
+    let redirect = (element.dataset.dcmsDestroyRedirect) ? element.dataset.dcmsDestroyRedirect : false;
+    DeleteModel({
+        id: id,
+        route: route,
+        confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang('Delete object'),
+        confirmMsg: (element.dataset.dcmsDeleteConfirmMessage) ? Lang(element.dataset.dcmsDeleteConfirmMessage) : Lang('Are you sure you want to delete this object?'),
+        completeTitle: (element.dataset.dcmsDeleteCompleteTitle) ? Lang(element.dataset.dcmsDeleteCompleteTitle) : Lang('Deleted object'),
+        completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang('The object has been succesfully deleted.'),
+        failedTitle: (element.dataset.dcmsDeleteFailedTitle) ? Lang(element.dataset.dcmsDeleteFailedTitle) : Lang('Deleting failed'),
+        failedMsg: (element.dataset.dcmsDeleteFailedMessage) ? Lang(element.dataset.dcmsDeleteFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
+        redirect: redirect
+    });
+});
+
+/**
+ *
+ *  Merge table columns
+ *
+ */
+
+
+window.MergeColumns = function (row, column) {
+    var value = '';
+    if (column.split(',').length > 1) {
+        Array.from(column.split(',')).forEach(function (element) {
+            value = value + row[element] + ' ';
         });
+    } else {
+        value = row[column];
     }
+    return value;
+}
 
-    /**
-     *
-     *  Copy text to clipboard
-     */
+/**
+ *
+ *  Load links in modal
+ *
+ */
 
-    window.textToClipBoard = function (text) {
-        var dummy = document.createElement("textarea");
-        document.body.appendChild(dummy);
-        dummy.value = text;
-        dummy.select();
-        document.execCommand("copy");
-        document.body.removeChild(dummy);
-    }
-})
+window.LoadInModal = function (url, modal){
+    $.get(url, function (data) {
+        el = $('#global_modal');
+        el.find('.modal-content').html(data);
+        el.modal('show');
+        if (el.find('[data-modal-init').length == 1) {
+            let callback = el.find('[data-modal-init]').data('modal-init');
+            var fn = window[callback];
+            if (typeof fn === 'function') {
+                fn(el);
+            }
+        }
+    });
+}
+
+/**
+ *
+ *  Copy text to clipboard
+ */
+
+window.textToClipBoard = function (text) {
+    var dummy = document.createElement("textarea");
+    document.body.appendChild(dummy);
+    dummy.value = text;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+}

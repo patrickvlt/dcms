@@ -1,6 +1,6 @@
 "use strict";
 
-onReady(function(){
+hasLoaded(['jexcel','jsuites'],function(){
     var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table;
 
     if (document.querySelectorAll('[data-type=jexcel]').length > 0){

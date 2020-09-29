@@ -1,5 +1,5 @@
 if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
-    onReady(function(){
+    hasLoaded('SlimSelect',function(){
         document.querySelectorAll('[data-type=slimselect]').forEach(function (element){
             let Slim = new SlimSelect({
                 select: element,

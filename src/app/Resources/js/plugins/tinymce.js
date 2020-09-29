@@ -1,5 +1,5 @@
 if (document.querySelectorAll('[data-type=tinymce]').length > 0) {
-    onReady(function(){
+    hasLoaded('tinymce',function(){
         tinymce.init({
             selector: '[data-type=tinymce]',
             language_url: window.langFiles,
