@@ -1,5 +1,12 @@
 # DCMS
 DCMS is a package made to boost productivity, and speed up the usual workflow when developing CRUD applications.
+These plugins are fetched from a CDN, unless you change this variable in your env:
+
+```env
+MIX_DCMS_ENV="local"
+```
+
+If this variable is not present, or set to anything other than local, DCMS will load the JS plugins externally.
 
 # JS plugins
 DCMS has a lot of JS plugins, ready to use (based on the data attributes you specify in HTML elements).
