@@ -49,7 +49,6 @@ class Publish extends Command
         copy(base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php', base_path() . '/config/dcms.php');
         copy(base_path() . '/vendor/pveltrop/dcms/src/dcms.json', base_path() . '/dcms.json');
 
-        print("\n".shell_exec('composer show pveltrop/dcms --all')."\n");
         print("\n".shell_exec('git status')."\n");
 
         $console->comment('');

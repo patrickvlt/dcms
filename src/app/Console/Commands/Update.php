@@ -48,12 +48,8 @@ class Update extends Command
         CopyDir($rootcssassets,$vendorcssassets);
         copy(base_path() . '/config/dcms.php', base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php');
 
-        print("\n".shell_exec('composer show pveltrop/dcms --all')."\n");
-
         $console->comment('');
         $console->comment('Updated DCMS vendor package. Create a merge request to propose changes.');
         $console->comment('');
-
-        print("\n");
     }
 }

@@ -92,7 +92,7 @@ window.onReady = function(yourMethod) {
             clearInterval(readyStateCheckInterval);
             yourMethod();
         }
-    }, 10);
+    }, 100);
 }
 
 window.hasLoaded = function(plugins,yourMethod) {
@@ -108,7 +108,7 @@ window.hasLoaded = function(plugins,yourMethod) {
                 }
             }
         })
-    }, 10);
+    }, 100);
 }
 
 /**
