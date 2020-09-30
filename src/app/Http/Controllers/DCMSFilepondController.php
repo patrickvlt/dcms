@@ -76,7 +76,7 @@ class DCMSFilepondController extends Controller
             }
             $file = $request[$column][0];
             $file->store('public/files/' . $type.'/'.$column);
-            return '/storage/files/'.$type.'/'.$column.'/'.$file->hashName();
+            return env('APP_URL').'/storage/files/'.$type.'/'.$column.'/'.$file->hashName();
         }
     }
 
@@ -93,9 +93,8 @@ class DCMSFilepondController extends Controller
         $name = explode('/',$path);
         $name = end($name);
         // Without extension for DB
-        $dbName = explode('.',$name);
-        unset($dbName[count($dbName)-1]);
-        $dbName = $dbName[0];
+        $explodeName = explode('.',$name);
+        $dbName = $explodeName[0];
 
         $file = 'public/files/'.$type.'/'.$column.'/'.$name;
 
