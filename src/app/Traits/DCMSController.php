@@ -56,6 +56,7 @@ trait DCMSController
             $this->requestFile = $this->DCMS()['request'] ?? ($this->file . 'Request');
             // Get class request with namespace
             $this->classRequest = '\App\Http\Requests\\'.$this->requestFile;
+            $this->classRequest = (new $this->classRequest());
             // Default index query
             $this->indexQuery = $this->DCMS()['indexQuery'] ?? $this->class::all();
             // CRUD views
@@ -130,20 +131,42 @@ trait DCMSController
     {
         $requestData = request()->all();
         // Merge with modified request from beforeValidation()
-        $modRequest = (new $this->classRequest());
-        $modRequest = method_exists($modRequest,'beforeValidation') ? $modRequest->beforeValidation() : false;
-        if ($modRequest){
-            foreach ($modRequest as $modKey => $modValue){
-                $requestData[$modKey] = $modValue;
+        $uploadRules = method_exists($this->classRequest,'uploadRules') ? $this->classRequest->uploadRules() : false;
+        $requestRules = method_exists($this->classRequest,'rules') ? $this->classRequest->rules() : false;
+        $requestMessages = method_exists($this->classRequest,'messages') ? $this->classRequest->messages() : false;
+        $beforeValidation = method_exists($this->classRequest,'beforeValidation') ? $this->classRequest->beforeValidation() : false;
+        $afterValidation = method_exists($this->classRequest,'afterValidation') ? $this->classRequest->afterValidation() : false;
+        if ($beforeValidation){
+            foreach ($beforeValidation as $changingKey => $changingValue){
+                $requestData[$changingKey] = $changingValue;
             }
         }
-        $request = Validator::make($requestData, (new $this->classRequest())->rules(), (new $this->classRequest())->messages());
+        foreach ($uploadRules as $key => $value){
+            $key = explode('.',$key);
+            $key = $key[0];
+            if (in_array($key,array_keys($requestData))){
+                foreach ($requestData[$key] as $x => $file){
+                    // Check if file uploads has this applications URL in it, since the file controller will append the url to it
+                    // If it doesnt have the url in its filename, then it has been tampered with
+                    if (!strpos($file, env('APP_URL')) === 0){
+                        return response()->json([
+                            'message' => __('Invalid file'),
+                            'errors' => [
+                                'file' => [
+                                    __('Remote files can\'t be added. Please upload a file on this page.')
+                                ]
+                            ],
+                        ], 422);
+                    }
+                    $requestData[$key][$x] = str_replace(env('APP_URL'),'',$file);
+                }
+            }
+        }
+        $request = Validator::make($requestData, $requestRules, $requestMessages);
         $request = $request->validated();
         // Merge with modified request from afterValidation()
-        $modRequest = (new $this->classRequest());
-        $modRequest = method_exists($modRequest,'afterValidation') ? $modRequest->afterValidation($request) : false;
-        if ($modRequest){
-            foreach ($modRequest as $modKey => $modValue){
+        if ($afterValidation){
+            foreach ($afterValidation as $modKey => $modValue){
                 $request[$modKey] = $modValue;
             }
         }
