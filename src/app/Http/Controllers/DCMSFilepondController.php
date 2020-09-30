@@ -75,8 +75,8 @@ class DCMSFilepondController extends Controller
                 ], 422);
             }
             $file = $request[$column][0];
-            $file->store('public/files/' . $type.'/'.$column);
-            return env('APP_URL').'/storage/files/'.$type.'/'.$column.'/'.$file->hashName();
+            $file->store('public/tmp/files/' . $type.'/'.$column);
+            return env('APP_URL').'/public/tmp/files/'.$type.'/'.$column.'/'.$file->hashName();
         }
     }
 

@@ -200,7 +200,7 @@ if (!function_exists('Flatten')) {
         $result = array();
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $result += flatten($value, $prefix . $key . '.');
+                $result += Flatten($value, $prefix . $key . '.');
             } else {
                 $result[$prefix . $key] = $value;
             }

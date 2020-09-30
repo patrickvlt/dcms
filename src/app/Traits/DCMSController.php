@@ -4,6 +4,7 @@ namespace App\Traits;
 include __DIR__ . '/../Helpers/DCMS.php';
 
 use Illuminate\Support\Facades\Schema;
+use League\Flysystem\FileExistsException;
 use Pveltrop\DCMS\Classes\PHPExcel;
 use Exception;
 use Illuminate\Support\Facades\Storage;
@@ -141,24 +142,45 @@ trait DCMSController
                 $requestData[$changingKey] = $changingValue;
             }
         }
-        foreach ($uploadRules as $key => $value){
-            $key = explode('.',$key);
+        $filesToRemove = [];
+        foreach ($uploadRules as $uploadKey => $uploadRule){
+            $key = explode('.',$uploadKey);
             $key = $key[0];
-            if (in_array($key,array_keys($requestData))){
+            if (array_key_exists($key, $requestData)){
                 foreach ($requestData[$key] as $x => $file){
-                    // Check if file uploads has this applications URL in it, since the file controller will append the url to it
+                    // Check if file uploads has this applications URL in it
                     // If it doesnt have the url in its filename, then it has been tampered with
                     if (!strpos($file, env('APP_URL')) === 0){
                         return response()->json([
                             'message' => __('Invalid file'),
                             'errors' => [
                                 'file' => [
-                                    __('Remote files can\'t be added. Please upload a file on this page.')
+                                    $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
                                 ]
                             ],
                         ], 422);
                     }
-                    $requestData[$key][$x] = str_replace(env('APP_URL'),'',$file);
+                    $checkFile = str_replace(env('APP_URL'),'',$file);
+                    $storedFile = Storage::exists($checkFile);
+                    if ($storedFile){
+                        $newFilePath = str_replace('/tmp/','/',$checkFile);
+                        $filesToRemove[] = $checkFile;
+                        try {
+                            Storage::copy($checkFile,$newFilePath);
+                        } catch (FileExistsException $e){
+                            // continue
+                        }
+                        $requestData[$key][$x] = str_replace('/public/','/storage/',$newFilePath);
+                    } else {
+                        return response()->json([
+                            'message' => __('Invalid file'),
+                            'errors' => [
+                                $key => [
+                                    $requestMessages[$uploadKey.'.notFound'] ?? __('File couldn\'t be found. Try to upload it again to use it for ').$key.'.'
+                                ]
+                            ],
+                        ], 422);
+                    }
                 }
             }
         }
@@ -175,23 +197,54 @@ trait DCMSController
         } else if ($createdOrUpdated === 'updated') {
             ${$this->prefix} = $this->class::findOrFail($id);
             // This is for files
-            foreach ($request as $key => $val){
-                // If request has an array, and points to storage, convert it to a JSON array
-                if (is_array($val) && (strpos(implode(" ", $val), '/storage/') !== false)) {
+            foreach ($request as $requestKey => $requestVal){
+                // If request has an array, and points to storage, merge it with existing array if it has values already
+                if (is_array($requestVal) && (strpos(implode(" ", $requestVal), '/storage/') !== false)) {
                     $newArr = [];
-                    foreach ($val as $x){
-                        $newArr[] = $x;
+                    foreach ($requestVal as $val){
+                        $newArr[] = $val;
                     }
                     try {
                         // check if object has an array for this already
-                        $existing = ${$this->prefix}->$key;
+                        $existing = ${$this->prefix}->$requestKey;
                         if(count($existing) > 0){
                             $newArr = array_merge($existing,$newArr);
                         }
                     } catch (\Throwable $th) {
                         //
                     }
-                    $request[$key] = $newArr;
+                    // Check if array limit isnt being overridden
+                    foreach ($requestRules[$requestKey] as $rule => $ruleVal){
+                        $min = null;
+                        $max = null;
+                        if (strpos($ruleVal, 'min') === 0){
+                            $min = explode(':',$ruleVal)[1];
+                        }
+                        if (strpos($ruleVal, 'max') === 0){
+                            $max = explode(':',$ruleVal)[1];
+                        }
+                    }
+                    if (count($newArr) > $max){
+                        return response()->json([
+                            'message' => __('File limit reached'),
+                            'errors' => [
+                                $requestKey => [
+                                    $requestMessages[$requestKey.'.maxLimit'] ?? $requestKey.__(' can\'t have more than ').$max.__(' files.')
+                                ]
+                            ],
+                        ], 422);
+                    }
+                    if (count($newArr) < $min){
+                        return response()->json([
+                            'message' => __('Missing files'),
+                            'errors' => [
+                                $requestKey => [
+                                    $requestMessages[$requestKey.'.minLimit'] ?? $requestKey.__(' requires more than ').$min.__(' files.')
+                                ]
+                            ],
+                        ], 422);
+                    }
+                    $request[$requestKey] = $newArr;
                 }
             }
             ${$this->prefix}->update($request);
