@@ -67,36 +67,38 @@ class Datatable
 
         // Perform general search on remaining results
         if (isset($params['query']['generalSearch'])){
-            $search = $params['query']['generalSearch'];
+            $searchValue = $params['query']['generalSearch'];
+            $searchColumns = [];
+            // Loop through searchable columns
+            if (isset($this->searchFields)){
+                $searchColumns = $this->searchFields;
+            } else {
+                foreach ($data[0] as $key => $val){
+                    $searchColumns[] = $key;
+                }
+            }
+            $newData = [];
             // Filter the results array from previous query
-            $data = array_filter($data, function ($row) use ($search, $data) {
-                // Loop through searchable columns
-                if (isset($this->searchFields)){
-                    $searchColumns = $this->searchFields;
-                } else {
-                    foreach ($data[0] as $key => $val){
-                        $searchColumns[] = $key;
+            // First, flatten the array so no nested values remain
+            // Then preg match the array keys with the search field
+            // Then preg match the search value with the matched row in the array
+            foreach (Flatten($data) as $flatKey => $flatValue){
+                foreach($searchColumns as $x => $searchField){
+                    // Make new search field by exploding . and grabbing the last element
+                    if (count(explode('.',$searchField)) > 1){
+                        $explodedFields = explode('.',$searchField);
+                        $searchField = end($explodedFields);
                     }
-                }
-                foreach($searchColumns as $key => $field){;
-                    // Check if field exists in this array
-                    if (isset($row[$field])){
-                        // Check if search value is found in this field
-                        // Skip if value is an array, most likely a relation/FK
-                        // To search in relations, define a column to another table, e.g.: posts.user_id
-                        if (!is_array($row[$field]) && strpos(strtolower($row[$field]), strtolower($search)) !== false){
-                            return $row;
-                        }
-                    } else if (count(explode('.',$field)) > 1){
-                        $newRow = explode('.',$field)[0];
-                        $newField = explode('.',$field)[1];
-                        // Check if search value is found in this field
-                        if (isset($row[$newRow][$newField]) && strpos(strtolower($row[$newRow][$newField]), strtolower($search)) !== false){
-                            return $row;
+                    // Check if search key matches any key in the data
+                    if (preg_match('/'.strtolower($searchField).'/m', strtolower($flatKey)) > 0){
+                        // Check if search value is found, then push to new array
+                        if ($flatValue !== null && $flatValue !== '' && preg_match('/'.strtolower($searchValue).'/m', strtolower($flatValue)) > 0){
+                            $newData[] = $data[explode('.',$flatKey)[0]];
                         }
                     }
                 }
-            });
+            }
+            $data = $newData;
             // Clear data if general search cant find anything
             // Or else the results wont be affected
             if (count($data) >! 0){
@@ -106,7 +108,7 @@ class Datatable
 
         // Retrieve pagination parameters, to paginate the results and return a meta response
         $total = count($data);
-        $perPage = isset($params['pagination']['perpage']) ? $params['pagination']['perpage'] : null;
+        $perPage = isset($params['pagination']['perpage']) && $params['pagination']['perpage'] !== 'NaN' ? $params['pagination']['perpage'] : null;
         $page = isset($params['pagination']['page']) ? $params['pagination']['page']-1 : null;
 
         // Make response object with meta

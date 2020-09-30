@@ -185,7 +185,10 @@ if (!function_exists('RandomString')) {
         $charactersLength = strlen($characters);
         $randomString = '';
         for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
+            try {
+                $randomString .= $characters[random_int(0, $charactersLength - 1)];
+            } catch (Exception $e) {
+            }
         }
         return $randomString;
     }
@@ -197,7 +200,7 @@ if (!function_exists('Flatten')) {
         $result = array();
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $result = $result + flatten($value, $prefix . $key . '.');
+                $result += flatten($value, $prefix . $key . '.');
             } else {
                 $result[$prefix . $key] = $value;
             }

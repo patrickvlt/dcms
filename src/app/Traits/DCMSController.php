@@ -104,24 +104,6 @@ trait DCMSController
         return (new $datatable($query))->render();
     }
 
-    public function StoreExport($data=null,$headers=null)
-    {
-        $data = ($data) ?: $this->class::all()->toArray();
-        $headers = $headers ?? Schema::getColumnListing((new $this->class())->getTable());
-        $exportData = [];
-        foreach ($data as $x => $row){
-            foreach ($row as $key => $value){
-                if (!array_key_exists($key, $headers)){
-                    unset($row[$key]);
-                }
-            }
-            $exportData[] = $row;
-        }
-        $fileName = RandomString().'.xlsx';
-        PHPExcel::store($headers,$exportData,$fileName);
-        return config('filesystems.disks')['tmp']['url'].'/'.$fileName;
-    }
-
     public function show($id)
     {
         ${$this->prefix} = $this->class::FindOrFail($id);
@@ -244,6 +226,31 @@ trait DCMSController
             'message' => $message,
             'url' => $redirect
         ], 200);
+    }
+
+    public function StoreExport($data=null,$headers=null)
+    {
+        $data = ($data) ?: $this->class::all()->toArray();
+        $headers = $headers ?? Schema::getColumnListing((new $this->class())->getTable());
+        $exportData = [];
+        // Flatten the array to group nested results
+        foreach (Flatten($data) as $key => $val){
+            // Explode if key has a .
+            $explodeKey = explode('.',$key);
+            // Column to make logical results
+            $column = end($explodeKey);
+            // Row counter
+            $row = $explodeKey[0];
+            // This key should exist
+            $matchKey = str_replace($row.'.','',$key);
+            if (array_key_exists($matchKey, $headers)){
+                // Push to export data if key matches with exportable headers
+                $exportData[$row][$column] = $val;
+            }
+        }
+        $fileName = RandomString().'.xlsx';
+        PHPExcel::store($headers,$exportData,$fileName);
+        return config('filesystems.disks')['tmp']['url'].'/'.$fileName;
     }
 
     public function ImportSheet()
