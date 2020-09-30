@@ -177,3 +177,31 @@ if (!function_exists('CopyDir')) {
         closedir($dir);
     }
 }
+
+if (!function_exists('RandomString')) {
+    function RandomString($length = 30)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+}
+
+if (!function_exists('Flatten')) {
+    function Flatten($array, $prefix = '')
+    {
+        $result = array();
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $result = $result + flatten($value, $prefix . $key . '.');
+            } else {
+                $result[$prefix . $key] = $value;
+            }
+        }
+        return $result;
+    }
+}

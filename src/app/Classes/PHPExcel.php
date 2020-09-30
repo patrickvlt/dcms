@@ -2,6 +2,7 @@
 
 namespace Pveltrop\DCMS\Classes;
 
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -17,17 +18,23 @@ class PHPExcel
      * @throws Exception
      */
 
-    public static function download(array $headers = [], array $data = [], $fileName = 'data.xlsx')
+    public static function store(array $headers = [], array $data = [], $fileName = 'data.xlsx')
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         // Loop through headers array
-        for ($h = 0; $h < sizeof($headers); $h++) {
-            $sheetColumn = $h + 1;
-            $sheetRow = 1;
-            $sheet->setCellValueByColumnAndRow($sheetColumn, $sheetRow, $headers[$h]);
+        $headerCount = 0;
+        foreach ($headers as $header => $visibleText){
+            $sheet->setCellValueByColumnAndRow($headerCount+1, 1, $visibleText);
+            $headerCount++;
         }
+//        for ($h = 0; $h < sizeof($headers); $h++) {
+//            $sheetColumn = $h + 1;
+//            $sheetRow = 1;
+//            dd($headers);
+//            $sheet->setCellValueByColumnAndRow($sheetColumn, $sheetRow, $headers[$h]);
+//        }
 
         // Loop through data array
         for ($r = 0; $r < sizeof($data); $r++) {
@@ -48,7 +55,10 @@ class PHPExcel
         // Set the content type and attachment for php://output
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="'. urlencode($fileName).'"');
+        ob_start();
         $writer->save('php://output');
+        $content = ob_get_clean();
+        Storage::disk('tmp')->put($fileName,$content);
     }
 
 }

@@ -3,6 +3,7 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
+use Illuminate\Support\Facades\Schema;
 use Pveltrop\DCMS\Classes\PHPExcel;
 use Exception;
 use Illuminate\Support\Facades\Storage;
@@ -103,18 +104,22 @@ trait DCMSController
         return (new $datatable($query))->render();
     }
 
-    public function export(): void
+    public function StoreExport($data=null,$headers=null)
     {
-        $data = $this->class::all()->toArray();
-        $headers = [];
-        if (isset($data[0])){
-            foreach ($data[0] as $key => $val){
-                $headers[] = $key;
+        $data = ($data) ?: $this->class::all()->toArray();
+        $headers = $headers ?? Schema::getColumnListing((new $this->class())->getTable());
+        $exportData = [];
+        foreach ($data as $x => $row){
+            foreach ($row as $key => $value){
+                if (!array_key_exists($key, $headers)){
+                    unset($row[$key]);
+                }
             }
-        } else {
-            $data = [];
+            $exportData[] = $row;
         }
-        PHPExcel::download($headers,$data);
+        $fileName = RandomString().'.xlsx';
+        PHPExcel::store($headers,$exportData,$fileName);
+        return config('filesystems.disks')['tmp']['url'].'/'.$fileName;
     }
 
     public function show($id)
