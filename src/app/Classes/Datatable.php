@@ -24,10 +24,7 @@ class Datatable
 
     public function filter($field=[], $value=[])
     {
-        switch ($field) {
-            default:
-                $this->query->where($field, '=', $value);
-        }
+        return $this->query->where($field, '=', $value);
     }
 
     /**
@@ -78,11 +75,13 @@ class Datatable
                 }
             }
             $newData = [];
+            $addedRows = [];
             // Filter the results array from previous query
             // First, flatten the array so no nested values remain
             // Then preg match the array keys with the search field
             // Then preg match the search value with the matched row in the array
             foreach (Flatten($data) as $flatKey => $flatValue){
+                $dataRow = explode('.',$flatKey)[0];
                 foreach($searchColumns as $x => $searchField){
                     // Make new search field by exploding . and grabbing the last element
                     if (count(explode('.',$searchField)) > 1){
@@ -92,18 +91,17 @@ class Datatable
                     // Check if search key matches any key in the data
                     if (preg_match('/'.strtolower($searchField).'/m', strtolower($flatKey)) > 0){
                         // Check if search value is found, then push to new array
-                        if ($flatValue !== null && $flatValue !== '' && preg_match('/'.strtolower($searchValue).'/m', strtolower($flatValue)) > 0){
-                            $newData[] = $data[explode('.',$flatKey)[0]];
+                        if (!in_array($dataRow,$addedRows) && $flatValue !== null && $flatValue !== '' && preg_match('/'.strtolower($searchValue).'/m', strtolower($flatValue)) > 0){
+                            $newData[] = $data[$dataRow];
+                            $addedRows[] = $dataRow;
                         }
                     }
                 }
             }
-            $data = $newData;
+
             // Clear data if general search cant find anything
             // Or else the results wont be affected
-            if (count($data) >! 0){
-                $data = [];
-            }
+            $data = (count($data) >! 0) ? [] : $newData;
         }
 
         // Retrieve pagination parameters, to paginate the results and return a meta response
