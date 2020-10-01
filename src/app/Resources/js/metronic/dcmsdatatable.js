@@ -376,6 +376,24 @@ window.DCMSDatatable = function (parameters) {
             });
         });
 
+        $($(table).data('kt-parent')).find('[data-kt-action="export"]').on('click', function () {
+            let route = $(table).data('kt-export-route');
+            $.ajax({
+                type: "POST",
+                url: route,
+                headers: {
+                    'X-CSRF-TOKEN': window.csrf
+                },
+                data: {
+                    data: datatable.dataSet
+                },
+                success: function (response) {
+                    window.open(response, '_blank');
+                }
+            });
+        });
+
+
         $(document).on('click', 'table [data-kt-action=edit]', function (e) {
             e.preventDefault();
             let id = e.currentTarget.dataset.id;
