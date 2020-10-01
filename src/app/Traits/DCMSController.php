@@ -214,7 +214,9 @@ trait DCMSController
                         //
                     }
                     // Check if array limit isnt being overridden
-                    foreach ($requestRules[$requestKey] as $rule => $ruleVal){
+                    $loopRules = $requestRules[$requestKey];
+                    $loopRules = (is_string($loopRules)) ? explode('|',$loopRules) : $loopRules;
+                    foreach ($loopRules as $rule => $ruleVal){
                         $min = null;
                         $max = null;
                         if (strpos($ruleVal, 'min') === 0){
@@ -306,8 +308,15 @@ trait DCMSController
 
     public function StoreExport($data=null,$headers=null)
     {
-        $data = ($data) ?: $this->class::all()->toArray();
-        $headers = $headers ?? Schema::getColumnListing((new $this->class())->getTable());
+        $data = $data ?? $this->class::all()->toArray();
+
+        if (!$headers){
+            $autoHeaders = Schema::getColumnListing((new $this->class())->getTable());
+            foreach ($autoHeaders as $headerKey => $headerVal){
+                $headers[$headerVal] = $headerVal;
+            }
+        }
+
         $exportData = [];
         // Flatten the array to group nested results
         foreach (Flatten($data) as $key => $val){
