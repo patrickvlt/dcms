@@ -208,3 +208,99 @@ if (!function_exists('Flatten')) {
         return $result;
     }
 }
+
+if (!function_exists('ReflectClass')) {
+    function ReflectClass($class)
+    {
+        $reflectionClass = new ReflectionClass($class);
+
+        // File and line/length to generate content
+        $filename = $reflectionClass->getFileName();
+        $start_line = $reflectionClass->getStartLine() - 1;
+        $end_line = $reflectionClass->getEndLine();
+        $length = $end_line - $start_line;
+
+        // Create body from start to end line
+        $body = implode("", array_slice(file($filename), $start_line, $length));
+        // Convert body to array to trim whitespace at end
+        $body = preg_split("/\\r\\n|\\r|\\n/", $body);
+        while ("" === end($body))
+        {
+            array_pop($body);
+        }
+        // Convert body to normal string again
+        $body = implode("", array_slice(file($filename), $start_line, $length));
+
+        $reflectionClass->body = $body;
+        return $reflectionClass;
+    }
+}
+
+if (!function_exists('ReflectCode')) {
+    function ReflectCode($reflection)
+    {
+        // File and line/length to generate content
+        $filename = $reflection->getFileName();
+        $start_line = $reflection->getStartLine() - 1;
+        $end_line = $reflection->getEndLine();
+        $length = $end_line - $start_line;
+
+        // Create body from start to end line
+        $body = implode("", array_slice(file($filename), $start_line, $length));
+        // Convert body to array to trim whitespace at end
+        $body = preg_split("/\\r\\n|\\r|\\n/", $body);
+        while ("" === end($body))
+        {
+            array_pop($body);
+        }
+        // Convert body to normal string again
+        $body = implode("", array_slice(file($filename), $start_line, $length));
+
+        $reflection->body = $body;
+        return $reflection;
+    }
+}
+
+if (!function_exists('WriteContent')) {
+    function WriteContent($content, $line, $addContent)
+    {
+        // Convert content to array
+        $content = preg_split("/\\r\\n|\\r|\\n/", $content);
+        $content = array_values($content);
+        // Trim content whitespace
+        while ("" === end($content))
+        {
+            array_pop($content);
+        }
+        // Append content anywhere in this array
+        $appendToRow = $line-1;
+        array_splice($content, $appendToRow, 0,$addContent);
+
+        $content = implode("\n",$content);
+
+        return $content;
+    }
+}
+
+if (!function_exists('AppendContent')) {
+    function AppendContent($content, $offset, $addContent)
+    {
+        // Convert content to array
+        $content = preg_split("/\\r\\n|\\r|\\n/", $content);
+        $content = array_values($content);
+
+        // Trim content whitespace
+        while ("" === end($content))
+        {
+            array_pop($content);
+        }
+
+        // Append content anywhere in this array
+        $appendToRow = count($content)-$offset;
+        array_splice($content, $appendToRow, 0, $addContent);
+
+        $content = implode("\n",$content);
+
+        return $content;
+    }
+}
