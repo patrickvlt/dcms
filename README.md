@@ -92,11 +92,11 @@ data-filepond-revert-key="value"
 data-filepond-table-selector="#addressTable"
 ```
 
-Filepond automatically uploads files to a route based on their mime type. This way files are organized, and assigned by file name to objects.
-This also makes uploading and deleting files dynamic, to set everything up efficiently.
-These routes can be changed in the plugin settings in dcms.js.
+Filepond automatically uploads files to a route based on their mime type and random name. 
+This way files are organized. For example, in: /files/logo/image/(randomized string), /files/logo/video/(randomized string).
+DCMS ships with a Filepond controller, point your Filepond element with the correct prefix to it's upload route to easily use Filepond.
 
-Processing files is automatically done by Filepond. When you specify a prefix, the DCMS Filepond controller will try to find a class which belongs to this prefix. Then it fetches a custom request file which belongs to this class. So if you follow Laravels naming convention, you wont have to customize this.
+When you specify a prefix, the DCMS Filepond controller will try to find a class which belongs to this prefix. Then it fetches a custom request file which belongs to this class (like UserRequest for the User model). So if you follow Laravels naming convention, you wont have to customize this.
 If you wish to use custom process and delete routes, specify them with:
 
 ```
