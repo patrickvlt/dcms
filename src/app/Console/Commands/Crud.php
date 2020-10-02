@@ -414,7 +414,7 @@ class Crud extends Command
 
         //configure request
         $requestFile = 'app/Http/Requests/'.$model.'Request.php';
-        $reqEntries = '';
+        $reqEntries = '    ';
         foreach ($columns as $column){
             if (array_key_exists('validation',$column)){
                 $ruleRow = '';

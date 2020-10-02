@@ -14,9 +14,9 @@ class '.$model.'Request extends FormRequest
      * @return bool
      */
     public function authorize()
-{
-    return true;
-}
+    {
+        return true;
+    }
 
     /**
      * Modify request before it gets validated
@@ -25,20 +25,20 @@ class '.$model.'Request extends FormRequest
      */
 
     public function beforeValidation()
-{
-    $request = request()->all();
+    {
+        $request = request()->all();
 
-    // Modify all requests
-    $request["foo"] = "bar";
-    // Modify store request
-    if (FormMethod() == "POST"){
-    }
-    // Modify update request
-    else if (FormMethod() == "PUT"){
-    }
+        // Modify all requests
+        $request["foo"] = "bar";
+        // Modify store request
+        if (FormMethod() == "POST"){
+        }
+        // Modify update request
+        else if (FormMethod() == "PUT"){
+        }
 
-    return $request;
-}
+        return $request;
+    }
 
     /**
      * Modify request after it has been validated, before the data gets stored
@@ -47,18 +47,18 @@ class '.$model.'Request extends FormRequest
      */
 
     public function afterValidation($request)
-{
-    // Modify all requests
-    $request["foo"] = "bar";
-    // Modify store request
-    if (FormMethod() == "POST"){
-    }
-    // Modify update request
-    else if (FormMethod() == "PUT"){
-    }
+    {
+        // Modify all requests
+        $request["foo"] = "bar";
+        // Modify store request
+        if (FormMethod() == "POST"){
+        }
+        // Modify update request
+        else if (FormMethod() == "PUT"){
+        }
 
-    return $request;
-}
+        return $request;
+    }
 
     /**
      *
@@ -67,12 +67,12 @@ class '.$model.'Request extends FormRequest
      */
 
     public function uploadRules()
-{
-    return [
-        // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp", "max:2000"],
-        // "sheet.*" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet", "max:2000"],
-    ];
-}
+    {
+        return [
+            // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp", "max:2000"],
+            // "sheet.*" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet", "max:2000"],
+        ];
+    }
 
 
     /**
@@ -81,16 +81,16 @@ class '.$model.'Request extends FormRequest
      * @return array
      */
     public function rules()
-{
-    return [
+    {
+        return [
         '.$reqEntries.'
-    ];
-}
+        ];
+    }
 
     public function messages()
-{
-    return [
-        //
-    ];
-}
+    {
+        return [
+            //
+        ];
+    }
 }';
