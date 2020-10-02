@@ -283,7 +283,7 @@ class Crud extends Command
 
                 if ($mainVersion <= 7){
                     $seederFile = 'database/seeds/'.$model.'Seeder.php';
-                    $contentToAdd = '        factory(App\\".$model."::class, ".$seedAmount.")->create('.$seedAmount.');';
+                    $contentToAdd = "        factory(App\\".$model."::class, ".$seedAmount.")->create();";
                 } else if ($mainVersion >= 8){
                     $seederFile = 'database/seeders/'.$model.'Seeder.php';
                     $contentToAdd = '        \App\Models\\'.$model.'::factory()->create('.$seedAmount.');';

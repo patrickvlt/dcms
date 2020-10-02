@@ -112,6 +112,6 @@ class '.$model.'Controller extends Controller
         // Get class to make a query for
         $query = '.$model.'::query();
 
-        return (new '.$model.'Datatable($query))->render();
+        return (new Datatable($query))->render();
     }
 }';
