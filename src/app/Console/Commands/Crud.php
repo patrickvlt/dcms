@@ -119,7 +119,7 @@ class Crud extends Command
              */
 
             if ($console->confirm('Do you want to generate the columns for this model?')){
-                function GenerateColumn($console,&$columns){
+                function GenerateColumn($console,&$columns,$mainVersion) {
                     $column = [];
 
                     $dbColumn = $console->ask('What\'s the name of the column?');
@@ -194,7 +194,7 @@ class Crud extends Command
                         } else if ($mainVersion >= 8){
                             $fakerExample = '$this->faker->word()';
                         }
-                        $column['seed'] = $console->ask('Enter the data to seed. (For example: $faker->word(), or "Seed this sentence"). Don\'t end with a semicolon or parentheses.');
+                        $column['seed'] = $console->ask('Enter the data to seed. (For example: '.$fakerExample.', or "Seed this sentence"). Don\'t end with a semicolon or parentheses.');
                     }
 
                     $columns[$dbColumn] = $column;
@@ -202,7 +202,7 @@ class Crud extends Command
 
                 NewColumn:
                 if ($console->confirm('Do you want to generate a new column?')){
-                    GenerateColumn($console,$columns);
+                    GenerateColumn($console,$columns,$mainVersion);
                     goto NewColumn;
                 }
             }
