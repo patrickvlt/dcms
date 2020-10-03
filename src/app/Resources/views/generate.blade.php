@@ -10,18 +10,4 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script src="/js/dcms/dcms.js"></script>
-<script>
-    DCMSDatatable({
-        table: $('.datatable')
-    });
-    onReady(function(){
-        toastr.success('You clicked Success toast');
-        var app = new Vue({
-            el: '#app',
-            data: {
-                message: 'Hello Vue!'
-            }
-        })
-    })
-</script>
 </body>

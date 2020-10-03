@@ -302,7 +302,11 @@ var KTApp = function() {
 
         unblock: function(target) {
             if (target && target != 'body') {
-                $(target).unblock();
+                try {
+                    $(target).unblock();
+                } catch (error) {
+
+                }
             } else {
                 $.unblockUI();
             }
@@ -4558,7 +4562,11 @@ var KTUtil = function() {
                     KTUtil.css(element, 'overflow', 'hidden');
                     KTUtil.addClass(element, 'scroll');
 
-                    ps = new PerfectScrollbar(element, options);
+                    try {
+                        ps = new PerfectScrollbar(element, options);
+                    } catch (error) {
+                        //
+                    }
 
                     KTUtil.data(element).set('ps', ps);
                 }
@@ -6289,15 +6297,19 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 				if (util.hasClass(element, 'ps') && typeof ps !== 'undefined') {
 					ps.update();
 				} else {
-					ps = new PerfectScrollbar(element, Object.assign({}, {
-						wheelSpeed: 0.5,
-						swipeEasing: true,
-						// wheelPropagation: false,
-						minScrollbarLength: 40,
-						maxScrollbarLength: 300,
-						suppressScrollX: Plugin.getOption('rows.autoHide') && !Plugin.isLocked()
-					}, options));
-					$(element).data('ps', ps);
+                    try {
+                        ps = new PerfectScrollbar(element, Object.assign({}, {
+                            wheelSpeed: 0.5,
+                            swipeEasing: true,
+                            // wheelPropagation: false,
+                            minScrollbarLength: 40,
+                            maxScrollbarLength: 300,
+                            suppressScrollX: Plugin.getOption('rows.autoHide') && !Plugin.isLocked()
+                        }, options));
+                        $(element).data('ps', ps);
+                    } catch (error) {
+                        //
+                    }
 				}
 
 				// reset perfect scrollbar on resize

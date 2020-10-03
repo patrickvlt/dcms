@@ -179,7 +179,8 @@ window.DCMSDatatable = function (parameters) {
 							</div>`;
                             break;
                         default:
-                            return prepend+value+append;
+                            // return prepend+value+append;
+                            return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
                             break;
                     }
                 },

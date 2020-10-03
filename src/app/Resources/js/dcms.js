@@ -16,21 +16,45 @@ if (typeof process.env.MIX_DCMS_ENV == 'undefined'){
 }
 
 window.LoadJS = function(pluginFunction, plugin, pluginPath='cdn') {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = (process.env.MIX_DCMS_ENV == 'local') ? plugin['local']['js'] : plugin[pluginPath]['js'];
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(script, s);
+    var scriptSources = (process.env.MIX_DCMS_ENV == 'local' || pluginPath !== 'cdn') ? plugin['local']['js'] : plugin[pluginPath]['js'];
+    function LoadJSSource(source){
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = source;
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(script, s);
+    }
+    if (typeof scriptSources == 'string'){
+        LoadJSSource(scriptSources);
+    } else {
+        Array.from(scriptSources).forEach(function(source){
+            LoadJSSource(source);
+        });
+    }
 }
 
 let cssLink, cssTag;
 window.LoadCSS = function(plugin,pluginPath='cdn') {
-    cssLink = document.createElement('link');
-    cssLink.rel = 'stylesheet';
-    cssLink.type = 'text/css';
-    cssLink.href = (process.env.MIX_DCMS_ENV == 'local') ? plugin['local']['css'] : plugin[pluginPath]['css'];
-    cssTag = document.getElementsByTagName('head')[0];
-    cssTag.append(cssLink);
+    var cssSources = (process.env.MIX_DCMS_ENV == 'local' || pluginPath !== 'cdn') ? plugin['local']['css'] : plugin[pluginPath]['css'];
+    function LoadCSSSource(source){
+        cssLink = document.createElement('link');
+        cssLink.rel = 'stylesheet';
+        cssLink.type = 'text/css';
+        cssLink.href = source;
+        cssTag = document.getElementsByTagName('head')[0];
+        cssTag.append(cssLink);
+    }
+    if (typeof cssSources == 'string'){
+        LoadCSSSource(cssSources);
+    } else {
+        Array.from(cssSources).forEach(function(source){
+            LoadCSSSource(source);
+        });
+    }
+}
+
+if (typeof axios == 'undefined' && (dcmsConfig.plugins.axios.enable !== false)){
+    LoadJS('axios',dcmsConfig.plugins.axios);
 }
 
 if (typeof Vue == 'undefined' && (dcmsConfig.plugins.vue.enable !== false)){
@@ -86,6 +110,11 @@ if (typeof tinymce == 'undefined' && document.querySelectorAll('[data-type=tinym
     LoadJS('tinymce',dcmsConfig.plugins.tinymce,'local');
 }
 
+if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KTDatatable !== false)){
+    LoadJS('KTDatatable',dcmsConfig.plugins.KTDatatable,'local');
+    LoadCSS(dcmsConfig.plugins.KTDatatable,'local');
+}
+
 window.onReady = function(yourMethod) {
     var readyStateCheckInterval = setInterval(function() {
         if (document && document.readyState === 'complete') {
@@ -116,6 +145,14 @@ window.hasLoaded = function(plugins,yourMethod) {
  *  Plugin Settings
  *
  */
+
+// Axios Laravel
+window.axiosCfg = {
+    headers: {
+        'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+        "Content-type": "application/x-www-form-urlencoded"
+    }
+}
 
 // Date Format
 window.AppDateFormat = "dd-mm-yyyy";
