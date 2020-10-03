@@ -189,6 +189,11 @@ class Crud extends Command
                         $column['validation'] = $validationRules;
                     }
                     if ($console->confirm('Do you want to seed: '.$dbColumn.' with a factory?')){
+                        if ($mainVersion <= 7){
+                            $fakerExample = '$faker->word()';
+                        } else if ($mainVersion >= 8){
+                            $fakerExample = '$this->faker->word()';
+                        }
                         $column['seed'] = $console->ask('Enter the data to seed. (For example: $faker->word(), or "Seed this sentence"). Don\'t end with a semicolon or parentheses.');
                     }
 
@@ -286,7 +291,7 @@ class Crud extends Command
                     $contentToAdd = "        factory(App\\".$model."::class, ".$seedAmount.")->create();";
                 } else if ($mainVersion >= 8){
                     $seederFile = 'database/seeders/'.$model.'Seeder.php';
-                    $contentToAdd = '        \App\Models\\'.$model.'::factory()->create('.$seedAmount.');';
+                    $contentToAdd = '        \App\Models\\'.$model.'::factory()->count('.$seedAmount.')->create();';
                 }
                 // Modify the content
                 $content = file_get_contents(base_path($seederFile));
