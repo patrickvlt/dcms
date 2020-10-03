@@ -210,7 +210,7 @@ class Crud extends Command
 
         $enableSeed = false;
         foreach($columns as $column){
-            if ($column['seed']){
+            if (isset($column['seed'])){
                 $enableSeed = true;
             }
         }
@@ -312,7 +312,11 @@ class Crud extends Command
          */
 
         $routeFile = 'routes/web.php';
-        $contentToAdd = "Route::resource('" . $prefix . "', '" . $model . "Controller');";
+        if ($mainVersion <= 7){
+            $contentToAdd = "Route::resource('" . $prefix . "', '" . $model . "Controller');";
+        } else if ($mainVersion >= 8){
+            $contentToAdd = "Route::resource('" . $prefix . "', \App\Http\Controllers\\".$model."Controller::class);";
+        }
 
         // Modify the content
         $content = file_get_contents(base_path($routeFile));

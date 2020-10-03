@@ -32,7 +32,7 @@ if (!function_exists('GetClasses')) {
     function GetClasses()
     {
         $classes = [];
-        foreach (config('dcms.classfolders') as $folder) {
+        foreach (config('dcms.modelFolders') as $folder) {
             foreach (scandir(base_path() . '/' . $folder) as $file) {
                 if (strpos($file, '.php') !== false) {
                     $re = '/namespace \S*;/m';
@@ -59,6 +59,7 @@ if (!function_exists('FindClass')) {
                 return $class;
             }
         }
+        throw new \RuntimeException("Couldn't find Model which belongs to: ".$prefix.". Make sure to configure the Models folder in config/dcms.php");
     }
 }
 

@@ -4,13 +4,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Class Folders
+    | Model Folders
     |--------------------------------------------------------------------------
     |
-    | Define the folders which contain the Models/Classes you work with.
+    | Define the folders which contain the Models you work with.
     | This will prevent just the app folder being scanned.
     |
     */
 
-    'classfolders' => ['app'],
+    'modelFolders' => ['app/Models','app'],
 ];
