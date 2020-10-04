@@ -143,10 +143,7 @@
         "KTDatatable": {
             "enable": true,
             "local": {
-                "js": [
-                    "/js/dcms/assets/metronic/plugins.bundle.js",
-                    "/js/dcms/assets/metronic/prismjs.bundle.js"
-                ],
+                "js": "/js/dcms/assets/metronic/ktdatatable.js",
                 "css": "/css/dcms/assets/metronic/ktdatatable.css"
             }
         }

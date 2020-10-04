@@ -219,28 +219,6 @@ try {
 
 /**
  *
- *  jQuery Datatables
- *
- */
-
-//Reload Datatable if one present
-function ReloadDT() {
-    try {
-        table.ajax.reload(null, false);
-    } catch (error) {
-        // do nothing
-    }
-    try {
-        $.each($('.datatable'), function (indexInArray, table) {
-            $(table).KTDatatable('reload');
-        });
-    } catch (error) {
-        // do nothing
-    }
-}
-
-/**
- *
  *  Spinner on submit/file upload
  *
  */
@@ -271,6 +249,28 @@ require('./plugins/jexcel.js');
 require('./plugins/filepond.js');
 require('./metronic/dcmsdatatable.js');
 require('../../../public/js/dcms/assets/spotlight.js');
+
+/**
+ *
+ *  jQuery Datatables
+ *
+ */
+
+//Reload Datatable if one present
+function ReloadDT() {
+    try {
+        table.ajax.reload(null, false);
+    } catch (error) {
+        // do nothing
+    }
+    try {
+        $.each($('.datatable'), function (indexInArray, table) {
+            $(table).KTDatatable('reload');
+        });
+    } catch (error) {
+        // do nothing
+    }
+}
 
 /**
  *
