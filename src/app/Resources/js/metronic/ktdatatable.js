@@ -6775,7 +6775,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 
 						// page size select
 						var pageSizeSelect = $('<select/>').
-							addClass('selectpicker ' + pfx + 'datatable-pager-size').
+							addClass('datatable-pager-size').
 							attr('title', Plugin.getOption('translate.toolbar.pagination.items.default.select')).
 							attr('data-width', '60px').
 							attr('data-container', 'body').
@@ -6790,18 +6790,6 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 							var display = size;
 							if (size === -1) display = Plugin.getOption('translate.toolbar.pagination.items.default.all');
 							$('<option/>').attr('value', size).html(display).appendTo(pageSizeSelect);
-						});
-
-						// init selectpicker to dropdown
-						$(datatable).ready(function() {
-							$('.selectpicker').
-								selectpicker().
-								on('hide.bs.select', function() {
-									// fix dropup arrow icon on hide
-									$(this).closest('.bootstrap-select').removeClass('dropup');
-								}).
-								siblings('.dropdown-toggle').
-								attr('title', Plugin.getOption('translate.toolbar.pagination.items.default.select'));
 						});
 
 						pg.paste();
@@ -6858,9 +6846,6 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 						// fix white space, when perpage is set from many records to less records
 						// $('html, body').animate({scrollTop: $(datatable).position().top});
 						// }
-
-						// hide dropdown after select
-						$(this).selectpicker('toggle');
 
 						pg.pager = $(datatable.table).siblings('.' + pfx + 'datatable-pager').removeClass(pfx + 'datatable-paging-loaded');
 

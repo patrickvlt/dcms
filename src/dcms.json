@@ -1,5 +1,14 @@
 {
     "plugins": {
+        "axios": {
+            "enable": true,
+            "cdn": {
+                "js": "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
+            },
+            "local": {
+                "js": "/js/dcms/assets/axios.js"
+            }
+        },
         "datepicker": {
             "enable": true,
             "cdn": {
@@ -129,6 +138,16 @@
             },
             "local": {
                 "js": "/js/dcms/assets/filepond-validate-size.js"
+            }
+        },
+        "KTDatatable": {
+            "enable": true,
+            "local": {
+                "js": [
+                    "/js/dcms/assets/metronic/plugins.bundle.js",
+                    "/js/dcms/assets/metronic/prismjs.bundle.js"
+                ],
+                "css": "/css/dcms/assets/metronic/ktdatatable.css"
             }
         }
     }

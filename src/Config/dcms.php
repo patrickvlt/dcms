@@ -12,5 +12,5 @@ return [
     |
     */
 
-    'modelFolders' => ['app/Models','app'],
+    'modelFolders' => ['app'],
 ];
