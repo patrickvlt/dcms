@@ -38,12 +38,8 @@
 .datatable.datatable-default>.datatable-table>.datatable-head,
 .datatable.datatable-default>.datatable-table>.datatable-body,
 .datatable.datatable-default>.datatable-table>.datatable-foot {
-    /*visibility: hidden;*/
+    visibility: hidden;
     display: block;
-}
-
-.datatable-body {
-    visibility: inherit !important;
 }
 
 .datatable.datatable-default>.datatable-table>.datatable-head .datatable-row,

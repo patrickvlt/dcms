@@ -6377,7 +6377,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 			 */
 			dataRender: function(action) {
 				$(datatable.table).siblings('.' + pfx + 'datatable-pager').removeClass(pfx + 'datatable-paging-loaded');
-
+                
 				var buildMeta = function() {
 					datatable.dataSet = datatable.dataSet || [];
 					Plugin.localDataUpdate();
@@ -6456,7 +6456,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 				// getting data from remote only
 				Plugin.getData().done(afterGetData);
 			},
-
+            
 			/**
 			 * Process ajax data
 			 */
@@ -8109,7 +8109,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 						clearTimeout(Plugin.timer);
 						Plugin.timer = setTimeout(callback, ms);
 					};
-				})();
+                })();
 				delay(function() {
 					// local only. remote pagination will skip this block
 					if (!options.data.serverFiltering) {
