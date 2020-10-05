@@ -6916,7 +6916,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 
 							pg.updateInfo.call();
 							pg.pagingBreakpoint.call();
-							// Plugin.resetScroll();
+							Plugin.resetScroll();
 						});
 					},
 					updateInfo: function() {
