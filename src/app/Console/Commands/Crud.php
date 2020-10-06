@@ -335,6 +335,14 @@ class Crud extends Command
          */
 
         $controllerFile = 'app/Http/Controllers/' . $model . 'Controller.php';
+        $modelRequestPath = '\\App\\Http\\Requests\\'.$model.'Request::class';
+
+        if ($mainVersion <= 7){
+            $modelPath = '\\App\\'.$model.'::class';
+        } else if ($mainVersion >= 8){
+            $modelPath = '\\App\\Models\\'.$model.'::class';
+        }
+        $modelImport = str_replace('::class','',$modelPath);
         include __DIR__ . '/../../Templates/Controller.php';
 
         // Modify the content

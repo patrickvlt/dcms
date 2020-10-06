@@ -17,7 +17,7 @@ trait DCMSController
     public $class;
     public $file;
     public $requestFile;
-    public $classRequest;
+    public $modelRequest;
     public $indexQuery;
     public $indexView;
     public $showView;
@@ -51,10 +51,8 @@ trait DCMSController
             // Route prefix
             $this->prefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
             // Get class with namespace, by route prefix
-            $this->class = (isset($this->DCMS()['class'])) ? $this->DCMS()['class'] : new \RuntimeException("No class defined for model: ".ucfirst($this->prefix)." in DCMS function.");
-            $this->classRequest = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : new \RuntimeException("No request defined for custom requests to: ".ucfirst($this->prefix)." in DCMS function.");
-            // Default index query
-            $this->indexQuery = $this->DCMS()['indexQuery'] ?? $this->class::all();
+            $this->model = (isset($this->DCMS()['model'])) ? $this->DCMS()['model'] : new \RuntimeException("No model defined for: ".ucfirst($this->prefix)." in DCMS function.");
+            $this->modelRequest = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : new \RuntimeException("No custom request defined for: ".ucfirst($this->prefix)." in DCMS function.");
             // CRUD views
             $this->indexView = $this->DCMS()['views']['index'] ?? 'index';
             $this->showView = $this->DCMS()['views']['show'] ?? 'show';
@@ -95,12 +93,12 @@ trait DCMSController
 
     public function fetch()
     {
-        return (new Datatable($this->class::query()))->render();
+        return (new Datatable($this->model::query()))->render();
     }
 
     public function show($id)
     {
-        ${$this->prefix} = $this->class::FindOrFail($id);
+        ${$this->prefix} = $this->model::FindOrFail($id);
 
         $vars = method_exists($this,'beforeShow') ? $this->beforeShow($id) : null;
         return view($this->prefix.'.'.$this->showView,compact(${$this->prefix}))->with($vars);
@@ -108,7 +106,7 @@ trait DCMSController
 
     public function edit($id)
     {
-        ${$this->prefix} = $this->class::FindOrFail($id);
+        ${$this->prefix} = $this->model::FindOrFail($id);
 
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->prefix.'.'.$this->editView,compact(${$this->prefix}))->with($vars);
@@ -124,11 +122,11 @@ trait DCMSController
     {
         $requestData = request()->all();
         // Merge with modified request from beforeValidation()
-        $uploadRules = method_exists($this->classRequest,'uploadRules') ? $this->classRequest->uploadRules() : false;
-        $requestRules = method_exists($this->classRequest,'rules') ? $this->classRequest->rules() : false;
-        $requestMessages = method_exists($this->classRequest,'messages') ? $this->classRequest->messages() : false;
-        $beforeValidation = method_exists($this->classRequest,'beforeValidation') ? $this->classRequest->beforeValidation() : false;
-        $afterValidation = method_exists($this->classRequest,'afterValidation') ? $this->classRequest->afterValidation() : false;
+        $uploadRules = method_exists($this->modelRequest,'uploadRules') ? $this->modelRequest->uploadRules() : false;
+        $requestRules = method_exists($this->modelRequest,'rules') ? $this->modelRequest->rules() : false;
+        $requestMessages = method_exists($this->modelRequest,'messages') ? $this->modelRequest->messages() : false;
+        $beforeValidation = method_exists($this->modelRequest,'beforeValidation') ? $this->modelRequest->beforeValidation() : false;
+        $afterValidation = method_exists($this->modelRequest,'afterValidation') ? $this->modelRequest->afterValidation() : false;
         if ($beforeValidation){
             foreach ($beforeValidation as $changingKey => $changingValue){
                 $requestData[$changingKey] = $changingValue;
@@ -185,9 +183,9 @@ trait DCMSController
             }
         }
         if ($createdOrUpdated === 'created'){
-            ${$this->prefix} = $this->class::create($request);
+            ${$this->prefix} = $this->model::create($request);
         } else if ($createdOrUpdated === 'updated') {
-            ${$this->prefix} = $this->class::findOrFail($id);
+            ${$this->prefix} = $this->model::findOrFail($id);
             // This is for files
             foreach ($request as $requestKey => $requestVal){
                 // If request has an array, and points to storage, merge it with existing array if it has values already
@@ -259,7 +257,7 @@ trait DCMSController
 
     public function destroy($id)
     {
-        $this->class::findOrFail($id)->delete();
+        $this->model::findOrFail($id)->delete();
     }
 
     public function DCMSJSON($object,$createdOrUpdated)
@@ -300,10 +298,10 @@ trait DCMSController
 
     public function StoreExport($data=null,$headers=null)
     {
-        $data = $data ?? $this->class::all()->toArray();
+        $data = $data ?? $this->model::all()->toArray();
 
         if (!$headers){
-            $autoHeaders = Schema::getColumnListing((new $this->class())->getTable());
+            $autoHeaders = Schema::getColumnListing((new $this->model())->getTable());
             foreach ($autoHeaders as $headerKey => $headerVal){
                 $headers[$headerVal] = $headerVal;
             }
@@ -341,7 +339,7 @@ trait DCMSController
         $failed = false;
         $nullableColumns = [];
 
-        foreach ((new $this->classRequest())->rules() as $key => $rule){
+        foreach ((new $this->modelRequest())->rules() as $key => $rule){
             if (preg_match('/nullable/',$rule) || !preg_match('/required/',$rule)){
                 $nullableColumns[] = $key;
             }
@@ -362,7 +360,7 @@ trait DCMSController
                         $validateData[$x] = $row[$col];
                     }
                     $customRequest->request->add($validateData);
-                    $this->validate($customRequest, (new $this->classRequest())->rules(), (new $this->classRequest())->messages());
+                    $this->validate($customRequest, (new $this->modelRequest())->rules(), (new $this->modelRequest())->messages());
                 }
                 $x++;
             }
@@ -380,7 +378,7 @@ trait DCMSController
                 foreach ($this->importCols as $x => $col){
                     $passedData[$x] = $row[$col];
                 }
-                $this->class::create($passedData);
+                $this->model::create($passedData);
             }
         } else {
             return response()->json(['response' => [

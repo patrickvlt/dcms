@@ -7,7 +7,7 @@ namespace App\\Http\\Controllers;
 use Illuminate\\Http\\Request;
 use App\\Http\\Requests\\'.$model.'Request;
 
-use '.$modelPath.';
+use '.$modelImport.';
 use App\\Traits\\DCMSController;
 use Pveltrop\DCMS\Classes\Datatable;
 
@@ -15,15 +15,19 @@ class '.$model.'Controller extends Controller
 {
     use DCMSController;
 
-    // The DCMS function below is completely optional, you can use this as a reference or to override variables/functions.
-
-    // This function defines all the settings for DCMS for the current object.
+    // This function defines all the settings for DCMS for the current model which belongs to this controller.
     // This will help automatically pointing this controller to the right route, class, use the right messages in alerts, etc.
     function DCMS()
     {
         return [
+            // Class and request should be defined, these are required
+            // Define classes with complete namespace below
+            "model" => '.$modelPath.',
+            "request" => '.$modelRequestPath.',
+
+            // All keys below are optional
+
             "routePrefix" => "'.$prefix.'",
-            "class" => "'.$model.'",
             // DCMS JSON responses and redirects for CRUD
             "created" => [
                 "title" => __("'.$model.' created"),
@@ -40,9 +44,7 @@ class '.$model.'Controller extends Controller
             ],
             "imported" => [
                 "url" => "/'.$prefix.'"
-            ],
-            // Optional request file or view(s)
-            "request" => "'.$model.'Request",
+            ],           
             "views" => [
                 "index" => "index",
                 "show" => "crud",
