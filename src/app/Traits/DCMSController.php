@@ -77,11 +77,7 @@ trait DCMSController
             $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __(ucfirst($this->prefix)).__(' ').__('deleted');
             $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __(ucfirst($this->prefix)).__(' ').__('has been successfully deleted');
             // jExcel imports
-            if (!isset($this->DCMS()['import']['columns'])){
-                throw new \RuntimeException("No columns defined for jExcel imports, for: ".ucfirst($this->prefix));
-            } else {
-                $this->importCols = $this->DCMS()['import']['columns'];
-            }
+            $this->importCols = $this->DCMS()['import']['columns'] ?? null;
             $this->importFailedTitle = $this->DCMS()['import']['failed']['title'] ?? __('Import failed');
             $this->importFailedMessage = $this->DCMS()['import']['failed']['message'] ?? __('Some fields contain invalid data.');
             $this->importEmptyTitle = $this->DCMS()['import']['empty']['title'] ?? __('Import failed');
