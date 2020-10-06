@@ -164,13 +164,10 @@ trait DCMSController
                         $storedFile = Storage::exists($checkFile);
                         if ($storedFile){
                             $newFilePath = str_replace('/tmp/','/',$checkFile);
-                            $filesToRemove[] = $checkFile;
-                            try {
-                                Storage::copy($checkFile,$newFilePath);
-                                Storage::delete($checkFile);
-                            } catch (FileExistsException $e){
-                                // continue
-                            }
+                            $filesToMove[] = [
+                                'oldPath' => $checkFile,
+                                'newPath' => $newFilePath
+                            ];
                             $requestData[$key][$x] = str_replace('/public/','/storage/',$newFilePath);
                         } else {
                             return response()->json([
@@ -254,7 +251,12 @@ trait DCMSController
             }
             ${$this->prefix}->update($request);
         }
-
+        if (count($filesToMove) > 0){
+            foreach ($filesToMove as $key => $file) {
+                Storage::copy($file['oldPath'],$file['newPath']);
+                Storage::delete($file['oldPath']);
+            }
+        }
         return $this->DCMSJSON(${$this->prefix},$createdOrUpdated);
     }
 
