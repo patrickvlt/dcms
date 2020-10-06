@@ -76,7 +76,7 @@ class DCMSFilepondController extends Controller
             }
             $file = $request[$column][0];
             $file->store('public/tmp/files/' . $type.'/'.$column);
-            return env('APP_URL').'/public/tmp/files/'.$type.'/'.$column.'/'.$file->hashName();
+            return env('APP_URL').'/storage/tmp/files/'.$type.'/'.$column.'/'.$file->hashName();
         }
     }
 
@@ -87,24 +87,14 @@ class DCMSFilepondController extends Controller
 
         // Get column for request and folder structure
         $column = str_replace('[]','',$column);
+
+        // Convert path to variable in database, remove APP URL and strip slashes
+        // Also rename storage to public, /storage is for Front End
         $path = str_replace('"','',stripslashes(request()->getContent()));
-
         $path = str_replace(env('APP_URL'),"",$path);
+        $path = str_replace("/storage/","/public/",$path);
 
-        // Get filename
-        $name = explode('/',$path);
-        $name = end($name);
-        // Without extension for DB
-        $explodeName = explode('.',$name);
-        $dbName = $explodeName[0];
-
-        $file = 'public/files/'.$type.'/'.$column.'/'.$name;
-
-        if (Storage::exists($file) == true){
-            Storage::delete($file);
-            $msg = 'Deleted succesfully';
-        }
-        else if (Storage::exists($path)){
+        if (Storage::exists($path)){
             Storage::delete($path);
             $msg = 'Deleted succesfully';
             $status = 200;
@@ -114,14 +104,20 @@ class DCMSFilepondController extends Controller
             $status = 422;
         }
 
+        // Explode to make simple filename for easy searching through DB columns
+        $name = explode('/',$path);
+        $name = end($name);
+        $explodeName = explode('.',$name);
+        $dbName = $explodeName[0];
         // If a revert key was sent, use this to locate the value in the database, instead of the default column
         $column = ($revertKey) ?: $column;
+        $findInDB = $this->class::where($column,'like','%'.$dbName.'%')->get();
         try {
             $findInDB = $this->class::where($column,'like','%'.$dbName.'%')->get();
         } catch (\Throwable $th) {
             $findInDB = [];
         }
-        // if the current class uses this file in any database row
+        // if the current model uses this file in any database row
         if (count($findInDB) > 0){
             // checking all rows using this file
             foreach ($findInDB as $key => $model){
@@ -129,7 +125,7 @@ class DCMSFilepondController extends Controller
                 $fileArr = $model->$column;
                 if (is_array($fileArr)){
                     foreach ($fileArr as $y => $dbFile) {
-                        if ($dbFile == $path){
+                        if ($dbFile == str_replace('/public/','/storage/',$path)){
                             unset($fileArr[$y]);
                         }
                     }

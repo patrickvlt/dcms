@@ -160,12 +160,14 @@ trait DCMSController
                             ], 422);
                         }
                         $checkFile = str_replace(env('APP_URL'),'',$file);
+                        $checkFile = str_replace('/storage/','/public/',$checkFile);
                         $storedFile = Storage::exists($checkFile);
                         if ($storedFile){
                             $newFilePath = str_replace('/tmp/','/',$checkFile);
                             $filesToRemove[] = $checkFile;
                             try {
                                 Storage::copy($checkFile,$newFilePath);
+                                Storage::delete($checkFile);
                             } catch (FileExistsException $e){
                                 // continue
                             }
