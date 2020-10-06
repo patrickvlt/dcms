@@ -5,6 +5,7 @@ include __DIR__ . '/../Helpers/DCMS.php';
 
 use Illuminate\Support\Facades\Schema;
 use League\Flysystem\FileExistsException;
+use Pveltrop\DCMS\Classes\Datatable;
 use Pveltrop\DCMS\Classes\PHPExcel;
 use Exception;
 use Illuminate\Support\Facades\Storage;
@@ -49,15 +50,9 @@ trait DCMSController
         if (!app()->runningInConsole()) {
             // Route prefix
             $this->prefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
-            // Get class file
-            $this->file = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->prefix)['file'];
             // Get class with namespace, by route prefix
-            $this->class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->prefix)['class'];
-            // Get class request file
-            $this->requestFile = $this->DCMS()['request'] ?? ($this->file . 'Request');
-            // Get class request with namespace
-            $this->classRequest = '\App\Http\Requests\\'.$this->requestFile;
-            $this->classRequest = (new $this->classRequest());
+            $this->class = (isset($this->DCMS()['class'])) ? $this->DCMS()['class'] : new \RuntimeException("No class defined for model: ".ucfirst($this->prefix)." in DCMS function.");
+            $this->classRequest = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : new \RuntimeException("No request defined for custom requests to: ".ucfirst($this->prefix)." in DCMS function.");
             // Default index query
             $this->indexQuery = $this->DCMS()['indexQuery'] ?? $this->class::all();
             // CRUD views
@@ -67,14 +62,14 @@ trait DCMSController
             $this->createView = $this->DCMS()['views']['create'] ?? 'create';
             // JSON CRUD responses
             $this->createdUrl = $this->DCMS()['created']['url'] ?? '/'.$this->prefix;
-            $this->createdTitle = $this->DCMS()['created']['title'] ?? __($this->file).__(' ').__('created');
-            $this->createdMessage = $this->DCMS()['created']['message'] ?? __($this->file).__(' ').__('has been successfully created');
+            $this->createdTitle = $this->DCMS()['created']['title'] ?? __(ucfirst($this->prefix)).__(' ').__('created');
+            $this->createdMessage = $this->DCMS()['created']['message'] ?? __(ucfirst($this->prefix)).__(' ').__('has been successfully created');
             $this->updatedUrl = $this->DCMS()['updated']['url'] ?? '/'.$this->prefix;
-            $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __($this->file).__(' ').__('updated');
-            $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __($this->file).__(' ').__('has been successfully updated');
+            $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __(ucfirst($this->prefix)).__(' ').__('updated');
+            $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __(ucfirst($this->prefix)).__(' ').__('has been successfully updated');
             $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? '/'.$this->prefix;
-            $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __($this->file).__(' ').__('deleted');
-            $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __($this->file).__(' ').__('has been successfully deleted');
+            $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __(ucfirst($this->prefix)).__(' ').__('deleted');
+            $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __(ucfirst($this->prefix)).__(' ').__('has been successfully deleted');
             // jExcel imports
             $this->importCols = $this->DCMS()['import']['columns'] ?? new \RuntimeException("No columns defined for jExcel imports.");
             $this->importFailedTitle = $this->DCMS()['import']['failed']['title'] ?? __('Import failed');
@@ -100,10 +95,7 @@ trait DCMSController
 
     public function fetch()
     {
-        $query = ($this->indexQuery) ?? $this->class::query();
-        $datatable = '\\App\\Datatables\\'.$this->file.'Datatable';
-
-        return (new $datatable($query))->render();
+        return (new Datatable($this->class::query()))->render();
     }
 
     public function show($id)
