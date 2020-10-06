@@ -50,9 +50,17 @@ trait DCMSController
         if (!app()->runningInConsole()) {
             // Route prefix
             $this->prefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
-            // Get class with namespace, by route prefix
-            $this->model = (isset($this->DCMS()['model'])) ? $this->DCMS()['model'] : new \RuntimeException("No model defined for: ".ucfirst($this->prefix)." in DCMS function.");
-            $this->modelRequest = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : new \RuntimeException("No custom request defined for: ".ucfirst($this->prefix)." in DCMS function.");
+            // Get model and custom request class
+            if (!isset($this->DCMS()['model'])){
+                throw new \RuntimeException("No model defined for: ".ucfirst($this->prefix)." in DCMS function.");
+            } else {
+                $this->model = $this->DCMS()['model'];
+            }
+            if (!isset($this->DCMS()['request'])){
+                throw new \RuntimeException("No custom request defined for: ".ucfirst($this->prefix)." in DCMS function.");
+            } else {
+                $this->modelRequest = $this->DCMS()['request'];
+            }
             // CRUD views
             $this->indexView = $this->DCMS()['views']['index'] ?? 'index';
             $this->showView = $this->DCMS()['views']['show'] ?? 'show';
@@ -69,7 +77,11 @@ trait DCMSController
             $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __(ucfirst($this->prefix)).__(' ').__('deleted');
             $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __(ucfirst($this->prefix)).__(' ').__('has been successfully deleted');
             // jExcel imports
-            $this->importCols = $this->DCMS()['import']['columns'] ?? new \RuntimeException("No columns defined for jExcel imports.");
+            if (!isset($this->DCMS()['import']['columns'])){
+                throw new \RuntimeException("No columns defined for jExcel imports, for: ".ucfirst($this->prefix));
+            } else {
+                $this->importCols = $this->DCMS()['import']['columns'];
+            }
             $this->importFailedTitle = $this->DCMS()['import']['failed']['title'] ?? __('Import failed');
             $this->importFailedMessage = $this->DCMS()['import']['failed']['message'] ?? __('Some fields contain invalid data.');
             $this->importEmptyTitle = $this->DCMS()['import']['empty']['title'] ?? __('Import failed');
@@ -93,12 +105,12 @@ trait DCMSController
 
     public function fetch()
     {
-        return (new Datatable($this->model::query()))->render();
+        return (new Datatable((new $this->model)->query()))->render();
     }
 
     public function show($id)
     {
-        ${$this->prefix} = $this->model::FindOrFail($id);
+        ${$this->prefix} = (new $this->model)->FindOrFail($id);
 
         $vars = method_exists($this,'beforeShow') ? $this->beforeShow($id) : null;
         return view($this->prefix.'.'.$this->showView,compact(${$this->prefix}))->with($vars);
@@ -106,7 +118,7 @@ trait DCMSController
 
     public function edit($id)
     {
-        ${$this->prefix} = $this->model::FindOrFail($id);
+        ${$this->prefix} = (new $this->model)->FindOrFail($id);
 
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->prefix.'.'.$this->editView,compact(${$this->prefix}))->with($vars);
@@ -183,9 +195,9 @@ trait DCMSController
             }
         }
         if ($createdOrUpdated === 'created'){
-            ${$this->prefix} = $this->model::create($request);
+            ${$this->prefix} = (new $this->model)->create($request);
         } else if ($createdOrUpdated === 'updated') {
-            ${$this->prefix} = $this->model::findOrFail($id);
+            ${$this->prefix} = (new $this->model)->findOrFail($id);
             // This is for files
             foreach ($request as $requestKey => $requestVal){
                 // If request has an array, and points to storage, merge it with existing array if it has values already
@@ -257,7 +269,7 @@ trait DCMSController
 
     public function destroy($id)
     {
-        $this->model::findOrFail($id)->delete();
+        (new $this->model)->findOrFail($id)->delete();
     }
 
     public function DCMSJSON($object,$createdOrUpdated)
@@ -298,10 +310,10 @@ trait DCMSController
 
     public function StoreExport($data=null,$headers=null)
     {
-        $data = $data ?? $this->model::all()->toArray();
+        $data = $data ?? (new $this->model)->all()->toArray();
 
         if (!$headers){
-            $autoHeaders = Schema::getColumnListing((new $this->model())->getTable());
+            $autoHeaders = Schema::getColumnListing((new $this->model)->getTable());
             foreach ($autoHeaders as $headerKey => $headerVal){
                 $headers[$headerVal] = $headerVal;
             }
@@ -378,7 +390,7 @@ trait DCMSController
                 foreach ($this->importCols as $x => $col){
                     $passedData[$x] = $row[$col];
                 }
-                $this->model::create($passedData);
+                (new $this->model)->create($passedData);
             }
         } else {
             return response()->json(['response' => [
