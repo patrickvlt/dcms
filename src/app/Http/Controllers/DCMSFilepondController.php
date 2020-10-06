@@ -89,6 +89,8 @@ class DCMSFilepondController extends Controller
         $column = str_replace('[]','',$column);
         $path = str_replace('"','',stripslashes(request()->getContent()));
 
+        $path = str_replace(env('APP_URL'),"",$path);
+
         // Get filename
         $name = explode('/',$path);
         $name = end($name);
@@ -114,7 +116,11 @@ class DCMSFilepondController extends Controller
 
         // If a revert key was sent, use this to locate the value in the database, instead of the default column
         $column = ($revertKey) ?: $column;
-        $findInDB = $this->class::where($column,'like','%'.$dbName.'%')->get();
+        try {
+            $findInDB = $this->class::where($column,'like','%'.$dbName.'%')->get();
+        } catch (\Throwable $th) {
+            $findInDB = [];
+        }
         // if the current class uses this file in any database row
         if (count($findInDB) > 0){
             // checking all rows using this file
@@ -143,8 +149,6 @@ class DCMSFilepondController extends Controller
                 ]);
             }
         }
-        $msg = 'Deleted succesfully';
-        $status = 200;
         return response()->json([$msg,$status]);
     }
 }

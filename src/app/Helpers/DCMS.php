@@ -66,10 +66,10 @@ if (!function_exists('FindClass')) {
 if (!function_exists('Model')) {
     function Model()
     {
-        $class = request()->route()->controller->class;
+        $model = request()->route()->controller->model;
         $prefix = request()->route()->controller->prefix;
         $id = (request()->route()->parameters()) ? request()->route()->parameters()[$prefix] : null;
-        return $class::find($id);
+        return $model::find($id);
     }
 }
 

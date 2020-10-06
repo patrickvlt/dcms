@@ -60,6 +60,7 @@ trait DCMSController
                 throw new \RuntimeException("No custom request defined for: ".ucfirst($this->prefix)." in DCMS function.");
             } else {
                 $this->modelRequest = $this->DCMS()['request'];
+                $this->modelRequest = (new $this->modelRequest);
             }
             // CRUD views
             $this->indexView = $this->DCMS()['views']['index'] ?? 'index';
@@ -134,56 +135,58 @@ trait DCMSController
         $requestRules = method_exists($this->modelRequest,'rules') ? $this->modelRequest->rules() : false;
         $requestMessages = method_exists($this->modelRequest,'messages') ? $this->modelRequest->messages() : false;
         $beforeValidation = method_exists($this->modelRequest,'beforeValidation') ? $this->modelRequest->beforeValidation() : false;
-        $afterValidation = method_exists($this->modelRequest,'afterValidation') ? $this->modelRequest->afterValidation() : false;
         if ($beforeValidation){
             foreach ($beforeValidation as $changingKey => $changingValue){
                 $requestData[$changingKey] = $changingValue;
             }
         }
         $filesToRemove = [];
-        foreach ($uploadRules as $uploadKey => $uploadRule){
-            $key = explode('.',$uploadKey);
-            $key = $key[0];
-            if (array_key_exists($key, $requestData)){
-                foreach ($requestData[$key] as $x => $file){
-                    // Check if file uploads has this applications URL in it
-                    // If it doesnt have the url in its filename, then it has been tampered with
-                    if (!strpos($file, env('APP_URL')) === 0){
-                        return response()->json([
-                            'message' => __('Invalid file'),
-                            'errors' => [
-                                'file' => [
-                                    $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
-                                ]
-                            ],
-                        ], 422);
-                    }
-                    $checkFile = str_replace(env('APP_URL'),'',$file);
-                    $storedFile = Storage::exists($checkFile);
-                    if ($storedFile){
-                        $newFilePath = str_replace('/tmp/','/',$checkFile);
-                        $filesToRemove[] = $checkFile;
-                        try {
-                            Storage::copy($checkFile,$newFilePath);
-                        } catch (FileExistsException $e){
-                            // continue
+        if ($uploadRules){
+            foreach ($uploadRules as $uploadKey => $uploadRule){
+                $key = explode('.',$uploadKey);
+                $key = $key[0];
+                if (array_key_exists($key, $requestData)){
+                    foreach ($requestData[$key] as $x => $file){
+                        // Check if file uploads has this applications URL in it
+                        // If it doesnt have the url in its filename, then it has been tampered with
+                        if (!strpos($file, env('APP_URL')) === 0){
+                            return response()->json([
+                                'message' => __('Invalid file'),
+                                'errors' => [
+                                    'file' => [
+                                        $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
+                                    ]
+                                ],
+                            ], 422);
                         }
-                        $requestData[$key][$x] = str_replace('/public/','/storage/',$newFilePath);
-                    } else {
-                        return response()->json([
-                            'message' => __('Invalid file'),
-                            'errors' => [
-                                $key => [
-                                    $requestMessages[$uploadKey.'.notFound'] ?? __('File couldn\'t be found. Try to upload it again to use it for ').$key.'.'
-                                ]
-                            ],
-                        ], 422);
+                        $checkFile = str_replace(env('APP_URL'),'',$file);
+                        $storedFile = Storage::exists($checkFile);
+                        if ($storedFile){
+                            $newFilePath = str_replace('/tmp/','/',$checkFile);
+                            $filesToRemove[] = $checkFile;
+                            try {
+                                Storage::copy($checkFile,$newFilePath);
+                            } catch (FileExistsException $e){
+                                // continue
+                            }
+                            $requestData[$key][$x] = str_replace('/public/','/storage/',$newFilePath);
+                        } else {
+                            return response()->json([
+                                'message' => __('Invalid file'),
+                                'errors' => [
+                                    $key => [
+                                        $requestMessages[$uploadKey.'.notFound'] ?? __('File couldn\'t be found. Try to upload it again to use it for ').$key.'.'
+                                    ]
+                                ],
+                            ], 422);
+                        }
                     }
                 }
             }
         }
         $request = Validator::make($requestData, $requestRules, $requestMessages);
         $request = $request->validated();
+        $afterValidation = method_exists($this->modelRequest,'afterValidation') ? $this->modelRequest->afterValidation($request) : false;
         // Merge with modified request from afterValidation()
         if ($afterValidation){
             foreach ($afterValidation as $modKey => $modValue){
