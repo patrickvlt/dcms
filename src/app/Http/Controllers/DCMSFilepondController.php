@@ -111,7 +111,6 @@ class DCMSFilepondController extends Controller
         $dbName = $explodeName[0];
         // If a revert key was sent, use this to locate the value in the database, instead of the default column
         $column = ($revertKey) ?: $column;
-        $findInDB = $this->class::where($column,'like','%'.$dbName.'%')->get();
         try {
             $findInDB = $this->class::where($column,'like','%'.$dbName.'%')->get();
         } catch (\Throwable $th) {
