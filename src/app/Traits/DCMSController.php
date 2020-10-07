@@ -251,7 +251,7 @@ trait DCMSController
             }
             ${$this->prefix}->update($request);
         }
-        if (count($filesToMove) > 0){
+        if (isset($filesToMove) && count($filesToMove) > 0){
             foreach ($filesToMove as $key => $file) {
                 Storage::copy($file['oldPath'],$file['newPath']);
                 Storage::delete($file['oldPath']);
