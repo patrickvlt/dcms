@@ -418,8 +418,7 @@ data-kt-auto-hide=false
 
 ### Turn value into clickable link:
 
-To turn the value into a link, make sure your column has a valid URL.
-For example, if your column is "website": use data-kt-href="__website__" to generate the URL.
+To turn the value into a link, make sure your column/field has a valid URL.
 The low dashes will trigger DCMS to replace the link with the correct value.
 If you don't use low dashes, you have to define a static URL, or else you will redirect users literally to __website__.
 Then finally, use data-kt-target to specify if you want the link to open in a new tab.
