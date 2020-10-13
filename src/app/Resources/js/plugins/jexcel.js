@@ -1,6 +1,6 @@
 "use strict";
 
-hasLoaded(['jexcel','jsuites'],function(){
+hasLoaded(['jexcel'],function(){
     var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table;
 
     if (document.querySelectorAll('[data-type=jexcel]').length > 0){
@@ -92,6 +92,8 @@ hasLoaded(['jexcel','jsuites'],function(){
                 if (currentForm){
                     currentForm.style.display = 'block';
                 }
+
+                window.jExcelTables.push(table);
 
                 function ClearInvalid(e) {
                     function CleanElement(element){

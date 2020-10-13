@@ -7,6 +7,7 @@
 var dcmsConfig;
 try {
     dcmsConfig = require('../../../dcms.json');
+    window.dcmsConfig = dcmsConfig;
 } catch (error){
     dcmsConfig = {};
 }
@@ -94,7 +95,7 @@ if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexce
     LoadJS('jsuites',dcmsConfig.plugins.jsuites);
 }
 
-if (typeof Papa == 'undefined' && (dcmsConfig.plugins.Papa && dcmsConfig.plugins.papa !== false)){
+if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa !== false)){
     LoadJS('Papa',dcmsConfig.plugins.papa,'local');
 }
 
@@ -129,7 +130,7 @@ window.hasLoaded = function(plugins,yourMethod) {
     var success = 0;
     var readyStateCheckInterval = setInterval(function() {
         plugins.forEach(function(plugin,x){
-            if (typeof window[plugin] !== 'undefined') {
+            if (typeof window[plugin] !== 'undefined' || typeof $.fn[plugin] !== 'undefined') {
                 clearInterval(readyStateCheckInterval);
                 success++;
                 if (success == plugins.length){
@@ -330,10 +331,8 @@ window.HttpReq = function (formMethod, formAction, formData) {
 
 let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
 function SubmitAjax(e) {
-    try {
+    if (typeof tinymce !== 'undefined'){
         tinyMCE.triggerSave();
-    } catch (error) {
-        
     }
     let formAction = e.target.action;
     let formMethod = e.target.method;

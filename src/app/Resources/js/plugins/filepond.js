@@ -149,6 +149,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     method: 'DELETE',
                 }
             }
+            ponds.push(pond);
             $('[data-type=filepond]').show();
         }
         const inputElement = document.querySelector('input[data-type=filepond]');

@@ -313,7 +313,7 @@ window.DCMSDatatable = function (parameters) {
 
             $($(table).data('kt-parent')).find('[data-kt-action="remove-rows"]').on('click', function () {
                 let activeIds = [];
-                let cells = $($(table).data('kt-parent')).find('.datatable-row-active').find('[data-id');
+                let cells = $($(table).data('kt-parent')).find('.datatable-row-active:visible').find('[data-id');
 
                 $.each(cells, function (x, cell) {
                     let cellId = $(cell).data('id');
