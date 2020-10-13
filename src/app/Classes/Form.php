@@ -146,7 +146,7 @@ class Form extends HtmlTag
         $saveBtn->text(__($saveText));
         $form->addElement($saveBtn);
 
-        // Delete button
+        // Generate delete button
         if (Model()){
             $form->addElement('br');
             $deleteBtn = self::createElement('button');
