@@ -25,7 +25,7 @@ class Form extends HtmlTag
     {
         // $modelColumns = Schema::getColumnListing((new $model())->getTable());
         $modelRequest = (new $request())->rules() ?? null;
-        $modelFiles = (new $request())->uploadRules() ?? null;
+        $modelFiles = method_exists((new $request()),'uploadRules') ?? null;
         if (!isset($modelRequest)) {
             throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: " . $routePrefix);
         }
