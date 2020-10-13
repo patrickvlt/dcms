@@ -8690,10 +8690,10 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 			icons: {
 				sort: {asc: '', desc: ''},
 				pagination: {
-					next: 'flaticon2-next',
-					prev: 'flaticon2-back',
-					first: 'flaticon2-fast-back',
-					last: 'flaticon2-fast-next',
+					next: 'fas fa-step-forward',
+					prev: 'fas fa-step-backward',
+					first: 'fas fa-fast-backward',
+					last: 'fas fa-fast-forward',
 					more: 'flaticon-more-1',
 				},
 				rowDetail: {expand: 'fa fa-caret-down', collapse: 'fa fa-caret-right'},
@@ -9074,10 +9074,10 @@ var defaults = {
 	layout: {
 		icons: {
 			pagination: {
-				next: 'flaticon2-next',
-				prev: 'flaticon2-back',
-				first: 'flaticon2-fast-back',
-				last: 'flaticon2-fast-next',
+				next: 'fas fa-step-forward',
+				prev: 'fas fa-step-backward',
+				first: 'fas fa-fast-backward',
+				last: 'fas fa-fast-forward',
 				more: 'flaticon-more-1',
 			},
 			rowDetail: {expand: 'fa fa-caret-down', collapse: 'fa fa-caret-right'},
@@ -9090,10 +9090,10 @@ if (KTUtil.isRTL()) {
 		layout: {
 			icons: {
 				pagination: {
-					next: 'flaticon2-back',
+					next: 'fas fa-step-backward',
 					prev: 'flaticon2-next',
 					first: 'flaticon2-fast-next',
-					last: 'flaticon2-fast-back',
+					last: 'fas fa-fast-backward',
 				},
 				rowDetail: {collapse: 'fa fa-caret-down', expand: 'fa fa-caret-right'},
 			}

@@ -67,8 +67,8 @@ if (!function_exists('Model')) {
     function Model()
     {
         $model = request()->route()->controller->model;
-        $prefix = request()->route()->controller->prefix;
-        $id = (request()->route()->parameters()) ? request()->route()->parameters()[$prefix] : null;
+        $routePrefix = request()->route()->controller->routePrefix;
+        $id = (request()->route()->parameters()) ? request()->route()->parameters()[$routePrefix] : null;
         return $model::find($id);
     }
 }
