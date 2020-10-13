@@ -393,6 +393,19 @@ window.DCMSDatatable = function (parameters) {
                 });
             });
 
+            $(document).on('click', '[data-kt-action=create]', function (e) {
+                e.preventDefault();
+                let route = $(table).data('kt-create-route');
+                if (window.AllowNewTab == false){
+                    if ($(this).data('kt-load-in-modal')){
+                        window.LoadInModal(route,$(this).data('kt-load-in-modal'))
+                    } else {
+                        window.location.href = route;
+                    }
+                } else {
+                    window.open(route, '_blank');
+                }
+            });
 
             $(document).on('click', 'table [data-kt-action=edit]', function (e) {
                 e.preventDefault();

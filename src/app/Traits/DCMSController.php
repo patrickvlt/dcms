@@ -163,38 +163,40 @@ trait DCMSController
                     }
                 }
                 if (array_key_exists($key, $requestData)){
-                    foreach ($requestData[$key] as $x => $file){
-                        // Check if file uploads has this applications URL in it
-                        // If it doesnt have the url in its filename, then it has been tampered with
-                        if (!strpos($file, env('APP_URL')) === 0){
-                            return response()->json([
-                                'message' => __('Invalid file'),
-                                'errors' => [
-                                    'file' => [
-                                        $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
+                    if (is_array($requestData[$key])){
+                        foreach ($requestData[$key] as $x => $file){
+                            // Check if file uploads have this applications URL in it
+                            // If any upload doesnt have the url in its filename, then it has been tampered with
+                            if (!strpos($file, env('APP_URL')) === 0){
+                                return response()->json([
+                                    'message' => __('Invalid file'),
+                                    'errors' => [
+                                        'file' => [
+                                            $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
+                                            ]
+                                        ],
+                                    ], 422);
+                                }
+                            $checkFile = str_replace(env('APP_URL'),'',$file);
+                            $checkFile = str_replace('/storage/','/public/',$checkFile);
+                            $storedFile = Storage::exists($checkFile);
+                            if ($storedFile){
+                                $newFilePath = str_replace('/tmp/','/',$checkFile);
+                                $filesToMove[] = [
+                                    'oldPath' => $checkFile,
+                                    'newPath' => $newFilePath
+                                ];
+                                $requestData[$key][$x] = str_replace('/public/','/storage/',$newFilePath);
+                            } else {
+                                return response()->json([
+                                    'message' => __('Invalid file'),
+                                    'errors' => [
+                                        $key => [
+                                            $requestMessages[$uploadKey.'.notFound'] ?? __('File couldn\'t be found. Try to upload it again to use it for ').$key.'.'
                                         ]
                                     ],
                                 ], 422);
                             }
-                        $checkFile = str_replace(env('APP_URL'),'',$file);
-                        $checkFile = str_replace('/storage/','/public/',$checkFile);
-                        $storedFile = Storage::exists($checkFile);
-                        if ($storedFile){
-                            $newFilePath = str_replace('/tmp/','/',$checkFile);
-                            $filesToMove[] = [
-                                'oldPath' => $checkFile,
-                                'newPath' => $newFilePath
-                            ];
-                            $requestData[$key][$x] = str_replace('/public/','/storage/',$newFilePath);
-                        } else {
-                            return response()->json([
-                                'message' => __('Invalid file'),
-                                'errors' => [
-                                    $key => [
-                                        $requestMessages[$uploadKey.'.notFound'] ?? __('File couldn\'t be found. Try to upload it again to use it for ').$key.'.'
-                                    ]
-                                ],
-                            ], 422);
                         }
                     }
                 }
