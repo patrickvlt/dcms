@@ -330,7 +330,11 @@ window.HttpReq = function (formMethod, formAction, formData) {
 
 let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
 function SubmitAjax(e) {
-    tinyMCE.triggerSave();
+    try {
+        tinyMCE.triggerSave();
+    } catch (error) {
+        
+    }
     let formAction = e.target.action;
     let formMethod = e.target.method;
     let formData = new FormData(e.target);

@@ -3,11 +3,10 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
-use Illuminate\Support\Facades\Schema;
-use League\Flysystem\FileExistsException;
-use Pveltrop\DCMS\Classes\Datatable;
+use Pveltrop\DCMS\Classes\Form;
 use Pveltrop\DCMS\Classes\PHPExcel;
-use Exception;
+use Pveltrop\DCMS\Classes\Datatable;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -49,18 +48,18 @@ trait DCMSController
     {
         if (!app()->runningInConsole()) {
             // Route prefix
-            $this->prefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
+            $this->routePrefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
             // Get model and custom request class
             if (!isset($this->DCMS()['model'])){
-                throw new \RuntimeException("No model defined for: ".ucfirst($this->prefix)." in DCMS function.");
+                throw new \RuntimeException("No model defined for: ".ucfirst($this->routePrefix)." in DCMS function.");
             } else {
                 $this->model = $this->DCMS()['model'];
             }
             if (!isset($this->DCMS()['request'])){
-                throw new \RuntimeException("No custom request defined for: ".ucfirst($this->prefix)." in DCMS function.");
+                throw new \RuntimeException("No custom request defined for: ".ucfirst($this->routePrefix)." in DCMS function.");
             } else {
-                $this->modelRequest = $this->DCMS()['request'];
-                $this->modelRequest = (new $this->modelRequest);
+                $this->request = $this->DCMS()['request'];
+                $this->modelRequest = (new $this->request);
             }
             // CRUD views
             $this->indexView = $this->DCMS()['views']['index'] ?? 'index';
@@ -68,15 +67,15 @@ trait DCMSController
             $this->editView = $this->DCMS()['views']['edit'] ?? 'edit';
             $this->createView = $this->DCMS()['views']['create'] ?? 'create';
             // JSON CRUD responses
-            $this->createdUrl = $this->DCMS()['created']['url'] ?? '/'.$this->prefix;
-            $this->createdTitle = $this->DCMS()['created']['title'] ?? __(ucfirst($this->prefix)).__(' ').__('created');
-            $this->createdMessage = $this->DCMS()['created']['message'] ?? __(ucfirst($this->prefix)).__(' ').__('has been successfully created');
-            $this->updatedUrl = $this->DCMS()['updated']['url'] ?? '/'.$this->prefix;
-            $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __(ucfirst($this->prefix)).__(' ').__('updated');
-            $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __(ucfirst($this->prefix)).__(' ').__('has been successfully updated');
-            $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? '/'.$this->prefix;
-            $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __(ucfirst($this->prefix)).__(' ').__('deleted');
-            $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __(ucfirst($this->prefix)).__(' ').__('has been successfully deleted');
+            $this->createdUrl = $this->DCMS()['created']['url'] ?? '/'.$this->routePrefix;
+            $this->createdTitle = $this->DCMS()['created']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('created');
+            $this->createdMessage = $this->DCMS()['created']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully created');
+            $this->updatedUrl = $this->DCMS()['updated']['url'] ?? '/'.$this->routePrefix;
+            $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('updated');
+            $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully updated');
+            $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? '/'.$this->routePrefix;
+            $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('deleted');
+            $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully deleted');
             // jExcel imports
             $this->importCols = $this->DCMS()['import']['columns'] ?? null;
             $this->importFailedTitle = $this->DCMS()['import']['failed']['title'] ?? __('Import failed');
@@ -85,7 +84,7 @@ trait DCMSController
             $this->importEmptyMessage = $this->DCMS()['import']['empty']['message'] ?? __('Please fill in data to import.');
             $this->importFinishedTitle = $this->DCMS()['import']['finished']['title'] ?? __('Import finished');
             $this->importFinishedMessage = $this->DCMS()['import']['finished']['message'] ?? __('All data has been succesfully imported.');
-            $this->importedUrl = $this->DCMS()['imported']['url'] ?? '/'.$this->prefix;
+            $this->importedUrl = $this->DCMS()['imported']['url'] ?? '/'.$this->routePrefix;
             // jExcel autocorrect columns
             $this->autoFixColumns = $this->DCMS()['import']['autocorrect'] ?? null;
         }
@@ -97,7 +96,7 @@ trait DCMSController
             return $this->indexQuery;
         }
         $vars = method_exists($this,'beforeIndex') ? $this->beforeIndex() : null;
-        return view($this->prefix.'.'.$this->indexView)->with($vars);
+        return view($this->routePrefix.'.'.$this->indexView)->with($vars);
     }
 
     public function fetch()
@@ -107,24 +106,28 @@ trait DCMSController
 
     public function show($id)
     {
-        ${$this->prefix} = (new $this->model)->FindOrFail($id);
+        ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
 
         $vars = method_exists($this,'beforeShow') ? $this->beforeShow($id) : null;
-        return view($this->prefix.'.'.$this->showView,compact(${$this->prefix}))->with($vars);
+        return view($this->routePrefix.'.'.$this->showView,compact(${$this->routePrefix}))->with($vars);
     }
 
     public function edit($id)
     {
-        ${$this->prefix} = (new $this->model)->FindOrFail($id);
-
+        ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
+        // Auto generated Form with HTMLTag package
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->DCMS());
+        
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
-        return view($this->prefix.'.'.$this->editView,compact(${$this->prefix}))->with($vars);
+        return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
 
     public function create()
     {
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
-        return view($this->prefix.'.'.$this->createView)->with($vars);
+        // Auto generated Form with HTMLTag package
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->DCMS());
+        return view($this->routePrefix.'.'.$this->createView)->with($vars)->with(['form' => $form]);
     }
 
     public function crud($createdOrUpdated,$id=null)
@@ -193,9 +196,9 @@ trait DCMSController
             }
         }
         if ($createdOrUpdated === 'created'){
-            ${$this->prefix} = (new $this->model)->create($request);
+            ${$this->routePrefix} = (new $this->model)->create($request);
         } else if ($createdOrUpdated === 'updated') {
-            ${$this->prefix} = (new $this->model)->findOrFail($id);
+            ${$this->routePrefix} = (new $this->model)->findOrFail($id);
             // This is for files
             foreach ($request as $requestKey => $requestVal){
                 // If request has an array, and points to storage, merge it with existing array if it has values already
@@ -206,7 +209,7 @@ trait DCMSController
                     }
                     try {
                         // check if object has an array for this already
-                        $existing = ${$this->prefix}->$requestKey;
+                        $existing = ${$this->routePrefix}->$requestKey;
                         if(count($existing) > 0){
                             $newArr = array_merge($existing,$newArr);
                         }
@@ -249,7 +252,7 @@ trait DCMSController
                     $request[$requestKey] = $newArr;
                 }
             }
-            ${$this->prefix}->update($request);
+            ${$this->routePrefix}->update($request);
         }
         if (isset($filesToMove) && count($filesToMove) > 0){
             foreach ($filesToMove as $key => $file) {
@@ -257,7 +260,7 @@ trait DCMSController
                 Storage::delete($file['oldPath']);
             }
         }
-        return $this->DCMSJSON(${$this->prefix},$createdOrUpdated);
+        return $this->DCMSJSON(${$this->routePrefix},$createdOrUpdated);
     }
 
     public function store()
@@ -285,9 +288,9 @@ trait DCMSController
             }
         } else {
             if (request()->ajax()){
-                $redirect = '/'.$this->prefix;
+                $redirect = '/'.$this->routePrefix;
             } else {
-                $redirect = redirect()->route($this->prefix.'.index');
+                $redirect = redirect()->route($this->routePrefix.'.index');
             }
         }
         // Title
