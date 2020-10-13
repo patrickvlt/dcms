@@ -171,8 +171,8 @@ window.DCMSDatatable = function (parameters) {
                                     value = value[0];
                                 }
 
-                                return `<div class="image-input mb-4 mt-4" data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`">
-								<div class="image-input-wrapper `+spotlightClass+`" data-src='`+prepend+value+append+`' style="background-image: url(`+prepend+value+append+`)"></div>
+                                return `<div class="dcmstable-image" data-id='`+useRow.id+`'>
+								<div class="dcmstable-image-wrapper `+spotlightClass+`" data-src='`+prepend+value+append+`' style="background-image: url(`+prepend+value+append+`); max-height:`+column.dataset.ktMaxHeight+`"></div>
 								`+changeControl+`
 								`+deleteControl+`
 							</div>`;

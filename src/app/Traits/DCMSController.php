@@ -117,7 +117,7 @@ trait DCMSController
         ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
         // Auto generated Form with HTMLTag package
         $form = Form::create($this->model,$this->request,$this->routePrefix,$this->DCMS());
-        
+
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
@@ -137,7 +137,7 @@ trait DCMSController
         $uploadRules = method_exists($this->modelRequest,'uploadRules') ? $this->modelRequest->uploadRules() : false;
         $requestRules = method_exists($this->modelRequest,'rules') ? $this->modelRequest->rules() : false;
         $requestMessages = method_exists($this->modelRequest,'messages') ? $this->modelRequest->messages() : false;
-        $beforeValidation = method_exists($this->modelRequest,'beforeValidation') ? $this->modelRequest->beforeValidation() : false;
+        $beforeValidation = method_exists($this->modelRequest,'beforeValidation') ? $this->modelRequest->beforeValidation($requestData) : false;
         if ($beforeValidation){
             foreach ($beforeValidation as $changingKey => $changingValue){
                 $requestData[$changingKey] = $changingValue;
@@ -148,6 +148,20 @@ trait DCMSController
             foreach ($uploadRules as $uploadKey => $uploadRule){
                 $key = explode('.',$uploadKey);
                 $key = $key[0];
+                if (isset($uploadRules[$key.".*"])){
+                    $required = GetRule($uploadRules[$key.".*"],'required') ? true : false;
+                    $hasBeenFilled = array_key_exists($key,array_flip(array_keys($requestData)));
+                    if ($required && !$hasBeenFilled){
+                        return response()->json([
+                            'message' => __('Missing file'),
+                            'errors' => [
+                                'file' => [
+                                    $requestMessages[$uploadKey.'.missingFile'] ?? __('Missing a required file. Please upload a file on this page.')
+                                    ]
+                                ],
+                            ], 422);
+                    }
+                }
                 if (array_key_exists($key, $requestData)){
                     foreach ($requestData[$key] as $x => $file){
                         // Check if file uploads has this applications URL in it
@@ -158,10 +172,10 @@ trait DCMSController
                                 'errors' => [
                                     'file' => [
                                         $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
-                                    ]
-                                ],
-                            ], 422);
-                        }
+                                        ]
+                                    ],
+                                ], 422);
+                            }
                         $checkFile = str_replace(env('APP_URL'),'',$file);
                         $checkFile = str_replace('/storage/','/public/',$checkFile);
                         $storedFile = Storage::exists($checkFile);

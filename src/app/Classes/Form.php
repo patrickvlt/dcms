@@ -24,7 +24,11 @@ class Form extends HtmlTag
     public static function create($model,$request,$routePrefix,$DCMS)
     {
         // $modelColumns = Schema::getColumnListing((new $model())->getTable());
-        $modelRequest = (new $request())->rules();
+        $modelRequest = (new $request())->rules() ?? null;
+        $modelFiles = (new $request())->uploadRules() ?? null;
+        if (!isset($modelRequest)){
+            throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: ".$routePrefix);
+        }
         $table = (new $model())->getTable();
         $builder = DB::getSchemaBuilder();
         $columns = [];
@@ -52,7 +56,26 @@ class Form extends HtmlTag
         ]);
 
         foreach($columns as $column){
-            $definedAttr = $properties[$column['name']] ?? null;
+            $definedAttr = $DCMS['formProperties'][$column['name']] ?? null;
+
+            // Take different steps according to various data-types
+            if (isset($definedAttr['input']['data-type'])){
+                switch ($definedAttr['input']['data-type']) {
+                    case 'filepond':
+                        $definedAttr['input']['type'] = 'file';
+                        $definedAttr['input']['data-filepond-prefix'] = $routePrefix;
+                        $definedAttr['input']['data-filepond-column'] = $column['name'];
+                        $minFiles = (isset($modelRequest[$column['name']])) ? GetRule($modelRequest[$column['name']],'min') : 1;
+                        $maxFiles = (isset($modelRequest[$column['name']])) ? GetRule($modelRequest[$column['name']],'max') : 1;
+                        $maxFileSize = (isset($modelRequest[$column['name'].'*'])) ? GetRule($modelFiles[$column['name'].'*'],'max') : MaxSizeServer('kb');
+                        $definedAttr['input']['data-filepond-min-files'] = $minFiles;
+                        $definedAttr['input']['data-filepond-max-files'] = $maxFiles;
+                        $definedAttr['input']['data-filepond-max-file-size'] = $maxFileSize;
+                        $inputGroup = null;
+                        goto MakeInput;
+                }
+            }
+
             // Form group
             $customAttr = $definedAttr['form-group'] ?? null;
             $formGroup = $form->addElement('div')->attr([
@@ -95,17 +118,27 @@ class Form extends HtmlTag
             }
 
             // Input field
-            $customAttr = $definedAttr['input-group-prepend'] ?? null;
-            $inputType = $definedAttr['type'] ?? 'text';
+            MakeInput:
+            $customAttr = $definedAttr['input'] ?? null;
+            $inputType = $customAttr['type'] ?? 'text';
             $inputPlaceholder = $definedAttr['placeholder'] ?? null;
-            $inputGroup->addElement('input')->attr([
+            $defaultInputAttr = [
                 'id' => $column['name'],
                 'class' => 'form-control',
                 'type' => $inputType,
                 'name' => $column['name'],
                 'placeholder' => __($inputPlaceholder),
                 'value' => Model()->version ?? old('version')
-            ])->attr($customAttr);
+            ];
+
+            // Don't create any divs if this is a filepond input
+            if (isset($definedAttr['input']['data-type']) && $definedAttr['input']['data-type'] == 'filepond'){
+                $defaultInputAttr['class'] = null;
+                $formGroup = $form->addElement('input')->attr($defaultInputAttr)->attr($customAttr);
+            } else {
+                // Default input to insert in the input group
+                $inputGroup->addElement('input')->attr($defaultInputAttr)->attr($customAttr);
+            }
 
             $customSmall = $definedAttr['small'] ?? null;
             if ($customSmall){
@@ -118,21 +151,33 @@ class Form extends HtmlTag
                     $inputSmall->text(__($customText));
                 }
             }
-            
+
         }
         // If creating a model
         if (!Model()){
             $saveRedirect = $DCMS['created']['url'] ?? route($routePrefix.'.index');
             $saveRoute = route($routePrefix.'.store');
             $saveID = null;
-            $saveText = $definedAttr['formButtons']['create']['text'] ?? __('Create');
+            $saveText = $DCMS['formProperties']['formButtons']['create']['text'] ?? __('Create');
+            $saveBtnAttr = $DCMS['formProperties']['formButtons']['create'] ?? null;
         }
         // If updating a model
         else {
             $saveRedirect = $DCMS['updated']['url'] ?? route($routePrefix.'.index');
             $saveRoute = route($routePrefix.'.update',Model()->id);
             $saveID = Model()->id;
-            $saveText = $definedAttr['formButtons']['update']['text'] ?? __('Update');
+            $saveText = $DCMS['formProperties']['formButtons']['update']['text'] ?? __('Update');
+            $saveBtnAttr = $DCMS['formProperties']['formButtons']['update'] ?? null;
+        }
+        // Get custom attributes for save button, dont use text as an attribute
+        $x = 0;
+        if ($saveBtnAttr){
+            foreach ($saveBtnAttr as $key => $attr){
+                if ($key == 'text'){
+                    unset($saveBtnAttr[$x]);
+                }
+                $x++;
+            }
         }
         // Save button
         $saveBtn = self::createElement('button');
@@ -142,10 +187,20 @@ class Form extends HtmlTag
             'data-dcms-id' => $saveID,
             'data-dcms-save-redirect' => $saveRedirect,
             'data-dcms-save-route' => $saveRoute,
-        ]);
+        ])->attr($saveBtnAttr);
         $saveBtn->text(__($saveText));
         $form->addElement($saveBtn);
-
+        // Get custom attributes for delete button, dont use text as an attribute
+        $deleteBtnAttr = $DCMS['formProperties']['formButtons']['delete'] ?? null;
+        $x = 0;
+        if ($deleteBtnAttr){
+            foreach ($deleteBtnAttr as $key => $attr){
+                if ($key == 'text'){
+                    unset($deleteBtnAttr[$x]);
+                }
+                $x++;
+            }
+        }
         // Generate delete button
         if (Model()){
             $form->addElement('br');
@@ -163,7 +218,7 @@ class Form extends HtmlTag
                 'data-dcms-delete-complete-message' => $DCMS['deletedMessage'] ?? __('This object has been succesfully deleted.'),
                 'data-dcms-delete-failed-title' => $DCMS['failedDeleteTitle'] ?? __('Deleting failed'),
                 'data-dcms-delete-failed-message' => $DCMS['failedDeleteMessage'] ?? __('Failed to delete this object. An unknown error has occurred.'),
-            ]);
+            ])->attr($deleteBtnAttr);
             $deleteBtnText = $customAttr['text'] ?? null;
             if ($deleteBtnText){
                 $deleteBtn->text(__($deleteBtnText));
@@ -172,7 +227,8 @@ class Form extends HtmlTag
             }
             $form->addElement($deleteBtn);
         }
-
+        // echo $form;
+        // exit;
         return $form;
     }
 }

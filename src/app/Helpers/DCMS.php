@@ -305,3 +305,15 @@ if (!function_exists('AppendContent')) {
         return $content;
     }
 }
+
+if (!function_exists('GetRule')){
+    function GetRule($field,$ruleToGrab){
+        // Convert rule to array by exploding |, or simply looping if its an array
+        $fieldRules = (is_string($field)) ? explode('|',$field) : $field;
+        foreach ($fieldRules as $key => $rule){
+            if (strpos($rule, $ruleToGrab) === 0){
+                return explode(':',$rule)[1] ?? explode(':',$rule)[0];
+            }
+        }
+    }
+}
