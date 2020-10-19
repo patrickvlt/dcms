@@ -44,7 +44,8 @@ class Form extends HtmlTag
         $form = self::createElement('form')->attr([
             'action' => FormRoute(),
             'method' => 'POST',
-            'data-dcms-action' => 'ajax'
+            'data-dcms-action' => 'ajax',
+            'enctype' => 'multipart/form-data'
         ]);
         $form->addElement('input')->attr([
             'type' => 'hidden',
@@ -143,7 +144,7 @@ class Form extends HtmlTag
                     'type' => $inputType,
                     'name' => $column['name'],
                     'placeholder' => __($inputPlaceholder),
-                    'value' => Model()->version ?? old('version')
+                    'value' => Model()->{$column['name']} ?? old($column['name'])
                 ];
 
                 // Don't create any divs if this is a filepond input
@@ -162,7 +163,7 @@ class Form extends HtmlTag
                 $selectElement = $formGroup->addElement('select')->attr([
                     'id' => $column['name'],
                     'class' => ($multiple) ? 'form-control ss-main-multiple' : 'form-control',
-                    'name' => $column['name'],
+                    'name' => ($multiple) ? $column['name'].'[]' : $column['name'],
                 ])->attr($selectCustomAttr);
                 if (isset($definedAttr['select']['options']['data'])){
                     $optionAttrs = $definedAttr['select']['options'];
@@ -170,7 +171,7 @@ class Form extends HtmlTag
                     unset($optionOptionalAttr['data'],$optionOptionalAttr['primaryKey'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['showKey']);
                     foreach ($optionAttrs['data'] as $key => $data){
                         $option = $selectElement->addElement('option')->attr([
-                            'value' => $optionAttrs['primaryKey'],
+                            'value' => $data['primaryKey'] ?? null,
                         ])->text(__($data->{$optionAttrs['showKey']}));
                         try {
                             $selected = false;
