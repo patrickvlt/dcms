@@ -274,6 +274,7 @@ class Form extends HtmlTag
 
         // Get custom attributes for delete button, dont use text as an attribute
         $deleteBtnAttr = $DCMS['formProperties']['formButtons']['delete'] ?? null;
+        $deleteBtnText = $DCMS['formProperties']['formButtons']['delete']['text'] ?? null;
         $x = 0;
         if ($deleteBtnAttr) {
             foreach ($deleteBtnAttr as $key => $attr) {
@@ -302,7 +303,6 @@ class Form extends HtmlTag
                 'data-dcms-delete-failed-title' => $DCMS['failedDeleteTitle'] ?? __('Deleting failed'),
                 'data-dcms-delete-failed-message' => $DCMS['failedDeleteMessage'] ?? __('Failed to delete this object. An unknown error has occurred.'),
             ])->attr($deleteBtnAttr);
-            $deleteBtnText = $customAttr['text'] ?? null;
             if ($deleteBtnText) {
                 $deleteBtn->text(__($deleteBtnText));
             } else {
