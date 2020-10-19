@@ -65,13 +65,18 @@ class Form extends HtmlTag
 
             $makeInput = true;
             $makeSelect = false;
+            $makeCheckbox = false;
 
             $definedAttr = $DCMS['formProperties'][$column['name']] ?? null;
-
             // Take different steps according to various data-types
             if (isset($definedAttr['select'])) {
                 $makeInput = false;
                 $makeSelect = true;
+            }
+            if (isset($definedAttr['checkbox'])) {
+                $makeInputGroup = false;
+                $makeInput = false;
+                $makeCheckbox = true;
             }
             if (isset($definedAttr['input']['data-type'])) {
                 switch ($definedAttr['input']['data-type']) {
@@ -86,7 +91,6 @@ class Form extends HtmlTag
                         $definedAttr['input']['data-filepond-max-files'] = $maxFiles;
                         $definedAttr['input']['data-filepond-max-file-size'] = $maxFileSize;
                         $definedAttr['input']['class'] = null;
-                        $makeFormGroup = false;
                         $makeInputGroup = false;
                     break;
                     case 'slimselect':
@@ -189,6 +193,30 @@ class Form extends HtmlTag
                         }
                     }
                 }
+            } else if ($makeCheckbox) {
+                $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check']);
+                $checkboxCustomAttr = $definedAttr['checkbox'] ?? null;
+                $checkboxText = $definedAttr['checkbox']['text'] ?? null;
+                $checkboxLabelCustomAttr = $definedAttr['checkbox']['label'] ?? null;
+                $hiddenBox = $addToEl->addElement('input')->attr([
+                    'name' => $column['name'],
+                    'type' => 'checkbox',
+                    'value' => '0',
+                    'checked' => 'checked',
+                    'style' => 'display:none',
+                    'id' => $column['name'].'Box1'
+                ]);
+                $visibleBox = $addToEl->addElement('input')->attr([
+                    'name' => $column['name'],
+                    'class' => 'form-check-input',
+                    'type' => 'checkbox',
+                    'value' => '1',
+                    'id' => $column['name'].'Box2'
+                ])->attr($checkboxCustomAttr);
+                $boxLabel = $addToEl->addElement('label')->attr([
+                    'class' => 'form-check-label',
+                    'for' => $column['name'].'Box2'
+                ])->attr($checkboxLabelCustomAttr)->text(__($checkboxText));
             }
 
             // Small text
