@@ -36,7 +36,7 @@ window.DCMSDatatable = function (parameters) {
 
             $.each(tableColumns, function (index, column) {
 
-                let textColor, value, spotlightClass, prepend, append, target, useRow, sortable;
+                let textColor, value, spotlightClass, prepend, append, target, useRow, sortable, columnField;
 
                 if (column.dataset.ktSortable == 'false'){
                     sortable = false;
@@ -47,8 +47,17 @@ window.DCMSDatatable = function (parameters) {
                     sortable = true;
                 }
 
+                if (column.dataset.ktType == 'object' && column.dataset.ktObject){
+                    columnField = column.dataset.ktObject+"."+column.dataset.ktColum;
+                } else if (column.dataset.ktField) {
+                    columnField = column.dataset.ktField;
+                } else {
+                    columnField = column.dataset.ktColumn;
+                }
+
                 let newColumn = {
-                    field: column.dataset.ktColumn,
+                    
+                    field: (column.dataset.ktType == 'object' && column.dataset.ktObject) ? column.dataset.ktObject+"."+column.dataset.ktColumn : column.dataset.ktColumn,
                     title: column.dataset.ktTitle,
                     order: column.dataset.ktOrder,
                     width: column.dataset.ktWidth,

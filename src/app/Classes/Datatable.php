@@ -48,19 +48,15 @@ class Datatable
             }
         }
 
-        // Sort columns
+        $data = $this->query->get();
+
         if (isset($params['sort'])) {
             // orderBy(field,asc)
-            $this->query->orderBy($params['sort']['field'],$params['sort']['sort']);
+            $sortBy = ($params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
+            $data = $data->{$sortBy}($params['sort']['field']);
         }
 
-        // Query may already have been executed dynamically
-        try {
-            $data = $this->query->toArray();
-        } catch (\Exception $e) {
-            // If query hasnt been executed yet
-            $data = $this->query->get()->toArray();
-        }
+        $data = array_values($data->toArray());
 
         // Perform general search on remaining results
         if (isset($params['query']['generalSearch'])){
@@ -128,6 +124,8 @@ class Datatable
                 'pages' => $pages,
                 'perpage' => $perPage,
                 'total' => $total,
+                'sort' => $params['sort']['sort'] ?? null,
+                'field' => $params['sort']['field'] ?? null,
             ];
         } else {
             // Return all data if no pagination parameters are present
