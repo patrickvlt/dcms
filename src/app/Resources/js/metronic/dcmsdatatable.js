@@ -271,6 +271,23 @@ window.DCMSDatatable = function (parameters) {
                     scroll: (table.dataset.ktScrolling) == 'false' ? false : true, // enable/disable datatable scroll both horizontal and vertical when needed.
                     height: parseInt(table.dataset.ktHeight), // datatable's body's fixed height
                     footer: false, // display/hide footer
+                    icons: {
+                        sort: {
+                            asc: 'fas fa-arrow-up',
+                            desc: 'fas fa-arrow-down',
+                        },
+                        pagination: {
+                            next: 'fas fa-angle-right',
+                            prev: 'fas fa-angle-left',
+                            first: 'fas fa-angle-double-left',
+                            last: 'fas fa-angle-double-right',
+                            more: 'fas fa-ellipsis-h',
+                        },
+                        rowDetail: {
+                            expand: 'fas fa-caret-down',
+                            collapse: 'fas fa-caret-right'
+                        }
+                    },
                 },
 
                 // column sorting
