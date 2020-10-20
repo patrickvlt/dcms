@@ -44,7 +44,8 @@ class Form extends HtmlTag
         $form = self::createElement('form')->attr([
             'action' => FormRoute(),
             'method' => 'POST',
-            'data-dcms-action' => 'ajax'
+            'data-dcms-action' => 'ajax',
+            'enctype' => 'multipart/form-data'
         ]);
         $form->addElement('input')->attr([
             'type' => 'hidden',
@@ -58,15 +59,24 @@ class Form extends HtmlTag
         ]);
 
         foreach ($columns as $column) {
-            $noDivs = false;
+            $makeFormGroup = true;
+            $makeLabel = true;
+            $makeInputGroup = true;
+
             $makeInput = true;
             $makeSelect = false;
-            $definedAttr = $DCMS['formProperties'][$column['name']] ?? null;
+            $makeCheckbox = false;
 
+            $definedAttr = $DCMS['formProperties'][$column['name']] ?? null;
             // Take different steps according to various data-types
             if (isset($definedAttr['select'])) {
                 $makeInput = false;
                 $makeSelect = true;
+            }
+            if (isset($definedAttr['checkbox'])) {
+                $makeInputGroup = false;
+                $makeInput = false;
+                $makeCheckbox = true;
             }
             if (isset($definedAttr['input']['data-type'])) {
                 switch ($definedAttr['input']['data-type']) {
@@ -80,60 +90,64 @@ class Form extends HtmlTag
                         $definedAttr['input']['data-filepond-min-files'] = $minFiles;
                         $definedAttr['input']['data-filepond-max-files'] = $maxFiles;
                         $definedAttr['input']['data-filepond-max-file-size'] = $maxFileSize;
-                        $noDivs = true;
-                        goto MakeLabel;
+                        $definedAttr['input']['class'] = null;
+                        $makeInputGroup = false;
+                    break;
                     case 'slimselect':
                         $makeInput = false;
                         $makeSelect = true;
+                    break;
                 }
             }
+
             // Form group
-            $customAttr = $definedAttr['form-group'] ?? null;
-            $formGroup = $form->addElement('div')->attr([
-                'class' => 'form-group',
-            ])->attr($customAttr);
+            if($makeFormGroup){
+                $customAttr = $definedAttr['form-group'] ?? null;
+                $formGroup = $form->addElement('div')->attr([
+                    'class' => 'form-group',
+                ])->attr($customAttr);
+            }
 
             // Label
-            MakeLabel:
-            $customAttr = $definedAttr['label'] ?? null;
-            $label = $formGroup->addElement('label')->attr([
-                'for' => $column['name'],
-            ])->attr($customAttr);
-            $labelText = $definedAttr['label']['text'] ?? null;
-            if ($labelText) {
-                $label->text(__(ucfirst($labelText)));
-            } else {
-                $label->text(__(ucfirst($column['name'])));
-            }
-            if ($noDivs == true) {
-                goto MakeInput;
+            if ($makeLabel){
+                $customAttr = $definedAttr['label'] ?? null;
+                $label = $formGroup->addElement('label')->attr([
+                    'for' => $column['name'],
+                ])->attr($customAttr);
+                $labelText = $definedAttr['label']['text'] ?? null;
+                if ($labelText) {
+                    $label->text(__(ucfirst($labelText)));
+                } else {
+                    $label->text(__(ucfirst($column['name'])));
+                }
             }
 
             // Input group
-            $inputGrCustomAttr = $definedAttr['input-group'] ?? null;
-            $inputGroup = $formGroup->addElement('div')->attr([
-                'class' => 'input-group',
-            ])->attr($inputGrCustomAttr);
-
-            // Input group prepend
-            $inputPrepend = $definedAttr['input-group-prepend'] ?? null;
-            if ($inputPrepend) {
-                $inputPrepend = $inputGroup->addElement('div')->attr([
-                    'class' => 'input-group-prepend',
-                ])->addElement('span')->attr([
-                    'class' => 'input-group-text',
-                ]);
-                $inputText = $definedAttr['input-group-prepend']['text'] ?? null;
-                $inputIcon = $definedAttr['input-group-prepend']['icon'] ?? null;
-                if ($inputText && !$inputIcon) {
-                    $inputPrepend->text(__($inputText));
-                } else if ($inputIcon && !$inputText) {
-                    $inputPrepend->addElement('i')->attr($inputIcon);
+            if($makeInputGroup){
+                $inputGrCustomAttr = $definedAttr['input-group'] ?? null;
+                $inputGroup = $formGroup->addElement('div')->attr([
+                    'class' => 'input-group',
+                ])->attr($inputGrCustomAttr);
+                // Input group prepend
+                $inputPrepend = $definedAttr['input-group-prepend'] ?? null;
+                if ($inputPrepend) {
+                    $inputPrepend = $inputGroup->addElement('div')->attr([
+                        'class' => 'input-group-prepend',
+                    ])->addElement('span')->attr([
+                        'class' => 'input-group-text',
+                    ]);
+                    $inputText = $definedAttr['input-group-prepend']['text'] ?? null;
+                    $inputIcon = $definedAttr['input-group-prepend']['icon'] ?? null;
+                    if ($inputText && !$inputIcon) {
+                        $inputPrepend->text(__($inputText));
+                    } else if ($inputIcon && !$inputText) {
+                        $inputPrepend->addElement('i')->attr($inputIcon);
+                    }
                 }
             }
+
+            // Input field
             if ($makeInput) {
-                // Input field
-                MakeInput:
                 $inputCustomAttr = $definedAttr['input'] ?? null;
                 $inputType = $inputCustomAttr['type'] ?? 'text';
                 $inputPlaceholder = $definedAttr['placeholder'] ?? null;
@@ -143,55 +157,69 @@ class Form extends HtmlTag
                     'type' => $inputType,
                     'name' => $column['name'],
                     'placeholder' => __($inputPlaceholder),
-                    'value' => Model()->version ?? old('version')
+                    'value' => Model()->{$column['name']} ?? old($column['name'])
                 ];
-
-                // Don't create any divs if this is a filepond input
-                if (isset($definedAttr['input']['data-type']) && $definedAttr['input']['data-type'] == 'filepond') {
-                    $defaultInputAttr['class'] = null;
-                    $formGroup = $formGroup->addElement('input')->attr($defaultInputAttr)->attr($inputCustomAttr);
-                } else {
-                    // Default input to insert in the input group
-                    $inputGroup->addElement('input')->attr($defaultInputAttr)->attr($inputCustomAttr);
-                }
+                $addToEl = ($makeInputGroup) ? $inputGroup : $formGroup;
+                $addToEl->addElement('input')->attr($defaultInputAttr)->attr($inputCustomAttr);
+            // Select element
             } else if ($makeSelect) {
-                // Select element
                 $selectCustomAttr = $definedAttr['select'];
                 unset($selectCustomAttr['options']);
                 $multiple = (in_array('multiple',array_keys($selectCustomAttr))) ? true : false;
                 $selectElement = $formGroup->addElement('select')->attr([
                     'id' => $column['name'],
                     'class' => ($multiple) ? 'form-control ss-main-multiple' : 'form-control',
-                    'name' => $column['name'],
+                    'name' => ($multiple) ? $column['name'].'[]' : $column['name'],
                 ])->attr($selectCustomAttr);
+                // Options in select element
                 if (isset($definedAttr['select']['options']['data'])){
                     $optionAttrs = $definedAttr['select']['options'];
                     $optionOptionalAttr = $optionAttrs;
                     unset($optionOptionalAttr['data'],$optionOptionalAttr['primaryKey'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['showKey']);
                     foreach ($optionAttrs['data'] as $key => $data){
                         $option = $selectElement->addElement('option')->attr([
-                            'value' => $optionAttrs['primaryKey'],
+                            'value' => $data['primaryKey'] ?? null,
                         ])->text(__($data->{$optionAttrs['showKey']}));
-                        try {
-                            $selected = false;
-                            $dataValue = $data->{$optionAttrs['primaryKey']};
-                            $modelValue = Model()->{$optionAttrs['foreignKey']};
-                            if (is_array($modelValue)){
-                                foreach($modelValue as $modelValueRow){
-                                    if ($modelValueRow == $dataValue){
-                                        $option->attr(['selected' => 'selected']);
-                                    }
+                        $dataValue = $data->{$optionAttrs['primaryKey']};
+                        $modelValue = Model()->{$optionAttrs['foreignKey']};
+                        if (is_array($modelValue)){
+                            foreach($modelValue as $modelValueRow){
+                                if ($modelValueRow == $dataValue){
+                                    $option->attr(['selected' => 'selected']);
                                 }
-                            } else if ($modelValue == $dataValue) {
-                                $option->attr(['selected' => 'selected']);
                             }
-                        } catch (\Exception $e) {
-                            dd($e);
+                        } else if ($modelValue == $dataValue) {
+                            $option->attr(['selected' => 'selected']);
                         }
                     }
                 }
+            } else if ($makeCheckbox) {
+                $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check']);
+                $checkboxCustomAttr = $definedAttr['checkbox'] ?? null;
+                $checkboxText = $definedAttr['checkbox']['text'] ?? null;
+                $checkboxLabelCustomAttr = $definedAttr['checkbox']['label'] ?? null;
+                $hiddenBox = $addToEl->addElement('input')->attr([
+                    'name' => $column['name'],
+                    'type' => 'checkbox',
+                    'value' => '0',
+                    'checked' => 'checked',
+                    'style' => 'display:none',
+                    'id' => $column['name'].'Box1'
+                ]);
+                $visibleBox = $addToEl->addElement('input')->attr([
+                    'name' => $column['name'],
+                    'class' => 'form-check-input',
+                    'type' => 'checkbox',
+                    'value' => '1',
+                    'id' => $column['name'].'Box2'
+                ])->attr($checkboxCustomAttr);
+                $boxLabel = $addToEl->addElement('label')->attr([
+                    'class' => 'form-check-label',
+                    'for' => $column['name'].'Box2'
+                ])->attr($checkboxLabelCustomAttr)->text(__($checkboxText));
             }
 
+            // Small text
             $customSmall = $definedAttr['small'] ?? null;
             if ($customSmall) {
                 $customText = $customSmall['text'] ?? null;
@@ -204,7 +232,8 @@ class Form extends HtmlTag
                 }
             }
         }
-        // If creating a model
+
+        // Save button: If creating a model
         if (!Model()) {
             $saveRedirect = $DCMS['created']['url'] ?? route($routePrefix . '.index');
             $saveRoute = route($routePrefix . '.store');
@@ -212,7 +241,7 @@ class Form extends HtmlTag
             $saveText = $DCMS['formProperties']['formButtons']['create']['text'] ?? __('Create');
             $saveBtnAttr = $DCMS['formProperties']['formButtons']['create'] ?? null;
         }
-        // If updating a model
+        // Save button: If updating a model
         else {
             $saveRedirect = $DCMS['updated']['url'] ?? route($routePrefix . '.index');
             $saveRoute = route($routePrefix . '.update', Model()->id);
@@ -230,6 +259,7 @@ class Form extends HtmlTag
                 $x++;
             }
         }
+
         // Save button
         $saveBtn = self::createElement('button');
         $saveBtn->attr([
@@ -241,8 +271,10 @@ class Form extends HtmlTag
         ])->attr($saveBtnAttr);
         $saveBtn->text(__($saveText));
         $form->addElement($saveBtn);
+
         // Get custom attributes for delete button, dont use text as an attribute
         $deleteBtnAttr = $DCMS['formProperties']['formButtons']['delete'] ?? null;
+        $deleteBtnText = $DCMS['formProperties']['formButtons']['delete']['text'] ?? null;
         $x = 0;
         if ($deleteBtnAttr) {
             foreach ($deleteBtnAttr as $key => $attr) {
@@ -252,7 +284,8 @@ class Form extends HtmlTag
                 $x++;
             }
         }
-        // Generate delete button
+
+        // Delete button
         if (Model()) {
             $form->addElement('br');
             $deleteBtn = self::createElement('button');
@@ -270,7 +303,6 @@ class Form extends HtmlTag
                 'data-dcms-delete-failed-title' => $DCMS['failedDeleteTitle'] ?? __('Deleting failed'),
                 'data-dcms-delete-failed-message' => $DCMS['failedDeleteMessage'] ?? __('Failed to delete this object. An unknown error has occurred.'),
             ])->attr($deleteBtnAttr);
-            $deleteBtnText = $customAttr['text'] ?? null;
             if ($deleteBtnText) {
                 $deleteBtn->text(__($deleteBtnText));
             } else {

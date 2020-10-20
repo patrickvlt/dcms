@@ -152,14 +152,17 @@ trait DCMSController
                     $required = GetRule($uploadRules[$key.".*"],'required') ? true : false;
                     $hasBeenFilled = array_key_exists($key,array_flip(array_keys($requestData)));
                     if ($required && !$hasBeenFilled){
-                        return response()->json([
-                            'message' => __('Missing file'),
-                            'errors' => [
-                                'file' => [
-                                    $requestMessages[$uploadKey.'.missingFile'] ?? __('Missing a required file. Please upload a file on this page.')
-                                    ]
-                                ],
-                            ], 422);
+                        $existingRecord = (Model() && Model()->{$key}) ? Model()->{$key} : false;
+                        if (!$existingRecord){
+                            return response()->json([
+                                'message' => __('Missing file'),
+                                'errors' => [
+                                    'file' => [
+                                        $requestMessages[$uploadKey.'.missingFile'] ?? __('Missing a required file. Please upload a file on this page.')
+                                        ]
+                                    ],
+                                ], 422);
+                        }
                     }
                 }
                 if (array_key_exists($key, $requestData)){
