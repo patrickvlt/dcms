@@ -36,7 +36,7 @@ window.DCMSDatatable = function (parameters) {
 
             $.each(tableColumns, function (index, column) {
 
-                let textColor, value, spotlightClass, prepend, append, target, useRow, sortable, columnField;
+                let textColor, value, spotlightClass, prepend, append, target, useRow, sortable, columnField, splitColumns, eagerColumns;
 
                 if (column.dataset.ktSortable == 'false'){
                     sortable = false;
@@ -66,15 +66,23 @@ window.DCMSDatatable = function (parameters) {
                     sortable: sortable,
                     align: (column.dataset.ktAlign) ? column.dataset.ktAlign : 'center',
                     template: function (row) {
+                        useRow = row;
                         if (typeof column.dataset.ktObject !== 'undefined' && row[column.dataset.ktObject] !== null){
                             useRow = row[column.dataset.ktObject];
+                        } 
+                        
+                        if (column.dataset.ktColumn.split('.').length > 1){
+                            eagerColumns = '';
+                            splitColumns = column.dataset.ktColumn.split('.');
+                            splitColumns.map((column) => {
+                                eagerColumns += "['"+column+"']";
+                            })
+                            value = eval('row'+eagerColumns);
                         } else {
-                            useRow = row;
+                            value = useRow[column.dataset.ktColumn];
                         }
 
-                        value = useRow[column.dataset.ktColumn];
                         value = (typeof value == 'undefined' || value == null) ? '' : value;
-
                         prepend = (typeof column.dataset.ktPrepend !== 'undefined' && column.dataset.ktPrepend !== null) ? column.dataset.ktPrepend : '';
                         append = (typeof column.dataset.ktAppend !== 'undefined' && column.dataset.ktAppend !== null) ? column.dataset.ktAppend : '';
 
@@ -196,9 +204,9 @@ window.DCMSDatatable = function (parameters) {
                 columns.push(newColumn);
             });
 
-            if (typeof parameters.customColumns !== 'undefined' && parameters.customColumns !== null) {
-                $.each(parameters.customColumns, function (key, customCol) {
-                    columns.push(customCol);
+            if (typeof parameters.columns !== 'undefined' && parameters.columns !== null) {
+                $.each(parameters.columns, function (key, paraColumn) {
+                    columns.push(paraColumn);
                 });
             }
 
@@ -279,7 +287,12 @@ window.DCMSDatatable = function (parameters) {
                 layout: {
                     scroll: (table.dataset.ktScrolling) == 'false' ? false : true, // enable/disable datatable scroll both horizontal and vertical when needed.
                     height: parseInt(table.dataset.ktHeight), // datatable's body's fixed height
-                    footer: false, // display/hide footer
+                    footer: false,
+                    spinner: {
+                        state: 'brand',
+                        type: false,
+                        message: false
+                    },
                     icons: {
                         sort: {
                             asc: 'fas fa-arrow-up',
