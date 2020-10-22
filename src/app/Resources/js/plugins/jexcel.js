@@ -2,6 +2,7 @@
 
 hasLoaded(['jexcel'],function(){
     var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table;
+    window.jExcelTables = [];
 
     if (document.querySelectorAll('[data-type=jexcel]').length > 0){
         jExcelTrans = {

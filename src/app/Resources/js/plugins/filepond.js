@@ -1,7 +1,7 @@
 if (document.querySelectorAll('[data-type=filepond]').length > 0) {
 
     hasLoaded(['FilePond','FilePondPluginImagePreview','FilePondPluginFileValidateSize'],function(){
-
+        window.ponds = [];
         /**
          *
          *  Register any plugins
