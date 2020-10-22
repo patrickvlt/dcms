@@ -194,6 +194,33 @@ class Form extends HtmlTag
                     }
                 }
             } else if ($makeCheckbox) {
+                // Check if checkboxes have been defined
+                $checkboxes = $definedAttr['checkbox'];
+                if (isset($checkboxes)){
+                    foreach ($checkboxes as $x => $checkbox){
+                        $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check']);
+                        $checkboxText = $checkbox['text'] ?? null;
+                        $checkboxValue = $checkbox['value'] ?? null;
+                        $inputCustomAttr = $checkbox['input'] ?? null;
+                        $labelCustomAttr = $checkbox['label'] ?? null;
+                        $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $checkboxValue) || old($column['name']) == $checkboxValue) ? 'checked' : null;
+                        
+                        $boxInput = $addToEl->addElement('input')->attr([
+                            'name' => count($checkboxes) <= 1 ? $column['name'] : $column['name'].'[]',
+                            'class' => 'form-check-input',
+                            'type' => 'checkbox',
+                            $checked,
+                            'value' => $checkboxValue ?? new \RuntimeException("Define a text and value for each checkbox."),
+                            'id' => $column['name'].'Box'.$x
+                        ])->attr($inputCustomAttr);
+                        
+                        $boxLabel = $addToEl->addElement('label')->attr([
+                            'class' => 'form-check-label',
+                            'for' => $column['name'].'Box'.$x
+                        ])->attr($labelCustomAttr)->text(__($checkboxText));
+                    }
+                }
+            } else if (isset($makeRadio)) {
                 $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check']);
                 $checkboxCustomAttr = $definedAttr['checkbox'] ?? null;
                 $checkboxText = $definedAttr['checkbox']['text'] ?? null;
