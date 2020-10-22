@@ -121,8 +121,6 @@ class Form extends HtmlTag
                 $labelText = $definedAttr['label']['text'] ?? null;
                 if ($labelText) {
                     $label->text(__(ucfirst($labelText)));
-                } else {
-                    $label->text(__(ucfirst($column['name'])));
                 }
             }
 
@@ -199,29 +197,37 @@ class Form extends HtmlTag
                 }
             } else if ($makeCheckbox || $makeRadio) {
                 // Check if checkboxes have been defined
-                $elements = ($makeCheckbox) ? $definedAttr['checkbox'] : $definedAttr['radio'];
-                if (isset($elements)){
-                    foreach ($elements as $x => $element){
-                        $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check']);
-                        $elementText = $element['text'] ?? null;
-                        $elementValue = $element['value'] ?? null;
-                        $inputCustomAttr = $element['input'] ?? null;
-                        $labelCustomAttr = $element['label'] ?? null;
-                        $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $elementValue) || old($column['name']) == $elementValue) ? 'checked' : null;
-                        
-                        $boxInput = $addToEl->addElement('input')->attr([
-                            'name' => (count($elements) <= 1 || $makeRadio) ? $column['name'] : $column['name'].'[]',
-                            'class' => 'form-check-input',
-                            'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
-                            $checked,
-                            'value' => $elementValue ?? new \RuntimeException("Define a text and value for each checkbox/radio."),
-                            'id' => $column['name'].'Box'.$x
-                        ])->attr($inputCustomAttr);
-                        
-                        $boxLabel = $addToEl->addElement('label')->attr([
-                            'class' => 'form-check-label',
-                            'for' => $column['name'].'Box'.$x
-                        ])->attr($labelCustomAttr)->text(__($elementText));
+                $properties = ($makeCheckbox) ? $definedAttr['checkbox'] : $definedAttr['radio'];
+                if (isset($properties)){
+                    $customParentElAttr = [];
+                    foreach ($properties as $propKey => $property){
+                        if (!is_array($property)){
+                            $customParentElAttr[$propKey] = $property;
+                        }
+                    }
+                    foreach ($properties as $x => $property){
+                        if (is_array($property)){
+                            $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check'])->attr($customParentElAttr);
+                            $propertyText = $property['text'] ?? null;
+                            $propertyValue = $property['value'] ?? null;
+                            $inputCustomAttr = $property['input'] ?? null;
+                            $labelCustomAttr = $property['label'] ?? null;
+                            $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $propertyValue) || old($column['name']) == $propertyValue) ? 'checked' : null;
+
+                            $boxInput = $addToEl->addElement('input')->attr([
+                                'name' => (count($properties) <= 1 || $makeRadio) ? $column['name'] : $column['name'].'[]',
+                                'class' => 'form-check-input',
+                                'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
+                                $checked,
+                                'value' => $propertyValue ?? new \RuntimeException("Define a text and value for each checkbox/radio."),
+                                'id' => $column['name'].'Box'.$x
+                            ])->attr($inputCustomAttr);
+
+                            $boxLabel = $addToEl->addElement('label')->attr([
+                                'class' => 'form-check-label',
+                                'for' => $column['name'].'Box'.$x
+                            ])->attr($labelCustomAttr)->text(__($propertyText));
+                        }
                     }
                 }
             }
