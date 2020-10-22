@@ -79,12 +79,20 @@
 }
 
 .toast-top-right {
-    top: 130px;
+    position: fixed;
+    // Offset from the top
+    // top: 100px;
 }
 
-.toast {
-    opacity: 1 !important;
+#toast-container > div {
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
 }
+
+// Fix fade animation
+// .toast {
+//     opacity: 1 !important;
+// }
 
 .jexcel {
     table-layout: auto;
@@ -99,4 +107,3 @@
     height: 24px;
     margin-left: -1px;
 }
-

@@ -7,7 +7,6 @@
 var dcmsConfig;
 try {
     dcmsConfig = require('../../../dcms.json');
-    window.dcmsConfig = dcmsConfig;
 } catch (error){
     dcmsConfig = {};
 }
@@ -54,52 +53,52 @@ window.LoadCSS = function(plugin,pluginPath='cdn') {
     }
 }
 
-if (typeof axios == 'undefined' && (dcmsConfig.plugins.axios && dcmsConfig.plugins.axios.enable !== false)){
+if (dcmsConfig.plugins.axios && dcmsConfig.plugins.axios.enable !== false){
     LoadJS('axios',dcmsConfig.plugins.axios);
 }
 
-if (typeof Vue == 'undefined' && (dcmsConfig.plugins.vue && dcmsConfig.plugins.vue.enable !== false)){
+if (dcmsConfig.plugins.vue && dcmsConfig.plugins.vue.enable !== false){
     LoadJS('Vue',dcmsConfig.plugins.vue);
 }
 
-if (typeof Swal == 'undefined' && (dcmsConfig.plugins.sweetalert2 && dcmsConfig.plugins.sweetalert2.enable !== false)){
+if (dcmsConfig.plugins.sweetalert2 && dcmsConfig.plugins.sweetalert2.enable !== false){
     LoadJS('Swal',dcmsConfig.plugins.sweetalert2);
 }
 
-if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr && dcmsConfig.plugins.toastr.enable !== false)){
+if (dcmsConfig.plugins.toastr && dcmsConfig.plugins.toastr.enable !== false){
     LoadCSS(dcmsConfig.plugins.toastr);
     LoadJS('toastr',dcmsConfig.plugins.toastr);
 }
 
-if (typeof SlimSelect == 'undefined' && document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)){
+if (document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)){
     LoadCSS(dcmsConfig.plugins.slimselect);
     LoadJS('SlimSelect',dcmsConfig.plugins.slimselect);
 }
 
-if (typeof datepicker == 'undefined' && document.querySelectorAll('[data-type=datepicker]').length > 0 && (dcmsConfig.plugins.datepicker && dcmsConfig.plugins.datepicker.enable !== false)){
+if (document.querySelectorAll('[data-type=datepicker]').length > 0 && (dcmsConfig.plugins.datepicker && dcmsConfig.plugins.datepicker.enable !== false)){
     LoadCSS(dcmsConfig.plugins.datepicker);
     LoadJS('datepicker',dcmsConfig.plugins.datepicker);
 }
 
-if (typeof clockpicker == 'undefined' && document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker && dcmsConfig.plugins.clockpicker !== false)){
+if (document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker && dcmsConfig.plugins.clockpicker !== false)){
     LoadCSS(dcmsConfig.plugins.clockpicker);
     LoadJS('clockpicker',dcmsConfig.plugins.clockpicker);
 }
 
-if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel && dcmsConfig.plugins.jexcel !== false)){
+if (document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel && dcmsConfig.plugins.jexcel !== false)){
     LoadCSS(dcmsConfig.plugins.jexcel);
     LoadJS('jexcel',dcmsConfig.plugins.jexcel);
 }
-if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites && dcmsConfig.plugins.jsuites !== false)){
+if (document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites && dcmsConfig.plugins.jsuites !== false)){
     LoadCSS(dcmsConfig.plugins.jsuites);
     LoadJS('jsuites',dcmsConfig.plugins.jsuites);
 }
 
-if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa !== false)){
+if (dcmsConfig.plugins.Papa && dcmsConfig.plugins.papa !== false){
     LoadJS('Papa',dcmsConfig.plugins.papa,'local');
 }
 
-if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond && dcmsConfig.plugins.filepond !== false)){
+if (document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond && dcmsConfig.plugins.filepond !== false)){
     LoadCSS(dcmsConfig.plugins.filepond);
     LoadJS('FilePond',dcmsConfig.plugins.filepond);
     LoadCSS(dcmsConfig.plugins.filepondImagePreview);
@@ -107,7 +106,7 @@ if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=file
     LoadJS('FilePondPluginFileValidateSize',dcmsConfig.plugins.filepondValidateSize);
 }
 
-if (typeof tinymce == 'undefined' && document.querySelectorAll('[data-type=tinymce]').length > 0 && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)){
+if (document.querySelectorAll('[data-type=tinymce]').length > 0 && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)){
     LoadJS('tinymce',dcmsConfig.plugins.tinymce,'local');
 }
 
@@ -331,32 +330,34 @@ window.HttpReq = function (formMethod, formAction, formData) {
 
 let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
 function SubmitAjax(e) {
-    if (typeof tinymce !== 'undefined'){
+    try {
         tinyMCE.triggerSave();
+    } catch (error) {
+        
     }
     let formAction = e.target.action;
     let formMethod = e.target.method;
     let formData = new FormData(e.target);
-    if (document.querySelectorAll('.filepond--file').length > 0) {
-        let loopedNames = [];
-        let namesToLoop = [];
-        Array.from(window.fileArray).forEach(function (fileWindow) {
-            namesToLoop.push(fileWindow.input);
-        });
-        namesToLoop.forEach(function (name) {
-            if (!loopedNames.includes(name)) {
-                loopedNames.push(name);
-            }
-        });
-        loopedNames.forEach(function (name) {
-            let curInputs = document.getElementsByName(name);
-            let curFiles = [];
-            formData.delete(name);
-            curInputs.forEach(function (input) {
-                formData.append(name, input.value);
-            })
-        });
-    }
+    // if (document.querySelectorAll('.filepond--file').length > 0) {
+    //     let loopedNames = [];
+    //     let namesToLoop = [];
+    //     Array.from(window.fileArray).forEach(function (fileWindow) {
+    //         namesToLoop.push(fileWindow.input);
+    //     });
+    //     namesToLoop.forEach(function (name) {
+    //         if (!loopedNames.includes(name)) {
+    //             loopedNames.push(name);
+    //         }
+    //     });
+    //     loopedNames.forEach(function (name) {
+    //         let curInputs = document.getElementsByName(name);
+    //         let curFiles = [];
+    //         formData.delete(name);
+    //         curInputs.forEach(function (input) {
+    //             formData.append(name, input.value);
+    //         })
+    //     });
+    // }
     let formRequest = HttpReq(formMethod, formAction, formData);
 }
 ajaxForms.forEach(element =>
