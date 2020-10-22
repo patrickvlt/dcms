@@ -219,7 +219,7 @@ class Form extends HtmlTag
                                 'class' => 'form-check-input',
                                 'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
                                 $checked,
-                                'value' => $propertyValue ?? new \RuntimeException("Define a text and value for each checkbox/radio."),
+                                'value' => $propertyValue ?? '',
                                 'id' => $column['name'].'Box'.$x
                             ])->attr($inputCustomAttr);
 
