@@ -15,7 +15,7 @@ window.DCMSDatatable = function (parameters) {
                 window.KTDebug = true;
             }
 
-            if (table.dataset.ktIncludeSelector !== 'false') {
+            if (table.dataset.ktIncludeSelector == 'true') {
                 columns.push({
                     field: '',
                     title: '',
