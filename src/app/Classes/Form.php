@@ -66,6 +66,7 @@ class Form extends HtmlTag
             $makeInput = true;
             $makeSelect = false;
             $makeCheckbox = false;
+            $makeRadio = false;
 
             $definedAttr = $DCMS['formProperties'][$column['name']] ?? null;
             // Take different steps according to various data-types
@@ -212,10 +213,12 @@ class Form extends HtmlTag
                             $propertyValue = $property['value'] ?? null;
                             $inputCustomAttr = $property['input'] ?? null;
                             $labelCustomAttr = $property['label'] ?? null;
+
+                            $name = (count($properties) >= 1 && !$makeRadio) ? $column['name'].'[]' : $column['name'];
                             $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $propertyValue) || old($column['name']) == $propertyValue) ? 'checked' : null;
 
                             $boxInput = $addToEl->addElement('input')->attr([
-                                'name' => (count($properties) <= 1 || $makeRadio) ? $column['name'] : $column['name'].'[]',
+                                'name' => $name,
                                 'class' => 'form-check-input',
                                 'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
                                 $checked,
