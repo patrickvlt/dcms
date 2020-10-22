@@ -105,6 +105,23 @@ class Form extends HtmlTag
                 }
             }
 
+            // Create carousel before the input element
+            if(isset($definedAttr['input']['type']) && $definedAttr['input']['type'] == 'file' && isset($definedAttr['carousel'])){
+                try {
+                    if (count(Model()->{$column['name']}) > 0){
+                        $carousel = $form->addElement('div')->attr([
+                            'data-type' => 'dcarousel',
+                            'data-dcar-src' => Model()->{$column['name']},
+                            'data-dcar-prefix' => $routePrefix,
+                            'data-dcar-column' => $column['name'],
+                            'data-dcar-height' => $definedAttr['carousel']['height'] ?? '200px' 
+                        ]);       
+                    }
+                } catch (\Throwable $th) {
+                    logger($th);
+                }
+            }
+
             // Form group
             if($makeFormGroup){
                 $customAttr = $definedAttr['form-group'] ?? null;
