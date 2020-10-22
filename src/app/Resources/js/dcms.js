@@ -94,7 +94,7 @@ if (document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.pl
     LoadJS('jsuites',dcmsConfig.plugins.jsuites);
 }
 
-if (dcmsConfig.plugins.Papa && dcmsConfig.plugins.papa !== false){
+if (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa !== false){
     LoadJS('Papa',dcmsConfig.plugins.papa,'local');
 }
 
