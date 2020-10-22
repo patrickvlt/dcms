@@ -77,6 +77,10 @@ class Form extends HtmlTag
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeCheckbox = true;
+            } else if (isset($definedAttr['radio'])){
+                $makeInputGroup = false;
+                $makeInput = false;
+                $makeRadio = true;
             }
             if (isset($definedAttr['input']['data-type'])) {
                 switch ($definedAttr['input']['data-type']) {
@@ -193,57 +197,33 @@ class Form extends HtmlTag
                         }
                     }
                 }
-            } else if ($makeCheckbox) {
+            } else if ($makeCheckbox || $makeRadio) {
                 // Check if checkboxes have been defined
-                $checkboxes = $definedAttr['checkbox'];
-                if (isset($checkboxes)){
-                    foreach ($checkboxes as $x => $checkbox){
+                $elements = ($makeCheckbox) ? $definedAttr['checkbox'] : $definedAttr['radio'];
+                if (isset($elements)){
+                    foreach ($elements as $x => $element){
                         $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check']);
-                        $checkboxText = $checkbox['text'] ?? null;
-                        $checkboxValue = $checkbox['value'] ?? null;
-                        $inputCustomAttr = $checkbox['input'] ?? null;
-                        $labelCustomAttr = $checkbox['label'] ?? null;
-                        $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $checkboxValue) || old($column['name']) == $checkboxValue) ? 'checked' : null;
+                        $elementText = $element['text'] ?? null;
+                        $elementValue = $element['value'] ?? null;
+                        $inputCustomAttr = $element['input'] ?? null;
+                        $labelCustomAttr = $element['label'] ?? null;
+                        $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $elementValue) || old($column['name']) == $elementValue) ? 'checked' : null;
                         
                         $boxInput = $addToEl->addElement('input')->attr([
-                            'name' => count($checkboxes) <= 1 ? $column['name'] : $column['name'].'[]',
+                            'name' => (count($elements) <= 1 || $makeRadio) ? $column['name'] : $column['name'].'[]',
                             'class' => 'form-check-input',
-                            'type' => 'checkbox',
+                            'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
                             $checked,
-                            'value' => $checkboxValue ?? new \RuntimeException("Define a text and value for each checkbox."),
+                            'value' => $elementValue ?? new \RuntimeException("Define a text and value for each checkbox/radio."),
                             'id' => $column['name'].'Box'.$x
                         ])->attr($inputCustomAttr);
                         
                         $boxLabel = $addToEl->addElement('label')->attr([
                             'class' => 'form-check-label',
                             'for' => $column['name'].'Box'.$x
-                        ])->attr($labelCustomAttr)->text(__($checkboxText));
+                        ])->attr($labelCustomAttr)->text(__($elementText));
                     }
                 }
-            } else if (isset($makeRadio)) {
-                $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check']);
-                $checkboxCustomAttr = $definedAttr['checkbox'] ?? null;
-                $checkboxText = $definedAttr['checkbox']['text'] ?? null;
-                $checkboxLabelCustomAttr = $definedAttr['checkbox']['label'] ?? null;
-                $hiddenBox = $addToEl->addElement('input')->attr([
-                    'name' => $column['name'],
-                    'type' => 'checkbox',
-                    'value' => '0',
-                    'checked' => 'checked',
-                    'style' => 'display:none',
-                    'id' => $column['name'].'Box1'
-                ]);
-                $visibleBox = $addToEl->addElement('input')->attr([
-                    'name' => $column['name'],
-                    'class' => 'form-check-input',
-                    'type' => 'checkbox',
-                    'value' => '1',
-                    'id' => $column['name'].'Box2'
-                ])->attr($checkboxCustomAttr);
-                $boxLabel = $addToEl->addElement('label')->attr([
-                    'class' => 'form-check-label',
-                    'for' => $column['name'].'Box2'
-                ])->attr($checkboxLabelCustomAttr)->text(__($checkboxText));
             }
 
             // Small text
