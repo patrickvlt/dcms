@@ -338,26 +338,6 @@ function SubmitAjax(e) {
     let formAction = e.target.action;
     let formMethod = e.target.method;
     let formData = new FormData(e.target);
-    // if (document.querySelectorAll('.filepond--file').length > 0) {
-    //     let loopedNames = [];
-    //     let namesToLoop = [];
-    //     Array.from(window.fileArray).forEach(function (fileWindow) {
-    //         namesToLoop.push(fileWindow.input);
-    //     });
-    //     namesToLoop.forEach(function (name) {
-    //         if (!loopedNames.includes(name)) {
-    //             loopedNames.push(name);
-    //         }
-    //     });
-    //     loopedNames.forEach(function (name) {
-    //         let curInputs = document.getElementsByName(name);
-    //         let curFiles = [];
-    //         formData.delete(name);
-    //         curInputs.forEach(function (input) {
-    //             formData.append(name, input.value);
-    //         })
-    //     });
-    // }
     let formRequest = HttpReq(formMethod, formAction, formData);
 }
 ajaxForms.forEach(element =>
