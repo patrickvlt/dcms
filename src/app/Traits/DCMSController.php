@@ -333,35 +333,13 @@ trait DCMSController
         ], 200);
     }
 
-    public function StoreExport($data=null,$headers=null)
+    public function StoreExport($data,$headers=null)
     {
-        $data = $data ?? (new $this->model)->all()->toArray();
-
-        if (!$headers){
-            $autoHeaders = Schema::getColumnListing((new $this->model)->getTable());
-            foreach ($autoHeaders as $headerKey => $headerVal){
-                $headers[$headerVal] = $headerVal;
-            }
-        }
-
-        $exportData = [];
-        // Flatten the array to group nested results
-        foreach (Flatten($data) as $key => $val){
-            // Explode if key has a .
-            $explodeKey = explode('.',$key);
-            // Column to make logical results
-            $column = end($explodeKey);
-            // Row counter
-            $row = $explodeKey[0];
-            // This key should exist
-            $matchKey = str_replace($row.'.','',$key);
-            if (array_key_exists($matchKey, $headers)){
-                // Push to export data if key matches with exportable headers
-                $exportData[$row][$column] = $val;
-            }
-        }
+        if (!isset(config('filesystems.disks')['tmp'])){
+            throw new \RuntimeException("Please define a tmp filesystem in your config.");
+        }      
         $fileName = RandomString().'.xlsx';
-        PHPExcel::store($headers,$exportData,$fileName);
+        PHPExcel::store($headers,$data,$fileName);
         return config('filesystems.disks')['tmp']['url'].'/'.$fileName;
     }
 

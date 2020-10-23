@@ -29,23 +29,28 @@ class PHPExcel
             $sheet->setCellValueByColumnAndRow($headerCount+1, 1, $visibleText);
             $headerCount++;
         }
-//        for ($h = 0; $h < sizeof($headers); $h++) {
-//            $sheetColumn = $h + 1;
-//            $sheetRow = 1;
-//            dd($headers);
-//            $sheet->setCellValueByColumnAndRow($sheetColumn, $sheetRow, $headers[$h]);
-//        }
 
         // Loop through data array
-        for ($r = 0; $r < sizeof($data); $r++) {
-            $j = 0;
-            foreach ($data[$r] as $key => $value) {
-                // Get row and column from for loop
-                $sheetColumn = $j + 1;
-                $sheetRow = ($r + 1 + 1);
-                // Set cell value
-                $sheet->setCellValueByColumnAndRow($sheetColumn, $sheetRow, $value);
-                $j++;
+        for ($row = 0; $row < sizeof($data); $row++) {
+            $column = 0;
+            $headerPos = 0;
+            
+            foreach ($headers as $headerKey => $headerVal) {
+                $sheetRow = ($row + 1 + 1);
+                $sheetColumn = $headerPos + 1;
+                if (count(explode('.',$headerKey)) > 1){
+                    $dataEntry = '';
+                    foreach (explode('.',$headerKey) as $header){
+                        $dataEntry .= "['".$header."']";
+                    }
+                    $dataEntry = "\$data[\$row]".$dataEntry;
+                    $dataEntry = eval("return ".$dataEntry.";");
+                } else {
+                    $dataEntry = $data[$row][$headerKey];
+                }
+                $sheet->setCellValueByColumnAndRow($sheetColumn, $sheetRow, $dataEntry);
+                $column++;
+                $headerPos++;
             }
         }
 
