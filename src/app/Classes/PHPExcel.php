@@ -44,7 +44,7 @@ class PHPExcel
                         $dataEntry .= "['".$header."']";
                     }
                     $dataEntry = "\$data[\$row]".$dataEntry;
-                    $dataEntry = eval("return ".$dataEntry.";");
+                    $dataEntry = eval("return ".$dataEntry." ?? null;");
                 } else {
                     $dataEntry = $data[$row][$headerKey];
                 }
