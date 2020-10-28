@@ -64,18 +64,20 @@ class '.$model.'Datatable extends Datatable
      * @param $value
      */
 
-    public function filter($field=[], $value=[])
+    public function filter($field=null, $value=null)
     {
-        switch ($field) {
-//            case \'total_columns\':
-//                $this->query->whereRaw(\'(column_one + column_two) >= \'.$value);
-//                break;
-//            case \'another_column\':
-//                $this->query->where($field, \'>=\', $value);
-//                break;
-            default:
-                $this->query->where($field, \'=\', $value);
-        }
+        $this->data = array_filter($this->data, function($row) use ($field, $value) {
+            // Build your datatable filter here
+            switch ($field) {
+                // case "nested_field_example":
+                //     return ($row["user"]["profile"]["last_token"] == $value) ? $row : null;
+                //     break;
+
+                default:
+                    return ($row[$field] == $value) ? $row : null;
+                    break;
+            }
+        });
     }
 }';
         $path = 'app/Datatables/'.$model.'Datatable.php';

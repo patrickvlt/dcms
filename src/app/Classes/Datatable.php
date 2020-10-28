@@ -26,17 +26,8 @@ class Datatable
     public function filter($field=null, $value=null)
     {
         $this->data = array_filter($this->data, function($row) use ($field, $value) {
-            // Build your datatable filter here
-            switch ($field) {
-                // case 'field_price_example':
-                //     return ($row[$field] <= $value) ? $row : null;
-                //     break;
-        
-                default:
-                    return ($row[$field] == $value) ? $row : null;
-                    break;
-            }
-        });;
+            return ($row[$field] == $value) ? $row : null;
+        });
     }
 
     /**
@@ -73,7 +64,7 @@ class Datatable
         }
 
         // Perform general search on remaining results
-        if (isset($params['query']['generalSearch'])){
+        if (isset($params['query']['generalSearch']) && isset($this->data[0])){
             $searchValue = $params['query']['generalSearch'];
             $searchColumns = [];
             // Loop through searchable columns
