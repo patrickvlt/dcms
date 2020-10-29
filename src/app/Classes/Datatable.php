@@ -44,21 +44,21 @@ class Datatable
         // Get parameters from request
         $params = request()->all();
 
+        // Paginated results
         $perPage = isset($params['pagination']['perpage']) && $params['pagination']['perpage'] !== 'NaN' ? $params['pagination']['perpage'] : null;
         $page = isset($params['pagination']['page']) ? $params['pagination']['page'] : null;
-        $ktPage = ($page - 1 < 0) ? 0 : $page - 1;
-
         Paginator::currentPageResolver(function () use ($page) {
             return $page;
         });
-
         if ($perPage){
-            $this->data = $this->query->paginate($perPage);
-            $total = $this->data->total();
-            $pages = $this->data->lastPage();
+            $paginator = $this->query->paginate($perPage);
+            $this->data = collect($paginator->items());
+            $pages = $paginator->lastPage();
+            $total = $paginator->total();
         } else {
-            $this->data = $this->query->get();
-            $total = count($this->data);
+            $this->data = collect($this->query->get());
+            $pages = 1;
+            $page = 1;
         }
 
 
@@ -82,6 +82,9 @@ class Datatable
         // Convert collection to array
         $this->data = array_values($this->data->toArray());
 
+        $filteredResults = false;
+        $searchedResults = false;
+
         // Filter through array
         if (isset($params['query'])) {
             foreach ($params['query'] as $key => $value) {
@@ -89,6 +92,7 @@ class Datatable
                     $this->filter($key,$value);
                 }
             }
+            $filteredResults = true;
         }
 
         // Perform general search on remaining results
@@ -131,10 +135,24 @@ class Datatable
             // Clear data if general search cant find anything
             // Or else the results wont be affected
             $this->data = (count($this->data) >! 0) ? [] : $newData;
+            $searchedResults = true;
+        }
+
+        if ($filteredResults || $searchedResults){
+            // Check if total and pages are still the same
+            if ($total !== count($this->data)){
+                $total = count($this->data);
+            }
+
+            // Check if per page and total are different
+            if ($total < $perPage){
+                $pages = 1;
+            }
         }
 
         // Make response object with meta
         $response = (object) '';
+        
         // Paginate the results if page and perpage parameters are present
         if (isset($page,$perPage) && $total > 0){
             $response->data = $this->data;
