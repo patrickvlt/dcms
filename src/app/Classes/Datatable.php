@@ -8,6 +8,8 @@
 
 namespace Pveltrop\DCMS\Classes;
 
+use Illuminate\Pagination\Paginator;
+
 class Datatable
 {
     public function __construct($query, $searchFields=null){
@@ -42,7 +44,23 @@ class Datatable
         // Get parameters from request
         $params = request()->all();
 
-        $this->data = $this->query->get();
+        $perPage = isset($params['pagination']['perpage']) && $params['pagination']['perpage'] !== 'NaN' ? $params['pagination']['perpage'] : null;
+        $page = isset($params['pagination']['page']) ? $params['pagination']['page'] : null;
+        $ktPage = ($page - 1 < 0) ? 0 : $page - 1;
+
+        Paginator::currentPageResolver(function () use ($page) {
+            return $page;
+        });
+
+        if ($perPage){
+            $this->data = $this->query->paginate($perPage);
+            $total = $this->data->total();
+            $pages = $this->data->lastPage();
+        } else {
+            $this->data = $this->query->get();
+        }
+
+        $total = count($this->data);
 
         // Sort all collected data first with Laravel's sortBy method
         if (isset($params['sort'])) {
@@ -115,27 +133,13 @@ class Datatable
             $this->data = (count($this->data) >! 0) ? [] : $newData;
         }
 
-        // Retrieve pagination parameters, to paginate the results and return a meta response
-        $total = count($this->data);
-        $perPage = isset($params['pagination']['perpage']) && $params['pagination']['perpage'] !== 'NaN' ? $params['pagination']['perpage'] : null;
-        $page = isset($params['pagination']['page']) ? $params['pagination']['page']-1 : null;
-
         // Make response object with meta
         $response = (object) '';
         // Paginate the results if page and perpage parameters are present
-        if (isset($page,$perPage) && count($this->data) > 0){
-            $paginatedData = array_chunk($this->data, $perPage, true);
-            $pages = count($paginatedData);
-            // If page/key exists in paginated data array, return this data
-            if (isset($paginatedData[$page])){
-                $response->data = $paginatedData[$page];
-                // If it doesnt exist, set the meta page to 1 and array key to 0
-            } else {
-                $response->data = $paginatedData[0];
-                $page = 0;
-            }
+        if (isset($page,$perPage) && $total > 0){
+            $response->data = $this->data;
             $response->meta = [
-                'page' => $page+1,
+                'page' => $page,
                 'pages' => $pages,
                 'perpage' => $perPage,
                 'total' => $total,
