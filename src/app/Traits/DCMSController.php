@@ -334,10 +334,10 @@ trait DCMSController
     }
 
     public function StoreExport($data,$headers=null)
-    {
+    {      
         if (!isset(config('filesystems.disks')['tmp'])){
             throw new \RuntimeException("Please define a tmp filesystem in your config.");
-        }      
+        }
         $fileName = RandomString().'.xlsx';
         PHPExcel::store($headers,$data,$fileName);
         return config('filesystems.disks')['tmp']['url'].'/'.$fileName;
