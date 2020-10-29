@@ -525,21 +525,21 @@ class PackageDatatable extends Datatable
      * @param $value
      */
 
-    public function filter($field=[], $value=[])
+    public function filter($field = null, $value = null)
     {
-        switch ($field) {
-            case 'total_mediaboxes':
-                $this->query->whereRaw('(mediaboxes_included + mediaboxes_extra) >= '.$value);
-                break;
-            case 'price':
-                $this->query->where($field, '<=', $value);
-                break;
-            case 'speed':
-                $this->query->where($field, '>=', $value);
-                break;
-            default:
-                $this->query->where($field, '=', $value);
-        }
+        $this->data = array_filter($this->data, function ($row) use ($field, $value) {
+            switch ($field) {
+                case "car.current_price":
+                    return ($row["car"]["current_price"] <= $value) ? $row : null;
+                    break;
+                case "user.current_role_id":
+                    return ($row["user"]["current_role_id"] == $value) ? $row : null;
+                    break;
+                default:
+                    return ($row[$field] == $value) ? $row : null;
+                    break;
+            }
+        });
     }
 }
 
