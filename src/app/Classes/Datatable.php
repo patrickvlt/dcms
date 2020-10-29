@@ -48,7 +48,17 @@ class Datatable
         if (isset($params['sort'])) {
             // orderBy(field,asc)
             $sortBy = ($params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
-            $data = $this->data->{$sortBy}($params['sort']['field']);
+            // sort eager loaded arrays
+            if (count(explode('.',$params['sort']['field'])) > 1){
+                $sortField = '';
+                foreach (explode('.',$params['sort']['field']) as $field){
+                    $sortField .= "['".$field."']";
+                }
+                $sortField = eval("return ".$sortField." ?? null;");
+            } else {
+                $sortField = $params['sort']['field'];
+            }
+            $this->data = $this->data->{$sortBy}($params['sort']['field']);
         }
 
         // Convert collection to array
