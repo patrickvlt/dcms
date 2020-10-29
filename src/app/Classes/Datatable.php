@@ -58,9 +58,9 @@ class Datatable
             $pages = $this->data->lastPage();
         } else {
             $this->data = $this->query->get();
+            $total = count($this->data);
         }
 
-        $total = count($this->data);
 
         // Sort all collected data first with Laravel's sortBy method
         if (isset($params['sort'])) {
