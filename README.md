@@ -299,6 +299,22 @@ FormRoute() or DeleteRoute()
 
 This returns the action the form will send a request to. This will grab the correct route for the object you're working on.
 
+```
+JoinRelations()
+```
+
+When building a query, you can automatically left join any eager loaded relationships with this helper method.
+Example:
+
+```php
+$query = SoldCar::with(['user', 'car']);
+$query->join('model_has_roles','user_id','=','model_id');
+$query = JoinRelations($query);
+$query->join('car_prices','sold_cars.car_id','=','car_prices.car_id');
+
+return (new SoldCarsDatatable($query))->render();
+```
+
 
 # DCMS (KT) Datatables
 This is a simple JS function which easily initalises KTDatatable, working with data attributes. 
@@ -525,21 +541,13 @@ class PackageDatatable extends Datatable
      * @param $value
      */
 
-    public function filter($field = null, $value = null)
+    public function filter($field=null, $value=null)
     {
-        $this->data = array_filter($this->data, function ($row) use ($field, $value) {
-            switch ($field) {
-                case "car.current_price":
-                    return ($row["car"]["current_price"] <= $value) ? $row : null;
-                    break;
-                case "user.current_role_id":
-                    return ($row["user"]["current_role_id"] == $value) ? $row : null;
-                    break;
-                default:
-                    return ($row[$field] == $value) ? $row : null;
-                    break;
-            }
-        });
+        if ($field == "price"){
+            $this->query->where($field,"<=",$value);
+        } else {
+            $this->query->where($field,"=",$value);
+        }
     }
 }
 

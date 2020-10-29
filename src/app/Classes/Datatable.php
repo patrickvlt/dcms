@@ -9,12 +9,14 @@
 namespace Pveltrop\DCMS\Classes;
 
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Schema;
 
 class Datatable
 {
-    public function __construct($query, $searchFields=null){
+    public function __construct($query, $searchFields=null, $excludeSearchFields=[]){
         $this->query = $query;
         $this->searchFields = $searchFields;
+        $this->excludeSearchFields = $excludeSearchFields;
         $this->data = null;
     }
 
@@ -27,9 +29,7 @@ class Datatable
 
     public function filter($field=null, $value=null)
     {
-        $this->data = array_filter($this->data, function($row) use ($field, $value) {
-            return ($row[$field] == $value) ? $row : null;
-        });
+        $this->query->where($field,'=',$value);
     }
 
     /**
@@ -43,6 +43,20 @@ class Datatable
     {
         // Get parameters from request
         $params = request()->all();
+
+        // Prefix the parent class columns
+        $parentModel = $this->query->getModel();
+        $parentTable = (new $parentModel())->getTable();
+        $parentColumns = Schema::getColumnListing($parentTable);
+
+        // Build filters for query
+        if (isset($params['query'])) {
+            foreach ($params['query'] as $key => $value) {
+                if ($key !== 'generalSearch'){
+                    $this->filter($key,$value);
+                }
+            }
+        }
 
         // Get (per) page from Datatable query
         $perPage = isset($params['pagination']['perpage']) && $params['pagination']['perpage'] !== 'NaN' ? $params['pagination']['perpage'] : null;
@@ -73,36 +87,12 @@ class Datatable
         if (isset($params['sort'])) {
             // orderBy(field,asc)
             $sortBy = ($params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
-            // sort eager loaded arrays
-            if (count(explode('.',$params['sort']['field'])) > 1){
-                $sortField = '';
-                foreach (explode('.',$params['sort']['field']) as $field){
-                    $sortField .= "['".$field."']";
-                }
-                $sortField = eval("return ".$sortField." ?? null;");
-            } else {
-                $sortField = $params['sort']['field'];
-            }
             $this->data = $this->data->{$sortBy}($params['sort']['field']);
         }
 
         // Convert collection to array
-        $this->data = $this->data->toArray();
-        sort($this->data);
+        $this->data = array_values($this->data->toArray());
 
-        $filteredResults = false;
-        $searchedResults = false;
-
-        // Filter through array
-        if (isset($params['query'])) {
-            foreach ($params['query'] as $key => $value) {
-                if ($key !== 'generalSearch'){
-                    $this->filter($key,$value);
-                }
-            }
-            $filteredResults = true;
-        }
-        
         // Perform general search on remaining results
         if (isset($params['query']['generalSearch']) && isset($this->data[0])){
             $searchValue = $params['query']['generalSearch'];
@@ -115,47 +105,38 @@ class Datatable
                     $searchColumns[] = $key;
                 }
             }
+            
             $newData = [];
-            $addedRows = [];
-            // Filter the results array from previous query
-            // First, flatten the array so no nested values remain
-            // Then preg match the array keys with the search field
-            // Then preg match the search value with the matched row in the array
-            foreach (Flatten($this->data) as $flatKey => $flatValue){
-                $dataRow = explode('.',$flatKey)[0];
-                foreach($searchColumns as $x => $searchField){
-                    // Make new search field by exploding . and grabbing the last element
-                    if (count(explode('.',$searchField)) > 1){
-                        $explodedFields = explode('.',$searchField);
-                        $searchField = end($explodedFields);
-                    }
-                    // Check if search key matches any key in the data
-                    if (preg_match('/'.strtolower($searchField).'/m', strtolower($flatKey)) > 0){
-                        // Check if search value is found, then push to new array
-                        if (!in_array($dataRow,$addedRows) && $flatValue !== null && $flatValue !== '' && preg_match('/'.strtolower($searchValue).'/m', strtolower($flatValue)) > 0){
-                            $newData[] = $this->data[$dataRow];
-                            $addedRows[] = $dataRow;
+            foreach($searchColumns as $searchColumn){
+                foreach($this->data as $dataKey => $dataRow){
+                    try {
+                        if (!in_array($searchColumn,$this->excludeSearchFields)){
+                            if (preg_match('/'.strtolower($searchValue).'/m', strtolower($dataRow[$searchColumn])) > 0){
+                                $newData[] = $dataRow;
+                            }
                         }
+                    } catch (\Throwable $th) {
+                        //
                     }
                 }
             }
-
+            
             // Clear data if general search cant find anything
             // Or else the results wont be affected
-            $this->data = (count($this->data) >! 0) ? [] : $newData;
-            $searchedResults = true;
-        }
+            $this->data = (count($newData) >! 0) ? [] : $newData;
 
-        if ($filteredResults || $searchedResults){
-            // Check if total and pages are still the same
-            if ($total !== count($this->data)){
-                $total = count($this->data);
+            if (count($this->data) > 0 && isset($perPage)){
+                if (count($newData) > $perPage){
+                    $page = 1;
+                    $repaginate = array_chunk($this->data, $perPage, true);
+                    $this->data = $repaginate[$page] ?? $this->data;
+                    $pages = count($repaginate);
+                } else {
+                    $pages = 1;
+                    $page = 1;
+                }
             }
-
-            // Check if per page and total are different
-            if ($total < $perPage){
-                $pages = 1;
-            }
+            $total = count($this->data);
         }
 
         // Make response object with meta

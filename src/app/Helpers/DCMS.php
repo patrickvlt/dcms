@@ -317,3 +317,29 @@ if (!function_exists('GetRule')){
         }
     }
 }
+
+if (!function_exists('JoinRelations')){
+    function JoinRelations($query)
+    {
+        $query->select('*');
+        $relations = $query->getEagerLoads();
+        $query->setEagerLoads([]);
+        if (count($relations) > 0){
+            foreach ($relations as $relationName => $relationProps){
+                $relation = $query->getRelation($relationName);
+
+                $foreignKey = $relation->getForeignKeyName();
+                $ownerKey = $relation->getOwnerKeyName();
+
+                $relationClass = FindClass($relationName)['class'];
+                $relationTable = (new $relationClass())->getTable();
+                $joinTable = $relationTable;
+                $joinForeignKey = $foreignKey;
+                $joinRightKey = $relationTable.'.'.$ownerKey;
+
+                $query->join($joinTable,$joinForeignKey,'=',$joinRightKey);
+            }
+        }
+        return $query;
+    }
+}

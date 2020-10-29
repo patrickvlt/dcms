@@ -66,18 +66,14 @@ class '.$model.'Datatable extends Datatable
 
     public function filter($field=null, $value=null)
     {
-        $this->data = array_filter($this->data, function($row) use ($field, $value) {
-            // Build your datatable filter here
-            switch ($field) {
-                // case "nested_field_example":
-                //     return ($row["user"]["profile"]["last_token"] == $value) ? $row : null;
-                //     break;
-
-                default:
-                    return ($row[$field] == $value) ? $row : null;
-                    break;
+        public function filter($field=null, $value=null)
+        {
+            if ($field == "price"){
+                $this->query->where($field,"<=",$value);
+            } else {
+                $this->query->where($field,"=",$value);
             }
-        });
+        }
     }
 }';
         $path = 'app/Datatables/'.$model.'Datatable.php';
