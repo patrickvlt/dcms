@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Schema;
+
 if (!function_exists('MaxSizeServer')) {
     function MaxSizeServer($type = 'mb')
     {
@@ -321,7 +323,6 @@ if (!function_exists('GetRule')){
 if (!function_exists('JoinRelations')){
     function JoinRelations($query)
     {
-        $query->select('*');
         $relations = $query->getEagerLoads();
         $query->setEagerLoads([]);
         if (count($relations) > 0){
@@ -338,6 +339,19 @@ if (!function_exists('JoinRelations')){
                 $joinRightKey = $relationTable.'.'.$ownerKey;
 
                 $query->join($joinTable,$joinForeignKey,'=',$joinRightKey);
+            }
+        }
+        return $query;
+    }
+}
+
+if (!function_exists('SelectFields')){
+    function SelectFields($query,$table,$excludeFields=[])
+    {
+        $fields = Schema::getColumnListing($table);
+        foreach ($fields as $key => $field) {
+            if (!in_array($field,$excludeFields)){
+                $query->addSelect($table.'.'.$field);
             }
         }
         return $query;

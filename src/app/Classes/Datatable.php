@@ -44,11 +44,6 @@ class Datatable
         // Get parameters from request
         $params = request()->all();
 
-        // Prefix the parent class columns
-        $parentModel = $this->query->getModel();
-        $parentTable = (new $parentModel())->getTable();
-        $parentColumns = Schema::getColumnListing($parentTable);
-
         // Build filters for query
         if (isset($params['query'])) {
             foreach ($params['query'] as $key => $value) {
@@ -56,6 +51,13 @@ class Datatable
                     $this->filter($key,$value);
                 }
             }
+        }
+
+        // Sort the query
+        if (isset($params['sort'])) {
+            // orderBy(field,asc)
+            $sortBy = ($params['sort']['sort'] == 'asc') ? 'asc' : 'desc';
+            $this->query->orderBy($params['sort']['field'],$sortBy);
         }
 
         // Get (per) page from Datatable query
@@ -81,13 +83,6 @@ class Datatable
             $this->data = collect($this->query->get());
             $pages = 1;
             $page = 1;
-        }
-
-        // Sort all collected data first with Laravel's sortBy method
-        if (isset($params['sort'])) {
-            // orderBy(field,asc)
-            $sortBy = ($params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
-            $this->data = $this->data->{$sortBy}($params['sort']['field']);
         }
 
         // Convert collection to array
