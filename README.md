@@ -239,8 +239,8 @@ Complete code example:
 
 # Commands
 DCMS provides a few commands to make things easier, such as updating the composer package (small cmd), but also the CRUD generator.
-This command will guide you through making a new object, including migrations, routes, validation rules, all of it.
-Based on the answers you provide, the same files your normally work with will be filled.
+This command will guide you through making a new model, including migrations, routes, validation rules, all of it.
+Based on the answers you provide, the same files you normally work with will be filled.
 
 To generate CRUD functionality for a new model, run:
 ```
