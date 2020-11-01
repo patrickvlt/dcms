@@ -67,14 +67,14 @@ class Form extends HtmlTag
             $makeSelect = false;
             $makeCheckbox = false;
             $makeRadio = false;
+            $makeTextarea = false;
 
             $definedAttr = $DCMS['formProperties'][$column['name']] ?? null;
             // Take different steps according to various data-types
             if (isset($definedAttr['select'])) {
                 $makeInput = false;
                 $makeSelect = true;
-            }
-            if (isset($definedAttr['checkbox'])) {
+            } else if (isset($definedAttr['checkbox'])) {
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeCheckbox = true;
@@ -82,6 +82,10 @@ class Form extends HtmlTag
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeRadio = true;
+            } else if (isset($definedAttr['textarea'])){
+                $makeInputGroup = false;
+                $makeInput = false;
+                $makeTextarea = true;
             }
             if (isset($definedAttr['input']['data-type'])) {
                 switch ($definedAttr['input']['data-type']) {
@@ -132,12 +136,12 @@ class Form extends HtmlTag
 
             // Label
             if ($makeLabel){
-                $customAttr = $definedAttr['label'] ?? null;
-                $label = $formGroup->addElement('label')->attr([
-                    'for' => $column['name'],
-                ])->attr($customAttr);
                 $labelText = $definedAttr['label']['text'] ?? null;
                 if ($labelText) {
+                    $customAttr = $definedAttr['label'] ?? null;
+                    $label = $formGroup->addElement('label')->attr([
+                        'for' => $column['name'],
+                    ])->attr($customAttr);
                     $label->text(__(ucfirst($labelText)));
                 }
             }
@@ -198,10 +202,10 @@ class Form extends HtmlTag
                     unset($optionOptionalAttr['data'],$optionOptionalAttr['primaryKey'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['showKey']);
                     foreach ($optionAttrs['data'] as $key => $data){
                         $option = $selectElement->addElement('option')->attr([
-                            'value' => $data['primaryKey'] ?? null,
+                            'value' => $data->{$optionAttrs['primaryKey']},
                         ])->text(__($data->{$optionAttrs['showKey']}));
                         $dataValue = $data->{$optionAttrs['primaryKey']};
-                        $modelValue = Model()->{$optionAttrs['foreignKey']};
+                        $modelValue = Model()->{$optionAttrs['foreignKey']} ?? null;
                         if (is_array($modelValue)){
                             foreach($modelValue as $modelValueRow){
                                 if ($modelValueRow == $dataValue){
@@ -231,14 +235,27 @@ class Form extends HtmlTag
                             $inputCustomAttr = $property['input'] ?? null;
                             $labelCustomAttr = $property['label'] ?? null;
 
-                            $name = (count($properties) >= 1 && !$makeRadio) ? $column['name'].'[]' : $column['name'];
-                            $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $propertyValue) || old($column['name']) == $propertyValue) ? 'checked' : null;
+                            $name = (count($properties) > 1 && !$makeRadio) ? $column['name'].'[]' : $column['name'];
+                            $checked = null;
+                            if(Model()){
+                                $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $propertyValue) || old($column['name']) == $propertyValue) ? 'checked' : null;
+                            }
+
+                            if ($makeCheckbox){
+                                $hiddenInput = $addToEl->addElement('input')->attr([
+                                    'name' => $name,
+                                    'type' => 'checkbox',
+                                    'value' => 0,
+                                    'checked' => 'checked',
+                                    'style' => 'display:none'
+                                ]);
+                            }
 
                             $boxInput = $addToEl->addElement('input')->attr([
                                 'name' => $name,
                                 'class' => 'form-check-input',
                                 'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
-                                $checked,
+                                'checked' => $checked,
                                 'value' => $propertyValue ?? '',
                                 'id' => $column['name'].'Box'.$x
                             ])->attr($inputCustomAttr);
@@ -250,6 +267,19 @@ class Form extends HtmlTag
                         }
                     }
                 }
+            } else if ($makeTextarea) { 
+                $textareaCustomAttr = $definedAttr['textarea'] ?? null;
+                $textareaType = $textareaCustomAttr['type'] ?? 'text';
+                $textareaPlaceholder = $definedAttr['placeholder'] ?? null;
+                $defaultInputAttr = [
+                    'id' => $column['name'],
+                    'class' => 'form-control',
+                    'type' => $textareaType,
+                    'name' => $column['name'],
+                    'placeholder' => __($textareaPlaceholder),
+                ];
+                $addToEl = ($makeInputGroup) ? $inputGroup : $formGroup;
+                $addToEl->addElement('textarea')->attr($defaultInputAttr)->attr($textareaCustomAttr)->text(Model()->{$column['name']} ?? old($column['name']));
             }
 
             // Small text
@@ -265,6 +295,11 @@ class Form extends HtmlTag
                 }
             }
         }
+
+        $customAttr = $definedAttr['form-group'] ?? null;
+        $formGroup = $form->addElement('div')->attr([
+            'class' => 'form-group',
+        ])->attr($customAttr);
 
         // Save button: If creating a model
         if (!Model()) {
@@ -303,7 +338,7 @@ class Form extends HtmlTag
             'data-dcms-save-route' => $saveRoute,
         ])->attr($saveBtnAttr);
         $saveBtn->text(__($saveText));
-        $form->addElement($saveBtn);
+        $formGroup->addElement($saveBtn);
 
         // Get custom attributes for delete button, dont use text as an attribute
         $deleteBtnAttr = $DCMS['formProperties']['formButtons']['delete'] ?? null;
@@ -320,7 +355,7 @@ class Form extends HtmlTag
 
         // Delete button
         if (Model()) {
-            $form->addElement('br');
+            $formGroup->addElement('br');
             $deleteBtn = self::createElement('button');
             $deleteBtn->attr([
                 'type' => 'button',
@@ -341,7 +376,7 @@ class Form extends HtmlTag
             } else {
                 $deleteBtn->text(__('Delete'));
             }
-            $form->addElement($deleteBtn);
+            $formGroup->addElement($deleteBtn);
         }
         return $form;
     }

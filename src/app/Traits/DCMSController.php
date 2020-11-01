@@ -299,11 +299,18 @@ trait DCMSController
 
     public function DCMSJSON($object,$createdOrUpdated)
     {
+        // Url
+        $url = $this->{$createdOrUpdated.'Url'};
+        preg_match_all('/__\S*__/m',$url,$matches);
+        foreach($matches[0] as $match){
+            $prop = str_replace('__','',$match);
+            $url = str_replace($match,$object->$prop,$url);
+        }
         if ((isset($this->createdUrl) && $createdOrUpdated == 'created') || (isset($this->updatedUrl) && $createdOrUpdated == 'updated')){
             if (request()->ajax()){
-                $redirect = $this->{$createdOrUpdated.'Url'};
+                $redirect = $url;
             } else {
-                return redirect($this->{$createdOrUpdated.'Url'});
+                return redirect($url);
             }
         } else {
             if (request()->ajax()){
