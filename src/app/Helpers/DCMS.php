@@ -70,8 +70,15 @@ if (!function_exists('Model')) {
     {
         $model = request()->route()->controller->model;
         $routePrefix = request()->route()->controller->routePrefix;
-        $id = (request()->route()->parameters()) ? request()->route()->parameters()[$routePrefix] : null;
-        return $model::find($id);
+        if (request()->route()->parameters()){
+            if (isset(request()->route()->parameters()[$routePrefix])){
+                $id = request()->route()->parameters()[$routePrefix];
+            } else if (isset(request()->route()->parameters()['id'])){
+                $id = request()->route()->parameters()['id'];
+            }
+            return $model::find($id);
+        }
+        return null;
     }
 }
 
@@ -106,6 +113,15 @@ if (!function_exists('RoutePrefix')) {
             $routeModel = $routeName;
         }
         return $routeModel;
+    }
+}
+
+if (!function_exists('CurrentRoute')) {
+    // Return store or update route for form
+    function CurrentRoute()
+    {
+        $routeName = request()->route()->getAction()['as'] ?? null;
+        return $routeName;
     }
 }
 

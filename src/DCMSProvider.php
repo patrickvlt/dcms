@@ -36,9 +36,6 @@ class DCMSProvider extends ServiceProvider
 
     public function register()
     {
-        $helpers = glob(__DIR__ . "/app/Helpers/*.{php}", GLOB_BRACE);
-        foreach ($helpers as $file) {
-            require_once($file);
-        }
+        require_once(__DIR__ . "/app/Helpers/DCMS.php");
     }
 }
