@@ -6,3 +6,5 @@ Route::get('/dcms/generate', 'App\Http\Controllers\DCMSGenerateController@genera
 // Filepond
 Route::post('/dcms/file/process/{prefix}/{type}/{column}', 'App\Http\Controllers\DCMSFilepondController@ProcessFile');
 Route::delete('/dcms/file/revert/{prefix}/{type}/{column}', 'App\Http\Controllers\DCMSFilepondController@DeleteFile');
+// Dynamic Content
+Route::post('/dcms/update/content', 'App\Http\Controllers\DCMSContentController@update');

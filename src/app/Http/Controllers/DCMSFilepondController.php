@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Validator;
 
 class DCMSFilepondController extends Controller
 {
-    protected $prefix;
-    protected $class;
-    protected $file;
-    protected $requestFile;
-    protected $classRequest;
+    // protected $prefix;
+    // protected $class;
+    // protected $file;
+    // protected $requestFile;
+    // protected $classRequest;
 
     public function __construct()
     {

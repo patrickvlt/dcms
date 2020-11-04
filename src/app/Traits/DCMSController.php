@@ -6,40 +6,39 @@ include __DIR__ . '/../Helpers/DCMS.php';
 use Pveltrop\DCMS\Classes\Form;
 use Pveltrop\DCMS\Classes\PHPExcel;
 use Pveltrop\DCMS\Classes\Datatable;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 trait DCMSController
 {
-    public $prefix;
-    public $class;
-    public $file;
-    public $requestFile;
-    public $modelRequest;
-    public $indexQuery;
-    public $indexView;
-    public $showView;
-    public $editView;
-    public $createView;
-    public $createdUrl;
-    public $createdTitle;
-    public $createdMessage;
-    public $updatedUrl;
-    public $updatedTitle;
-    public $updatedMessage;
-    public $deletedUrl;
-    public $deletedTitle;
-    public $deletedMessage;
-    public $importCols;
-    public $importFailedTitle;
-    public $importFailedMessage;
-    public $importEmptyTitle;
-    public $importEmptyMessage;
-    public $importFinishedTitle;
-    public $importFinishedMessage;
-    public $importedUrl;
-    public $autoFixColumns;
+    // private $prefix;
+    // private $class;
+    // private $file;
+    // private $requestFile;
+    // private $modelRequest;
+    // private $indexQuery;
+    // private $indexView;
+    // private $showView;
+    // private $editView;
+    // private $createView;
+    // private $createdUrl;
+    // private $createdTitle;
+    // private $createdMessage;
+    // private $updatedUrl;
+    // private $updatedTitle;
+    // private $updatedMessage;
+    // private $deletedUrl;
+    // private $deletedTitle;
+    // private $deletedMessage;
+    // private $importCols;
+    // private $importFailedTitle;
+    // private $importFailedMessage;
+    // private $importEmptyTitle;
+    // private $importEmptyMessage;
+    // private $importFinishedTitle;
+    // private $importFinishedMessage;
+    // private $importedUrl;
+    // private $autoFixColumns;
 
     // This returns void by default
     public function DCMS(): void {}
@@ -143,6 +142,8 @@ trait DCMSController
                 $requestData[$changingKey] = $changingValue;
             }
         }
+        // Grab upload rules from custom request
+        // Validate input file fields
         $filesToRemove = [];
         if ($uploadRules){
             foreach ($uploadRules as $uploadKey => $uploadRule){
@@ -178,8 +179,11 @@ trait DCMSController
                                             $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
                                             ]
                                         ],
-                                    ], 422);
-                                }
+                                ], 422);
+                            }
+                            // Check if file exists in tmp folder
+                            // Then move it to final public folder
+                            // Strip APP_URL to locate this file locally
                             $checkFile = str_replace(env('APP_URL'),'',$file);
                             $checkFile = str_replace('/storage/','/public/',$checkFile);
                             $storedFile = Storage::exists($checkFile);
@@ -218,7 +222,7 @@ trait DCMSController
             ${$this->routePrefix} = (new $this->model)->create($request);
         } else if ($createdOrUpdated === 'updated') {
             ${$this->routePrefix} = (new $this->model)->findOrFail($id);
-            // This is for files
+            // Update any arrays / files 
             foreach ($request as $requestKey => $requestVal){
                 // If request has an array, and points to storage, merge it with existing array if it has values already
                 if (is_array($requestVal) && (strpos(implode(" ", $requestVal), '/storage/') !== false)) {
@@ -248,6 +252,7 @@ trait DCMSController
                             $max = explode(':',$ruleVal)[1];
                         }
                     }
+                    // If array limit is being overridden
                     if (count($newArr) > $max){
                         return response()->json([
                             'message' => __('File limit reached'),
@@ -258,6 +263,7 @@ trait DCMSController
                             ],
                         ], 422);
                     }
+                    // If array doesnt reach amount of required files
                     if (count($newArr) < $min){
                         return response()->json([
                             'message' => __('Missing files'),
