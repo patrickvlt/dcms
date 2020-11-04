@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Pveltrop\DCMS\Classes\Content;
 
 class DCMSContentController extends Controller
 {
@@ -22,6 +24,11 @@ class DCMSContentController extends Controller
 
     public function update(Request $request)
     {
-        dd($request);
+        $request = json_decode($request->getContent());
+        $newContent = Content::updateOrCreate([
+            'UUID'  => $request->elementUUID,
+            'value' => $request->editorValue
+        ]);
+        dd($newContent);
     }
 }

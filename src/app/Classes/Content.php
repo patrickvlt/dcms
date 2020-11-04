@@ -9,6 +9,8 @@ class Content extends Model
 {
     use HasFactory;
 
+    protected $table = 'dcms_content';
+
     protected $guarded = ['id'];
 
 }
