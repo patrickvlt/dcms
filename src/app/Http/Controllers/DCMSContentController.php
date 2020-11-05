@@ -12,19 +12,19 @@ class DCMSContentController extends Controller
     {
         $request = json_decode($request->getContent());
 
-        $dirty = $request->contentValue;
-        dd(Purify::clean($dirty));
+        $contentValue = $request->contentValue;
+        $cleanContent = Purify::clean($contentValue);
         
         $content = Content::find($request->contentUID);
         if (!$content) {
             $content = Content::create([
                 'UID'  => $request->contentUID,
-                'value' => $request->contentValue
+                'value' => $cleanContent
             ]);
         } else {
             $content->update([
                 'UID'  => $request->contentUID,
-                'value' => $request->contentValue
+                'value' => $cleanContent
             ]);
             $content->save();
         }

@@ -63,9 +63,15 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
             revertKey = (inputElement.dataset.filepondRevertKey) ? '/' + inputElement.dataset.filepondRevertKey : '';
             if (!inputElement.dataset.filepondPrefix) {
                 console.log('No prefix found. Add a data-filepond-prefix to the input element (the prefix of the current model). e.g. (data-filepond-prefix="user")')
+                return false;
             }
             if (!inputElement.dataset.filepondMime) {
                 console.log('No mime found. Add a data-filepond-mime to the input element. e.g. (data-filepond-mime="image")')
+                return false;
+            }
+            if (!inputElement.dataset.filepondColumn) {
+                console.log('No column attribute assigned to FilePond. Add a data-filepond-column to the input element. e.g. (data-filepond-column="logo")')
+                return false;
             }
             pond.allowMultiple = (inputElement.dataset.filepondMaxFiles > 1) ? true : false;
             pond.maxFiles = inputElement.dataset.filepondMaxFiles ?? 1;

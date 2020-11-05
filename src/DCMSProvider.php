@@ -13,7 +13,9 @@ class DCMSProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->loadMigrationsFrom(__DIR__ . '/app/Database/Migrations');
+        if(env('DCMS_LOAD_MIGRATIONS') == 'true'){
+            $this->loadMigrationsFrom(__DIR__ . '/app/Database/Migrations');
+        }
 
         $this->publishes([
             __DIR__.'/app/Resources/js' => resource_path('js/dcms'),

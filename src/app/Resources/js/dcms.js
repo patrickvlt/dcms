@@ -106,7 +106,8 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.
     LoadJS('FilePondPluginFileValidateSize',dcmsConfig.plugins.filepondValidateSize);
 }
 
-if (document.querySelectorAll('[data-type=tinymce]').length > 0 && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)){
+// If a tinymce input field is present or DCMS editor can be initialised on an element
+if (document.querySelectorAll('[data-type=tinymce]').length > 0 || document.querySelectorAll('dcms').length > 0 && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)){
     LoadJS('tinymce',dcmsConfig.plugins.tinymce,'local');
 }
 
@@ -115,13 +116,17 @@ if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KT
     LoadCSS(dcmsConfig.plugins.KTDatatable,'local');
 }
 
-window.onReady = function(yourMethod) {
-    var readyStateCheckInterval = setInterval(function() {
-        if (document && document.readyState === 'complete') {
-            clearInterval(readyStateCheckInterval);
-            yourMethod();
-        }
-    }, 100);
+window.docReady = function (fn) {
+    if (document.readyState != 'loading') {
+        fn();
+    } else if (document.addEventListener) {
+        document.addEventListener('DOMContentLoaded', fn);
+    } else {
+        document.attachEvent('onreadystatechange', function () {
+            if (document.readyState != 'loading')
+                fn();
+        });
+    }
 }
 
 window.hasLoaded = function(plugins,yourMethod) {
@@ -244,6 +249,7 @@ window.EnableSubmit = function () {
 require('./plugins/carousel.js');
 require('./plugins/slimselect.js');
 require('./plugins/tinymce.js');
+require('./plugins/editor.js');
 require('./plugins/dateclockpicker.js');
 require('./plugins/jexcel.js');
 require('./plugins/filepond.js');
