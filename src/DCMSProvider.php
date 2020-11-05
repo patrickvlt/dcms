@@ -18,8 +18,7 @@ class DCMSProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__.'/app/Resources/js' => resource_path('js/dcms'),
-            __DIR__.'/app/Resources/sass' => resource_path('sass/dcms')
+            __DIR__.'/app/Database/Migrations' => base_path('database/migrations')
         ], 'resources');
 
         $this->loadViewsFrom(__DIR__.'/app/Resources/views','dcms');
