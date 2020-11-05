@@ -10,7 +10,8 @@
     "require": {
         "airmanbzh/php-html-generator": "1.0.*",
         "phpoffice/phpspreadsheet": "1.14.*",
-        "doctrine/dbal": "2.*"
+        "doctrine/dbal": "2.*",
+        "stevebauman/purify": "3.*"
     },
     "homepage": "https://pv-media.nl",
     "license": "MIT",
