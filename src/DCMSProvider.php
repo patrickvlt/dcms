@@ -13,9 +13,9 @@ class DCMSProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->publishes([
-            __DIR__.'/app/Database/Migrations' => base_path('database/migrations')
-        ], 'resources');
+        if(env('DCMS_LOAD_MIGRATIONS') == 'true'){
+            $this->loadMigrationsFrom(__DIR__ . '/app/Database/Migrations');
+        }
 
         $this->loadViewsFrom(__DIR__.'/app/Resources/views','dcms');
         $this->loadRoutesFrom(__DIR__.'/routes.php');
