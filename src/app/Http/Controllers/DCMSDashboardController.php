@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-class DCMSGenerateController extends Controller
+class DCMSDashboardController extends Controller
 {
     public function generate()
     {

@@ -31,7 +31,7 @@ hasLoaded('tinymce',function(){
                 // Textarea
                 elEditor = document.createElement('textarea');
                 elEditor.value = elementContent
-                elEditor.id = 'index-the-best'+dcmsCount;
+                elEditor.id = elementUID+dcmsCount;
                 elForm.appendChild(elEditor, elForm.nextSibling);
                 // Buttons Div
                 elBtnsDiv = document.createElement('div');
@@ -61,8 +61,8 @@ hasLoaded('tinymce',function(){
                     selector: "#"+elEditor.id,
                     language_url: window.langFiles,
                     language: window.locale,
-                    plugins: '',
-                    toolbar1: '',
+                    plugins: window.tinyMCEplugins,
+                    toolbar1: window.tinyMCEtoolbar,
                     height: '275px',
                     force_br_newlines : true,
                     force_p_newlines : false,
@@ -81,7 +81,7 @@ hasLoaded('tinymce',function(){
 
                 // Insert new content if it has been submitted succesfully
                 function ReplaceContent(element,newContent){
-                    element.outerHTML = newContent;
+                    element.outerHTML = `<dcms data-uid="`+elementUID+`">`+newContent+`</dcms>`;
                 }
 
                 // On cancel
