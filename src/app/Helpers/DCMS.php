@@ -377,6 +377,10 @@ if (!function_exists('SelectFields')){
 if (!function_exists('DCMSContent')){
     function DCMSContent($UID)
     {
-        return Content::where('UID',$UID)->get()->first()->value ?? null;
+        $content = Content::where('UID',$UID)->get()->first()->value ?? null;
+        if ($content !== ''){
+            return $content;
+        }
+        return null;
     }
 }
