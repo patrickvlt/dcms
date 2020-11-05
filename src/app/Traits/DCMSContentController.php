@@ -41,6 +41,7 @@ trait DCMSContentController
     public function update(Request $request)
     {
         $canBeEdited = false;
+        $fullRequest = $request;
         $request = json_decode($request->getContent());
 
         foreach($this->entries() as $entryKey => $entryValue){
@@ -57,6 +58,12 @@ trait DCMSContentController
 
         $contentValue = $request->contentValue;
         $cleanContent = Purify::clean($contentValue);
+
+        if (preg_match('/([a-z]|[A-Z])/m',$cleanContent) == 0){
+            return response()->json([
+                'message' => __('Content is empty.'),
+            ],422);
+        }
 
         $content = Content::find($request->contentUID);
         if (!$content) {
@@ -75,5 +82,42 @@ trait DCMSContentController
         return response()->json([
             'message' => __('Content has been updated.'),
         ],200);
+    }
+
+    /**
+    * Clear stored content.
+    * @return \Illuminate\Http\JsonResponse
+    */
+
+    public function clear(Request $request)
+    {
+        $canBeCleared = false;
+        $request = json_decode($request->getContent());
+
+        foreach($this->entries() as $entryKey => $entryValue){
+            if ($entryKey == $request->contentUID && $entryValue == true){
+                $canBeCleared = true;
+            }
+        }
+
+        if(!$canBeCleared){
+            return response()->json([
+                'message' => __('This entry can\'t be deleted.'),
+            ],422);
+        }
+
+        $content = Content::find($request->contentUID);
+        
+        if ($content) {
+            $content->delete();
+            return response()->json([
+                'message' => __('Content has been deleted.'),
+            ],200);
+        } else {
+            return response()->json([
+                'message' => __('Unable to delete content.'),
+            ],422);
+        }
+
     }
 }
