@@ -3,32 +3,34 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Pveltrop\DCMS\Classes\Content;
+use Stevebauman\Purify\Facades\Purify;
 
 class DCMSContentController extends Controller
 {
-    // protected $prefix;
-    // protected $class;
-    // protected $file;
-    // protected $requestFile;
-    // protected $classRequest;
-
-    public function __construct()
-    {
-        // if(!app()->runningInConsole()){
-            
-        // }
-    }
-
     public function update(Request $request)
     {
         $request = json_decode($request->getContent());
-        $newContent = Content::updateOrCreate([
-            'UUID'  => $request->elementUUID,
-            'value' => $request->editorValue
-        ]);
-        dd($newContent);
+
+        $dirty = $request->contentValue;
+        dd(Purify::clean($dirty));
+        
+        $content = Content::find($request->contentUID);
+        if (!$content) {
+            $content = Content::create([
+                'UID'  => $request->contentUID,
+                'value' => $request->contentValue
+            ]);
+        } else {
+            $content->update([
+                'UID'  => $request->contentUID,
+                'value' => $request->contentValue
+            ]);
+            $content->save();
+        }
+        
+        return response()->json([
+            'message' => __('Content has been updated.'),
+        ],200);
     }
 }

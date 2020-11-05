@@ -11,6 +11,8 @@ class Content extends Model
 
     protected $table = 'dcms_content';
 
+    protected $primaryKey = 'UID';
+
     protected $guarded = ['id'];
 
 }

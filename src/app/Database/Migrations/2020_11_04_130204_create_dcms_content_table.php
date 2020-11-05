@@ -15,8 +15,8 @@ class CreateDcmsContentTable extends Migration
     {
         Schema::create('dcms_content', function (Blueprint $table) {
             $table->id();
-            $table->string('UUID');
-            $table->string('value');
+            $table->string('UID');
+            $table->text('value');
             $table->timestamps();
         });
     }

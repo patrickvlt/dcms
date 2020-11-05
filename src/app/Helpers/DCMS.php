@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
+use Pveltrop\DCMS\Classes\Content;
 
 if (!function_exists('MaxSizeServer')) {
     function MaxSizeServer($type = 'mb')
@@ -117,7 +118,6 @@ if (!function_exists('RoutePrefix')) {
 }
 
 if (!function_exists('CurrentRoute')) {
-    // Return store or update route for form
     function CurrentRoute()
     {
         $routeName = request()->route()->getAction()['as'] ?? null;
@@ -371,5 +371,12 @@ if (!function_exists('SelectFields')){
             }
         }
         return $query;
+    }
+}
+
+if (!function_exists('DCMSContent')){
+    function DCMSContent($UID)
+    {
+        return Content::where('UID',$UID)->get()->first()->value ?? null;
     }
 }
