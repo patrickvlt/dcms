@@ -1,125 +1,174 @@
-hasLoaded('tinymce',function(){
-    var dcmsCount = 0, elementContent, elementUID, elementDisplay, elForm, elEditor, elBtnsDiv, elCancelButton,
-    elSaveButton, btn, editorValue, currentTiny, keyUps = 0, tagIsPresent, previousValue, previousFilledValue;
-    function AssignEditors(){
-        document.querySelectorAll('dcms').forEach(function(element){
-            element.addEventListener('click',function(event){
-                // Only one editor can be active at the same time
-                if (document.querySelectorAll('.dcms-editor').length > 0){
-                    return false;
-                }
+hasLoaded('axios',function(){
+    async function authenticate() {
+        await axios.post('/dcms/content/authenticate', {}, Object.assign(axiosCfg, {})).then(function (response) {
+            if (response.status == 200){
+                hasLoaded('tinymce',function(){
+                    var dcmsCount = 0, elementContent, elementUID, elementDisplay, elForm, elEditor, elBtnsDiv, elCancelButton, elClearButton,
+                    elSaveButton, btn, editorValue, currentTiny, keyUps = 0, tagIsPresent, previousValue, previousFilledValue, elRightBtnsDiv, elLeftBtnsDiv;
+                    function AssignEditors(){
+                        document.querySelectorAll('dcms').forEach(function(element){
+                            element.addEventListener('click',function(event){
+                                event.preventDefault();
+                                // Only one editor can be active at the same time
+                                if (document.querySelectorAll('.dcms-editor').length > 0){
+                                    return false;
+                                }
 
-                dcmsCount++;
-                element = event.target;
+                                dcmsCount++;
+                                element = event.target;
 
-                // Find parent element which spawns the editor, if user has clicked on a child element inside of it
-                if (!element.dataset.uid){
-                    element = element.closest("dcms")
-                }
+                                // Find parent element which spawns the editor, if user has clicked on a child element inside of it
+                                if (!element.dataset.uid){
+                                    element = element.closest("dcms")
+                                }
 
-                elementContent = element.outerHTML;
-                elementUID = element.dataset.uid;
-                elementDisplay = element.style.display;
-                element.style.display = 'none';
+                                elementContent = element.outerHTML;
+                                elementUID = element.dataset.uid;
+                                elementDisplay = element.style.display;
+                                element.style.display = 'none';
 
-                // Create DCMS editor
+                                // Create DCMS editor
 
-                // Form
-                elForm = document.createElement('form');
-                elForm.classList.add('dcms-editor');
-                elForm.style.display = 'none';
-                // Textarea
-                elEditor = document.createElement('textarea');
-                elEditor.value = elementContent
-                elEditor.id = elementUID+dcmsCount;
-                elForm.appendChild(elEditor, elForm.nextSibling);
-                // Buttons Div
-                elBtnsDiv = document.createElement('div');
-                elBtnsDiv.classList.add('d-flex');
-                elBtnsDiv.classList.add('justify-content-end');
-                // Cancel Button
-                elCancelButton = document.createElement('button');
-                elCancelButton.classList.add('btn');
-                elCancelButton.classList.add('btn-warning');
-                elCancelButton.classList.add('mr-2');
-                elCancelButton.textContent = Lang('Cancel');
-                elBtnsDiv.appendChild(elCancelButton, elForm.nextSibling);
-                // Save Button
-                elSaveButton = document.createElement('button');
-                elSaveButton.classList.add('btn');
-                elSaveButton.classList.add('btn-primary');
-                elSaveButton.textContent = Lang('Save');
-                elBtnsDiv.classList.add('mt-2');
-                elBtnsDiv.appendChild(elSaveButton, elForm.nextSibling);
+                                // Form
+                                elForm = document.createElement('form');
+                                elForm.classList.add('dcms-editor');
+                                elForm.style.display = 'none';
+                                // Textarea
+                                elEditor = document.createElement('textarea');
+                                elEditor.value = elementContent
+                                elEditor.id = elementUID+dcmsCount;
+                                elForm.appendChild(elEditor, elForm.nextSibling);
+                                // Buttons Div
+                                elRightBtnsDiv = document.createElement('div');
+                                elRightBtnsDiv.classList.add('d-flex');
+                                elRightBtnsDiv.classList.add('justify-content-end');
+                                elRightBtnsDiv.classList.add('w-75');
+                                elLeftBtnsDiv = document.createElement('div');
+                                elLeftBtnsDiv.classList.add('d-flex');
+                                elLeftBtnsDiv.classList.add('justify-content-start');
+                                elLeftBtnsDiv.classList.add('w-25');
+                                // Clear Button
+                                elClearButton = document.createElement('button');
+                                elClearButton.classList.add('btn');
+                                elClearButton.classList.add('btn-danger');
+                                elClearButton.textContent = Lang('Clear');
+                                elLeftBtnsDiv.classList.add('mt-2');
+                                elLeftBtnsDiv.appendChild(elClearButton, elForm.nextSibling);
+                                // Cancel Button
+                                elCancelButton = document.createElement('button');
+                                elCancelButton.classList.add('btn');
+                                elCancelButton.classList.add('btn-warning');
+                                elCancelButton.classList.add('mr-2');
+                                elCancelButton.textContent = Lang('Cancel');
+                                elRightBtnsDiv.appendChild(elCancelButton, elForm.nextSibling);
+                                // Save Button
+                                elSaveButton = document.createElement('button');
+                                elSaveButton.classList.add('btn');
+                                elSaveButton.classList.add('btn-primary');
+                                elSaveButton.textContent = Lang('Save');
+                                elRightBtnsDiv.classList.add('mt-1');
+                                elRightBtnsDiv.appendChild(elSaveButton, elForm.nextSibling);
 
-                // Insert elements in editor
-                elForm.appendChild(elBtnsDiv, elForm.nextSibling);
-                element.parentNode.insertBefore(elForm, element.nextSibling);
+                                elBtnsDiv = document.createElement('div');
+                                elBtnsDiv.classList.add('d-flex');
+                                elBtnsDiv.appendChild(elLeftBtnsDiv);
+                                elBtnsDiv.appendChild(elRightBtnsDiv);
 
-                // Initialise tinymce
-                tinymce.init({
-                    selector: "#"+elEditor.id,
-                    language_url: window.langFiles,
-                    language: window.locale,
-                    plugins: window.tinyMCEplugins,
-                    toolbar1: window.tinyMCEtoolbar,
-                    height: '275px',
-                    force_br_newlines : true,
-                    force_p_newlines : false,
-                    forced_root_block : '',
-                });
+                                // Insert elements in editor
+                                elForm.appendChild(elBtnsDiv, elForm.nextSibling);
+                                element.parentNode.insertBefore(elForm, element.nextSibling);
 
-                setTimeout(() => { elForm.style.display = 'initial'; }, 1000);
+                                // Initialise tinymce
+                                tinymce.init({
+                                    selector: "#"+elEditor.id,
+                                    language_url: window.langFiles,
+                                    language: window.locale,
+                                    plugins: window.tinyMCEplugins,
+                                    toolbar1: window.tinyMCEtoolbar,
+                                    force_br_newlines : true,
+                                    force_p_newlines : false,
+                                    forced_root_block : '',
+                                });
 
-                // Destroy TinyMCE instance
-                function DestroyInstance(){
-                    tinymce.execCommand('mceRemoveControl', true, elEditor.id);
-                    elForm.parentNode.removeChild(elForm);
-                    element.style.display = elementDisplay;
-                    elForm = null;
-                }
+                                setTimeout(() => { elForm.style.display = 'initial'; }, 1000);
 
-                // Insert new content if it has been submitted succesfully
-                function ReplaceContent(element,newContent){
-                    element.outerHTML = `<dcms data-uid="`+elementUID+`">`+newContent+`</dcms>`;
-                }
+                                // Destroy TinyMCE instance
+                                function DestroyInstance(){
+                                    tinymce.execCommand('mceRemoveControl', true, elEditor.id);
+                                    elForm.parentNode.removeChild(elForm);
+                                    element.style.display = elementDisplay;
+                                    elForm = null;
+                                }
 
-                // On cancel
-                elCancelButton.addEventListener('click',function(event){
-                    event.preventDefault();
-                    DestroyInstance();
-                });
+                                // Insert new content if it has been submitted succesfully
+                                function ReplaceContent(element,newContent){
+                                    element.outerHTML = `<dcms data-uid="`+elementUID+`">`+newContent+`</dcms>`;
+                                }
 
-                // On save
-                elSaveButton.addEventListener('click',function(event){
-                    event.preventDefault();
-                    btn = event.target;
-                    tinyMCE.triggerSave();
-                    editorValue = tinymce.get(elEditor.id).getContent();
+                                // On cancel
+                                elCancelButton.addEventListener('click',function(event){
+                                    event.preventDefault();
+                                    DestroyInstance();
+                                });
 
-                    async function saveContent() {
-                        await axios.post('/dcms/update/content', {
-                            contentUID: elementUID,
-                            contentValue: editorValue
-                        }, Object.assign(axiosCfg, {})).then(function (response) {
-                            DestroyInstance();
-                            if (response.status == 200){
-                                ReplaceContent(element,editorValue);
-                                // Callback function (since new HTML is added to the DOM)
-                                AssignEditors();
-                            } else {
-                                Swal.fire({
-                                    title: Lang('Unknown error'),
-                                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
-                                    icon: "error"
-                                })
-                            }
+                                // On clear
+                                elClearButton.addEventListener('click',function(event){
+                                    event.preventDefault();
+                                    btn = event.target;
+
+                                    async function clearContent() {
+                                        await axios.post('/dcms/content/clear', {
+                                            contentUID: elementUID
+                                        }, Object.assign(axiosCfg, {})).then(function (response) {
+                                            if (response.status == 200){
+                                                location.reload();
+                                            } else {
+                                                Swal.fire({
+                                                    title: Lang('Unknown error'),
+                                                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                                                    icon: "error"
+                                                })
+                                            }
+                                        });
+                                    }
+                                    clearContent();
+                                });
+
+                                // On save
+                                elSaveButton.addEventListener('click',function(event){
+                                    event.preventDefault();
+                                    btn = event.target;
+                                    tinyMCE.triggerSave();
+                                    editorValue = tinymce.get(elEditor.id).getContent();
+
+                                    async function saveContent() {
+                                        await axios.post('/dcms/content/update', {
+                                            contentUID: elementUID,
+                                            contentValue: editorValue
+                                        }, Object.assign(axiosCfg, {})).then(function (response) {
+                                            DestroyInstance();
+                                            if (response.status == 200){
+                                                ReplaceContent(element,editorValue);
+                                                // Callback function (since new HTML is added to the DOM)
+                                                AssignEditors();
+                                            } else {
+                                                Swal.fire({
+                                                    title: Lang('Unknown error'),
+                                                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                                                    icon: "error"
+                                                })
+                                            }
+                                        });
+                                    }
+                                    saveContent();
+                                });
+                            })
                         });
                     }
-                    saveContent();
-                });
-            })
+                    AssignEditors();
+                })
+            }
         });
     }
-    AssignEditors();
+    authenticate();
 })
