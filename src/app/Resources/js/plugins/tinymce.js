@@ -6,7 +6,6 @@ hasLoaded('tinymce',function(){
             language: window.locale,
             plugins: window.tinyMCEplugins,
             toolbar1: window.tinyMCEtoolbar,
-            height: '700px',
         });   
     }
 });
