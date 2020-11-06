@@ -70,7 +70,7 @@ if (dcmsConfig.plugins.toastr && dcmsConfig.plugins.toastr.enable !== false){
     LoadJS('toastr',dcmsConfig.plugins.toastr);
 }
 
-if (document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)){
+if ((document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)) || window.enableSlim == true){
     LoadCSS(dcmsConfig.plugins.slimselect);
     LoadJS('SlimSelect',dcmsConfig.plugins.slimselect);
 }
