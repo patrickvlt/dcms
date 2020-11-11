@@ -119,6 +119,7 @@ class Datatable
             // Clear data if general search cant find anything
             // Or else the results wont be affected
             $this->data = (count($newData) >! 0) ? [] : $newData;
+            $this->data = array_unique($this->data,SORT_REGULAR);
 
             if (count($this->data) > 0 && isset($perPage)){
                 if (count($newData) > $perPage){
