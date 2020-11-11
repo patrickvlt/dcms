@@ -281,6 +281,7 @@ window.DCMSDatatable = function (parameters) {
                     serverPaging: (table.dataset.ktPagination) == 'false' ? false : true,
                     serverFiltering: true,
                     serverSorting: true,
+                    saveState: false,
                 },
 
                 // layout definition
