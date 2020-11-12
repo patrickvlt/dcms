@@ -69,7 +69,10 @@ if (!function_exists('FindClass')) {
 if (!function_exists('Model')) {
     function Model()
     {
-        $model = request()->route()->controller->model;
+        $model = request()->route()->controller->model ?? null;
+        if (!$model){
+            return null;
+        }
         $routePrefix = request()->route()->controller->routePrefix;
         if (request()->route()->parameters()){
             if (isset(request()->route()->parameters()[$routePrefix])){
@@ -88,7 +91,8 @@ if (!function_exists('FormMethod')) {
     function FormMethod()
     {
         $routeName = request()->route()->getName();
-        $routeAction = explode(".", $routeName)[1];
+        $routeAction = explode(".", $routeName);
+        $routeAction = end($routeAction);
         $formMethod = null;
         switch ($routeAction) {
             case 'create':
@@ -127,11 +131,12 @@ if (!function_exists('CurrentRoute')) {
 
 if (!function_exists('FormRoute')) {
     // Return store or update route for form
-    function FormRoute()
+    function FormRoute($prefix=null)
     {
         $routeName = request()->route()->getName();
-        $routeModel = explode(".", $routeName)[0];
-        $routeAction = explode(".", $routeName)[1];
+        $routeModel = $prefix ?? explode(".", $routeName)[0];
+        $routeAction = explode(".", $routeName);
+        $routeAction = end($routeAction);
         $formRoute = null;
         switch ($routeAction) {
             case 'create':

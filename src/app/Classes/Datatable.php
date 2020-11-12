@@ -8,12 +8,15 @@
 
 namespace Pveltrop\DCMS\Classes;
 
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 
 class Datatable
 {
-    public function __construct($query, $searchFields=null, $excludeSearchFields=[]){
+    public function __construct($query, $searchFields = null, $excludeSearchFields = [])
+    {
         $this->query = $query;
         $this->searchFields = $searchFields;
         $this->excludeSearchFields = $excludeSearchFields;
@@ -27,9 +30,9 @@ class Datatable
      * @param $value
      */
 
-    public function filter($field=null, $value=null)
+    public function filter($field = null, $value = null)
     {
-        $this->query->where($field,'=',$value);
+        $this->query->where($field, '=', $value);
     }
 
     /**
@@ -47,44 +50,42 @@ class Datatable
         // Build filters for query
         if (isset($params['query'])) {
             foreach ($params['query'] as $key => $value) {
-                if ($key !== 'generalSearch'){
-                    $this->filter($key,$value);
+                if ($key !== 'generalSearch') {
+                    $this->filter($key, $value);
                 }
             }
-        }
-
-        // Sort the query
-        if (isset($params['sort'])) {
-            // orderBy(field,asc)
-            $sortBy = ($params['sort']['sort'] == 'asc') ? 'asc' : 'desc';
-            $this->query->orderBy($params['sort']['field'],$sortBy);
         }
 
         // Get (per) page from Datatable query
         $perPage = isset($params['pagination']['perpage']) && $params['pagination']['perpage'] !== 'NaN' ? $params['pagination']['perpage'] : null;
         $page = isset($params['pagination']['page']) ? $params['pagination']['page'] : null;
 
+        // Generate collection from results
+        $this->data = collect($this->query->get());
+
+        // Sort the collection, nested columns will work too
+        if (isset($params['sort'])) {
+            $sortBy = ($params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
+            $this->data = $this->data->{$sortBy}($params['sort']['field']);
+        }
+
+        // Paginate the collection instead of query
+        $total = count($this->data);
         if ($perPage){
-            // (re)paginate if user is on a page exceeding the max pages from this collection
-            PaginateAgain:
-            // Prepare pagination for query
-            $paginator = $this->query->paginate($perPage,['*'],'page',$page);
-            // Make collection from the paginated items
-            $this->data = collect($paginator->items());
-            // Get pages from paginator
-            $pages = $paginator->lastPage();
-            // If user is on a page outside of the paginators range
-            if ($page > $pages){
+            Paginate:
+            $pages = (int)ceil($total / $perPage);
+            // If user is outside the pages range when changing pagination preferences
+            if ($page > $pages) {
+                // Set page to max possible page
                 $page = $pages;
-                goto PaginateAgain;
+                goto Paginate;
             }
-            $total = $paginator->total();
+            $this->data = $this->data->forPage($page,$perPage);
         } else {
-            $this->data = collect($this->query->get());
             $pages = 1;
             $page = 1;
         }
-
+        
         // Convert collection to array
         $this->data = array_values($this->data->toArray());
 
@@ -92,7 +93,8 @@ class Datatable
         if (isset($params['query']['generalSearch']) && isset($this->data[0])){
             $searchValue = $params['query']['generalSearch'];
             $searchColumns = [];
-            // Loop through searchable columns
+
+            // If no searchable columns are passed, use all columns
             if (isset($this->searchFields)){
                 $searchColumns = $this->searchFields;
             } else {
@@ -101,17 +103,16 @@ class Datatable
                 }
             }
             
+            // Make new array with foreach, this is faster than using array_filter
             $newData = [];
             foreach($searchColumns as $searchColumn){
                 foreach($this->data as $dataKey => $dataRow){
-                    try {
-                        if (!in_array($searchColumn,$this->excludeSearchFields)){
-                            if (preg_match('/'.strtolower($searchValue).'/m', strtolower($dataRow[$searchColumn])) > 0){
-                                $newData[] = $dataRow;
-                            }
+                    $searchRe = '/\:(\"|)'.$searchValue.'.*?(\,)/m';
+                    $searchIn = strtolower(json_encode($dataRow));
+                    if (!in_array($searchColumn,$this->excludeSearchFields)){
+                        if (preg_match($searchRe,$searchIn) > 0){
+                            $newData[] = $dataRow;
                         }
-                    } catch (\Throwable $th) {
-                        //
                     }
                 }
             }
@@ -136,10 +137,10 @@ class Datatable
         }
 
         // Make response object with meta
-        $response = (object) '';
-        
+        $response = (object) 'query';
+
         // Paginate the results if page and perpage parameters are present
-        if (isset($page,$perPage) && $total > 0){
+        if (isset($page, $perPage) && $total > 0) {
             $response->data = $this->data;
             $response->meta = [
                 'page' => $page,
