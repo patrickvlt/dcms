@@ -67,20 +67,16 @@ if (!function_exists('FindClass')) {
 }
 
 if (!function_exists('Model')) {
-    function Model()
+    function Model($prefix = null)
     {
         $model = request()->route()->controller->model ?? null;
-        if (!$model){
-            return null;
-        }
-        $routePrefix = request()->route()->controller->routePrefix;
-        if (request()->route()->parameters()){
-            if (isset(request()->route()->parameters()[$routePrefix])){
-                $id = request()->route()->parameters()[$routePrefix];
-            } else if (isset(request()->route()->parameters()['id'])){
-                $id = request()->route()->parameters()['id'];
+        $parameters = request()->route()->parameters ?? null;
+        if (!$model && $parameters){
+            foreach($parameters as $key => $parameter){
+                if (is_object($parameter)){
+                    return $model = $parameter;
+                }
             }
-            return $model::find($id);
         }
         return null;
     }
@@ -107,6 +103,27 @@ if (!function_exists('FormMethod')) {
     }
 }
 
+if (!function_exists('FormRoute')) {
+    // Return store or update route for form
+    function FormRoute($prefix=null)
+    {
+        $routeName = request()->route()->getName();
+        $routeAction = explode(".", $routeName);
+        $routeAction = end($routeAction);
+        $formRoute = null;
+        switch ($routeAction) {
+            case 'create':
+                $formRoute = route($prefix . '.store');
+                break;
+            case 'update':
+            case 'edit':
+                $formRoute = route($prefix . '.update', is_object(Model()) ? Model()->id : Model());
+                break;
+        }
+        return $formRoute;
+    }
+}
+
 if (!function_exists('RoutePrefix')) {
     // Return store or update route for form
     function RoutePrefix()
@@ -126,28 +143,6 @@ if (!function_exists('CurrentRoute')) {
     {
         $routeName = request()->route()->getAction()['as'] ?? null;
         return $routeName;
-    }
-}
-
-if (!function_exists('FormRoute')) {
-    // Return store or update route for form
-    function FormRoute($prefix=null)
-    {
-        $routeName = request()->route()->getName();
-        $routeModel = $prefix ?? explode(".", $routeName)[0];
-        $routeAction = explode(".", $routeName);
-        $routeAction = end($routeAction);
-        $formRoute = null;
-        switch ($routeAction) {
-            case 'create':
-                $formRoute = route($routeModel . '.store');
-                break;
-            case 'update':
-            case 'edit':
-                $formRoute = route($routeModel . '.update', is_object(Model()) ? Model()->id : Model());
-                break;
-        }
-        return $formRoute;
     }
 }
 
