@@ -3,149 +3,289 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
+use Pveltrop\DCMS\Classes\Form;
+use Pveltrop\DCMS\Classes\PHPExcel;
+use Pveltrop\DCMS\Classes\Datatable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-$GLOBALS['classFolders'] = [
-    'app'
-];
-
 trait DCMSController
 {
-    public function DCMS(){
-        // leave this empty
-    }
+    // private $prefix;
+    // private $class;
+    // private $file;
+    // private $requestFile;
+    // private $modelRequest;
+    // private $indexQuery;
+    // private $indexView;
+    // private $showView;
+    // private $editView;
+    // private $createView;
+    // private $createdUrl;
+    // private $createdTitle;
+    // private $createdMessage;
+    // private $updatedUrl;
+    // private $updatedTitle;
+    // private $updatedMessage;
+    // private $deletedUrl;
+    // private $deletedTitle;
+    // private $deletedMessage;
+    // private $importCols;
+    // private $importFailedTitle;
+    // private $importFailedMessage;
+    // private $importEmptyTitle;
+    // private $importEmptyMessage;
+    // private $importFinishedTitle;
+    // private $importFinishedMessage;
+    // private $importedUrl;
+    // private $autoFixColumns;
 
-    public function DCMSPrefix(){
-        return (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-    }
+    // This returns void by default
+    public function DCMS(): void {}
 
-    public function DCMSClass(){
-        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($this->DCMSPrefix())['class'];
-    }
-
-    public function DCMSModel(){
-        return (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($this->DCMSPrefix())['file'];
+    public function __construct()
+    {
+        if (!app()->runningInConsole()) {
+            // Route prefix
+            $this->routePrefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
+            // Get model and custom request class
+            if (!isset($this->DCMS()['model'])){
+                throw new \RuntimeException("No model defined for: ".ucfirst($this->routePrefix)." in DCMS function.");
+            } else {
+                $this->model = $this->DCMS()['model'];
+            }
+            if (!isset($this->DCMS()['request'])){
+                throw new \RuntimeException("No custom request defined for: ".ucfirst($this->routePrefix)." in DCMS function.");
+            } else {
+                $this->request = $this->DCMS()['request'];
+                $this->modelRequest = (new $this->request);
+            }
+            // CRUD views
+            $this->indexView = $this->DCMS()['views']['index'] ?? 'index';
+            $this->showView = $this->DCMS()['views']['show'] ?? 'show';
+            $this->editView = $this->DCMS()['views']['edit'] ?? 'edit';
+            $this->createView = $this->DCMS()['views']['create'] ?? 'create';
+            // JSON CRUD responses
+            $this->createdUrl = $this->DCMS()['created']['url'] ?? '/'.$this->routePrefix;
+            $this->createdTitle = $this->DCMS()['created']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('created');
+            $this->createdMessage = $this->DCMS()['created']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully created');
+            $this->updatedUrl = $this->DCMS()['updated']['url'] ?? '/'.$this->routePrefix;
+            $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('updated');
+            $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully updated');
+            $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? '/'.$this->routePrefix;
+            $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('deleted');
+            $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully deleted');
+            // jExcel imports
+            $this->importCols = $this->DCMS()['import']['columns'] ?? null;
+            $this->importFailedTitle = $this->DCMS()['import']['failed']['title'] ?? __('Import failed');
+            $this->importFailedMessage = $this->DCMS()['import']['failed']['message'] ?? __('Some fields contain invalid data.');
+            $this->importEmptyTitle = $this->DCMS()['import']['empty']['title'] ?? __('Import failed');
+            $this->importEmptyMessage = $this->DCMS()['import']['empty']['message'] ?? __('Please fill in data to import.');
+            $this->importFinishedTitle = $this->DCMS()['import']['finished']['title'] ?? __('Import finished');
+            $this->importFinishedMessage = $this->DCMS()['import']['finished']['message'] ?? __('All data has been succesfully imported.');
+            $this->importedUrl = $this->DCMS()['imported']['url'] ?? '/'.$this->routePrefix;
+            // jExcel autocorrect columns
+            $this->autoFixColumns = $this->DCMS()['import']['autocorrect'] ?? null;
+        }
     }
 
     public function index()
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
-        
-        $indexQuery = (isset($this->DCMS()['indexQuery'])) ? $this->DCMS()['indexQuery'] : FindClass($this->DCMSPrefix())['class']::all();
         if (request()->ajax()) {
-            return $indexQuery;
+            return $this->indexQuery;
         }
-        $indexView = (isset($this->DCMS()['views']['index'])) ? $this->DCMS()['views']['index'] : 'index';
-
         $vars = method_exists($this,'beforeIndex') ? $this->beforeIndex() : null;
-        return view($prefix.'.'.$indexView)->with($vars);
+        return view($this->routePrefix.'.'.$this->indexView)->with($vars);
+    }
+
+    public function fetch()
+    {
+        return (new Datatable((new $this->model)->query()))->render();
     }
 
     public function show($id)
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
-        $$prefix = $class::FindOrFail($id);
-        $showView = (isset($this->DCMS()['views']['show'])) ? $this->DCMS()['views']['show'] : 'show';
+        ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
 
         $vars = method_exists($this,'beforeShow') ? $this->beforeShow($id) : null;
-        return view($prefix.'.'.$showView,compact($$prefix))->with($vars);
+        return view($this->routePrefix.'.'.$this->showView,compact(${$this->routePrefix}))->with($vars);
     }
 
     public function edit($id)
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
-        $$prefix = $class::FindOrFail($id);
-        $editView = (isset($this->DCMS()['views']['edit'])) ? $this->DCMS()['views']['edit'] : 'edit';
+        ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
+        // Auto generated Form with HTMLTag package
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->DCMS());
 
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
-        return view($prefix.'.'.$editView,compact($$prefix))->with($vars);
+        return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
 
     public function create()
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $createView = (isset($this->DCMS()['views']['create'])) ? $this->DCMS()['views']['create'] : 'create';
-
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
-        return view($prefix.'.'.$createView)->with($vars);
+        // Auto generated Form with HTMLTag package
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->DCMS());
+        return view($this->routePrefix.'.'.$this->createView)->with($vars)->with(['form' => $form]);
     }
 
     public function crud($createdOrUpdated,$id=null)
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
-        $file = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['file'] : FindClass($prefix)['file'];
-
-        $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $file.'Request';
-        $classRequest = '\App\Http\Requests\\'.$requestFile;
-
         $requestData = request()->all();
-        try {
-            $modRequest = (new $classRequest())->beforeValidation();
-            foreach ($modRequest as $modKey => $modValue){
-                $requestData[$modKey] = $modValue;
+        // Merge with modified request from beforeValidation()
+        $uploadRules = method_exists($this->modelRequest,'uploadRules') ? $this->modelRequest->uploadRules() : false;
+        $requestRules = method_exists($this->modelRequest,'rules') ? $this->modelRequest->rules() : false;
+        $requestMessages = method_exists($this->modelRequest,'messages') ? $this->modelRequest->messages() : false;
+        $beforeValidation = method_exists($this->modelRequest,'beforeValidation') ? $this->modelRequest->beforeValidation($requestData) : false;
+        if ($beforeValidation){
+            foreach ($beforeValidation as $changingKey => $changingValue){
+                $requestData[$changingKey] = $changingValue;
             }
-        } catch (\Throwable $th) {
-            //
         }
-        $request = Validator::make($requestData, (new $classRequest())->rules(), (new $classRequest())->messages());
+        // Grab upload rules from custom request
+        // Validate input file fields
+        $filesToRemove = [];
+        if ($uploadRules){
+            foreach ($uploadRules as $uploadKey => $uploadRule){
+                $key = explode('.',$uploadKey);
+                $key = $key[0];
+                if (isset($uploadRules[$key.".*"])){
+                    $required = GetRule($uploadRules[$key.".*"],'required') ? true : false;
+                    $hasBeenFilled = array_key_exists($key,array_flip(array_keys($requestData)));
+                    if ($required && !$hasBeenFilled){
+                        $existingRecord = (Model() && Model()->{$key}) ? Model()->{$key} : false;
+                        if (!$existingRecord){
+                            return response()->json([
+                                'message' => __('Missing file'),
+                                'errors' => [
+                                    'file' => [
+                                        $requestMessages[$uploadKey.'.missingFile'] ?? __('Missing a required file. Please upload a file on this page.')
+                                        ]
+                                    ],
+                                ], 422);
+                        }
+                    }
+                }
+                if (array_key_exists($key, $requestData)){
+                    if (is_array($requestData[$key])){
+                        foreach ($requestData[$key] as $x => $file){
+                            // Check if file uploads have this applications URL in it
+                            // If any upload doesnt have the url in its filename, then it has been tampered with
+                            if (!strpos($file, env('APP_URL')) === 0){
+                                return response()->json([
+                                    'message' => __('Invalid file'),
+                                    'errors' => [
+                                        'file' => [
+                                            $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
+                                            ]
+                                        ],
+                                ], 422);
+                            }
+                            // Check if file exists in tmp folder
+                            // Then move it to final public folder
+                            // Strip APP_URL to locate this file locally
+                            $checkFile = str_replace(env('APP_URL'),'',$file);
+                            $checkFile = str_replace('/storage/','/public/',$checkFile);
+                            $storedFile = Storage::exists($checkFile);
+                            if ($storedFile){
+                                $newFilePath = str_replace('/tmp/','/',$checkFile);
+                                $filesToMove[] = [
+                                    'oldPath' => $checkFile,
+                                    'newPath' => $newFilePath
+                                ];
+                                $requestData[$key][$x] = str_replace('/public/','/storage/',$newFilePath);
+                            } else {
+                                return response()->json([
+                                    'message' => __('Invalid file'),
+                                    'errors' => [
+                                        $key => [
+                                            $requestMessages[$uploadKey.'.notFound'] ?? __('File couldn\'t be found. Try to upload it again to use it for ').$key.'.'
+                                        ]
+                                    ],
+                                ], 422);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $request = Validator::make($requestData, $requestRules, $requestMessages);
         $request = $request->validated();
-        if ($createdOrUpdated == 'created'){
-            foreach ($request as $key => $val){
-                // if value in current request is an array
-                if (is_array($val)){
-                    // if value is a file path
-                    if (strpos(implode(" ",$val), '/storage/') !== false) {
-                        $newArr = [];
-                        // remove unnecessary quotes, make a new clean JSON array
-                        foreach ($val as $x){
-                            $x = str_replace('"','',$x);
-                            array_push($newArr,$x);
-                        }
-                        $newArr = json_encode($newArr);
-                        $newArr = str_replace('""','"',$newArr);
-                        $request[$key] = $newArr;
+        $afterValidation = method_exists($this->modelRequest,'afterValidation') ? $this->modelRequest->afterValidation($request) : false;
+        // Merge with modified request from afterValidation()
+        if ($afterValidation){
+            foreach ($afterValidation as $modKey => $modValue){
+                $request[$modKey] = $modValue;
+            }
+        }
+        if ($createdOrUpdated === 'created'){
+            ${$this->routePrefix} = (new $this->model)->create($request);
+        } else if ($createdOrUpdated === 'updated') {
+            ${$this->routePrefix} = (new $this->model)->findOrFail($id);
+            // Update any arrays / files 
+            foreach ($request as $requestKey => $requestVal){
+                // If request has an array, and points to storage, merge it with existing array if it has values already
+                if (is_array($requestVal) && (strpos(implode(" ", $requestVal), '/storage/') !== false)) {
+                    $newArr = [];
+                    foreach ($requestVal as $val){
+                        $newArr[] = $val;
                     }
+                    try {
+                        // check if object has an array for this already
+                        $existing = ${$this->routePrefix}->$requestKey;
+                        if(count($existing) > 0){
+                            $newArr = array_merge($existing,$newArr);
+                        }
+                    } catch (\Throwable $th) {
+                        //
+                    }
+                    // Check if array limit isnt being overridden
+                    $loopRules = $requestRules[$requestKey];
+                    $loopRules = (is_string($loopRules)) ? explode('|',$loopRules) : $loopRules;
+                    foreach ($loopRules as $rule => $ruleVal){
+                        $min = null;
+                        $max = null;
+                        if (strpos($ruleVal, 'min') === 0){
+                            $min = explode(':',$ruleVal)[1];
+                        }
+                        if (strpos($ruleVal, 'max') === 0){
+                            $max = explode(':',$ruleVal)[1];
+                        }
+                    }
+                    // If array limit is being overridden
+                    if (count($newArr) > $max){
+                        return response()->json([
+                            'message' => __('File limit reached'),
+                            'errors' => [
+                                $requestKey => [
+                                    $requestMessages[$requestKey.'.maxLimit'] ?? $requestKey.__(' can\'t have more than ').$max.__(' files.')
+                                ]
+                            ],
+                        ], 422);
+                    }
+                    // If array doesnt reach amount of required files
+                    if (count($newArr) < $min){
+                        return response()->json([
+                            'message' => __('Missing files'),
+                            'errors' => [
+                                $requestKey => [
+                                    $requestMessages[$requestKey.'.minLimit'] ?? $requestKey.__(' requires more than ').$min.__(' files.')
+                                ]
+                            ],
+                        ], 422);
+                    }
+                    $request[$requestKey] = $newArr;
                 }
             }
-            $$prefix = $class::create($request);
-        } else if ($createdOrUpdated == 'updated') {
-            $$prefix = $class::findOrFail($id);
-                foreach ($request as $key => $val){
-                    // if value in current request is an array
-                    if (is_array($val)){
-                        // if value is a file path
-                        if (strpos(implode(" ",$val), '/storage/') !== false) {
-                            $newArr = [];
-                            // remove unnecessary quotes, make a new clean JSON array
-                            foreach ($val as $x){
-                                $x = str_replace('"','',$x);
-                                array_push($newArr,$x);
-                            }
-                            try {
-                                // check if object has an array for this already
-                                $existing = json_decode($$prefix->$key,true);
-                                if(count($existing) > 0){
-                                    $newArr = array_merge($existing,$newArr);
-                                }
-                            } catch (\Throwable $th) {
-                                //
-                            }
-                            $newArr = json_encode($newArr);
-                            $newArr = str_replace('""','"',$newArr);
-
-                            $request[$key] = $newArr;
-                        }
-                    }
-                }
-                $$prefix->update($request);
+            ${$this->routePrefix}->update($request);
         }
-
-        return $this->DCMSJSON($$prefix,$createdOrUpdated);
+        if (isset($filesToMove) && count($filesToMove) > 0){
+            foreach ($filesToMove as $key => $file) {
+                Storage::copy($file['oldPath'],$file['newPath']);
+                Storage::delete($file['oldPath']);
+            }
+        }
+        return $this->DCMSJSON(${$this->routePrefix},$createdOrUpdated);
     }
 
     public function store()
@@ -160,37 +300,40 @@ trait DCMSController
 
     public function destroy($id)
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
-        $class::findOrFail($id)->delete();
+        (new $this->model)->findOrFail($id)->delete();
     }
 
     public function DCMSJSON($object,$createdOrUpdated)
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-
-        if (isset($this->DCMS()[$createdOrUpdated]['url'])){
+        // Url
+        $url = $this->{$createdOrUpdated.'Url'};
+        preg_match_all('/__\S*__/m',$url,$matches);
+        foreach($matches[0] as $match){
+            $prop = str_replace('__','',$match);
+            $url = str_replace($match,$object->$prop,$url);
+        }
+        if ((isset($this->createdUrl) && $createdOrUpdated == 'created') || (isset($this->updatedUrl) && $createdOrUpdated == 'updated')){
             if (request()->ajax()){
-                $redirect = $this->DCMS()[$createdOrUpdated]['url'];
+                $redirect = $url;
             } else {
-                $redirect = redirect()->route($this->DCMS()[$createdOrUpdated]['url']);
+                return redirect($url);
             }
         } else {
             if (request()->ajax()){
-                $redirect = '/'.$prefix;
+                $redirect = '/'.$this->routePrefix;
             } else {
-                $redirect = redirect()->route($prefix.'.index');
+                $redirect = redirect()->route($this->routePrefix.'.index');
             }
         }
         // Title
-        $title = (isset($this->DCMS()[$createdOrUpdated]['title'])) ? $this->DCMS()[$createdOrUpdated]['title'] : __(FindClass($prefix)['file']).__(' ').__($createdOrUpdated);
+        $title = $this->{$createdOrUpdated.'Title'};
         preg_match_all('/__\S*__/m',$title,$matches);
         foreach($matches[0] as $match){
             $prop = str_replace('__','',$match);
             $title = str_replace($match,$object->$prop,$title);
         }
         // Message
-        $message = (isset($this->DCMS()[$createdOrUpdated]['message'])) ? $this->DCMS()[$createdOrUpdated]['message'] : __(FindClass($prefix)['file']).' '.__('has been succesfully').' '.__($createdOrUpdated).'.';
+        $message = $this->{$createdOrUpdated.'Message'};
         preg_match_all('/__\S*__/m',$message,$matches);
         foreach($matches[0] as $match){
             $prop = str_replace('__','',$match);
@@ -203,135 +346,18 @@ trait DCMSController
         ], 200);
     }
 
-    public function ProcessFile($type,$column)
-    {
-        $abort = false;
-        foreach (request()->file() as $key => $file) {
-            if ($file[0]->getSize() == false){
-                $abort = true;
-                break;
-            }
+    public function StoreExport($data,$headers=null)
+    {      
+        if (!isset(config('filesystems.disks')['tmp'])){
+            throw new \RuntimeException("Please define a tmp filesystem in your config.");
         }
-        if ($abort == true){
-            return response()->json([
-                'message' => __('Upload failed'),
-                'errors' => [
-                    'file' => [
-                        __('File is above ').MaxSizeServer('mb').'MB.'
-                    ]
-                ]
-            ], 422);
-        }
-        if ($abort == false){
-            $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-            $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
-            $file = FindClass($prefix)['file'];
-            $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $file.'Request';
-            $classRequest = '\App\Http\Requests\\'.$requestFile;
-
-            $column = str_replace('[]','',$column);
-
-            $uploadRules = (new $classRequest())->uploadRules();
-
-            $request = Validator::make(request()->all(), $uploadRules,(new $classRequest())->messages());
-            if ($request->failed()) {
-                return response()->json([
-                    'message' => __('Upload failed'),
-                    'errors' => [
-                        $request->errors()
-                    ]
-                ], 422);
-            }
-            else {
-                $request = $request->validated();
-                if (count($request) <= 0){
-                    return response()->json([
-                        'message' => __('Upload failed'),
-                        'errors' => [
-                            'file' => [
-                                __('File couldn\'t get validated.')
-                            ]
-                        ]
-                    ], 422);
-                }
-                $file = $request[$column][0];
-                $file->store('public/files/' . $type.'/'.$column);
-                $returnFile = '/storage/files/'.$type.'/'.$column.'/'.$file->hashName();
-                return $returnFile;
-            }
-        }
-    }
-
-    public function DeleteFile($type,$column,$revertKey=null)
-    {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
-
-        $column = str_replace('[]','',$column);
-        $path = str_replace('"','',stripslashes(request()->getContent()));
-        $name = explode('/',$path);
-        $name = end($name);
-        $file = 'public/files/'.$type.'/'.$column.'/'.$name;
-        if (Storage::exists($file) == true){
-            Storage::delete($file);
-            $msg = 'Deleted succesfully';
-        } 
-        else if (Storage::exists($path)){
-            Storage::delete($path);
-            $msg = 'Deleted succesfully';
-            $status = 200;
-        }
-        else {
-            $msg = 'File doesn\'t exist';
-            $status = 422;
-        }
-        $column = ($revertKey) ? $revertKey : $column;
-        $findInDB = $class::where($column,'like','%'.$name.'%')->get();
-        // if the current class uses this file in any database row
-        if (count($findInDB) > 0){
-            // checking all rows using this file
-            foreach ($findInDB as $key => $model){
-                $colValue = $model->$column;
-                // json decode the arrays with files
-                $fileArr = json_decode($colValue,true);
-                // find the file in the decoded array and remove it
-                if (is_array($fileArr)){
-                    foreach ($fileArr as $key => $dbFile) {
-                        if ($dbFile == $path){
-                            unset($fileArr[$key]);
-                        }
-                    }
-                } else {
-                    $fileArr = null;
-                }
-                if (is_array($fileArr)){
-                    if (count($fileArr) == 0){
-                        $fileArr = null;
-                    }
-                }
-                if ($fileArr !== null){
-                    $fileArr = json_encode(array_values($fileArr));
-                }
-                $model->update([
-                    $column => $fileArr
-                ]);
-            }
-        }
-        $msg = 'Deleted succesfully';
-        $status = 200;
-        return response()->json([$msg,$status]);
+        $fileName = RandomString().'.xlsx';
+        PHPExcel::store($headers,$data,$fileName);
+        return config('filesystems.disks')['tmp']['url'].'/'.$fileName;
     }
 
     public function ImportSheet()
     {
-        $prefix = (isset($this->DCMS()['routePrefix'])) ? $this->DCMS()['routePrefix'] : GetPrefix();
-        $class = (isset($this->DCMS()['class'])) ? FindClass(strtolower($this->DCMS()['class']))['class'] : FindClass($prefix)['class'];
-        $requestFile = (isset($this->DCMS()['request'])) ? $this->DCMS()['request'] : $class.'Request';
-        $classRequest = '\App\Http\Requests\\'.$requestFile;
-
-        // which column belongs to which request attribute? e.g. 'name' => 1, 'created_at' => 5
-        $importCols = (isset($this->DCMS()['import']['columns'])) ? $this->DCMS()['import']['columns'] : GetPrefix();
-
         $importData = request()->sheetData;
         //prepare sheet validation variables
         $customRequest = new \Illuminate\Http\Request();
@@ -341,59 +367,104 @@ trait DCMSController
         $failed = false;
         $nullableColumns = [];
 
-        foreach ((new $classRequest())->rules() as $key => $rule){
+        foreach ((new $this->modelRequest())->rules() as $key => $rule){
             if (preg_match('/nullable/',$rule) || !preg_match('/required/',$rule)){
-                array_push($nullableColumns,$key);
+                $nullableColumns[] = $key;
             }
         }
 
         if (!empty($importData)) {
             foreach ($importData as $row) {
-                foreach ($row as $col){
+                foreach ($row as $y => $col){
                     // check if required columns arent empty
-                    if ($col == null || $col == '' && !in_array($col,$nullableColumns)){
-                        array_push($errors, ['line' => $x]);
+                    if ($col == null || ($col == '' && !in_array($col, $nullableColumns))){
                         $failed = true;
                     }
                 }
 
                 // if data is ready for validation, add to the request
                 if ($failed == false) {
-                    foreach ($importCols as $x => $col){
+                    foreach ($this->importCols as $x => $col){
                         $validateData[$x] = $row[$col];
                     }
                     $customRequest->request->add($validateData);
-                    $this->validate($customRequest, (new $classRequest())->rules(), (new $classRequest())->messages());
+                    $this->validate($customRequest, (new $this->modelRequest())->rules(), (new $this->modelRequest())->messages());
                 }
                 $x++;
             }
             // if failed, return a JSON response
             if ($failed == true) {
                 return response()->json(['response' => [
-                    'title' => (isset($this->DCMS()['import']['failed']['title'])) ? $this->DCMS()['import']['failed']['title'] : __('Import failed'),
-                    'message' => (isset($this->DCMS()['import']['failed']['message'])) ? $this->DCMS()['import']['failed']['message'] : __('Some fields contain invalid data.'),
+                    'title' => $this->importFailedTitle,
+                    'message' => $this->importFailedMessage,
                 ], 'errors' => $errors], 422);
-            } else {
-                //if succeeded, create objects and return a JSON response
-                foreach ($importData as $row) {
-                    $passedData = [];
-                    //assign request keys to predefined keys to columns
-                    foreach ($importCols as $x => $col){
-                        $passedData[$x] = $row[$col];
-                    }
-                    $class::create($passedData);
+            }
+            //if succeeded, create objects and return a JSON response
+            foreach ($importData as $row) {
+                $passedData = [];
+                // create new objects with data from jExcel table, as this has passed validation
+                foreach ($this->importCols as $x => $col){
+                    $passedData[$x] = $row[$col];
                 }
+                (new $this->model)->create($passedData);
             }
         } else {
             return response()->json(['response' => [
-                'title' => (isset($this->DCMS()['import']['empty']['title'])) ? $this->DCMS()['import']['empty']['title'] : __('Import failed'),
-                'message' => (isset($this->DCMS()['import']['empty']['message'])) ? $this->DCMS()['import']['empty']['message'] : __('Please fill in data to import.'),
+                'title' => $this->importFailedTitle,
+                'message' => $this->importFailedMessage,
             ]], 422);
         }
 
         return response()->json(['response' => [
-            'title' => (isset($this->DCMS()['import']['finished']['title'])) ? $this->DCMS()['import']['finished']['title'] : __('Import finished'),
-            'message' => (isset($this->DCMS()['import']['finished']['message'])) ? $this->DCMS()['import']['finished']['message'] : __('All data has been succesfully imported.'),
-        ], 'url' => '/address'], 200);
+            'title' => $this->importFinishedTitle,
+            'message' => $this->importFinishedMessage,
+        ], 'url' => $this->importedUrl], 200);
+    }
+
+    public function FixSheet()
+    {
+        // Get data from ajax request at jexcel table
+        $data = request()->data;
+        $th = request()->th;
+
+        // Get data from controller, class and columns to use for autocorrection
+        if ($this->autoFixColumns == null){
+            return false;
+        }
+
+        // Search for a column and retrieve its value
+        function searchForColumn($column, $array) {
+            foreach ($array as $key => $val) {
+                if ($val['column'] == $column) {
+                    return $key;
+                }
+            }
+            return null;
+        }
+        // Loop through table dropdown columns
+        foreach ($th as $y => $header){
+            $column = searchForColumn($header['column'],$this->autoFixColumns);
+            // Find the class which belongs to the provided prefix, sent from the table header in jExcel
+            $class = FindClass(strtolower($column))['class'];
+            $class = new $class;
+            // Loop through data the user has sent
+            foreach ($data as $x => $row){
+                // Make a query for each Table Header
+                $query = $class::query();
+                $fields = $this->autoFixColumns[$column]['fields'];
+                // Strip whitespace from value and loop through the class` table to find a match
+                $value = $data[$x][$header['column']];
+                $value = str_replace(" ","",$value);
+                foreach ($fields as $field) {
+                    $query->orWhere($field, 'LIKE', '%'.$value.'%');
+                }
+                $match = $query->get()->first();
+                // If a match is found, replace the cells value by the id from the match
+                $data[$x][$header['column']] = !empty($match) ? $match['id'] : $data[$x][$header['column']];
+            }
+        }
+
+
+        return $data;
     }
 }

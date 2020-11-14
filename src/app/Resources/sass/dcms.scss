@@ -1,28 +1,4 @@
-@import "plugins/lineawesome.scss";
-// @import url('https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css');
-
-@import "plugins/jquery-confirm.scss";
-// @import url('https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css');
-
-@import "plugins/slimselect.scss";
-// @import url('https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.0/slimselect.min.css');
-
-// @import "plugins/datatables.scss";
-// @import "plugins/datatables_resp.scss";
-
-@import "plugins/filepond.scss";
-@import "plugins/filepond_preview.scss";
-// @import url('https://unpkg.com/filepond/dist/filepond.css');
-// @import url('https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css');
-
-
-@import "plugins/jexcel.scss";
-@import "plugins/jsuites.scss";
-// @import 'https://bossanova.uk/jexcel/v3/jexcel.css';
-// @import 'https://bossanova.uk/jsuites/v2/jsuites.css';
-
 @import "plugins/carousel.scss";
-@import url("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
 
 .dcmsImg {
     height: 13rem;
@@ -42,6 +18,14 @@
     text-align: center;
 }
 
+.dcmstable-image-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 0.42rem;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
 .spotlight:hover {
     opacity: 0.8;
     cursor: pointer;
@@ -51,10 +35,70 @@
     padding: 2px !important;
 }
 
+.ss-main, .ss-single-selected {
+    max-height: 50px !important;
+}
+
+.ss-main-multiple {
+    padding: 0px !important;
+    height: 100%;
+    border: 0px solid !important;
+}
+
+.ss-main .ss-single-selected {
+    height: 100% !important;
+    padding: 0px !important;
+    border: 1px !important;
+}
+
 .kt_datatable_rowcontrols {
     display: inline-block;
 }
 
 [data-type=filepond] {
     display:none;
+}
+
+.swal2-popup {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+    padding: 10px;
+    min-width: 25em;
+    width: auto;
+}
+
+.swal2-popup .swal2-title {
+    font-size: 1.4rem;
+}
+
+.swal2-content {
+    padding: 0 1.3em;
+}
+
+.swal2-icon.swal2-warning::before {
+    content: "" !important;
+}
+
+.toast-top-right {
+    position: fixed;
+    // Offset from the top
+    // top: 100px;
+}
+
+#toast-container > div {
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.jexcel {
+    table-layout: auto;
+    width: 100%;
+}
+
+.jexcel > tbody.draggable > tr > td::before {
+    min-width: 30px;
+}
+
+.ss-main .ss-single-selected {
+    height: 24px;
+    margin-left: -1px;
 }

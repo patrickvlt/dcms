@@ -28,7 +28,42 @@ class Publish extends Command
     public function handle()
     {
         $console = $this;
-        shell_exec('php artisan vendor:publish --provider="Pveltrop\DCMS\DCMSProvider" --tag=resources --force');
-        $console->info('Updated DCMS resources.');
+        $rootjs = base_path() . '/resources/js/dcms/';
+        $rootjsassets = base_path() . '/public/js/dcms/assets';
+        $rootscss = base_path() . '/resources/sass/dcms/';
+        $rootcssassets = base_path() . '/public/css/dcms/assets';
+        $vendorjs = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/js';
+        $vendorjsassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/js/assets';
+        $vendorscss = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/sass';
+        $vendorcssassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/assets';
+
+        if ($console->confirm('Do you want to update the JavaScript files?')){
+            // JS
+            RemoveDir($rootjs);
+            RemoveDir($rootjsassets);
+            CopyDir($vendorjs,$rootjs);
+            CopyDir($vendorjsassets,$rootjsassets);
+        }
+
+        if ($console->confirm('Do you want to update the CSS files?')){
+            // CSS        
+            RemoveDir($rootscss);
+            RemoveDir($rootcssassets);
+            CopyDir($vendorscss,$rootscss);
+            CopyDir($vendorcssassets,$rootcssassets);
+        }
+
+        if ($console->confirm('Do you want to update the configs?')){
+            // Configs
+            copy(base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php', base_path() . '/config/dcms.php');
+            copy(base_path() . '/vendor/pveltrop/dcms/src/dcms.json', base_path() . '/dcms.json');
+        }
+
+        print("\n".shell_exec('git status')."\n");
+
+        $console->comment('');
+        $console->comment('Published DCMS resources.');
+        $console->comment('');
+        print("\n");
     }
 }

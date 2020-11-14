@@ -3,6 +3,7 @@
 namespace Pveltrop\DCMS\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class Crud extends Command
 {
@@ -12,7 +13,7 @@ class Crud extends Command
      * @var string
      */
 
-    protected $signature = 'dcms:crud {model}';
+    protected $signature = 'dcms:make-crud {model}';
 
     /**
      * The console command description.
@@ -20,7 +21,7 @@ class Crud extends Command
      * @var string
      */
 
-    protected $description = 'Generate a full crud.';
+    protected $description = 'Generate full crud functionality.';
 
     /**
      * Execute the console command.
@@ -31,211 +32,337 @@ class Crud extends Command
     public function handle()
     {
         $console = $this;
+        $initManual = true;
+        $mainVersion = app()->version()[0];
 
-        $model = $console->argument('model');
-        $prefix = strtolower($console->argument('model'));
-        shell_exec('php artisan make:model ' . $model . ' -c -m');
-        shell_exec('php artisan make:request ' . $model . 'Request');
-        $GLOBALS['enableSeed'] = false;
-
-        $console->info('Created model, migration, request, seeder, factory and controller for: ' . $model . '.');
-
-        //Adding DCMS Trait to controller
-        $file = 'app/Http/Controllers/' . $model . 'Controller.php';
-        $str = '<?php
-
-namespace App\\Http\\Controllers;
-
-use Illuminate\\Http\\Request;
-
-use App\\'.$model.';
-use App\\Traits\\DCMSController; 
-
-class '.$model.'Controller extends Controller
-{
-    use DCMSController;
-
-    // All the code below is optional, you can use this as a reference or to override variables/functions.
-
-    // // This function defines all the settings for DCMS for the current object.
-    // // This will help pointing the controller to the right route, class, use the right messages in alerts, etc.
-    // function DCMS()
-    // {
-    //     return [
-    //         "routePrefix" => "'.$prefix.'",
-    //         "class" => "'.$model.'",
-    //         "indexQuery" => '.$model.'::all(),
-    //         "created" => [
-    //             "title" => __("'.$model.' created"),
-    //             "message" => __("'.$model.' created on __created_at__"),
-    //             "url" => "/'.$prefix.'"
-    //         ],
-    //         "updated" => [
-    //             "title" => __("__name__ updated"),
-    //             "message" => __("__name__ updated on __created_at__"),
-    //             "url" => "/'.$prefix.'"
-    //         ],
-    //         "deleted" => [
-    //             "url" => "/'.$prefix.'"
-    //         ],
-    //         "request" => "'.$model.'Request",
-    //         "views" => [
-    //             "index" => "index",
-    //             "show" => "crud",
-    //             "edit" => "crud",
-    //             "create" => "crud"
-    //         ],
-    //         // for jExcel imports
-    //         "import" => [
-    //             // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
-    //             "columns" => [
-    //                 "name" => 0,
-    //                 "created_at" => 5
-    //             ],
-    //             // finished or failed custom messages
-    //             "finished" => [
-    //                 "title" => __("Import succeeded"),
-    //                 "message" => __("All data has been imported."),
-    //             ],
-    //             "failed" => [
-    //                 "title" => __("Import failed"),
-    //                 "message" => __("Some fields contain invalid data."),
-    //             ]
-    //         ]
-    //     ];
-    // }
-
-    // // if you want to override store or update functions, uncomment and use this    
-    // // DCMSJSON returns the dynamic JSON response after creating/updating
-
-    // public function store('.$model.'Request $request, '.$model.' $'.$prefix.'){
-    //     return $this->DCMSJSON($'.$prefix.',"created");
-    // }
-
-    // public function update('.$model.'Request $request, '.$model.' $'.$prefix.'){
-    //     return $this->DCMSJSON($'.$prefix.',"updated");
-    // }
-
-    // // if you want to pass variables to the default Laravel functions, but still use DCMS functions, you can do it like below:
-    // // NOTE: remember to define the same default parameters for these functions. Like beforeEdit($id), beforeIndex(), for example.
-
-    // public function beforeIndex(){
-    //     $someVar = "someValue";
-    //     $someArr = [];
-    //     return compact("someVar","someArr");
-    // }
-
-    // public function beforeEdit($id){
-    //     $someVar = "someValue";
-    //     $someArr = [];
-    //     return compact("someVar","someArr");
-    // }
-}';
-        file_put_contents($file, $str);
-        $console->info('Added DCMS trait to controller.');
-
-        //Adding route
-        $file = 'routes/web.php';
-        file_put_contents($file, "
-
-Route::resource('" . $prefix . "', '" . $model . "Controller');
-Route::post('/" . $prefix . "/file/process/{type}/{column}', '" . $model . "Controller@ProcessFile');
-Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $model . "Controller@DeleteFile');"
-, FILE_APPEND);
-
-        $console->info('Added route.');
-
-        //Generating columns
-        $columns = [];
-
-        if ($console->confirm('Do you want to generate the columns for this model?')){
-            function GenerateColumn($console,&$columns){
-                $column = [];
-
-                $dbColumn = $console->ask('What\'s the name of the column?');
-                $dbType = $console->ask('What kind of database column is this?');
-                $nullable = ($console->confirm('Make this column nullable?')) ? 1 : 0;
-                $required = ($console->confirm('Make this column required?')) ? 1 : 0;
-                $unsigned = ($console->confirm('Make this column unsigned?')) ? 1 : 0;
-
-                $column['attributes'] = [
-                    'name' => $dbColumn,
-                    'type' => $dbType,
-                    'nullable' => $nullable,
-                    'unsigned' => $unsigned,
-                    'required' => $required
-                ];
-
-                if ($console->confirm('Is this column related to another column?')){
-                    $foreignColumn = [];
-                    $foreignColumnName = $dbColumn;
-                    $otherTable = $console->ask('Which table does this column reference to?');
-                    $referenceColumnName = $console->ask('Which column from '.$otherTable.' is being referenced to?');
-                    $referenceColumnClass = $console->ask('Which class does '.$referenceColumnName.' use? (e.g. Post)');
-                    $console->info('Define the relationship below. This is case sensitive. See the Laravel docs for more information');
-                    $relation = $console->ask('What\'s the relation between these columns? From '.$dbColumn.' to --> '.$referenceColumnName);
-                    $relationFunction = $console->ask('Define the function name to call this relationship from: '.$foreignColumnName);
-
-                    $foreignColumn = [
-                        'foreign_column' => $foreignColumnName,
-                        'references' => $referenceColumnName,
-                        'class' => $referenceColumnClass,
-                        'table' => $otherTable,
-                        'relation' => $relation,
-                        'relationFunction' => $relationFunction
-                    ];
-
-                    $column['foreign'] = $foreignColumn;
-                }
-
-                $validationRules = [];
-                if ($console->confirm('Do you want to write the validation rules for: '.$dbColumn.'?')){
-
-                    NewRule:
-
-                    $console->line('Examples:');
-                    $console->line('regex:/foobar/');
-                    $console->line('min:1');
-                    $console->line('required');
-                    $console->line('Press enter to finish adding rules.');
-                    $newRule = $console->ask('Type the new rule');
-
-                    array_push($validationRules,$newRule);
-
-                    if ($console->confirm('Add another rule?')){
-                        goto NewRule;
-                    }
-
-                    $column['validation'] = $validationRules;
-                }
-                $GLOBALS['enableSeed'] = $console->confirm('Do you want to seed: '.$dbColumn.'?');
-                if ($GLOBALS['enableSeed']){
-                    $column['seed'] = $console->ask('Enter the seed data without a ; at the end (for example, $faker->word(), or "Seed this sentence" ).');
-                }
-
-                $columns[$dbColumn] = $column;
+        if (Storage::exists('/DCMS/Generate.php')){
+            $initManual = false;
+            try {
+                include(base_path().'/storage/app/DCMS/Generate.php');
+            } catch (\Exception $e){
+                $console->comment('');
+                $console->error('File not found: /storage/app/DCMS/Generate.php');
+                $console->comment('Initalising manual creation in two seconds.');
+                $console->comment('');
+                $initManual = true;
+                sleep(2);
             }
+            if ($initManual == false){
+                try {
+                    $fileContent = file_get_contents(base_path().'/storage/app/DCMS/Generate.php');
+                    $fileModel = preg_match('/\$model(\s|=)/m', $fileContent) == 1;
+                    $filePrefix = preg_match('/\$prefix(\s|=)/m', $fileContent) == 1;
+                    $fileColumns = preg_match('/\$columns(\s|=)/m', $fileContent) == 1;
+                    if (!$fileModel){
+                        $console->comment('');
+                        $console->error('$model not defined in: /storage/app/DCMS/Generate.php');
+                        $console->comment('');
+                        $initManual = true;
+                    }
+                    if (!$filePrefix){
+                        $console->comment('');
+                        $console->error('$prefix not defined in: /storage/app/DCMS/Generate.php');
+                        $console->comment('');
+                        $initManual = true;
+                    }
+                    if (!$fileColumns){
+                        $console->comment('');
+                        $console->error('$columns not defined in: /storage/app/DCMS/Generate.php');
+                        $console->comment('');
+                        $initManual = true;
+                    }
+                    include (base_path().'/storage/app/DCMS/Generate.php');
+                } catch (\Exception $e){
+                    sleep(2);
+                }
+            }
+        } else {
+            $columns = [];
+            $model = $console->argument('model');
+            $prefix = strtolower($model);
+        }
 
-            NewColumn:
-            if ($console->confirm('Do you want to generate a new column?')){
-                GenerateColumn($console,$columns);
-                goto NewColumn;
+        if ($initManual){
+            if (!$console->confirm('Couldn\'t find predefined columns. Do you want to proceed? ')){
+                exit;
             }
         }
-        $files = scandir(base_path().'/database/migrations', SCANDIR_SORT_DESCENDING);
-        $migration = base_path().'/database/migrations/'.$files[0];
+
+        /**
+         *
+         * Create the basic Laravel files
+         *
+         */
+
+        shell_exec('php artisan make:model ' . $model . ' -c -m -f -s');
+        shell_exec('php artisan make:request ' . $model . 'Request');
+
+        // Use different settings per Laravel version
+        $modelPath = '';
+        $makeSeeder = true;
+        if ($mainVersion <= 7){
+            $modelPath = 'App\\'.$model;
+        } else if ($mainVersion >= 8){
+            $modelPath = 'App\\Models\\'.$model;
+        }
+
+        $console->comment('');
+        $console->comment('Created model, migration, request, factory, seeder and controller for: ' . $model . '.');
+        $console->comment('');
+
+        if ($initManual){
+
+            /**
+             *
+             * Generate columns/fields with user input
+             *
+             */
+
+            if ($console->confirm('Do you want to generate the columns for this model?')){
+                function GenerateColumn($console,&$columns,$mainVersion) {
+                    $column = [];
+
+                    $dbColumn = $console->ask('What\'s the name of the column?');
+                    $dbType = $console->ask('What kind of database column is this?');
+                    $nullable = ($console->confirm('Make this column nullable?')) ? 1 : 0;
+                    $required = ($console->confirm('Make this column required?')) ? 1 : 0;
+                    $unsigned = ($console->confirm('Make this column unsigned?')) ? 1 : 0;
+
+                    $column['attributes'] = [
+                        'name' => $dbColumn,
+                        'type' => $dbType,
+                        'nullable' => $nullable,
+                        'unsigned' => $unsigned,
+                        'required' => $required
+                    ];
+
+                    /**
+                     * Define relations/foreign keys with user input
+                     */
+
+                    if ($console->confirm('Is this column related to another column?')){
+                        $foreignColumn = [];
+                        $foreignColumnName = $dbColumn;
+                        $otherTable = $console->ask('Which table does this column reference to?');
+                        $referenceColumnName = $console->ask('Which column from '.$otherTable.' is being referenced to?');
+                        $referenceColumnClass = $console->ask('Which class belongs to the '.$otherTable.' table? (e.g. Post)');
+                        $console->comment('');
+                        $console->comment('Define the relationship below. This is case sensitive. See the Laravel docs for more information.');
+                        $console->comment('');
+                        $relation = $console->ask('What\'s the relation between these columns? From '.$dbColumn.' to --> '.$referenceColumnName);
+                        $relationFunction = $console->ask('Define the function name to call this relationship. Don\'t end with parentheses. (e.g. user)');
+
+                        $foreignColumn = [
+                            'foreign_column' => $foreignColumnName,
+                            'references' => $referenceColumnName,
+                            'class' => $referenceColumnClass,
+                            'table' => $otherTable,
+                            'relation' => $relation,
+                            'relationFunction' => $relationFunction
+                        ];
+
+                        $column['foreign'] = $foreignColumn;
+                    }
+
+                    /**
+                     * Define validation rules with user input
+                     */
+
+                    $validationRules = [];
+                    if ($console->confirm('Do you want to write the validation rules for: '.$dbColumn.'?')){
+
+                        NewRule:
+
+                        $console->line('Examples:');
+                        $console->line('regex:/foobar/');
+                        $console->line('min:1');
+                        $console->line('required');
+                        $console->line('Press enter to finish adding rules.');
+                        $newRule = $console->ask('Type the new rule');
+
+                        array_push($validationRules,$newRule);
+
+                        if ($console->confirm('Add another rule?')){
+                            goto NewRule;
+                        }
+
+                        $column['validation'] = $validationRules;
+                    }
+                    if ($console->confirm('Do you want to seed: '.$dbColumn.' with a factory?')){
+                        if ($mainVersion <= 7){
+                            $fakerExample = '$faker->word()';
+                        } else if ($mainVersion >= 8){
+                            $fakerExample = '$this->faker->word()';
+                        }
+                        $column['seed'] = $console->ask('Enter the data to seed. (For example: '.$fakerExample.', or "Seed this sentence"). Don\'t end with a semicolon or parentheses.');
+                    }
+
+                    $columns[$dbColumn] = $column;
+                }
+
+                NewColumn:
+                if ($console->confirm('Do you want to generate a new column?')){
+                    GenerateColumn($console,$columns,$mainVersion);
+                    goto NewColumn;
+                }
+            }
+        }
+
+        $enableSeed = false;
+        foreach($columns as $column){
+            if (isset($column['seed'])){
+                $enableSeed = true;
+            }
+        }
+
+        if($enableSeed){
+
+            /**
+             *
+             * Add entry to DatabaseSeeder
+             *
+             */
+
+            $seedAmount = $console->ask('How many objects should be seeded through factories? Enter a number.');
+
+            if ($mainVersion <= 7){
+                $file = 'database/seeds/DatabaseSeeder.php';
+            } else if ($mainVersion >= 8){
+                $file = 'database/seeders/DatabaseSeeder.php';
+            }
+
+            $contentToAdd = '        $this->call(' . $model . 'Seeder::class);';
+
+            // Modify the content
+            $content = file_get_contents(base_path($file));
+            $newContent = AppendContent($content,2,$contentToAdd);
+            // Write to file
+            file_put_contents(base_path($file),str_replace($content,$newContent,file_get_contents(base_path($file))));
+
+            $console->comment('');
+            $console->comment('Added entry to DatabaseSeeder.');
+            $console->comment('');
 
 
-        $request = 'app/Http/Requests/'.$model.'Request.php';
-        $factory = 'database/factories/'.$model.'Factory.php';
+            /**
+             *
+             * Generate Factory
+             *
+             */
 
-        //Adding DCMS Trait and relationship(s) to model
-        $modelFile = 'app/' . $model . '.php';
+            $fakerEntries = '';
+            $tab = '            ';
 
-        // Generating migration
-        $file = $migration;
+            foreach ($columns as $name => $column){
+                if (array_key_exists('seed',$column)){
+                    $fakerEntries .= $tab.'"'.$name.'" => '.$column['seed'].','."\n";
+                }
+            }
+
+            $factoryFile = 'database/factories/'.$model.'Factory.php';
+            if ($mainVersion <= 7){
+                $factoryLine = 10;
+            } else if ($mainVersion >= 8){
+                $factoryLine = 25;
+            }
+
+            // File
+            $contentToAdd = $fakerEntries;
+            // Modify the content
+            $content = file_get_contents(base_path($factoryFile));
+            $newContent = WriteContent($content,$factoryLine,$contentToAdd);
+            // Write to file
+            file_put_contents(base_path($factoryFile),str_replace($content,$newContent,file_get_contents(base_path($factoryFile))));
+
+            $console->comment('');
+            $console->comment('Generated factory.');
+            $console->comment('');
+
+            if ($makeSeeder){
+
+                /**
+                 *
+                 * Generate Seeder
+                 *
+                 */
+
+                if ($mainVersion <= 7){
+                    $seederFile = 'database/seeds/'.$model.'Seeder.php';
+                    $contentToAdd = "        factory(App\\".$model."::class, ".$seedAmount.")->create();";
+                } else if ($mainVersion >= 8){
+                    $seederFile = 'database/seeders/'.$model.'Seeder.php';
+                    $contentToAdd = '        \App\Models\\'.$model.'::factory()->count('.$seedAmount.')->create();';
+                }
+                // Modify the content
+                $content = file_get_contents(base_path($seederFile));
+                $newContent = AppendContent($content,3,$contentToAdd);
+                // Write to file
+                file_put_contents(base_path($seederFile),str_replace($content,$newContent,file_get_contents(base_path($seederFile))));
+
+                $console->comment('');
+                $console->comment('Generated seeder.');
+                $console->comment('');
+            }
+        }
+
+        /**
+         *
+         * Generating default route
+         *
+         */
+
+        $routeFile = 'routes/web.php';
+        if ($mainVersion <= 7){
+            $contentToAdd = "Route::resource('" . $prefix . "', '" . $model . "Controller');";
+        } else if ($mainVersion >= 8){
+            $contentToAdd = "Route::resource('" . $prefix . "', \App\Http\Controllers\\".$model."Controller::class);";
+        }
+
+        // Modify the content
+        $content = file_get_contents(base_path($routeFile));
+        $newContent = AppendContent($content,0,$contentToAdd);
+        // Write to file
+        file_put_contents(base_path($routeFile),str_replace($content,$newContent,file_get_contents(base_path($routeFile))));
+
+        $console->comment('');
+        $console->comment('Added route.');
+        $console->comment('');
+
+        /**
+         *
+         * Generating controller
+         *
+         */
+
+        $controllerFile = 'app/Http/Controllers/' . $model . 'Controller.php';
+        $modelRequestPath = '\\App\\Http\\Requests\\'.$model.'Request::class';
+
+        if ($mainVersion <= 7){
+            $modelPath = '\\App\\'.$model.'::class';
+        } else if ($mainVersion >= 8){
+            $modelPath = '\\App\\Models\\'.$model.'::class';
+        }
+        $modelImport = str_replace('::class','',$modelPath);
+        include __DIR__ . '/../../Templates/Controller.php';
+
+        // Modify the content
+        $newContent = $contentToAdd;
+        // Write to file
+        file_put_contents(base_path($controllerFile),$contentToAdd);
+
+        $console->comment('');
+        $console->comment('Generated controller.');
+        $console->comment('');
+
+
+        /**
+         *
+         * Generate migration
+         *
+         */
+
         $tab = '        ';
-        $migEntries = '';
+        $migEntries = '            ';
         foreach ($columns as $name => $column){
             $rowNullable = ($column['attributes']['nullable'] == 1) ? '->nullable()' : '';
             $rowUnsigned = ($column['attributes']['unsigned'] == 1) ? '->unsigned()' : '';
@@ -249,114 +376,62 @@ Route::delete('/" . $prefix . "/file/revert/{type}/{column}/{revertKey}', '" . $
                 $migEntries .= '$table->foreign("'.$column['foreign']['foreign_column'].'")->references("'.$column['foreign']['references'].'")->on("'.$column['foreign']['table'].'")'.$onUpdate.$onDelete.';'."\n".'            ';
             }
         }
-        $migContent = '$table->id();
-            '.$migEntries.'';
-        $str = file_get_contents($file);
-        $str = str_replace('$table->id();',$migContent, $str);
-        file_put_contents($file, $str);
-        $console->info('Configured migration.');
-        
-        if($GLOBALS['enableSeed']){
-            //Adding seeder to database seed
-            $file = 'database/seeds/DatabaseSeeder.php';
-            $str = file_get_contents($file);
-            $str = str_replace('  }
-}', ('      $this->call(' . $model . 'Seeder::class);
-    }
-}'), $str);
-            file_put_contents($file, $str);
-            $console->info('Added seeder to DatabaseSeeder.');
 
-            // Generating factory
-            $file = $factory;
-            $tab = '        ';
-            $fakerEntries = '';
-            foreach ($columns as $name => $column){
-                if (array_key_exists('seed',$column)){
-                    $fakerEntries .= '"'.$name.'" => '.$column['seed'].','."\n".$tab;
-                }
-            }
-            $str = '<?php
+        $files = scandir(base_path().'/database/migrations', SCANDIR_SORT_DESCENDING);
+        $migrationFile = '/database/migrations/'.$files[0];
+        // Modify the content
+        $content = file_get_contents(base_path($migrationFile));
+        $newContent = WriteContent($content,18,$migEntries);
+        // Write to file
+        file_put_contents(base_path($migrationFile),str_replace($content,$newContent,file_get_contents(base_path($migrationFile))));
 
-/** @var \\Illuminate\\Database\\Eloquent\\Factory $factory */
+        $console->comment('');
+        $console->comment('Configured migration.');
+        $console->comment('');
 
-use App\\'.$model.';
-use Faker\\Generator as Faker;
-use Illuminate\\Support\\Str;
+        /**
+         *
+         * Generate model
+         *
+         */
 
-$factory->define('.$model.'::class, function (Faker $faker) {
-    return [
-        '.$fakerEntries.'
-    ];
-});';
-
-            file_put_contents($file, $str);
-            $console->info('Configured factory.');
-            
-            //configure seeder
-            $file = 'database/seeds/'.$model.'Seeder.php';
-            $amount = $console->ask('How many objects should be seeded? Enter a number.');
-            $str = "<?php
-
-use Illuminate\\Database\\Seeder;
-
-class ".$model."Seeder extends Seeder
-{
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
-    {
-        factory(App\\".$model."::class, ".$amount.")->create();
-    }
-}
-";
-
-            file_put_contents($file, $str);
-            $console->info('Configured seeder.');
+        if ($mainVersion <= 7){
+            $modelFile = 'app/' . $model . '.php';
+            $relLine = 9;
+        } else if ($mainVersion >= 8){
+            $modelFile = 'app/Models/' . $model . '.php';
+            $relLine = 11;
         }
 
-        //configure model
-        $file = $modelFile;
         $relEntries = '';
+        // Prepare relation content
         foreach ($columns as $name => $column){
             try {
                 if (array_key_exists('foreign',$column)){
-                        $relEntries .= 'public function '.$column['foreign']['relationFunction'].'()
+                        $relEntries .= '
+    public function '.$column['foreign']['relationFunction'].'()
     {
         return $this->'.$column['foreign']['relation'].'('.$column['foreign']['class'].'::class, \''.$column['foreign']['foreign_column'].'\', \''.$column['foreign']['references'].'\');
     }
-    
     ';
                     }
-                } catch (\Throwable $th) {
-                    //throw $th;
-                }
+                } catch (\Throwable $th) {}
         }
-        $str = '<?php
 
-namespace App;
+        $contentToAdd = $relEntries;
+        // Modify the content
+        $content = file_get_contents(base_path($modelFile));
+        $newContent = WriteContent($content,$relLine,$contentToAdd);
+        // Write to file
+        file_put_contents(base_path($modelFile),str_replace($content,$newContent,file_get_contents(base_path($modelFile))));
 
-use App\\Traits\\DCMSModel;
-use Illuminate\\Database\\Eloquent\\Model;
-
-class '.$model.' extends Model
-{
-    use DCMSModel;
-
-    protected $guarded = ["id"];
-    
-    '.$relEntries.'
-}';
-
-        file_put_contents($file, $str);
-        $console->info('Configured model.');
+        $console->comment('');
+        $console->comment('Generated model.');
+        $console->comment('');
 
         //configure request
-        $file = $request;
-        $reqEntries = '';
+        $requestFile = 'app/Http/Requests/'.$model.'Request.php';
+        $reqEntries = '    ';
         foreach ($columns as $column){
             if (array_key_exists('validation',$column)){
                 $ruleRow = '';
@@ -370,87 +445,19 @@ class '.$model.' extends Model
             ';
             }
         }
-        $str = '<?php
 
-namespace App\\Http\\Requests;
+        include __DIR__ . '/../../Templates/Request.php';
 
-use Illuminate\\Foundation\\Http\\FormRequest;
+        $contentToAdd = $requestContent;
+        // Write to file
+        file_put_contents(base_path($requestFile),$requestContent);
 
-class '.$model.'Request extends FormRequest
-{
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
+        $console->comment('');
+        $console->comment('Generated custom request.');
+        $console->comment('');
 
-    /**
-    * 
-    * DCMS: Modify a request before it is validated, make sure to return an array with keys the request will recognize
-    * 
-    */
-
-    public function beforeValidation()
-    {
-        $request = request()->all();
-
-        // // Modify all requests
-        // $request["foo"] = "bar";
-        // // Modify store request
-        // if (FormMethod() == "POST"){
-        // }
-        // // Modify update request 
-        // else if (FormMethod() == "PUT"){
-        // } 
-
-        return $request;
-    }
-
-    /**
-    * 
-    * DCMS: Place validation for file uploads here, refer to the Laravel documentation. You can still use messages() to return custom messages.
-    * 
-    */
-
-    public function uploadRules()
-    {
-        return [
-            // "logo.*" => ["nullable","mimes:jpeg, jpg, png, jpg, gif, svg, webp", "max:2000"],
-            // "sheet" => ["nullable","mimes:octet-stream, vnd.ms-excel, msexcel, x-msexcel, x-excel, x-dos_ms_excel, xls, x-xls, , vnd.openxmlformats-officedocument.spreadsheetml.sheet", "max:2000"],
-        ];
-    }
-
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
-    {
-        return [
-            '.$reqEntries.'
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            //
-        ];
-    }
-}
-        ';
-
-        file_put_contents($file, $str);
-        $console->info('Configured request.');
-
-
-
-        $console->info('Generated full CRUD for: ' . $model . '.');
+        $console->comment('');
+        $console->comment('Generated full CRUD for: ' . $model . '.');
+        $console->comment('');
     }
 }

@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Schema;
+use Pveltrop\DCMS\Classes\Content;
+
 if (!function_exists('MaxSizeServer')) {
     function MaxSizeServer($type = 'mb')
     {
@@ -8,10 +11,6 @@ if (!function_exists('MaxSizeServer')) {
         $memory_limit = (int) (ini_get('memory_limit'));
         $upload_mb = min($max_upload, $max_post, $memory_limit);
         switch ($type) {
-            case 'mb':
-                return $upload_mb;
-                break;
-
             case 'bytes':
                 return $upload_mb * pow(1024, 2);
                 break;
@@ -26,7 +25,9 @@ if (!function_exists('MaxSizeServer')) {
 if (!function_exists('GetPrefix')) {
     function GetPrefix()
     {
-        return explode('/', request()->route()->uri)[0];
+        if(!app()->runningInConsole()){
+            return explode('/', request()->route()->uri)[0];
+        }
     }
 }
 
@@ -34,19 +35,18 @@ if (!function_exists('GetClasses')) {
     function GetClasses()
     {
         $classes = [];
-        foreach ($GLOBALS['classFolders'] as $folder) {
+        foreach (config('dcms.modelFolders') as $folder) {
             foreach (scandir(base_path() . '/' . $folder) as $file) {
                 if (strpos($file, '.php') !== false) {
                     $re = '/namespace \S*;/m';
                     $str = file_get_contents(base_path() . '/' . $folder . '/' . $file);
                     preg_match($re, $str, $namespace);
-                    $namespace = str_replace('namespace ', '', $namespace[0]);
-                    $namespace = str_replace(';', '', $namespace);
+                    $namespace = str_replace(array('namespace ', ';'), '', $namespace[0]);
                     $file = str_replace('.php', '', $file);
-                    array_push($classes, [
+                    $classes[] = [
                         'file' => $file,
                         'class' => $namespace . '\\' . $file
-                    ]);
+                    ];
                 }
             }
         }
@@ -62,18 +62,23 @@ if (!function_exists('FindClass')) {
                 return $class;
             }
         }
+        throw new \RuntimeException("Couldn't find Model which belongs to: ".$prefix.". Make sure to configure the Models folder in config/dcms.php");
     }
 }
 
 if (!function_exists('Model')) {
-    function Model()
+    function Model($prefix = null)
     {
-        $controller = request()->route()->controller;
-        $class = (new $controller())->DCMSClass();
-        $prefix = (new $controller())->DCMSPrefix();
-        $id = (request()->route()->parameters()) ? request()->route()->parameters()[$prefix] : null;
-        $model = $class::find($id);
-        return $model;
+        $model = request()->route()->controller->model ?? null;
+        $parameters = request()->route()->parameters ?? null;
+        if (!$model && $parameters){
+            foreach($parameters as $key => $parameter){
+                if (is_object($parameter)){
+                    return $model = $parameter;
+                }
+            }
+        }
+        return null;
     }
 }
 
@@ -81,8 +86,9 @@ if (!function_exists('FormMethod')) {
     // Which @method to return
     function FormMethod()
     {
-        $routeName = \Request::route()->getName();
-        $routeAction = explode(".", $routeName)[1];
+        $routeName = request()->route()->getName();
+        $routeAction = explode(".", $routeName);
+        $routeAction = end($routeAction);
         $formMethod = null;
         switch ($routeAction) {
             case 'create':
@@ -97,14 +103,34 @@ if (!function_exists('FormMethod')) {
     }
 }
 
+if (!function_exists('FormRoute')) {
+    // Return store or update route for form
+    function FormRoute($prefix=null)
+    {
+        $routeName = request()->route()->getName();
+        $routeAction = explode(".", $routeName);
+        $routeAction = end($routeAction);
+        $formRoute = null;
+        switch ($routeAction) {
+            case 'create':
+                $formRoute = route($prefix . '.store');
+                break;
+            case 'update':
+            case 'edit':
+                $formRoute = route($prefix . '.update', is_object(Model()) ? Model()->id : Model());
+                break;
+        }
+        return $formRoute;
+    }
+}
+
 if (!function_exists('RoutePrefix')) {
     // Return store or update route for form
     function RoutePrefix()
     {
-        $routeName = \Request::route()->getName();
+        $routeName = request()->route()->getName();
         try {
             $routeModel = explode(".", $routeName)[0];
-            $routeAction = explode(".", $routeName)[1];
         } catch (\Throwable $th) {
             $routeModel = $routeName;
         }
@@ -112,26 +138,11 @@ if (!function_exists('RoutePrefix')) {
     }
 }
 
-if (!function_exists('FormRoute')) {
-    // Return store or update route for form
-    function FormRoute()
+if (!function_exists('CurrentRoute')) {
+    function CurrentRoute()
     {
-        $routeName = \Request::route()->getName();
-        $routeModel = explode(".", $routeName)[0];
-        $routeAction = explode(".", $routeName)[1];
-        $formRoute = null;
-        switch ($routeAction) {
-            case 'create':
-                $formRoute = route($routeModel . '.store');
-                break;
-            case 'edit':
-                $formRoute = route($routeModel . '.update', is_object(Model()) ? Model()->id : Model());
-                break;
-            case 'update':
-                $formRoute = route($routeModel . '.update', is_object(Model()) ? Model()->id : Model());
-                break;
-        }
-        return $formRoute;
+        $routeName = request()->route()->getAction()['as'] ?? null;
+        return $routeName;
     }
 }
 
@@ -139,10 +150,237 @@ if (!function_exists('DeleteRoute')) {
     // Return delete route for form
     function DeleteRoute()
     {
-        $routeName = \Request::route()->getName();
+        $routeName = request()->route()->getName();
         $routeModel = explode(".", $routeName)[0];
         $model = is_object(Model()) ? Model()->id : Model();
-        $deleteRoute = route($routeModel . '.destroy', $model);
-        return $deleteRoute;
+        return route($routeModel . '.destroy', $model);
+    }
+}
+
+if (!function_exists('RemoveDir')) {
+    function RemoveDir($dir)
+    {
+        if (!file_exists($dir)) {
+            return true;
+        }
+        if (!is_dir($dir)) {
+            return unlink($dir);
+        }
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+
+            if (!RemoveDir($dir . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+        }
+        return rmdir($dir);
+    }
+}
+
+if (!function_exists('CopyDir')) {
+    function CopyDir($src, $dst)
+    {
+        $dir = opendir($src);
+        @mkdir($dst);
+        while (false !== ($file = readdir($dir))) {
+            if (($file != '.') && ($file != '..')) {
+                if (is_dir($src . '/' . $file)) {
+                    CopyDir($src . '/' . $file, $dst . '/' . $file);
+                } else {
+                    copy($src . '/' . $file, $dst . '/' . $file);
+                }
+            }
+        }
+        closedir($dir);
+    }
+}
+
+if (!function_exists('RandomString')) {
+    function RandomString($length = 30)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            try {
+                $randomString .= $characters[random_int(0, $charactersLength - 1)];
+            } catch (Exception $e) {
+            }
+        }
+        return $randomString;
+    }
+}
+
+if (!function_exists('Flatten')) {
+    function Flatten($array, $prefix = '')
+    {
+        $result = array();
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $result += Flatten($value, $prefix . $key . '.');
+            } else {
+                $result[$prefix . $key] = $value;
+            }
+        }
+        return $result;
+    }
+}
+
+if (!function_exists('ReflectClass')) {
+    function ReflectClass($class)
+    {
+        $reflectionClass = new ReflectionClass($class);
+
+        // File and line/length to generate content
+        $filename = $reflectionClass->getFileName();
+        $start_line = $reflectionClass->getStartLine() - 1;
+        $end_line = $reflectionClass->getEndLine();
+        $length = $end_line - $start_line;
+
+        // Create body from start to end line
+        $body = implode("", array_slice(file($filename), $start_line, $length));
+        // Convert body to array to trim whitespace at end
+        $body = preg_split("/\\r\\n|\\r|\\n/", $body);
+        while ("" === end($body))
+        {
+            array_pop($body);
+        }
+        // Convert body to normal string again
+        $body = implode("", array_slice(file($filename), $start_line, $length));
+
+        $reflectionClass->body = $body;
+        return $reflectionClass;
+    }
+}
+
+if (!function_exists('ReflectCode')) {
+    function ReflectCode($reflection)
+    {
+        // File and line/length to generate content
+        $filename = $reflection->getFileName();
+        $start_line = $reflection->getStartLine() - 1;
+        $end_line = $reflection->getEndLine();
+        $length = $end_line - $start_line;
+
+        // Create body from start to end line
+        $body = implode("", array_slice(file($filename), $start_line, $length));
+        // Convert body to array to trim whitespace at end
+        $body = preg_split("/\\r\\n|\\r|\\n/", $body);
+        while ("" === end($body))
+        {
+            array_pop($body);
+        }
+        // Convert body to normal string again
+        $body = implode("", array_slice(file($filename), $start_line, $length));
+
+        $reflection->body = $body;
+        return $reflection;
+    }
+}
+
+if (!function_exists('WriteContent')) {
+    function WriteContent($content, $line, $addContent)
+    {
+        // Convert content to array
+        $content = preg_split("/\\r\\n|\\r|\\n/", $content);
+        $content = array_values($content);
+        // Trim content whitespace
+        while ("" === end($content))
+        {
+            array_pop($content);
+        }
+        // Append content anywhere in this array
+        $appendToRow = $line-1;
+        array_splice($content, $appendToRow, 0,$addContent);
+
+        $content = implode("\n",$content);
+
+        return $content;
+    }
+}
+
+if (!function_exists('AppendContent')) {
+    function AppendContent($content, $offset, $addContent)
+    {
+        // Convert content to array
+        $content = preg_split("/\\r\\n|\\r|\\n/", $content);
+        $content = array_values($content);
+
+        // Trim content whitespace
+        while ("" === end($content))
+        {
+            array_pop($content);
+        }
+
+        // Append content anywhere in this array
+        $appendToRow = count($content)-$offset;
+        array_splice($content, $appendToRow, 0, $addContent);
+
+        $content = implode("\n",$content);
+
+        return $content;
+    }
+}
+
+if (!function_exists('GetRule')){
+    function GetRule($field,$ruleToGrab){
+        // Convert rule to array by exploding |, or simply looping if its an array
+        $fieldRules = (is_string($field)) ? explode('|',$field) : $field;
+        foreach ($fieldRules as $key => $rule){
+            if (strpos($rule, $ruleToGrab) === 0){
+                return explode(':',$rule)[1] ?? explode(':',$rule)[0];
+            }
+        }
+    }
+}
+
+if (!function_exists('JoinRelations')){
+    function JoinRelations($query)
+    {
+        $relations = $query->getEagerLoads();
+        $query->setEagerLoads([]);
+        if (count($relations) > 0){
+            foreach ($relations as $relationName => $relationProps){
+                $relation = $query->getRelation($relationName);
+
+                $foreignKey = $relation->getForeignKeyName();
+                $ownerKey = $relation->getOwnerKeyName();
+
+                $relationClass = FindClass($relationName)['class'];
+                $relationTable = (new $relationClass())->getTable();
+                $joinTable = $relationTable;
+                $joinForeignKey = $foreignKey;
+                $joinRightKey = $relationTable.'.'.$ownerKey;
+
+                $query->join($joinTable,$joinForeignKey,'=',$joinRightKey);
+            }
+        }
+        return $query;
+    }
+}
+
+if (!function_exists('SelectFields')){
+    function SelectFields($query,$table,$excludeFields=[])
+    {
+        $fields = Schema::getColumnListing($table);
+        foreach ($fields as $key => $field) {
+            if (!in_array($field,$excludeFields)){
+                $query->addSelect($table.'.'.$field);
+            }
+        }
+        return $query;
+    }
+}
+
+if (!function_exists('DCMSContent')){
+    function DCMSContent($UID)
+    {
+        $content = Content::where('UID',$UID)->get()->first()->value ?? null;
+        if ($content !== ''){
+            return $content;
+        }
+        return null;
     }
 }

@@ -1,17 +1,9 @@
 "use strict";
-import './assets/jexcel/jszip.js';
-import './assets/jexcel/jsuites.js';
-import jexcel from './assets/jexcel/jexcel.js';
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    var jExcelTrans;
-    var sheetData;
-    var sheetDynColumns;
-    var currentForm;
-    var formRows;
-    var table;
+hasLoaded(['jexcel'], function () {
+    var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table;
 
-    if (document.querySelectorAll('[data-type=jexcel]').length >= 1){
+    if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
         jExcelTrans = {
             // noRecordsFound:"Nenhum registro encontrado",
             // entries:"entradas",
@@ -41,149 +33,216 @@ window.addEventListener('DOMContentLoaded', (event) => {
             // cellAlreadyMerged:"Cell já mesclado",
             // noCellsSelected:"Nenhuma célula selecionada",
         }
-    }
 
-    document.querySelectorAll('[data-type=jexcel]').forEach(function(htmlTable){
-        sheetData = '';
-        sheetDynColumns = [];
-        currentForm = document.querySelector(htmlTable.dataset.jexcelFormSelector);
+        document.querySelectorAll('[data-type=jexcel]').forEach(function (htmlTable) {
+            sheetData = '';
+            sheetDynColumns = [];
+            currentForm = document.querySelector(htmlTable.dataset.jexcelFormSelector);
 
-        // fetch information from htmlTable headers
-        Array.from(htmlTable.getElementsByTagName('th')).forEach(function(header){
-            function ColumnPush(ajax=null){
-                sheetDynColumns.push({
-                    type: header.dataset.jexcelType,
-                    source: ajax,
-                    title: header.textContent,
-                    width: header.dataset.jexcelWidth,
-                    tableOverflow: true,
-                    autocomplete: (header.dataset.jexcelAutocomplete == 'true') ? 'true' : 'false',
-                    options: {
-                        format: (header.dataset.jexcelDateFormat) ? header.dataset.jexcelDateFormat : AppDateFormat
+            // fetch information from htmlTable headers
+            Array.from(htmlTable.getElementsByTagName('th')).forEach(function (header) {
+                function ColumnPush(ajax = null) {
+                    sheetDynColumns.push({
+                        type: header.dataset.jexcelType,
+                        source: (ajax !== null) ? ajax : '',
+                        title: header.textContent,
+                        width: header.dataset.jexcelWidth,
+                        tableOverflow: true,
+                        autocomplete: (header.dataset.jexcelAutocomplete == 'true') ? 'true' : 'false',
+                        options: {
+                            format: (header.dataset.jexcelDateFormat) ? header.dataset.jexcelDateFormat : AppDateFormat
+                        }
+                    });
+                    header.hidden = true;
+                }
+                if (header.dataset.jexcelFetchUrl !== null && typeof header.dataset.jexcelFetchUrl !== 'undefined') {
+                    let fetchColumn = (header.dataset.jexcelFetchColumn) ? header.dataset.jexcelFetchColumn : 'id';
+                    $.ajax({
+                        type: "GET",
+                        url: header.dataset.jexcelFetchUrl,
+                        async: false,
+                        headers: {
+                            'X-CSRF-TOKEN': window.csrf
+                        },
+                        success: function (response) {
+                            ColumnPush(response);
+                        }
+                    });
+                } else {
+                    ColumnPush();
+                }
+            });
+
+            function MakeTable(data = null) {
+                // construct table
+                let rows = parseInt(htmlTable.dataset.jexcelEmptyrows);
+                let dataFill = [];
+                for (let index = 0; index < rows; index++) {
+                    dataFill.push("");
+                }
+                table = jexcel(htmlTable, {
+                    data: (data !== null) ? data : dataFill,
+                    columnDrag: true,
+                    colWidths: sheetDynColumns.map(function (el) { return (el.width) ? el.width : 100; }),
+                    columns: sheetDynColumns,
+                    allowInsertColumn: false,
+                    allowManualInsertColumn: false,
+                    text: jExcelTrans
+                });
+                if (currentForm) {
+                    currentForm.style.display = 'block';
+                }
+
+                window.jExcelTables.push(table);
+
+                function ClearInvalid(e) {
+                    function CleanElement(element) {
+                        if (element.classList.contains('invalid')) {
+                            element.classList.remove('invalid')
+                        }
+                    }
+                    formRows = Array.from(e.target.getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
+                    Array.from(formRows).forEach(function (element) {
+                        CleanElement(element);
+                        Array.from(element.getElementsByTagName('td')).forEach(element => CleanElement(element));
+                    });
+                }
+
+                if (currentForm) {
+                    currentForm.addEventListener("submit", function (e) {
+                        e.preventDefault();
+                        ClearInvalid(e, true);
+                        sheetData = table.getData();
+                        $.ajax({
+                            type: "POST",
+                            url: e.target.action,
+                            headers: {
+                                'X-CSRF-TOKEN': window.csrf
+                            },
+                            data: {
+                                sheetData
+                            },
+                            complete: function (response) {
+                                let reply = response.responseJSON;
+                                if (typeof reply !== 'undefined') {
+                                    var alertMsg = '';
+                                    switch (response.status) {
+                                        case 422:
+                                            if (reply.message == 'The given data was invalid.') {
+                                                $.each(reply.errors, function (key, error) {
+                                                    alertMsg += error[0] + "<br>";
+                                                    Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function (cell) {
+                                                        if (String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== "") {
+                                                            cell.classList.add('invalid');
+                                                        };
+                                                    });
+                                                });
+                                                Swal.fire({
+                                                    title: Lang('Import failed'),
+                                                    html: alertMsg,
+                                                    icon: "error",
+                                                    confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                                    confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                                    cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                                    cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                                                })
+                                            } else {
+                                                Array.from(reply.errors).forEach(function (error) {
+                                                    formRows.forEach(function (row) {
+                                                        if (error.line == row.rowIndex) {
+                                                            row.classList.add('invalid');
+                                                        }
+                                                    });
+                                                });
+                                                Swal.fire({
+                                                    title: reply.response.title,
+                                                    html: reply.response.message,
+                                                    icon: "error",
+                                                    confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                                    confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                                    cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                                    cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                                                })
+                                            }
+                                            break;
+
+                                        case 200:
+                                            Swal.fire({
+                                                title: reply.response.title,
+                                                html: reply.response.message,
+                                                icon: "success",
+                                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                                            }).then(function (result) {
+                                                if (result.value) {
+                                                    if (reply.url) {
+                                                        window.location.href = reply.url;
+                                                    }
+                                                }
+                                            });
+                                            break;
+                                    }
+                                }
+                            }
+                        });
+                    })
+                }
+            }
+
+            MakeTable();
+
+            $(currentForm).on('click', '#fixSheet', function (button) {
+                var dropdownHeaders = [];
+                $.each($(htmlTable).find('th'), function (x, th) {
+                    if ($(th).data('jexcel-type') == 'dropdown') {
+                        let ajUrl = $(th).data('jexcel-fetch-url');
+                        dropdownHeaders.push({
+                            column: th.cellIndex,
+                            text: th.textContent,
+                        })
                     }
                 });
-                header.hidden = true;
-            }
-            if (header.dataset.jexcelFetchUrl !== null && typeof header.dataset.jexcelFetchUrl !== 'undefined'){
-                let fetchColumn = (header.dataset.jexcelFetchColumn) ? header.dataset.jexcelFetchColumn : 'id';
                 $.ajax({
-                    type: "GET",
-                    url: header.dataset.jexcelFetchUrl,
-                    async: false,
+                    type: "POST",
                     headers: {
                         'X-CSRF-TOKEN': window.csrf
                     },
-                    success: function (response) {
-                        let columnSource = [];
-                        response.forEach(function(object){
-                            columnSource.push({"id": String(object['id']), "name": String(object[fetchColumn])});
-                        })
-                        ColumnPush(columnSource);
-                    }
+                    url: $(this).data('jexcel-fix-route'),
+                    data: {
+                        data: table.getData(),
+                        th: dropdownHeaders,
+                    },
+                    success: function (file) {
+                        Swal.fire({
+                            title: Lang('Are you sure?'),
+                            html: Lang('This will try to fix empty dropdown columns.') + "<br>" + Lang('Do you want to continue?'),
+                            icon: "warning",
+                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        }).then(function (result) {
+                            if (result.value) {
+                                $(currentForm).find('table').jexcel('setData', file, false);
+                                toastr.success(Lang('Sheet has been updated.'))
+                            }
+                        });
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: Lang('Data correction failed'),
+                            text: Lang('The provided data couldn\'t be fixed.'),
+                            icon: "error",
+                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        });
+                    },
                 });
-            } else {
-                ColumnPush();
-            }
+            })
         });
-
-        // construct table
-        let rows = parseInt(htmlTable.dataset.jexcelEmptyrows);
-        let dataFill = [];
-        for (let index = 0; index < rows; index++) {
-            dataFill.push("");
-        }
-        table = jexcel(htmlTable, {
-            data: dataFill,
-            columns: sheetDynColumns,
-            columnDrag: true,
-            allowInsertColumn: false,
-            allowManualInsertColumn: false,
-            text: jExcelTrans
-        });
-        // execute this code after table is initalised
-        currentForm.style.display = 'block';
-
-        function ClearInvalid(e) {
-            function CleanElement(element){
-                if (element.classList.contains('invalid')) {
-                    element.classList.remove('invalid')
-                }
-            }
-            formRows = Array.from(e.target.getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
-            Array.from(formRows).forEach(function(element) {
-                CleanElement(element);
-                Array.from(element.getElementsByTagName('td')).forEach(element => CleanElement(element));
-            });
-        }
-
-        currentForm.addEventListener("submit", function(e){
-            e.preventDefault();
-            ClearInvalid(e,true);
-            sheetData = table.getData();
-            $.ajax({
-                type: "POST",
-                url: e.target.action,
-                headers: {
-                    'X-CSRF-TOKEN': window.csrf
-                },
-                data: {
-                    sheetData
-                },
-                complete: function (response) {
-                    let reply = response.responseJSON;
-                    if (typeof reply !== 'undefined') {
-                        var alertMsg = '';
-                        switch (response.status) {
-                            case 422:
-                                if (reply.message == 'The given data was invalid.'){
-                                    $.each(reply.errors, function (key, error) {
-                                        alertMsg += error[0] + "<br>";
-                                        Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function(cell){
-                                            if(String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== ""){
-                                                cell.classList.add('invalid');
-                                            };
-                                        });
-                                    });
-                                    Alert('error', Lang('Import failed'), alertMsg, {
-                                        confirm: {
-                                            text: Lang('Ok'),
-                                            btnClass: 'btn-danger',
-                                        },
-                                    });
-                                } else {
-                                    Array.from(reply.errors).forEach(function(error){
-                                        formRows.forEach(function(row){
-                                            if (error.line == row.rowIndex){
-                                                row.classList.add('invalid');
-                                            }
-                                        });
-                                    });
-                                    Alert('error', reply.response.title, reply.response.message, {
-                                        confirm: {
-                                            text: Lang('Ok'),
-                                            btnClass: 'btn-danger',
-                                        },
-                                    });
-                                }
-                                break;
-
-                            case 200:
-                                Alert('success', reply.response.title, reply.response.message, {
-                                    confirm: {
-                                        text: Lang('Ok'),
-                                        btnClass: 'btn-success',
-                                        action: function(){
-                                            if (reply.url){
-                                                window.location.href = reply.url;
-                                            }
-                                        }
-                                    },
-                                });
-                                break;
-                        }
-                    }
-                }
-            });
-        })
-    });
-});
+    }
+})
