@@ -3,44 +3,44 @@
 var dcars = 0;
 
 if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
-    document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x){
+    document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x) {
         var carousel, dcarSrc, imgElement, dcarPrefix, dcarColumn, defaultImgString;
 
         dcarSrc = element.dataset.dcarSrc;
         dcarPrefix = element.dataset.dcarPrefix;
         dcarColumn = element.dataset.dcarColumn;
         imgElement = '';
-        dcars =+ 1;
+        dcars = + 1;
 
-        function defaultImgString(img,dcars,dcarPrefix,dcarColumn){
+        function defaultImgString(img, dcars, dcarPrefix, dcarColumn) {
             return `<div class="dCar-div">
             <div class="dCar-controls">
-                <a class="dCar-btn spotlight" href="`+img+`" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                <a class="dcarBtn spotlight" href="`+ img + `" data-dcar="` + dcars + `" data-dcar-action="copy" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
                     <i class="fas fa-eye"></i>
                 </span></a>
-                <a class="dCar-btn" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                <a class="dcarBtn" data-dcar="`+ dcars + `" data-dcar-action="copy" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
                     <i class="fas fa-copy"></i>
                 </span></a>
-                <a class="dCar-btn" data-dcar="`+dcars+`" data-dcar-action="destroy" data-dcar-prefix="`+dcarPrefix+`" data-dcar-column="`+dcarColumn+`" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
-                    <i class="fas fa-trash"></i>
+                <a class="dcarBtn" data-dcar="`+ dcars + `" data-dcar-action="destroy" data-dcar-prefix="` + dcarPrefix + `" data-dcar-column="` + dcarColumn + `" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
+                    <i class="ki ki-bold-close icon-xs"></i>
                 </span></a>
             </div>
-            <img class="dCar-item" src="`+img+`">
+            <img class="dCar-item" src="`+ img + `">
         </div>`;
         }
 
-        if (typeof dcarSrc === 'string' || dcarSrc instanceof String){
-            if (dcarSrc.match(/\[/g) && dcarSrc.match(/\]/g)){
+        if (typeof dcarSrc === 'string' || dcarSrc instanceof String) {
+            if (dcarSrc.match(/\[/g) && dcarSrc.match(/\]/g)) {
                 dcarSrc = JSON.parse(dcarSrc);
                 // loop through array and make image elements
-                Array.from(dcarSrc).forEach(function (img,y){
+                Array.from(dcarSrc).forEach(function (img, y) {
                     imgElement = imgElement + defaultImgString(img);
                 })
             } else {
-                if (dcarSrc.match(/youtube/g)){
+                if (dcarSrc.match(/youtube/g)) {
                     element.style.marginTop = '0px';
                     imgElement = `<div class="dCar-div w-100">
-                <iframe class="dCar-iframe" src="`+dcarSrc+`" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe class="dCar-iframe" src="`+ dcarSrc + `" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>`;
                 } else {
                     imgElement = defaultImgString(dcarSrc);
@@ -75,8 +75,8 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         carousel.innerHTML = carousel.innerHTML + imgElement;
     })
 
-    if (document.querySelectorAll('[data-type=dcarousel]').length > 0){
-        document.querySelectorAll('[data-type=dcarousel').forEach(function(element){
+    if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
+        document.querySelectorAll('[data-type=dcarousel').forEach(function (element) {
             const gap = 500;
 
             const carousel = element.querySelector("#dCar-carousel"),
@@ -110,14 +110,14 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         })
     }
 
-    $(document).on('click','[data-dCar-action="destroy"]',function(element){
+    $(document).on('click', '[data-dCar-action="destroy"]', function (element) {
         var element, dCarPrefix, dCarColumn, dCarFile, dCarRevertKey, parentDiv, parentCar;
         element = element.currentTarget;
 
         parentCar = element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
         dCarPrefix = parentCar.dataset.dcarPrefix;
         dCarColumn = parentCar.dataset.dcarColumn;
-        dCarRevertKey = (parentCar.dataset.dcarRevertKey) ? '/'+parentCar.dataset.dcarRevertKey : '/'+dCarColumn;
+        dCarRevertKey = (parentCar.dataset.dcarRevertKey) ? '/' + parentCar.dataset.dcarRevertKey : '/' + dCarColumn;
         dCarFile = element.dataset.dcarFile;
 
         parentDiv = element.parentNode.parentNode;
@@ -125,19 +125,23 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         Swal.fire({
             title: Lang('Deleting file'),
             text: Lang('Are you sure you want to delete this file?'),
-            icon: "warning"
-        }).then(function(result){
-            if (result.value){
+            icon: "warning",
+            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+        }).then(function (result) {
+            if (result.value) {
                 $.ajax({
                     type: "DELETE",
-                    url: "/dcms/file/revert/"+dCarPrefix+"/image/"+dCarColumn,
+                    url: "/dcms/file/revert/" + dCarPrefix + "/image/" + dCarColumn,
                     data: dCarFile,
                     dataType: "dataType",
                     headers: {
                         'X-CSRF-TOKEN': window.csrf
                     },
                     complete: function (response) {
-                        if (parentCar.querySelectorAll('.dCar-div').length == 1){
+                        if (parentCar.querySelectorAll('.dCar-div').length == 1) {
                             $(parentCar).remove();
                         } else {
                             $(parentDiv).remove();
@@ -148,18 +152,18 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         });
     })
 
-    $(document).on('click','[data-dCar-action="copy"]',function(element){
+    $(document).on('click', '[data-dCar-action="copy"]', function (element) {
         var img;
         img = $(this).data('dcar-file');
         textToClipBoard(img);
         toastr.info(Lang('Image copied to clipboard.'))
     })
 
-    $(document).on('mouseenter','.dCar-div',function () {
-        $(this).find('.dCar-controls').css('visibility','visible');
+    $(document).on('mouseenter', '.dCar-div', function () {
+        $(this).find('.dCar-controls').css('visibility', 'visible');
     });
 
-    $(document).on('mouseleave','.dCar-div',function () {
-        $(this).find('.dCar-controls').css('visibility','hidden');
+    $(document).on('mouseleave', '.dCar-div', function () {
+        $(this).find('.dCar-controls').css('visibility', 'hidden');
     });
 }

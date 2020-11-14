@@ -275,7 +275,7 @@ window.DCMSDatatable = function (parameters) {
                         read: {
                             method: 'GET',
                             url: table.dataset.ktRoute,
-                        },
+                        }
                     },
                     pageSize: pageSize, // display 20 records per page
                     serverPaging: (table.dataset.ktPagination) == 'false' ? false : true,

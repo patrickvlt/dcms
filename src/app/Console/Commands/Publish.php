@@ -37,17 +37,27 @@ class Publish extends Command
         $vendorscss = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/sass';
         $vendorcssassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/assets';
 
-        RemoveDir($rootjs);
-        RemoveDir($rootjsassets);
-        RemoveDir($rootscss);
-        RemoveDir($rootcssassets);
+        if ($console->confirm('Do you want to update the JavaScript files?')){
+            // JS
+            RemoveDir($rootjs);
+            RemoveDir($rootjsassets);
+            CopyDir($vendorjs,$rootjs);
+            CopyDir($vendorjsassets,$rootjsassets);
+        }
 
-        CopyDir($vendorjs,$rootjs);
-        CopyDir($vendorjsassets,$rootjsassets);
-        CopyDir($vendorscss,$rootscss);
-        CopyDir($vendorcssassets,$rootcssassets);
-        copy(base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php', base_path() . '/config/dcms.php');
-        copy(base_path() . '/vendor/pveltrop/dcms/src/dcms.json', base_path() . '/dcms.json');
+        if ($console->confirm('Do you want to update the CSS files?')){
+            // CSS        
+            RemoveDir($rootscss);
+            RemoveDir($rootcssassets);
+            CopyDir($vendorscss,$rootscss);
+            CopyDir($vendorcssassets,$rootcssassets);
+        }
+
+        if ($console->confirm('Do you want to update the configs?')){
+            // Configs
+            copy(base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php', base_path() . '/config/dcms.php');
+            copy(base_path() . '/vendor/pveltrop/dcms/src/dcms.json', base_path() . '/dcms.json');
+        }
 
         print("\n".shell_exec('git status')."\n");
 

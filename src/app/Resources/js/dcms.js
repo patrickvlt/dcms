@@ -7,36 +7,37 @@
 var dcmsConfig;
 try {
     dcmsConfig = require('../../../dcms.json');
-} catch (error){
+    window.dcmsConfig = dcmsConfig;
+} catch (error) {
     dcmsConfig = {};
 }
 
-if (typeof process.env.MIX_DCMS_ENV == 'undefined'){
+if (typeof process.env.MIX_DCMS_ENV == 'undefined') {
     console.log('No environment defined for DCMS. Define this in your .env as MIX_DCMS_ENV.')
 }
 
-window.LoadJS = function(pluginFunction, plugin, pluginPath='cdn') {
+window.LoadJS = function (pluginFunction, plugin, pluginPath = 'cdn') {
     var scriptSources = (process.env.MIX_DCMS_ENV == 'local' || pluginPath !== 'cdn') ? plugin['local']['js'] : plugin[pluginPath]['js'];
-    function LoadJSSource(source){
+    function LoadJSSource(source) {
         var script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = source;
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(script, s);
     }
-    if (typeof scriptSources == 'string'){
+    if (typeof scriptSources == 'string') {
         LoadJSSource(scriptSources);
     } else {
-        Array.from(scriptSources).forEach(function(source){
+        Array.from(scriptSources).forEach(function (source) {
             LoadJSSource(source);
         });
     }
 }
 
 let cssLink, cssTag;
-window.LoadCSS = function(plugin,pluginPath='cdn') {
+window.LoadCSS = function (plugin, pluginPath = 'cdn') {
     var cssSources = (process.env.MIX_DCMS_ENV == 'local' || pluginPath !== 'cdn') ? plugin['local']['css'] : plugin[pluginPath]['css'];
-    function LoadCSSSource(source){
+    function LoadCSSSource(source) {
         cssLink = document.createElement('link');
         cssLink.rel = 'stylesheet';
         cssLink.type = 'text/css';
@@ -44,100 +45,95 @@ window.LoadCSS = function(plugin,pluginPath='cdn') {
         cssTag = document.getElementsByTagName('head')[0];
         cssTag.append(cssLink);
     }
-    if (typeof cssSources == 'string'){
+    if (typeof cssSources == 'string') {
         LoadCSSSource(cssSources);
     } else {
-        Array.from(cssSources).forEach(function(source){
+        Array.from(cssSources).forEach(function (source) {
             LoadCSSSource(source);
         });
     }
 }
 
-if (dcmsConfig.plugins.axios && dcmsConfig.plugins.axios.enable !== false){
-    LoadJS('axios',dcmsConfig.plugins.axios);
+if (typeof axios == 'undefined' && (dcmsConfig.plugins.axios && dcmsConfig.plugins.axios.enable !== false)) {
+    LoadJS('axios', dcmsConfig.plugins.axios);
 }
 
-if (dcmsConfig.plugins.vue && dcmsConfig.plugins.vue.enable !== false){
-    LoadJS('Vue',dcmsConfig.plugins.vue);
+if (typeof Vue == 'undefined' && (dcmsConfig.plugins.vue && dcmsConfig.plugins.vue.enable !== false)) {
+    LoadJS('Vue', dcmsConfig.plugins.vue);
 }
 
-if (dcmsConfig.plugins.sweetalert2 && dcmsConfig.plugins.sweetalert2.enable !== false){
-    LoadJS('Swal',dcmsConfig.plugins.sweetalert2);
+if (typeof Swal == 'undefined' && (dcmsConfig.plugins.sweetalert2 && dcmsConfig.plugins.sweetalert2.enable !== false)) {
+    LoadJS('Swal', dcmsConfig.plugins.sweetalert2);
 }
 
-if (dcmsConfig.plugins.toastr && dcmsConfig.plugins.toastr.enable !== false){
+if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr && dcmsConfig.plugins.toastr.enable !== false)) {
     LoadCSS(dcmsConfig.plugins.toastr);
-    LoadJS('toastr',dcmsConfig.plugins.toastr);
+    LoadJS('toastr', dcmsConfig.plugins.toastr);
 }
 
-if ((document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)) || window.enableSlim == true){
+if (typeof SlimSelect == 'undefined' && document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)) {
     LoadCSS(dcmsConfig.plugins.slimselect);
-    LoadJS('SlimSelect',dcmsConfig.plugins.slimselect);
+    LoadJS('SlimSelect', dcmsConfig.plugins.slimselect);
 }
 
-if (document.querySelectorAll('[data-type=datepicker]').length > 0 && (dcmsConfig.plugins.datepicker && dcmsConfig.plugins.datepicker.enable !== false)){
+if (typeof datepicker == 'undefined' && document.querySelectorAll('[data-type=datepicker]').length > 0 && (dcmsConfig.plugins.datepicker && dcmsConfig.plugins.datepicker.enable !== false)) {
     LoadCSS(dcmsConfig.plugins.datepicker);
-    LoadJS('datepicker',dcmsConfig.plugins.datepicker);
+    LoadJS('datepicker', dcmsConfig.plugins.datepicker);
 }
 
-if (document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker && dcmsConfig.plugins.clockpicker !== false)){
+if (typeof clockpicker == 'undefined' && document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker && dcmsConfig.plugins.clockpicker !== false)) {
     LoadCSS(dcmsConfig.plugins.clockpicker);
-    LoadJS('clockpicker',dcmsConfig.plugins.clockpicker);
+    LoadJS('clockpicker', dcmsConfig.plugins.clockpicker);
 }
 
-if (document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel && dcmsConfig.plugins.jexcel !== false)){
+if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel && dcmsConfig.plugins.jexcel !== false)) {
     LoadCSS(dcmsConfig.plugins.jexcel);
-    LoadJS('jexcel',dcmsConfig.plugins.jexcel);
+    LoadJS('jexcel', dcmsConfig.plugins.jexcel);
 }
-if (document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites && dcmsConfig.plugins.jsuites !== false)){
+if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites && dcmsConfig.plugins.jsuites !== false)) {
     LoadCSS(dcmsConfig.plugins.jsuites);
-    LoadJS('jsuites',dcmsConfig.plugins.jsuites);
+    LoadJS('jsuites', dcmsConfig.plugins.jsuites);
 }
 
-if (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa !== false){
-    LoadJS('Papa',dcmsConfig.plugins.papa,'local');
+if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa !== false)) {
+    LoadJS('Papa', dcmsConfig.plugins.papa, 'local');
 }
 
-if (document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond && dcmsConfig.plugins.filepond !== false)){
+if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond && dcmsConfig.plugins.filepond !== false)) {
     LoadCSS(dcmsConfig.plugins.filepond);
-    LoadJS('FilePond',dcmsConfig.plugins.filepond);
+    LoadJS('FilePond', dcmsConfig.plugins.filepond);
     LoadCSS(dcmsConfig.plugins.filepondImagePreview);
-    LoadJS('FilePondPluginImagePreview',dcmsConfig.plugins.filepondImagePreview);
-    LoadJS('FilePondPluginFileValidateSize',dcmsConfig.plugins.filepondValidateSize);
+    LoadJS('FilePondPluginImagePreview', dcmsConfig.plugins.filepondImagePreview);
+    LoadJS('FilePondPluginFileValidateSize', dcmsConfig.plugins.filepondValidateSize);
 }
 
-// If a tinymce input field is present or DCMS editor can be initialised on an element
-if (document.querySelectorAll('[data-type=tinymce]').length > 0 || document.querySelectorAll('dcms').length > 0 && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)){
-    LoadJS('tinymce',dcmsConfig.plugins.tinymce,'local');
+if (typeof tinymce == 'undefined' && document.querySelectorAll('[data-type=tinymce]').length > 0 && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)) {
+    LoadJS('tinymce', dcmsConfig.plugins.tinymce, 'local');
 }
 
-if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KTDatatable && dcmsConfig.plugins.KTDatatable !== false)){
-    LoadJS('KTDatatable',dcmsConfig.plugins.KTDatatable,'local');
-    LoadCSS(dcmsConfig.plugins.KTDatatable,'local');
+if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KTDatatable && dcmsConfig.plugins.KTDatatable !== false)) {
+    LoadJS('KTDatatable', dcmsConfig.plugins.KTDatatable, 'local');
+    LoadCSS(dcmsConfig.plugins.KTDatatable, 'local');
 }
 
-window.docReady = function (fn) {
-    if (document.readyState != 'loading') {
-        fn();
-    } else if (document.addEventListener) {
-        document.addEventListener('DOMContentLoaded', fn);
-    } else {
-        document.attachEvent('onreadystatechange', function () {
-            if (document.readyState != 'loading')
-                fn();
-        });
-    }
+window.onReady = function (yourMethod) {
+    var readyStateCheckInterval = setInterval(function () {
+        if (document && document.readyState === 'complete') {
+            clearInterval(readyStateCheckInterval);
+            yourMethod();
+        }
+    }, 100);
 }
 
-window.hasLoaded = function(plugins,yourMethod) {
+window.hasLoaded = function (plugins, yourMethod) {
     plugins = (typeof plugins == 'string') ? [plugins] : plugins;
     var success = 0;
-    var readyStateCheckInterval = setInterval(function() {
-        plugins.forEach(function(plugin,x){
+    var readyStateCheckInterval = setInterval(function () {
+        plugins.forEach(function (plugin, x) {
             if (typeof window[plugin] !== 'undefined' || typeof $.fn[plugin] !== 'undefined') {
                 clearInterval(readyStateCheckInterval);
                 success++;
-                if (success == plugins.length){
+                if (success == plugins.length) {
                     yourMethod();
                 }
             }
@@ -172,7 +168,7 @@ window.language = 'en';
 window.language = (typeof locale !== 'undefined') ? locale : window.language;
 
 // TinyMCE
-window.langFiles = '/js/dcms/tinymce_lang/'+window.language+'.js';
+window.langFiles = '/js/dcms/tinymce_lang/' + window.language + '.js';
 window.tinyMCEplugins = 'print preview fullpage searchreplace autolink directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists textcolor wordcount imagetools  contextmenu colorpicker textpattern help';
 window.tinyMCEtoolbar = 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat';
 
@@ -185,6 +181,13 @@ try {
 } catch (error) {
     window.FilePondMaxFileSize = window.FilePondMaxFileSize;
 }
+
+// Form validation
+formElementSelectors = [
+    'name', 'data-id'
+]
+window.DCMSFormAlerts = false;
+window.DCMSFormErrorBag = true;
 
 /**
  *
@@ -207,6 +210,18 @@ window.Lang = function (string) {
         return string;
     }
 }
+
+/**
+ *
+ *  SweetAlert variables
+ *
+ */
+
+
+window.SwalConfirmButtonColor = "var(--e-global-color-primary)";
+window.SwalConfirmButtonText = Lang("OK");
+window.SwalCancelButtonColor = "black";
+window.SwalCancelButtonText = Lang("Cancel");
 
 /**
  *
@@ -247,12 +262,11 @@ window.EnableSubmit = function () {
 }
 
 require('./plugins/carousel.js');
-require('./plugins/slimselect.js');
-require('./plugins/tinymce.js');
-require('./plugins/editor.js');
-require('./plugins/dateclockpicker.js');
+// require('./plugins/slimselect.js');
+// require('./plugins/tinymce.js');
+// require('./plugins/dateclockpicker.js');
 require('./plugins/jexcel.js');
-require('./plugins/filepond.js');
+// require('./plugins/filepond.js');
 require('./metronic/dcmsdatatable.js');
 require('../../../public/js/dcms/assets/spotlight.js');
 
@@ -285,6 +299,31 @@ function ReloadDT() {
  */
 
 window.HttpReq = function (formMethod, formAction, formData) {
+    // If the document has a simple div with .dcms-error-parent class, then the errors from the request
+    // will be appended to this div, provided window.DCMSFormErrorBag is set to true above
+    var errorBag, errorBagTitle, errorBagParent, errorElement;
+    errorElement = document.createElement('div');
+    errorElement.innerHTML = `<div class="alert alert-danger fade show dcms-error-bag" role="alert">
+        <strong class='dcms-error-title'></strong></p>
+        <p class='dcms-errors'></p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>`;
+    errorBagParent = document.querySelector('.dcms-error-parent');
+    function FillErrorBag(args) {
+        errorBagParent.style.display = 'block';
+        errorBagTitle = errorBagParent.querySelector('.dcms-error-title');
+        errorBagTitle.innerHTML = args.title ?? Lang("An error has occurred");
+        errorBag = errorBagParent.querySelector('.dcms-errors');
+        errorBag.innerHTML = args.message ?? Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.');
+    }
+    // Clear invalid classes
+    document.querySelectorAll(".is-invalid").forEach(function (element) {
+        element.classList.remove('is-invalid')
+    })
+    // Start request
+    errorBagParent.innerHTML = "";
     DisableSubmit();
     $.ajax({
         type: formMethod,
@@ -299,9 +338,13 @@ window.HttpReq = function (formMethod, formAction, formData) {
             Swal.fire({
                 title: Lang((response['title']) ? response['title'] : 'Succesfully created'),
                 text: Lang((response['message']) ? response['message'] : 'Your request was successful.'),
-                icon: "success"
-            }).then(function(result){
-                if (result.value){
+                icon: "success",
+                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+            }).then(function (result) {
+                if (result.value) {
                     if (response.url) {
                         window.location.href = response.url;
                     }
@@ -310,22 +353,55 @@ window.HttpReq = function (formMethod, formAction, formData) {
         },
         error: function (response) {
             var reply = response.responseJSON;
+            if (window.DCMSFormErrorBag == true) {
+                errorBagParent.appendChild(errorElement);
+            }
             if (reply['errors']) {
                 let errorString = '';
-                $.each(reply['errors'], function (key, error) {
+                $.each(reply['errors'], function (name, error) {
                     errorString = errorString + error[0].replace(':', '.') + "<br>";
+                    formElementSelectors.forEach(function (selector) {
+                        let formElement = document.querySelector(`[` + selector + `^="` + name + `"`) ?? null;
+                        if (formElement) {
+                            formElement.classList.add('is-invalid')
+                        }
+                    })
                 });
-                Swal.fire({
-                    title: Lang(reply['message']),
-                    html: errorString,
-                    icon: "error"
-                });
+                if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
+                    Swal.fire({
+                        title: Lang(reply['message']),
+                        html: errorString,
+                        confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                        confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                        cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                        cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        icon: "error"
+                    });
+                }
+                if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
+                    FillErrorBag({
+                        title: Lang(reply['message']),
+                        message: errorString
+                    });
+                }
             } else {
-                Swal.fire({
-                    title: Lang('Unknown error'),
-                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
-                    icon: "error"
-                })
+                if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
+                    Swal.fire({
+                        title: Lang('Unknown error'),
+                        html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                        icon: "error",
+                        confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                        confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                        cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                        cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                    })
+                } else if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
+                    FillErrorBag({
+                        title: Lang("Unknown error"),
+                        message: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.')
+                    });
+                }
+
             }
         },
         complete: function () {
@@ -336,14 +412,32 @@ window.HttpReq = function (formMethod, formAction, formData) {
 
 let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
 function SubmitAjax(e) {
-    try {
+    if (typeof tinymce !== 'undefined') {
         tinyMCE.triggerSave();
-    } catch (error) {
-        
     }
     let formAction = e.target.action;
     let formMethod = e.target.method;
     let formData = new FormData(e.target);
+    if (document.querySelectorAll('.filepond--file').length > 0) {
+        let loopedNames = [];
+        let namesToLoop = [];
+        Array.from(window.fileArray).forEach(function (fileWindow) {
+            namesToLoop.push(fileWindow.input);
+        });
+        namesToLoop.forEach(function (name) {
+            if (!loopedNames.includes(name)) {
+                loopedNames.push(name);
+            }
+        });
+        loopedNames.forEach(function (name) {
+            let curInputs = document.getElementsByName(name);
+            let curFiles = [];
+            formData.delete(name);
+            curInputs.forEach(function (input) {
+                formData.append(name, input.value);
+            })
+        });
+    }
     let formRequest = HttpReq(formMethod, formAction, formData);
 }
 ajaxForms.forEach(element =>
@@ -374,9 +468,13 @@ window.DeleteModel = function (args) {
         showCancelButton: true,
         title: confirmTitle,
         html: confirmMsg,
-        icon: "warning"
-    }).then(function(result){
-        if (result.value){
+        icon: "warning",
+        confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+        confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+        cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+        cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+    }).then(function (result) {
+        if (result.value) {
             if (id != null) {
                 if (isArray(id)) {
                     let success = true;
@@ -398,9 +496,26 @@ window.DeleteModel = function (args) {
                     });
                     if (success == true) {
                         ReloadDT();
-                        Swal.fire(completeTitle, completeMsg, 'success');
+                        Swal.fire({
+                            title: completeTitle,
+                            text: completeMsg,
+                            icon: "success",
+                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        })
+
                     } else {
-                        Swal.fire(failedTitle, failedMsg, 'error');
+                        Swal.fire({
+                            title: failedTitle,
+                            text: failedMsg,
+                            icon: "error",
+                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        })
                     }
                 } else {
                     jQuery.ajax({
@@ -417,9 +532,13 @@ window.DeleteModel = function (args) {
                             Swal.fire({
                                 title: completeTitle,
                                 text: completeMsg,
-                                icon: "success"
-                            }).then(function(result){
-                                if (result.value){
+                                icon: "success",
+                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                            }).then(function (result) {
+                                if (result.value) {
                                     if (redirect !== '') {
                                         if (window.AllowNewTab == false) {
                                             window.location.href = redirect;
@@ -431,7 +550,15 @@ window.DeleteModel = function (args) {
                             });
                         },
                         error: function () {
-                            Swal.fire(failedTitle, failedMsg, 'error');
+                            Swal.fire({
+                                title: failedTitle,
+                                text: failedMsg,
+                                icon: "error",
+                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                            })
                         }
                     });
                 }
@@ -446,7 +573,7 @@ window.DeleteModel = function (args) {
  *
  */
 
-$(document).on('click', 'form [data-dcms-action=destroy]', function (e) {
+$(document).on('click', '[data-dcms-action=destroy]', function (e) {
     e.preventDefault();
     let element = e.currentTarget;
     let id = element.dataset.dcmsId;
@@ -490,7 +617,7 @@ window.MergeColumns = function (row, column) {
  *
  */
 
-window.LoadInModal = function (url, modal){
+window.LoadInModal = function (url, modal) {
     $.get(url, function (data) {
         el = $('#global_modal');
         el.find('.modal-content').html(data);

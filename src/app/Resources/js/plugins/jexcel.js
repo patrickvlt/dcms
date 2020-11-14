@@ -1,10 +1,9 @@
 "use strict";
 
-hasLoaded(['jexcel'],function(){
+hasLoaded(['jexcel'], function () {
     var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table;
-    window.jExcelTables = [];
 
-    if (document.querySelectorAll('[data-type=jexcel]').length > 0){
+    if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
         jExcelTrans = {
             // noRecordsFound:"Nenhum registro encontrado",
             // entries:"entradas",
@@ -35,14 +34,14 @@ hasLoaded(['jexcel'],function(){
             // noCellsSelected:"Nenhuma célula selecionada",
         }
 
-        document.querySelectorAll('[data-type=jexcel]').forEach(function(htmlTable){
+        document.querySelectorAll('[data-type=jexcel]').forEach(function (htmlTable) {
             sheetData = '';
             sheetDynColumns = [];
             currentForm = document.querySelector(htmlTable.dataset.jexcelFormSelector);
 
             // fetch information from htmlTable headers
-            Array.from(htmlTable.getElementsByTagName('th')).forEach(function(header){
-                function ColumnPush(ajax=null){
+            Array.from(htmlTable.getElementsByTagName('th')).forEach(function (header) {
+                function ColumnPush(ajax = null) {
                     sheetDynColumns.push({
                         type: header.dataset.jexcelType,
                         source: (ajax !== null) ? ajax : '',
@@ -56,7 +55,7 @@ hasLoaded(['jexcel'],function(){
                     });
                     header.hidden = true;
                 }
-                if (header.dataset.jexcelFetchUrl !== null && typeof header.dataset.jexcelFetchUrl !== 'undefined'){
+                if (header.dataset.jexcelFetchUrl !== null && typeof header.dataset.jexcelFetchUrl !== 'undefined') {
                     let fetchColumn = (header.dataset.jexcelFetchColumn) ? header.dataset.jexcelFetchColumn : 'id';
                     $.ajax({
                         type: "GET",
@@ -74,7 +73,7 @@ hasLoaded(['jexcel'],function(){
                 }
             });
 
-            function MakeTable(data=null){
+            function MakeTable(data = null) {
                 // construct table
                 let rows = parseInt(htmlTable.dataset.jexcelEmptyrows);
                 let dataFill = [];
@@ -84,35 +83,35 @@ hasLoaded(['jexcel'],function(){
                 table = jexcel(htmlTable, {
                     data: (data !== null) ? data : dataFill,
                     columnDrag: true,
-                    colWidths: sheetDynColumns.map(function(el){ return (el.width) ? el.width : 100; }),
+                    colWidths: sheetDynColumns.map(function (el) { return (el.width) ? el.width : 100; }),
                     columns: sheetDynColumns,
                     allowInsertColumn: false,
                     allowManualInsertColumn: false,
                     text: jExcelTrans
                 });
-                if (currentForm){
+                if (currentForm) {
                     currentForm.style.display = 'block';
                 }
 
                 window.jExcelTables.push(table);
 
                 function ClearInvalid(e) {
-                    function CleanElement(element){
+                    function CleanElement(element) {
                         if (element.classList.contains('invalid')) {
                             element.classList.remove('invalid')
                         }
                     }
                     formRows = Array.from(e.target.getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
-                    Array.from(formRows).forEach(function(element) {
+                    Array.from(formRows).forEach(function (element) {
                         CleanElement(element);
                         Array.from(element.getElementsByTagName('td')).forEach(element => CleanElement(element));
                     });
                 }
 
-                if (currentForm){
-                    currentForm.addEventListener("submit", function(e){
+                if (currentForm) {
+                    currentForm.addEventListener("submit", function (e) {
                         e.preventDefault();
-                        ClearInvalid(e,true);
+                        ClearInvalid(e, true);
                         sheetData = table.getData();
                         $.ajax({
                             type: "POST",
@@ -129,11 +128,11 @@ hasLoaded(['jexcel'],function(){
                                     var alertMsg = '';
                                     switch (response.status) {
                                         case 422:
-                                            if (reply.message == 'The given data was invalid.'){
+                                            if (reply.message == 'The given data was invalid.') {
                                                 $.each(reply.errors, function (key, error) {
                                                     alertMsg += error[0] + "<br>";
-                                                    Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function(cell){
-                                                        if(String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== ""){
+                                                    Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function (cell) {
+                                                        if (String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== "") {
                                                             cell.classList.add('invalid');
                                                         };
                                                     });
@@ -141,12 +140,16 @@ hasLoaded(['jexcel'],function(){
                                                 Swal.fire({
                                                     title: Lang('Import failed'),
                                                     html: alertMsg,
-                                                    icon: "error"
+                                                    icon: "error",
+                                                    confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                                    confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                                    cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                                    cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
                                                 })
                                             } else {
-                                                Array.from(reply.errors).forEach(function(error){
-                                                    formRows.forEach(function(row){
-                                                        if (error.line == row.rowIndex){
+                                                Array.from(reply.errors).forEach(function (error) {
+                                                    formRows.forEach(function (row) {
+                                                        if (error.line == row.rowIndex) {
                                                             row.classList.add('invalid');
                                                         }
                                                     });
@@ -154,7 +157,11 @@ hasLoaded(['jexcel'],function(){
                                                 Swal.fire({
                                                     title: reply.response.title,
                                                     html: reply.response.message,
-                                                    icon: "error"
+                                                    icon: "error",
+                                                    confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                                    confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                                    cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                                    cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
                                                 })
                                             }
                                             break;
@@ -163,10 +170,14 @@ hasLoaded(['jexcel'],function(){
                                             Swal.fire({
                                                 title: reply.response.title,
                                                 html: reply.response.message,
-                                                icon: "success"
-                                            }).then(function(result){
-                                                if (result.value){
-                                                    if (reply.url){
+                                                icon: "success",
+                                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                                            }).then(function (result) {
+                                                if (result.value) {
+                                                    if (reply.url) {
                                                         window.location.href = reply.url;
                                                     }
                                                 }
@@ -182,10 +193,10 @@ hasLoaded(['jexcel'],function(){
 
             MakeTable();
 
-            $(currentForm).on('click','#fixSheet',function(button){
+            $(currentForm).on('click', '#fixSheet', function (button) {
                 var dropdownHeaders = [];
                 $.each($(htmlTable).find('th'), function (x, th) {
-                    if ($(th).data('jexcel-type') == 'dropdown'){
+                    if ($(th).data('jexcel-type') == 'dropdown') {
                         let ajUrl = $(th).data('jexcel-fetch-url');
                         dropdownHeaders.push({
                             column: th.cellIndex,
@@ -207,16 +218,28 @@ hasLoaded(['jexcel'],function(){
                         Swal.fire({
                             title: Lang('Are you sure?'),
                             html: Lang('This will try to fix empty dropdown columns.') + "<br>" + Lang('Do you want to continue?'),
-                            icon: "warning"
-                        }).then(function(result){
-                            if (result.value){
-                                $(currentForm).find('table').jexcel('setData',file,false);
+                            icon: "warning",
+                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        }).then(function (result) {
+                            if (result.value) {
+                                $(currentForm).find('table').jexcel('setData', file, false);
                                 toastr.success(Lang('Sheet has been updated.'))
                             }
                         });
                     },
                     error: function () {
-                        Swal.fire(Lang('Data correction failed'),Lang('The provided data couldn\'t be fixed.'),'error')
+                        Swal.fire({
+                            title: Lang('Data correction failed'),
+                            text: Lang('The provided data couldn\'t be fixed.'),
+                            icon: "error",
+                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        });
                     },
                 });
             })
