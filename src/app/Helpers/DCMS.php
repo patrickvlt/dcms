@@ -67,16 +67,20 @@ if (!function_exists('FindClass')) {
 }
 
 if (!function_exists('Model')) {
-    function Model($prefix = null)
+    function Model()
     {
         $model = request()->route()->controller->model ?? null;
-        $parameters = request()->route()->parameters ?? null;
-        if (!$model && $parameters){
-            foreach($parameters as $key => $parameter){
-                if (is_object($parameter)){
-                    return $model = $parameter;
-                }
+        if (!$model){
+            return null;
+        }
+        $routePrefix = request()->route()->controller->routePrefix;
+        if (request()->route()->parameters()){
+            if (isset(request()->route()->parameters()[$routePrefix])){
+                $id = request()->route()->parameters()[$routePrefix];
+            } else if (isset(request()->route()->parameters()['id'])){
+                $id = request()->route()->parameters()['id'];
             }
+            return $model::find($id);
         }
         return null;
     }
@@ -108,6 +112,9 @@ if (!function_exists('FormRoute')) {
     function FormRoute($prefix=null)
     {
         $routeName = request()->route()->getName();
+        if(!$prefix){
+            $prefix = $prefix ?? explode(".", $routeName)[0];
+        }
         $routeAction = explode(".", $routeName);
         $routeAction = end($routeAction);
         $formRoute = null;

@@ -6,7 +6,7 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
     document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x) {
         var carousel, dcarSrc, imgElement, dcarPrefix, dcarColumn, defaultImgString;
 
-        dcarSrc = element.dataset.dcarSrc;
+        dcarSrc = element.dataset.dcarSrc.split(' ');
         dcarPrefix = element.dataset.dcarPrefix;
         dcarColumn = element.dataset.dcarColumn;
         imgElement = '';
@@ -46,6 +46,11 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
                     imgElement = defaultImgString(dcarSrc);
                 }
             }
+        } else if (typeof dcarSrc === 'object'){
+            // loop through array and make image elements
+            Array.from(dcarSrc).forEach(function (img, y) {
+                imgElement = imgElement + defaultImgString(img);
+            })
         }
 
 
