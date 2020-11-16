@@ -6,6 +6,9 @@ hasLoaded('tinymce',function(){
             language: window.locale,
             plugins: window.tinyMCEplugins,
             toolbar1: window.tinyMCEtoolbar,
+            relative_urls : false,
+            remove_script_host : false,
+            convert_urls : true,
         });   
     }
 });

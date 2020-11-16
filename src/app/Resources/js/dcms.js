@@ -218,7 +218,7 @@ window.Lang = function (string) {
  */
 
 
-window.SwalConfirmButtonColor = "var(--e-global-color-primary)";
+window.SwalConfirmButtonColor = "var(--primary)";
 window.SwalConfirmButtonText = Lang("OK");
 window.SwalCancelButtonColor = "black";
 window.SwalCancelButtonText = Lang("Cancel");
@@ -262,11 +262,11 @@ window.EnableSubmit = function () {
 }
 
 require('./plugins/carousel.js');
-// require('./plugins/slimselect.js');
-// require('./plugins/tinymce.js');
-// require('./plugins/dateclockpicker.js');
+require('./plugins/slimselect.js');
+require('./plugins/tinymce.js');
+require('./plugins/dateclockpicker.js');
 require('./plugins/jexcel.js');
-// require('./plugins/filepond.js');
+require('./plugins/filepond.js');
 require('./metronic/dcmsdatatable.js');
 require('../../../public/js/dcms/assets/spotlight.js');
 
@@ -323,7 +323,9 @@ window.HttpReq = function (formMethod, formAction, formData) {
         element.classList.remove('is-invalid')
     })
     // Start request
-    errorBagParent.innerHTML = "";
+    if (errorBagParent){
+        errorBagParent.innerHTML = "";
+    }
     DisableSubmit();
     $.ajax({
         type: formMethod,
