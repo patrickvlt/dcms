@@ -34,7 +34,6 @@ class Form extends HtmlTag
         $columns = [];
         foreach ($modelRequest as $requestCol => $rules) {
             $column['name'] = $requestCol;
-            $column['type'] = $builder->getColumnType($table, $requestCol);
             $column['rules'] = $rules;
             $columns[] = $column;
         }
