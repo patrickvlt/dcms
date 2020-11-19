@@ -79,6 +79,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
             pond.name = inputElement.dataset.filepondColumn + "[]";
             pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.FilePondInstantUpload;
             pond.allowRevert = (inputElement.dataset.filepondAllowRevert) ? inputElement.dataset.filepondAllowRevert : window.FilePondAllowRevert;
+            pond.allowPaste = false;
             pond.onerror = (res) => {
                 HaltSubmit();
             }
