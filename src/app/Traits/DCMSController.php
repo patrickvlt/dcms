@@ -57,6 +57,7 @@ trait DCMSController
 
     public function index()
     {
+        $this->__init();
         if (request()->ajax()) {
             return $this->indexQuery;
         }
@@ -66,11 +67,13 @@ trait DCMSController
 
     public function fetch()
     {
+        $this->__init();
         return (new Datatable((new $this->model)->query()))->render();
     }
 
     public function show($id)
     {
+        $this->__init();
         ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
 
         $vars = method_exists($this,'beforeShow') ? $this->beforeShow($id) : null;
