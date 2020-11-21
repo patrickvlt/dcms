@@ -68,7 +68,7 @@ class Form extends HtmlTag
             $makeRadio = false;
             $makeTextarea = false;
 
-            $definedAttr = $DCMS['formProperties'][$column['name']] ?? null;
+            $definedAttr = $DCMS[$column['name']] ?? null;
             // Take different steps according to various data-types
             if (isset($definedAttr['select'])) {
                 $makeInput = false;
@@ -305,16 +305,16 @@ class Form extends HtmlTag
             $saveRedirect = $DCMS['created']['url'] ?? route($routePrefix . '.index');
             $saveRoute = route($routePrefix . '.store');
             $saveID = null;
-            $saveText = $DCMS['formProperties']['formButtons']['create']['text'] ?? __('Create');
-            $saveBtnAttr = $DCMS['formProperties']['formButtons']['create'] ?? null;
+            $saveText = $DCMS['formButtons']['create']['text'] ?? __('Create');
+            $saveBtnAttr = $DCMS['formButtons']['create'] ?? null;
         }
         // Save button: If updating a model
         else {
             $saveRedirect = $DCMS['updated']['url'] ?? route($routePrefix . '.index');
             $saveRoute = route($routePrefix . '.update', Model()->id);
             $saveID = Model()->id;
-            $saveText = $DCMS['formProperties']['formButtons']['update']['text'] ?? __('Update');
-            $saveBtnAttr = $DCMS['formProperties']['formButtons']['update'] ?? null;
+            $saveText = $DCMS['formButtons']['update']['text'] ?? __('Update');
+            $saveBtnAttr = $DCMS['formButtons']['update'] ?? null;
         }
         // Get custom attributes for save button, dont use text as an attribute
         $x = 0;
@@ -340,8 +340,8 @@ class Form extends HtmlTag
         $formGroup->addElement($saveBtn);
 
         // Get custom attributes for delete button, dont use text as an attribute
-        $deleteBtnAttr = $DCMS['formProperties']['formButtons']['delete'] ?? null;
-        $deleteBtnText = $DCMS['formProperties']['formButtons']['delete']['text'] ?? null;
+        $deleteBtnAttr = $DCMS['formButtons']['delete'] ?? null;
+        $deleteBtnText = $DCMS['formButtons']['delete']['text'] ?? null;
         $x = 0;
         if ($deleteBtnAttr) {
             foreach ($deleteBtnAttr as $key => $attr) {

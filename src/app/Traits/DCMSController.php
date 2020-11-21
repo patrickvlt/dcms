@@ -11,81 +11,47 @@ use Illuminate\Support\Facades\Validator;
 
 trait DCMSController
 {
-    // private $prefix;
-    // private $class;
-    // private $file;
-    // private $requestFile;
-    // private $modelRequest;
-    // private $indexQuery;
-    // private $indexView;
-    // private $showView;
-    // private $editView;
-    // private $createView;
-    // private $createdUrl;
-    // private $createdTitle;
-    // private $createdMessage;
-    // private $updatedUrl;
-    // private $updatedTitle;
-    // private $updatedMessage;
-    // private $deletedUrl;
-    // private $deletedTitle;
-    // private $deletedMessage;
-    // private $importCols;
-    // private $importFailedTitle;
-    // private $importFailedMessage;
-    // private $importEmptyTitle;
-    // private $importEmptyMessage;
-    // private $importFinishedTitle;
-    // private $importFinishedMessage;
-    // private $importedUrl;
-    // private $autoFixColumns;
-
-    // This returns void by default
-    public function DCMS(): void {}
-
-    public function __construct()
+    public function __init()
     {
         if (!app()->runningInConsole()) {
             // Route prefix
-            $this->routePrefix = $this->DCMS()['routePrefix'] ?? GetPrefix();
+            $this->routePrefix = $this->routePrefix ?? GetPrefix();
             // Get model and custom request class
-            if (!isset($this->DCMS()['model'])){
+            if (!isset($this->model)){
                 throw new \RuntimeException("No model defined for: ".ucfirst($this->routePrefix)." in DCMS function.");
-            } else {
-                $this->model = $this->DCMS()['model'];
             }
-            if (!isset($this->DCMS()['request'])){
+            if (!isset($this->request)){
                 throw new \RuntimeException("No custom request defined for: ".ucfirst($this->routePrefix)." in DCMS function.");
             } else {
-                $this->request = $this->DCMS()['request'];
+                $this->request = $this->request;
                 $this->modelRequest = (new $this->request);
             }
             // CRUD views
-            $this->indexView = $this->DCMS()['views']['index'] ?? 'index';
-            $this->showView = $this->DCMS()['views']['show'] ?? 'show';
-            $this->editView = $this->DCMS()['views']['edit'] ?? 'edit';
-            $this->createView = $this->DCMS()['views']['create'] ?? 'create';
+            $this->indexView = $this->views['index'] ?? 'index';
+            $this->showView = $this->views['show'] ?? 'show';
+            $this->editView = $this->views['edit'] ?? 'edit';
+            $this->createView = $this->views['create'] ?? 'create';
             // JSON CRUD responses
-            $this->createdUrl = $this->DCMS()['created']['url'] ?? '/'.$this->routePrefix;
-            $this->createdTitle = $this->DCMS()['created']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('created');
-            $this->createdMessage = $this->DCMS()['created']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully created');
-            $this->updatedUrl = $this->DCMS()['updated']['url'] ?? '/'.$this->routePrefix;
-            $this->updatedTitle = $this->DCMS()['updated']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('updated');
-            $this->updatedMessage = $this->DCMS()['updated']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully updated');
-            $this->deletedUrl = $this->DCMS()['deleted']['url'] ?? '/'.$this->routePrefix;
-            $this->deletedTitle = $this->DCMS()['deleted']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('deleted');
-            $this->deletedMessage = $this->DCMS()['deleted']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully deleted');
+            $this->createdUrl = $this->responses['created']['url'] ?? '/'.$this->routePrefix;
+            $this->createdTitle = $this->responses['created']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('created');
+            $this->createdMessage = $this->responses['created']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully created');
+            $this->updatedUrl = $this->responses['updated']['url'] ?? '/'.$this->routePrefix;
+            $this->updatedTitle = $this->responses['updated']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('updated');
+            $this->updatedMessage = $this->responses['updated']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully updated');
+            $this->deletedUrl = $this->responses['deleted']['url'] ?? '/'.$this->routePrefix;
+            $this->deletedTitle = $this->responses['deleted']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('deleted');
+            $this->deletedMessage = $this->responses['deleted']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully deleted');
             // jExcel imports
-            $this->importCols = $this->DCMS()['import']['columns'] ?? null;
-            $this->importFailedTitle = $this->DCMS()['import']['failed']['title'] ?? __('Import failed');
-            $this->importFailedMessage = $this->DCMS()['import']['failed']['message'] ?? __('Some fields contain invalid data.');
-            $this->importEmptyTitle = $this->DCMS()['import']['empty']['title'] ?? __('Import failed');
-            $this->importEmptyMessage = $this->DCMS()['import']['empty']['message'] ?? __('Please fill in data to import.');
-            $this->importFinishedTitle = $this->DCMS()['import']['finished']['title'] ?? __('Import finished');
-            $this->importFinishedMessage = $this->DCMS()['import']['finished']['message'] ?? __('All data has been succesfully imported.');
-            $this->importedUrl = $this->DCMS()['imported']['url'] ?? '/'.$this->routePrefix;
+            $this->importCols = $this->jExcel['columns'] ?? null;
+            $this->importFailedTitle = $this->jExcel['failed']['title'] ?? __('Import failed');
+            $this->importFailedMessage = $this->jExcel['failed']['message'] ?? __('Some fields contain invalid data.');
+            $this->importEmptyTitle = $this->jExcel['empty']['title'] ?? __('Import failed');
+            $this->importEmptyMessage = $this->jExcel['empty']['message'] ?? __('Please fill in data to import.');
+            $this->importFinishedTitle = $this->jExcel['finished']['title'] ?? __('Import finished');
+            $this->importFinishedMessage = $this->jExcel['finished']['message'] ?? __('All data has been succesfully imported.');
+            $this->importedUrl = $this->jExcel['imported']['url'] ?? '/'.$this->routePrefix;
             // jExcel autocorrect columns
-            $this->autoFixColumns = $this->DCMS()['import']['autocorrect'] ?? null;
+            $this->autoFixColumns = $this->jExcel['autocorrect'] ?? null;
         }
     }
 
@@ -113,16 +79,17 @@ trait DCMSController
 
     public function edit($id)
     {
+        $this->__init();
         ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
         // Auto generated Form with HTMLTag package
-        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->DCMS());
-
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form);
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
 
     public function create()
     {
+        $this->__init();
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
         // Auto generated Form with HTMLTag package
         $form = Form::create($this->model,$this->request,$this->routePrefix,$this->DCMS());
@@ -131,6 +98,7 @@ trait DCMSController
 
     public function crud($createdOrUpdated,$id=null)
     {
+        $this->__init();
         $requestData = request()->all();
         // Merge with modified request from beforeValidation()
         $uploadRules = method_exists($this->modelRequest,'uploadRules') ? $this->modelRequest->uploadRules() : false;
@@ -300,11 +268,13 @@ trait DCMSController
 
     public function destroy($id)
     {
+        $this->__init();
         (new $this->model)->findOrFail($id)->delete();
     }
 
     public function DCMSJSON($object,$createdOrUpdated)
     {
+        $this->__init();
         // Url
         $url = $this->{$createdOrUpdated.'Url'};
         preg_match_all('/__\S*__/m',$url,$matches);
@@ -348,6 +318,7 @@ trait DCMSController
 
     public function StoreExport($data,$headers=null)
     {      
+        $this->__init();
         if (!isset(config('filesystems.disks')['tmp'])){
             throw new \RuntimeException("Please define a tmp filesystem in your config.");
         }
@@ -358,6 +329,7 @@ trait DCMSController
 
     public function ImportSheet()
     {
+        $this->__init();
         $importData = request()->sheetData;
         //prepare sheet validation variables
         $customRequest = new \Illuminate\Http\Request();
@@ -423,6 +395,7 @@ trait DCMSController
 
     public function FixSheet()
     {
+        $this->__init();
         // Get data from ajax request at jexcel table
         $data = request()->data;
         $th = request()->th;
