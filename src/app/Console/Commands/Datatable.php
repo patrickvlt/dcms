@@ -38,7 +38,7 @@ class Datatable extends Command
     public function handle()
     {
         $console = $this;
-        $model = $console->option('model');
+        $model = $console->option('model') ?? null;
         if ($model == null || $model == ''){
             $console->error('Specify a Model for this Datatable with --model=');
             exit;

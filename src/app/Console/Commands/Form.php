@@ -38,7 +38,7 @@ class Form extends Command
     public function handle()
     {
         $console = $this;
-        $model = $console->option('model');
+        $model = $console->option('model') ?? null;
         if ($model == null || $model == ''){
             $console->error('Specify a Model for this Datatable with --model=');
             exit;
@@ -50,7 +50,19 @@ class Form extends Command
             throw new \Exception ('No class found for: '.$model);
         }
 
-        $content = '';
+        $content = '<?php
+
+namespace App\Forms;
+
+class '.$model.'Form
+{
+    public static function properties(){
+        return [
+            //
+        ];
+    }
+}
+';
 
         $path = 'app/Forms/'.$model.'Form.php';
         file_put_contents($path,$content);
