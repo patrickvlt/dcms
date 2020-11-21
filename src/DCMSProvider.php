@@ -8,6 +8,7 @@ use Pveltrop\DCMS\Console\Commands\Update;
 use Pveltrop\DCMS\Console\Commands\Datatable;
 use Pveltrop\DCMS\Console\Commands\Publish;
 use Pveltrop\DCMS\Console\Commands\Help;
+use Pveltrop\DCMS\Console\Commands\Form;
 
 class DCMSProvider extends ServiceProvider
 {
@@ -27,6 +28,7 @@ class DCMSProvider extends ServiceProvider
                 Update::class,
                 Publish::class,
                 Help::class,
+                Form::class,
             ]);
         }
     }
