@@ -4,29 +4,57 @@ var dcars = 0;
 
 if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
     document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x) {
-        var carousel, dcarSrc, imgElement, dcarPrefix, dcarColumn, defaultImgString;
+        var carousel, dcarSrc, imgElement, dcarPrefix, dcarColumn, defaultImgString, dcarHeight;
 
-        dcarSrc = element.dataset.dcarSrc.split(' ');
-        dcarPrefix = element.dataset.dcarPrefix;
-        dcarColumn = element.dataset.dcarColumn;
+        try {
+            dcarSrc = element.dataset.dcarSrc.split(' ');
+        } catch (error) {
+            dcarSrc = element.dataset.dcarSrc;
+        }
+
+        if (dcarSrc){
+
+        }
+
+        dcarPrefix = element.dataset.dcarPrefix ?? null;
+        dcarColumn = element.dataset.dcarColumn ?? null;
+        dcarHeight = element.dataset.dcarHeight ?? null;
+
+        if (dcarHeight) {
+            dcarHeight = `style="height: `+dcarHeight+`"`;
+        }
+
         imgElement = '';
         dcars = + 1;
 
         function defaultImgString(img, dcars, dcarPrefix, dcarColumn) {
-            return `<div class="dCar-div">
-            <div class="dCar-controls">
-                <a class="dcarBtn spotlight" href="`+ img + `" data-dcar="` + dcars + `" data-dcar-action="copy" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
-                    <i class="fas fa-eye"></i>
-                </span></a>
-                <a class="dcarBtn" data-dcar="`+ dcars + `" data-dcar-action="copy" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
-                    <i class="fas fa-copy"></i>
-                </span></a>
-                <a class="dcarBtn" data-dcar="`+ dcars + `" data-dcar-action="destroy" data-dcar-prefix="` + dcarPrefix + `" data-dcar-column="` + dcarColumn + `" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
-                    <i class="ki ki-bold-close icon-xs"></i>
-                </span></a>
-            </div>
-            <img class="dCar-item" src="`+ img + `">
-        </div>`;
+            return `<div class="dCar-div" `+dcarHeight+`>
+                <div class="dCar-controls">
+                    <a class="dcarBtn spotlight" href="`+ img + `" data-dcar="` + dcars + `" data-dcar-action="copy" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
+                        <i class="fas fa-eye"></i>
+                    </span></a>
+                    <a class="dcarBtn" data-dcar="`+ dcars + `" data-dcar-action="copy" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
+                        <i class="fas fa-copy"></i>
+                    </span></a>
+                    <a class="dcarBtn" data-dcar="`+ dcars + `" data-dcar-action="destroy" data-dcar-prefix="` + dcarPrefix + `" data-dcar-column="` + dcarColumn + `" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
+                        <i class="ki ki-bold-close icon-xs"></i>
+                    </span></a>
+                </div>
+                <img class="dCar-item" src="`+ img + `">
+            </div>`;
+        }
+
+        function TypeOfCard(entry,element){
+            if (entry.match(/youtube/g)) {
+                element.style.marginTop = '0px';
+                entry = entry.replace('watch?v=','/embed/');
+                imgElement = `<div class="dCar-div w-100" `+dcarHeight+`>
+                <iframe class="dCar-iframe" src="`+ entry + `" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>`;
+            } else {
+                imgElement = defaultImgString(entry);
+            }
+            return imgElement;
         }
 
         if (typeof dcarSrc === 'string' || dcarSrc instanceof String) {
@@ -34,46 +62,39 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
                 dcarSrc = JSON.parse(dcarSrc);
                 // loop through array and make image elements
                 Array.from(dcarSrc).forEach(function (img, y) {
-                    imgElement = imgElement + defaultImgString(img);
+                    imgElement = imgElement + TypeOfCard(img,element);
                 })
             } else {
-                if (dcarSrc.match(/youtube/g)) {
-                    element.style.marginTop = '0px';
-                    imgElement = `<div class="dCar-div w-100">
-                <iframe class="dCar-iframe" src="`+ dcarSrc + `" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </div>`;
-                } else {
-                    imgElement = defaultImgString(dcarSrc);
-                }
+                imgElement = TypeOfCard(imgElement);
             }
         } else if (typeof dcarSrc === 'object'){
             // loop through array and make image elements
             Array.from(dcarSrc).forEach(function (img, y) {
-                imgElement = imgElement + defaultImgString(img);
+                imgElement = imgElement + TypeOfCard(img,element);
             })
         }
 
 
         element.innerHTML = element.innerHTML + (`
-    <div id="dCar-wrapper">
-        <div id="dCar-carousel">
-            <div id="dCar-content">
+        <div id="dCar-wrapper">
+            <div id="dCar-carousel">
+                <div id="dCar-content">
+                </div>
             </div>
+            <button type="button" id="dCar-prev">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="none" d="M0 0h24v24H0V0z"></path>
+                    <path d="M15.61 7.41L14.2 6l-6 6 6 6 1.41-1.41L11.03 12l4.58-4.59z"></path>
+                </svg>
+            </button>
+            <button type="button" id="dCar-next">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="none" d="M0 0h24v24H0V0z"></path>
+                    <path d="M10.02 6L8.61 7.41 13.19 12l-4.58 4.59L10.02 18l6-6-6-6z"></path>
+                </svg>
+            </button>
         </div>
-        <button type="button" id="dCar-prev">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path fill="none" d="M0 0h24v24H0V0z"></path>
-                <path d="M15.61 7.41L14.2 6l-6 6 6 6 1.41-1.41L11.03 12l4.58-4.59z"></path>
-            </svg>
-        </button>
-        <button type="button" id="dCar-next">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path fill="none" d="M0 0h24v24H0V0z"></path>
-                <path d="M10.02 6L8.61 7.41 13.19 12l-4.58 4.59L10.02 18l6-6-6-6z"></path>
-            </svg>
-        </button>
-    </div>
-    `)
+        `)
 
         carousel = element.querySelector('#dCar-content');
 
@@ -128,8 +149,8 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         parentDiv = element.parentNode.parentNode;
 
         Swal.fire({
-            title: Lang('Deleting file'),
-            text: Lang('Are you sure you want to delete this file?'),
+            title: Lang('Deleting entry'),
+            text: Lang('Are you sure you want to delete this entry?'),
             icon: "warning",
             confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
             confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
@@ -146,10 +167,22 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
                         'X-CSRF-TOKEN': window.csrf
                     },
                     complete: function (response) {
-                        if (parentCar.querySelectorAll('.dCar-div').length == 1) {
-                            $(parentCar).remove();
+                        if (response.status == 200 || response.status == 422){
+                            if (parentCar.querySelectorAll('.dCar-div').length == 1) {
+                                $(parentCar).remove();
+                            } else {
+                                $(parentDiv).remove();
+                            }
                         } else {
-                            $(parentDiv).remove();
+                            Swal.fire({
+                                title: Lang('Unknown error'),
+                                html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                                icon: "error",
+                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                            })
                         }
                     }
                 });

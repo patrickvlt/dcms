@@ -186,8 +186,8 @@ try {
 formElementSelectors = [
     'name', 'data-id'
 ]
-window.DCMSFormAlerts = false;
-window.DCMSFormErrorBag = true;
+window.DCMSFormAlerts = true;
+window.DCMSFormErrorBag = false;
 
 /**
  *
@@ -312,11 +312,13 @@ window.HttpReq = function (formMethod, formAction, formData) {
     </div>`;
     errorBagParent = document.querySelector('.dcms-error-parent');
     function FillErrorBag(args) {
-        errorBagParent.style.display = 'block';
-        errorBagTitle = errorBagParent.querySelector('.dcms-error-title');
-        errorBagTitle.innerHTML = args.title ?? Lang("An error has occurred");
-        errorBag = errorBagParent.querySelector('.dcms-errors');
-        errorBag.innerHTML = args.message ?? Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.');
+        if (errorBagParent){
+            errorBagParent.style.display = 'block';
+            errorBagTitle = errorBagParent.querySelector('.dcms-error-title');
+            errorBagTitle.innerHTML = args.title ?? Lang("An error has occurred");
+            errorBag = errorBagParent.querySelector('.dcms-errors');
+            errorBag.innerHTML = args.message ?? Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.');
+        }
     }
     // Clear invalid classes
     document.querySelectorAll(".is-invalid").forEach(function (element) {
@@ -355,7 +357,7 @@ window.HttpReq = function (formMethod, formAction, formData) {
         },
         error: function (response) {
             var reply = response.responseJSON;
-            if (window.DCMSFormErrorBag == true) {
+            if (window.DCMSFormErrorBag == true && errorBagParent !== null) {
                 errorBagParent.appendChild(errorElement);
             }
             if (reply['errors']) {
@@ -380,7 +382,7 @@ window.HttpReq = function (formMethod, formAction, formData) {
                         icon: "error"
                     });
                 }
-                if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
+                if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true && errorBagParent !== null) {
                     FillErrorBag({
                         title: Lang(reply['message']),
                         message: errorString
@@ -397,7 +399,7 @@ window.HttpReq = function (formMethod, formAction, formData) {
                         cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
                         cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
                     })
-                } else if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
+                } else if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true && errorBagParent !== null) {
                     FillErrorBag({
                         title: Lang("Unknown error"),
                         message: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.')
