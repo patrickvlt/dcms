@@ -18,19 +18,20 @@ trait DCMSController
             $this->routePrefix = $this->routePrefix ?? GetPrefix();
             // Get model and custom request class
             if (!isset($this->model)){
-                throw new \RuntimeException("No model defined for: ".ucfirst($this->routePrefix)." in DCMS function.");
+                throw new \RuntimeException("No model defined for: ".ucfirst($this->routePrefix)." in controller constructor.");
             }
             if (!isset($this->request)){
-                throw new \RuntimeException("No custom request defined for: ".ucfirst($this->routePrefix)." in DCMS function.");
+                throw new \RuntimeException("No custom request defined for: ".ucfirst($this->routePrefix)." in controller constructor.");
             } else {
-                $this->request = $this->request;
                 $this->modelRequest = (new $this->request);
             }
+
             // CRUD views
             $this->indexView = $this->views['index'] ?? 'index';
             $this->showView = $this->views['show'] ?? 'show';
             $this->editView = $this->views['edit'] ?? 'edit';
             $this->createView = $this->views['create'] ?? 'create';
+
             // JSON CRUD responses
             $this->createdUrl = $this->responses['created']['url'] ?? '/'.$this->routePrefix;
             $this->createdTitle = $this->responses['created']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('created');
@@ -41,15 +42,22 @@ trait DCMSController
             $this->deletedUrl = $this->responses['deleted']['url'] ?? '/'.$this->routePrefix;
             $this->deletedTitle = $this->responses['deleted']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('deleted');
             $this->deletedMessage = $this->responses['deleted']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully deleted');
+            $this->confirmDeleteUrl = $this->responses['confirmDelete']['url'] ?? '/'.$this->routePrefix;
+            $this->confirmDeleteTitle = $this->responses['confirmDelete']['title'] ?? __('Confirm deletion');
+            $this->confirmDeleteMessage = $this->responses['confirmDelete']['message'] ?? __('Do you want to delete this object?');
+            $this->failedDeleteUrl = $this->responses['failedDelete']['url'] ?? '/'.$this->routePrefix;
+            $this->failedDeleteTitle = $this->responses['failedDelete']['title'] ?? __('Deletion failed');
+            $this->failedDeleteMessage = $this->responses['failedDelete']['message'] ?? __('Failed to delete this object. An unknown error has occurred.');
+
             // jExcel imports
+            $this->importFailedTitle = $this->jExcel['responses']['failed']['title'] ?? __('Import failed');
+            $this->importFailedMessage = $this->jExcel['responses']['failed']['message'] ?? __('Some fields contain invalid data.');
+            $this->importEmptyTitle = $this->jExcel['responses']['empty']['title'] ?? __('Import failed');
+            $this->importEmptyMessage = $this->jExcel['responses']['empty']['message'] ?? __('Please fill in data to import.');
+            $this->importFinishedTitle = $this->jExcel['responses']['finished']['title'] ?? __('Import finished');
+            $this->importFinishedMessage = $this->jExcel['responses']['finished']['message'] ?? __('All data has been succesfully imported.');
+            $this->importedUrl = $this->jExcel['responses']['imported']['url'] ?? '/'.$this->routePrefix;
             $this->importCols = $this->jExcel['columns'] ?? null;
-            $this->importFailedTitle = $this->jExcel['failed']['title'] ?? __('Import failed');
-            $this->importFailedMessage = $this->jExcel['failed']['message'] ?? __('Some fields contain invalid data.');
-            $this->importEmptyTitle = $this->jExcel['empty']['title'] ?? __('Import failed');
-            $this->importEmptyMessage = $this->jExcel['empty']['message'] ?? __('Please fill in data to import.');
-            $this->importFinishedTitle = $this->jExcel['finished']['title'] ?? __('Import finished');
-            $this->importFinishedMessage = $this->jExcel['finished']['message'] ?? __('All data has been succesfully imported.');
-            $this->importedUrl = $this->jExcel['imported']['url'] ?? '/'.$this->routePrefix;
             // jExcel autocorrect columns
             $this->autoFixColumns = $this->jExcel['autocorrect'] ?? null;
         }
@@ -58,9 +66,6 @@ trait DCMSController
     public function index()
     {
         $this->__init();
-        if (request()->ajax()) {
-            return $this->indexQuery;
-        }
         $vars = method_exists($this,'beforeIndex') ? $this->beforeIndex() : null;
         return view($this->routePrefix.'.'.$this->indexView)->with($vars);
     }
@@ -85,7 +90,7 @@ trait DCMSController
         $this->__init();
         ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
         // Auto generated Form with HTMLTag package
-        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form);
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses);
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
@@ -95,7 +100,7 @@ trait DCMSController
         $this->__init();
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
         // Auto generated Form with HTMLTag package
-        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->DCMS());
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses);
         return view($this->routePrefix.'.'.$this->createView)->with($vars)->with(['form' => $form]);
     }
 

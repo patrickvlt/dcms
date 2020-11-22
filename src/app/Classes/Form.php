@@ -10,20 +10,19 @@ namespace Pveltrop\DCMS\Classes;
 
 use HtmlGenerator\HtmlTag;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Collection;
 
 class Form extends HtmlTag
 {
     /**
-     * Generate form for mass assignment, quick setup.
+     * Generate an HTML form based on passed in form properties from the main controller.
      * Uses columns which are defined in custom request in second parameter.
      * @param $model
      * @return Form|null
      */
 
-    public static function create($model, $request, $routePrefix, $DCMS)
+    public static function create($model, $request, $routePrefix, $formProperties, $responses)
     {
-        // $modelColumns = Schema::getColumnListing((new $model())->getTable());
         $modelRequest = (new $request())->rules() ?? null;
         $modelFiles = method_exists((new $request()),'uploadRules') ?? null;
         if (!isset($modelRequest)) {
@@ -68,7 +67,7 @@ class Form extends HtmlTag
             $makeRadio = false;
             $makeTextarea = false;
 
-            $definedAttr = $DCMS[$column['name']] ?? null;
+            $definedAttr = $formProperties[$column['name']] ?? null;
             // Take different steps according to various data-types
             if (isset($definedAttr['select'])) {
                 $makeInput = false;
@@ -109,19 +108,19 @@ class Form extends HtmlTag
             }
 
             // Create carousel before the input element
-            if(isset($definedAttr['input']['type']) && $definedAttr['input']['type'] == 'file' && isset($definedAttr['carousel'])){
-                try {
-                    if (count(Model()->{$column['name']}) > 0){
-                        $carousel = $form->addElement('div')->attr([
-                            'data-type' => 'dcarousel',
-                            'data-dcar-src' => Model()->{$column['name']},
-                            'data-dcar-prefix' => $routePrefix,
-                            'data-dcar-column' => $column['name'],
-                            'data-dcar-height' => $definedAttr['carousel']['height'] ?? '200px' 
-                        ]);       
-                    }
-                } catch (\Throwable $th) {
-                    logger($th);
+            if(isset($definedAttr['carousel']) && Model()){
+                $carouselArr = Model()->{$column['name']};
+                if (!is_array($carouselArr)){
+                    $carouselArr = explode(',',$carouselArr);
+                }
+                if (count($carouselArr) > 0 && $carouselArr[0] !== ""){
+                    $carousel = $form->addElement('div')->attr([
+                        'data-type' => 'dcarousel',
+                        'data-dcar-src' => Model()->{$column['name']},
+                        'data-dcar-prefix' => $routePrefix,
+                        'data-dcar-column' => $column['name'],
+                        'data-dcar-height' => $definedAttr['carousel']['height'] ?? '200px' 
+                    ]);       
                 }
             }
 
@@ -193,27 +192,47 @@ class Form extends HtmlTag
                     'id' => $column['name'],
                     'class' => ($multiple) ? 'form-control ss-main-multiple' : 'form-control',
                     'name' => ($multiple) ? $column['name'].'[]' : $column['name'],
+                    'data-slimselect-addable' => isset($selectCustomAttr['addable']) && $selectCustomAttr['addable'] == true ? 'true' : 'false',
+                    'data-slimselect-placeholder' => $selectCustomAttr['placeholder'] ?? null,
                 ])->attr($selectCustomAttr);
                 // Options in select element
                 if (isset($definedAttr['select']['options']['data'])){
                     $optionAttrs = $definedAttr['select']['options'];
                     $optionOptionalAttr = $optionAttrs;
+
+                    $primaryKey = isset($optionAttrs['primaryKey']) ? $optionAttrs['primaryKey'] : null;
+                    $showKey = isset($optionAttrs['showKey']) ? $optionAttrs['showKey'] : null;
+                    $foreignKey = isset($optionAttrs['foreignKey']) ? $optionAttrs['foreignKey'] : null;
+
                     unset($optionOptionalAttr['data'],$optionOptionalAttr['primaryKey'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['showKey']);
-                    foreach ($optionAttrs['data'] as $key => $data){
-                        $option = $selectElement->addElement('option')->attr([
-                            'value' => $data->{$optionAttrs['primaryKey']},
-                        ])->text(__($data->{$optionAttrs['showKey']}));
-                        $dataValue = $data->{$optionAttrs['primaryKey']};
-                        $modelValue = Model()->{$optionAttrs['foreignKey']} ?? null;
-                        if (is_array($modelValue)){
-                            foreach($modelValue as $modelValueRow){
-                                if ($modelValueRow == $dataValue){
-                                    $option->attr(['selected' => 'selected']);
-                                }
+
+                    if (!is_array($optionAttrs['data']) && !$optionAttrs['data'] instanceof Collection){
+                        $optionAttrs['data'] = Model()->{$optionAttrs['data']};
+                    }
+
+                    try {
+                        foreach ($optionAttrs['data'] as $key => $data){
+                            $option = $selectElement->addElement('option')->attr([
+                                'value' => $primaryKey ? $data->{$primaryKey} : $data,
+                            ])->text(__($showKey ? $data->{$showKey} : $data));
+                            $dataValue = $primaryKey ? $data->{$primaryKey} : $key;
+                            if (FormMethod() == 'POST'){
+                                $modelValue = $foreignKey ? $data->{$foreignKey} : $data;
+                            } else {
+                                $modelValue = $foreignKey ? Model()->{$foreignKey} : Model()->{$column['name']};
                             }
-                        } else if ($modelValue == $dataValue) {
-                            $option->attr(['selected' => 'selected']);
+                            if (is_array($modelValue)){
+                                foreach($modelValue as $modelValueRow){
+                                    if ($modelValueRow == $dataValue){
+                                        $option->attr(['selected' => 'selected']);
+                                    }
+                                }
+                            } else if ($modelValue == $dataValue) {
+                                $option->attr(['selected' => 'selected']);
+                            }
                         }
+                    } catch (\Throwable $th) {
+                        //throw $th;
                     }
                 }
             } else if ($makeCheckbox || $makeRadio) {
@@ -302,19 +321,19 @@ class Form extends HtmlTag
 
         // Save button: If creating a model
         if (!Model()) {
-            $saveRedirect = $DCMS['created']['url'] ?? route($routePrefix . '.index');
+            $saveRedirect = $formProperties['created']['url'] ?? route($routePrefix . '.index');
             $saveRoute = route($routePrefix . '.store');
             $saveID = null;
-            $saveText = $DCMS['formButtons']['create']['text'] ?? __('Create');
-            $saveBtnAttr = $DCMS['formButtons']['create'] ?? null;
+            $saveText = $formProperties['formButtons']['create']['text'] ?? __('Create');
+            $saveBtnAttr = $formProperties['formButtons']['create'] ?? null;
         }
         // Save button: If updating a model
         else {
-            $saveRedirect = $DCMS['updated']['url'] ?? route($routePrefix . '.index');
+            $saveRedirect = $formProperties['updated']['url'] ?? route($routePrefix . '.index');
             $saveRoute = route($routePrefix . '.update', Model()->id);
             $saveID = Model()->id;
-            $saveText = $DCMS['formButtons']['update']['text'] ?? __('Update');
-            $saveBtnAttr = $DCMS['formButtons']['update'] ?? null;
+            $saveText = $formProperties['formButtons']['update']['text'] ?? __('Update');
+            $saveBtnAttr = $formProperties['formButtons']['update'] ?? null;
         }
         // Get custom attributes for save button, dont use text as an attribute
         $x = 0;
@@ -340,8 +359,8 @@ class Form extends HtmlTag
         $formGroup->addElement($saveBtn);
 
         // Get custom attributes for delete button, dont use text as an attribute
-        $deleteBtnAttr = $DCMS['formButtons']['delete'] ?? null;
-        $deleteBtnText = $DCMS['formButtons']['delete']['text'] ?? null;
+        $deleteBtnAttr = $formProperties['formButtons']['delete'] ?? null;
+        $deleteBtnText = $formProperties['formButtons']['delete']['text'] ?? null;
         $x = 0;
         if ($deleteBtnAttr) {
             foreach ($deleteBtnAttr as $key => $attr) {
@@ -363,12 +382,12 @@ class Form extends HtmlTag
                 'data-dcms-action' => 'destroy',
                 'data-dcms-destroy-redirect' => route($routePrefix . '.index'),
                 'data-dcms-destroy-route' => route($routePrefix . '.destroy', '__id__'),
-                'data-dcms-delete-confirm-title' => $DCMS['confirmDeleteTitle'] ?? __('Delete object'),
-                'data-dcms-delete-confirm-message' => $DCMS['confirmDeleteMessage'] ?? __('Are you sure you want to delete this object?'),
-                'data-dcms-delete-complete-title' => $DCMS['deletedTitle'] ?? __('Deleted object'),
-                'data-dcms-delete-complete-message' => $DCMS['deletedMessage'] ?? __('This object has been succesfully deleted.'),
-                'data-dcms-delete-failed-title' => $DCMS['failedDeleteTitle'] ?? __('Deleting failed'),
-                'data-dcms-delete-failed-message' => $DCMS['failedDeleteMessage'] ?? __('Failed to delete this object. An unknown error has occurred.'),
+                'data-dcms-delete-confirm-title' => $responses['confirmDelete']['title'] ?? __('Delete object'),
+                'data-dcms-delete-confirm-message' => $responses['confirmDelete']['message'] ?? __('Are you sure you want to delete this object?'),
+                'data-dcms-delete-complete-title' => $responses['deleted']['title'] ?? __('Deleted object'),
+                'data-dcms-delete-complete-message' => $responses['deleted']['message'] ?? __('This object has been succesfully deleted.'),
+                'data-dcms-delete-failed-title' => $responses['failedDelete']['title'] ?? __('Deleting failed'),
+                'data-dcms-delete-failed-message' => $responses['failedDelete']['message'] ?? __('Failed to delete this object. An unknown error has occurred.'),
             ])->attr($deleteBtnAttr);
             if ($deleteBtnText) {
                 $deleteBtn->text(__($deleteBtnText));
