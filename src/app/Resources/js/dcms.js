@@ -245,17 +245,26 @@ try {
 
 var spinner = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
-window.HaltSubmit = function () {
-    document.querySelectorAll('button[type=submit]').forEach(element => element.disabled = true);
+window.HaltSubmit = function (selector=null) {
+    if(!selector){
+        selector = 'button[type=submit]';
+    }
+    document.querySelectorAll(selector).forEach(element => element.disabled = true);
 }
-window.DisableSubmit = function () {
-    document.querySelectorAll('button[type=submit]').forEach(function (element) {
+window.DisableSubmit = function (selector=null) {
+    if(!selector){
+        selector = 'button[type=submit]';
+    }
+    document.querySelectorAll(selector).forEach(function (element) {
         element.innerHTML = spinner + " " + element.innerHTML;
         element.disabled = true;
     });
 }
-window.EnableSubmit = function () {
-    document.querySelectorAll('button[type=submit]').forEach(function (element) {
+window.EnableSubmit = function (selector=null) {
+    if(!selector){
+        selector = 'button[type=submit]';
+    }
+    document.querySelectorAll(selector).forEach(function (element) {
         element.innerHTML = element.innerHTML.replace(spinner, '');
         element.disabled = false;
     });
@@ -298,10 +307,25 @@ function ReloadDT() {
  *
  */
 
-window.HttpReq = function (formMethod, formAction, formData) {
+window.HttpReq = function (formMethod, formAction, formData, customFunctions) {
     // If the document has a simple div with .dcms-error-parent class, then the errors from the request
     // will be appended to this div, provided window.DCMSFormErrorBag is set to true above
     var errorBag, errorBagTitle, errorBagParent, errorElement;
+    // Grab custom functions if these have been defined
+    if (customFunctions){
+        customBefore = customFunctions.customBefore ?? null;
+        customBeforeSuccess = customFunctions.customBeforeSuccess ?? null;
+        customBeforeError = customFunctions.customBeforeError ?? null;
+        customSuccess = customFunctions.customSuccess ?? null;
+        customError = customFunctions.customError ?? null;
+    }
+    if(customBefore) {
+        if (typeof customBefore == 'string'){
+            window[customBefore]();
+        } else {
+            customBefore();
+        }
+    }
     errorElement = document.createElement('div');
     errorElement.innerHTML = `<div class="alert alert-danger fade show dcms-error-bag" role="alert">
         <strong class='dcms-error-title'></strong></p>
@@ -317,7 +341,7 @@ window.HttpReq = function (formMethod, formAction, formData) {
             errorBagTitle = errorBagParent.querySelector('.dcms-error-title');
             errorBagTitle.innerHTML = args.title ?? Lang("An error has occurred");
             errorBag = errorBagParent.querySelector('.dcms-errors');
-            errorBag.innerHTML = args.message ?? Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.');
+            errorBag.innerHTML = args.message ?? Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.');       
         }
     }
     // Clear invalid classes
@@ -339,73 +363,109 @@ window.HttpReq = function (formMethod, formAction, formData) {
             'X-CSRF-TOKEN': window.csrf
         },
         success: function (response) {
-            Swal.fire({
-                title: Lang((response['title']) ? response['title'] : 'Succesfully created'),
-                text: Lang((response['message']) ? response['message'] : 'Your request was successful.'),
-                icon: "success",
-                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-            }).then(function (result) {
-                if (result.value) {
-                    if (response.url) {
-                        window.location.href = response.url;
-                    }
+            if(customBeforeSuccess) {
+                if (typeof customBeforeSuccess == 'string'){
+                    window[customBeforeSuccess]();
+                } else {
+                    customBeforeSuccess();
                 }
-            });
-        },
-        error: function (response) {
-            var reply = response.responseJSON;
-            if (window.DCMSFormErrorBag == true && errorBagParent !== null) {
-                errorBagParent.appendChild(errorElement);
             }
-            if (reply['errors']) {
-                let errorString = '';
-                $.each(reply['errors'], function (name, error) {
-                    errorString = errorString + error[0].replace(':', '.') + "<br>";
-                    formElementSelectors.forEach(function (selector) {
-                        let formElement = document.querySelector(`[` + selector + `^="` + name + `"`) ?? null;
-                        if (formElement) {
-                            formElement.classList.add('is-invalid')
-                        }
-                    })
-                });
-                if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
-                    Swal.fire({
-                        title: Lang(reply['message']),
-                        html: errorString,
-                        confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                        confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                        cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                        cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                        icon: "error"
-                    });
-                }
-                if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true && errorBagParent !== null) {
-                    FillErrorBag({
-                        title: Lang(reply['message']),
-                        message: errorString
-                    });
+            if(customSuccess) {
+                if (typeof customSuccess == 'string'){
+                    window[customSuccess]();
+                } else {
+                    customSuccess();
                 }
             } else {
                 if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
                     Swal.fire({
-                        title: Lang('Unknown error'),
-                        html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
-                        icon: "error",
+                        title: Lang((response['title']) ? response['title'] : 'Request complete'),
+                        text: Lang((response['message']) ? response['message'] : 'Your request was successful.'),
+                        icon: "success",
                         confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
                         confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
                         cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
                         cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                    })
-                } else if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true && errorBagParent !== null) {
-                    FillErrorBag({
-                        title: Lang("Unknown error"),
-                        message: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.')
+                    }).then(function (result) {
+                        if (result.value) {
+                            if (response.url) {
+                                window.location.href = response.url;
+                            }
+                        }
                     });
+                } else {
+                    if (response.url) {
+                        window.location.href = response.url;
+                    }
                 }
+            }
+        },
+        error: function (response) {
+            if(customBeforeError) {
+                if (typeof customBeforeError == 'string'){
+                    window[customBeforeError]();
+                } else {
+                    customBeforeError();
+                }
+            }
+            if(customError) {
+                if (typeof customError == 'string'){
+                    window[customError]();
+                } else {
+                    customError();
+                }
+            } else {
+                var reply = response.responseJSON;
+                if (window.DCMSFormErrorBag == true) {
+                    errorBagParent.appendChild(errorElement);
+                }
+                if (reply['errors']) {
+                    let errorString = '';
+                    $.each(reply['errors'], function (name, error) {
+                        errorString = errorString + error[0].replace(':', '.') + "<br>";
+                        formElementSelectors.forEach(function (selector) {
+                            let formElement = document.querySelector(`[` + selector + `^="` + name + `"`) ?? null;
+                            if (formElement) {
+                                formElement.classList.add('is-invalid')
+                            }
+                        })
+                    });
+                    if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
+                        Swal.fire({
+                            title: Lang(reply['message']),
+                            html: errorString,
+                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                            icon: "error"
+                        });
+                    }
+                    if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
+                        FillErrorBag({
+                            title: Lang(reply['message']),
+                            message: errorString
+                        });
+                    }
+                } else {
+                    if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
+                        Swal.fire({
+                            title: Lang('Unknown error'),
+                            html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                            icon: "error",
+                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
+                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
+                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
+                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        })
+                    } else if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
+                        FillErrorBag({
+                            title: Lang("Unknown error"),
+                            message: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.')
+                        });
+                    }
 
+                }
             }
         },
         complete: function () {
