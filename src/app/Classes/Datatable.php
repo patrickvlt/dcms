@@ -107,7 +107,7 @@ class Datatable
             $newData = [];
             foreach($searchColumns as $searchColumn){
                 foreach($this->data as $dataKey => $dataRow){
-                    $searchRe = '/\:(\"|)'.$searchValue.'.*?(\,)/m';
+                    $searchRe = '/\:(\"|)'.strtolower($searchValue).'.*?(\,)/m';
                     $searchIn = strtolower(json_encode($dataRow));
                     if (!in_array($searchColumn,$this->excludeSearchFields)){
                         if (preg_match($searchRe,$searchIn) > 0){
