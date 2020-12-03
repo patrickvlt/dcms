@@ -4,7 +4,7 @@
  *
  */
 
-var dcmsConfig;
+var dcmsConfig, formElementSelectors, table;
 try {
     dcmsConfig = require('../../../dcms.json');
     window.dcmsConfig = dcmsConfig;
@@ -13,7 +13,7 @@ try {
 }
 
 if (typeof process.env.MIX_DCMS_ENV == 'undefined') {
-    console.log('No environment defined for DCMS. Define this in your .env as MIX_DCMS_ENV.')
+    console.log('No environment defined for DCMS. Define this in your .env as MIX_DCMS_ENV.');
 }
 
 window.LoadJS = function (pluginFunction, plugin, pluginPath = 'cdn') {
@@ -32,7 +32,7 @@ window.LoadJS = function (pluginFunction, plugin, pluginPath = 'cdn') {
             LoadJSSource(source);
         });
     }
-}
+};
 
 let cssLink, cssTag;
 window.LoadCSS = function (plugin, pluginPath = 'cdn') {
@@ -52,68 +52,68 @@ window.LoadCSS = function (plugin, pluginPath = 'cdn') {
             LoadCSSSource(source);
         });
     }
-}
+};
 
 if (typeof axios == 'undefined' && (dcmsConfig.plugins.axios && dcmsConfig.plugins.axios.enable !== false)) {
-    LoadJS('axios', dcmsConfig.plugins.axios);
+    window.LoadJS('axios', dcmsConfig.plugins.axios);
 }
 
 if (typeof Vue == 'undefined' && (dcmsConfig.plugins.vue && dcmsConfig.plugins.vue.enable !== false)) {
-    LoadJS('Vue', dcmsConfig.plugins.vue);
+    window.LoadJS('Vue', dcmsConfig.plugins.vue);
 }
 
 if (typeof Swal == 'undefined' && (dcmsConfig.plugins.sweetalert2 && dcmsConfig.plugins.sweetalert2.enable !== false)) {
-    LoadJS('Swal', dcmsConfig.plugins.sweetalert2);
+    window.LoadJS('Swal', dcmsConfig.plugins.sweetalert2);
 }
 
 if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr && dcmsConfig.plugins.toastr.enable !== false)) {
-    LoadCSS(dcmsConfig.plugins.toastr);
-    LoadJS('toastr', dcmsConfig.plugins.toastr);
+    window.LoadCSS(dcmsConfig.plugins.toastr);
+    window.LoadJS('toastr', dcmsConfig.plugins.toastr);
 }
 
 if (typeof SlimSelect == 'undefined' && document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)) {
-    LoadCSS(dcmsConfig.plugins.slimselect);
-    LoadJS('SlimSelect', dcmsConfig.plugins.slimselect);
+    window.LoadCSS(dcmsConfig.plugins.slimselect);
+    window.LoadJS('SlimSelect', dcmsConfig.plugins.slimselect);
 }
 
 if (typeof datepicker == 'undefined' && document.querySelectorAll('[data-type=datepicker]').length > 0 && (dcmsConfig.plugins.datepicker && dcmsConfig.plugins.datepicker.enable !== false)) {
-    LoadCSS(dcmsConfig.plugins.datepicker);
-    LoadJS('datepicker', dcmsConfig.plugins.datepicker);
+    window.LoadCSS(dcmsConfig.plugins.datepicker);
+    window.LoadJS('datepicker', dcmsConfig.plugins.datepicker);
 }
 
 if (typeof clockpicker == 'undefined' && document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker && dcmsConfig.plugins.clockpicker !== false)) {
-    LoadCSS(dcmsConfig.plugins.clockpicker);
-    LoadJS('clockpicker', dcmsConfig.plugins.clockpicker);
+    window.LoadCSS(dcmsConfig.plugins.clockpicker);
+    window.LoadJS('clockpicker', dcmsConfig.plugins.clockpicker);
 }
 
 if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel && dcmsConfig.plugins.jexcel !== false)) {
-    LoadCSS(dcmsConfig.plugins.jexcel);
-    LoadJS('jexcel', dcmsConfig.plugins.jexcel);
+    window.LoadCSS(dcmsConfig.plugins.jexcel);
+    window.LoadJS('jexcel', dcmsConfig.plugins.jexcel);
 }
 if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites && dcmsConfig.plugins.jsuites !== false)) {
-    LoadCSS(dcmsConfig.plugins.jsuites);
-    LoadJS('jsuites', dcmsConfig.plugins.jsuites);
+    window.LoadCSS(dcmsConfig.plugins.jsuites);
+    window.LoadJS('jsuites', dcmsConfig.plugins.jsuites);
 }
 
 if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa !== false)) {
-    LoadJS('Papa', dcmsConfig.plugins.papa, 'local');
+    window.LoadJS('Papa', dcmsConfig.plugins.papa, 'local');
 }
 
 if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond && dcmsConfig.plugins.filepond !== false)) {
-    LoadCSS(dcmsConfig.plugins.filepond);
-    LoadJS('FilePond', dcmsConfig.plugins.filepond);
-    LoadCSS(dcmsConfig.plugins.filepondImagePreview);
-    LoadJS('FilePondPluginImagePreview', dcmsConfig.plugins.filepondImagePreview);
-    LoadJS('FilePondPluginFileValidateSize', dcmsConfig.plugins.filepondValidateSize);
+    window.LoadCSS(dcmsConfig.plugins.filepond);
+    window.LoadJS('FilePond', dcmsConfig.plugins.filepond);
+    window.LoadCSS(dcmsConfig.plugins.filepondImagePreview);
+    window.LoadJS('FilePondPluginImagePreview', dcmsConfig.plugins.filepondImagePreview);
+    window.LoadJS('FilePondPluginFileValidateSize', dcmsConfig.plugins.filepondValidateSize);
 }
 
 if (typeof tinymce == 'undefined' && document.querySelectorAll('[data-type=tinymce]').length > 0 && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)) {
-    LoadJS('tinymce', dcmsConfig.plugins.tinymce, 'local');
+    window.LoadJS('tinymce', dcmsConfig.plugins.tinymce, 'local');
 }
 
 if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KTDatatable && dcmsConfig.plugins.KTDatatable !== false)) {
-    LoadJS('KTDatatable', dcmsConfig.plugins.KTDatatable, 'local');
-    LoadCSS(dcmsConfig.plugins.KTDatatable, 'local');
+    window.LoadJS('KTDatatable', dcmsConfig.plugins.KTDatatable, 'local');
+    window.LoadCSS(dcmsConfig.plugins.KTDatatable, 'local');
 }
 
 window.onReady = function (yourMethod) {
@@ -123,13 +123,13 @@ window.onReady = function (yourMethod) {
             yourMethod();
         }
     }, 100);
-}
+};
 
 window.hasLoaded = function (plugins, yourMethod) {
     plugins = (typeof plugins == 'string') ? [plugins] : plugins;
     var success = 0;
     var readyStateCheckInterval = setInterval(function () {
-        plugins.forEach(function (plugin, x) {
+        plugins.forEach(function (plugin) {
             if (typeof window[plugin] !== 'undefined' || typeof $.fn[plugin] !== 'undefined') {
                 clearInterval(readyStateCheckInterval);
                 success++;
@@ -137,9 +137,9 @@ window.hasLoaded = function (plugins, yourMethod) {
                     yourMethod();
                 }
             }
-        })
+        });
     }, 100);
-}
+};
 
 /**
  *
@@ -153,7 +153,7 @@ window.axiosCfg = {
         'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
         "Content-type": "application/x-www-form-urlencoded"
     }
-}
+};
 
 // Date Format
 window.AppDateFormat = "dd-mm-yyyy";
@@ -165,7 +165,7 @@ window.AllowNewTab = false;
 window.language = 'en';
 
 // Either use locale provided by server, or manually specified language
-window.language = (typeof locale !== 'undefined') ? locale : window.language;
+window.language = (typeof window.locale !== 'undefined') ? window.locale : window.language;
 
 // TinyMCE
 window.langFiles = '/js/dcms/tinymce_lang/' + window.language + '.js';
@@ -177,7 +177,7 @@ window.FilePondMaxFileSize = 1; //in MB
 window.FilePondAllowRevert = true;
 window.FilePondInstantUpload = true;
 try {
-    window.FilePondMaxFileSize = maxSizeServer;
+    window.FilePondMaxFileSize = window.maxSizeServer;
 } catch (error) {
     window.FilePondMaxFileSize = window.FilePondMaxFileSize;
 }
@@ -185,9 +185,26 @@ try {
 // Form validation
 formElementSelectors = [
     'name', 'data-id'
-]
+];
 window.DCMSFormAlerts = true;
 window.DCMSFormErrorBag = false;
+
+/**
+ *
+ *  SweetAlert Colors
+ *
+ */
+
+
+window.SwalConfirmButtonColor = "var(--primary)";
+window.SwalCancelButtonColor = "black";
+
+/**
+*
+*  Require custom settings such as language, form alerts, window variables
+*/
+
+require('./_settings.js');
 
 /**
  *
@@ -209,19 +226,24 @@ window.Lang = function (string) {
     } catch (error) {
         return string;
     }
-}
+};
 
 /**
  *
- *  SweetAlert variables
+ *  SweetAlert Messages
  *
  */
 
 
-window.SwalConfirmButtonColor = "var(--primary)";
 window.SwalConfirmButtonText = Lang("OK");
-window.SwalCancelButtonColor = "black";
 window.SwalCancelButtonText = Lang("Cancel");
+
+/**
+*
+*  Require custom translations/messages
+*/
+
+require('./_messages.js');
 
 /**
  *
@@ -229,12 +251,10 @@ window.SwalCancelButtonText = Lang("Cancel");
  *
  */
 
-const { extendWith, isArray } = require('lodash');
-
 try {
     window.csrf = document.querySelectorAll('meta[name=csrf-token]')[0].content;
 } catch (error) {
-    console.log('Put a meta tag with name=csrf-token and the CSRF token in <head></head>')
+    console.log('Put a meta tag with name=csrf-token and the CSRF token in <head></head>');
 }
 
 /**
@@ -245,30 +265,30 @@ try {
 
 var spinner = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
-window.HaltSubmit = function (selector=null) {
-    if(!selector){
+window.HaltSubmit = function (selector = null) {
+    if (!selector) {
         selector = 'button[type=submit]';
     }
     document.querySelectorAll(selector).forEach(element => element.disabled = true);
-}
-window.DisableSubmit = function (selector=null) {
-    if(!selector){
+};
+window.DisableSubmit = function (selector = null) {
+    if (!selector) {
         selector = 'button[type=submit]';
     }
     document.querySelectorAll(selector).forEach(function (element) {
         element.innerHTML = spinner + " " + element.innerHTML;
         element.disabled = true;
     });
-}
-window.EnableSubmit = function (selector=null) {
-    if(!selector){
+};
+window.EnableSubmit = function (selector = null) {
+    if (!selector) {
         selector = 'button[type=submit]';
     }
     document.querySelectorAll(selector).forEach(function (element) {
         element.innerHTML = element.innerHTML.replace(spinner, '');
         element.disabled = false;
     });
-}
+};
 
 require('./plugins/carousel.js');
 require('./plugins/slimselect.js');
@@ -307,26 +327,11 @@ function ReloadDT() {
  *
  */
 
-window.HttpReq = function (formMethod, formAction, formData, customFunctions) {
-    // If the document has a simple div with .dcms-error-parent class, then the errors from the request
-    // will be appended to this div, provided window.DCMSFormErrorBag is set to true above
-    var errorBag, errorBagTitle, errorBagParent, errorElement;
-    // Grab custom functions if these have been defined
-    if (customFunctions){
-        customBefore = customFunctions.customBefore ?? null;
-        customBeforeSuccess = customFunctions.customBeforeSuccess ?? null;
-        customBeforeError = customFunctions.customBeforeError ?? null;
-        customSuccess = customFunctions.customSuccess ?? null;
-        customError = customFunctions.customError ?? null;
-    }
-    if(customBefore) {
-        if (typeof customBefore == 'string'){
-            window[customBefore]();
-        } else {
-            customBefore();
-        }
-    }
-    errorElement = document.createElement('div');
+// If the document has a simple div with .dcms-error-parent class, then the errors from the request
+// will be appended to this div, provided window.DCMSFormErrorBag is set to true above
+if (document.querySelector('.dcms-error-parent')){
+    var errorBagParent, errorBagTitle, errorBag;
+    var errorElement = document.createElement('div');
     errorElement.innerHTML = `<div class="alert alert-danger fade show dcms-error-bag" role="alert">
         <strong class='dcms-error-title'></strong></p>
         <p class='dcms-errors'></p>
@@ -335,24 +340,47 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions) {
         </button>
     </div>`;
     errorBagParent = document.querySelector('.dcms-error-parent');
-    function FillErrorBag(args) {
-        if (errorBagParent){
-            errorBagParent.style.display = 'block';
-            errorBagTitle = errorBagParent.querySelector('.dcms-error-title');
-            errorBagTitle.innerHTML = args.title ?? Lang("An error has occurred");
-            errorBag = errorBagParent.querySelector('.dcms-errors');
-            errorBag.innerHTML = args.message ?? Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.');       
+    window.FillErrorBag = function (args) {
+        if (window.DCMSFormErrorBag == true) {
+            errorBagParent.appendChild(errorElement);
+        }
+        errorBagParent = document.querySelector('.dcms-error-parent');
+        errorBagParent.style.display = 'block';
+        errorBagTitle = errorBagParent.querySelector('.dcms-error-title');
+        errorBagTitle.innerHTML = (typeof args.title !== 'undefined') ? args.title : Lang("An error has occurred");
+        errorBag = errorBagParent.querySelector('.dcms-errors');
+        errorBag.innerHTML = (typeof args.message !== 'undefined') ? args.message : Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.');
+    };
+    window.ScrollToBag = function () {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $(`.dcms-error-parent`).offset().top - 300
+        }, 1500);
+    };
+}
+
+window.HttpReq = function (formMethod, formAction, formData, customFunctions = null) {
+    // Grab custom functions if these have been defined
+    var customBefore = (customFunctions) ? customFunctions.customBefore : null;
+    var customBeforeSuccess = (customFunctions) ? customFunctions.customBeforeSuccess : null;
+    var customBeforeError = (customFunctions) ? customFunctions.customBeforeError : null;
+    var customSuccess = (customFunctions) ? customFunctions.customSuccess : null;
+    var customError = (customFunctions) ? customFunctions.customError : null;
+    if (customBefore) {
+        if (typeof customBefore == 'string') {
+            window[customBefore]();
+        } else {
+            customBefore();
         }
     }
     // Clear invalid classes
     document.querySelectorAll(".is-invalid").forEach(function (element) {
-        element.classList.remove('is-invalid')
-    })
+        element.classList.remove('is-invalid');
+    });
     // Start request
-    if (errorBagParent){
+    if (errorBagParent) {
         errorBagParent.innerHTML = "";
     }
-    DisableSubmit();
+    window.DisableSubmit();
     $.ajax({
         type: formMethod,
         url: formAction,
@@ -363,15 +391,15 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions) {
             'X-CSRF-TOKEN': window.csrf
         },
         success: function (response) {
-            if(customBeforeSuccess) {
-                if (typeof customBeforeSuccess == 'string'){
+            if (customBeforeSuccess) {
+                if (typeof customBeforeSuccess == 'string') {
                     window[customBeforeSuccess]();
                 } else {
                     customBeforeSuccess();
                 }
             }
-            if(customSuccess) {
-                if (typeof customSuccess == 'string'){
+            if (customSuccess) {
+                if (typeof customSuccess == 'string') {
                     window[customSuccess]();
                 } else {
                     customSuccess();
@@ -379,13 +407,13 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions) {
             } else {
                 if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
                     Swal.fire({
-                        title: Lang((response['title']) ? response['title'] : 'Request complete'),
-                        text: Lang((response['message']) ? response['message'] : 'Your request was successful.'),
+                        title: Lang((response['title']) ? response['title'] : 'Voltooid'),
+                        text: Lang((response['message']) ? response['message'] : 'Klik op OK om door te gaan.'),
                         icon: "success",
-                        confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                        confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                        cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                        cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                        confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                        confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                        cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                        cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
                     }).then(function (result) {
                         if (result.value) {
                             if (response.url) {
@@ -401,48 +429,45 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions) {
             }
         },
         error: function (response) {
-            if(customBeforeError) {
-                if (typeof customBeforeError == 'string'){
+            if (customBeforeError) {
+                if (typeof customBeforeError == 'string') {
                     window[customBeforeError]();
                 } else {
                     customBeforeError();
                 }
             }
-            if(customError) {
-                if (typeof customError == 'string'){
+            if (customError) {
+                if (typeof customError == 'string') {
                     window[customError]();
                 } else {
                     customError();
                 }
             } else {
                 var reply = response.responseJSON;
-                if (window.DCMSFormErrorBag == true) {
-                    errorBagParent.appendChild(errorElement);
-                }
                 if (reply['errors']) {
                     let errorString = '';
                     $.each(reply['errors'], function (name, error) {
                         errorString = errorString + error[0].replace(':', '.') + "<br>";
                         formElementSelectors.forEach(function (selector) {
-                            let formElement = document.querySelector(`[` + selector + `^="` + name + `"`) ?? null;
+                            let formElement = (document.querySelector(`[` + selector + `^="` + name + `"`)) ? document.querySelector(`[` + selector + `^="` + name + `"`) : null;
                             if (formElement) {
-                                formElement.classList.add('is-invalid')
+                                formElement.classList.add('is-invalid');
                             }
-                        })
+                        });
                     });
                     if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
                         Swal.fire({
                             title: Lang(reply['message']),
                             html: errorString,
-                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                            confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                            confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                            cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                            cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
                             icon: "error"
                         });
                     }
                     if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
-                        FillErrorBag({
+                        window.FillErrorBag({
                             title: Lang(reply['message']),
                             message: errorString
                         });
@@ -453,13 +478,13 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions) {
                             title: Lang('Unknown error'),
                             html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                             icon: "error",
-                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                        })
+                            confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                            confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                            cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                            cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                        });
                     } else if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
-                        FillErrorBag({
+                        window.FillErrorBag({
                             title: Lang("Unknown error"),
                             message: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.')
                         });
@@ -467,14 +492,17 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions) {
 
                 }
             }
+            if ($('.dcms-error-parent') && window.DCMSFormErrorBag == true){
+                window.ScrollToBag();
+            }
         },
         complete: function () {
-            EnableSubmit();
+            window.EnableSubmit();
         }
     });
-}
+};
 
-let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]')
+let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]');
 function SubmitAjax(e) {
     if (typeof tinymce !== 'undefined') {
         tinyMCE.triggerSave();
@@ -495,14 +523,13 @@ function SubmitAjax(e) {
         });
         loopedNames.forEach(function (name) {
             let curInputs = document.getElementsByName(name);
-            let curFiles = [];
             formData.delete(name);
             curInputs.forEach(function (input) {
                 formData.append(name, input.value);
-            })
+            });
         });
     }
-    let formRequest = HttpReq(formMethod, formAction, formData);
+    window.HttpReq(formMethod, formAction, formData);
 }
 ajaxForms.forEach(element =>
     element.addEventListener('submit', function (e) {
@@ -518,31 +545,31 @@ ajaxForms.forEach(element =>
  */
 
 window.DeleteModel = function (args) {
-    var id = (args['id']) ? args['id'] : null;
-    var route = (args['route']) ? args['route'] : null;
-    var confirmTitle = (Lang(args['confirmTitle'])) ? Lang(args['confirmTitle']) : '';
-    var confirmMsg = (Lang(args['confirmMsg'])) ? Lang(args['confirmMsg']) : '';
-    var completeTitle = (Lang(args['completeTitle'])) ? Lang(args['completeTitle']) : '';
-    var completeMsg = (Lang(args['completeMsg'])) ? Lang(args['completeMsg']) : '';
-    var failedTitle = (Lang(args['failedTitle'])) ? Lang(args['failedTitle']) : '';
-    var failedMsg = (Lang(args['failedMsg'])) ? Lang(args['failedMsg']) : '';
-    var redirect = (args['redirect']) ? args['redirect'] : '';
+    var id = (typeof args['id'] !== 'undefined') ? args['id'] : null;
+    var route = (typeof args['route'] !== 'undefined') ? args['route'] : null;
+    var confirmTitle = (typeof args['confirmTitle'] !== 'undefined') ? Lang(args['confirmTitle']) : '';
+    var confirmMsg = (typeof args['confirmMsg'] !== 'undefined') ? Lang(args['confirmMsg']) : '';
+    var completeTitle = (typeof args['completeTitle'] !== 'undefined') ? Lang(args['completeTitle']) : '';
+    var completeMsg = (typeof args['completeMsg'] !== 'undefined') ? Lang(args['completeMsg']) : '';
+    var failedTitle = (typeof args['failedTitle'] !== 'undefined') ? Lang(args['failedTitle']) : '';
+    var failedMsg = (typeof args['failedMsg'] !== 'undefined') ? Lang(args['failedMsg']) : '';
+    var redirect = (typeof args['redirect'] !== 'undefined') ? args['redirect'] : '';
 
     Swal.fire({
         showCancelButton: true,
         title: confirmTitle,
         html: confirmMsg,
         icon: "warning",
-        confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-        confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-        cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-        cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+        confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+        confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+        cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+        cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
     }).then(function (result) {
         if (result.value) {
             if (id != null) {
                 if (isArray(id)) {
                     let success = true;
-                    let deleteRows = $.each(id, function (key, x) {
+                    $.each(id, function (key, x) {
                         jQuery.ajax({
                             type: "POST",
                             async: false,
@@ -564,22 +591,21 @@ window.DeleteModel = function (args) {
                             title: completeTitle,
                             text: completeMsg,
                             icon: "success",
-                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                        })
-
+                            confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                            confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                            cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                            cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                        });
                     } else {
                         Swal.fire({
                             title: failedTitle,
                             text: failedMsg,
                             icon: "error",
-                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                        })
+                            confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                            confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                            cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                            cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                        });
                     }
                 } else {
                     jQuery.ajax({
@@ -591,16 +617,16 @@ window.DeleteModel = function (args) {
                         data: {
                             _method: "DELETE",
                         },
-                        success: function (response) {
+                        success: function () {
                             ReloadDT();
                             Swal.fire({
                                 title: completeTitle,
                                 text: completeMsg,
                                 icon: "success",
-                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                                confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                                confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                                cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                                cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
                             }).then(function (result) {
                                 if (result.value) {
                                     if (redirect !== '') {
@@ -618,11 +644,11 @@ window.DeleteModel = function (args) {
                                 title: failedTitle,
                                 text: failedMsg,
                                 icon: "error",
-                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                            })
+                                confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                                confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                                cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                                cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                            });
                         }
                     });
                 }
@@ -643,7 +669,7 @@ $(document).on('click', '[data-dcms-action=destroy]', function (e) {
     let id = element.dataset.dcmsId;
     let route = element.dataset.dcmsDestroyRoute.replace('__id__', id);
     let redirect = (element.dataset.dcmsDestroyRedirect) ? element.dataset.dcmsDestroyRedirect : false;
-    DeleteModel({
+    window.DeleteModel({
         id: id,
         route: route,
         confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang('Delete object'),
@@ -673,7 +699,7 @@ window.MergeColumns = function (row, column) {
         value = row[column];
     }
     return value;
-}
+};
 
 /**
  *
@@ -681,20 +707,21 @@ window.MergeColumns = function (row, column) {
  *
  */
 
-window.LoadInModal = function (url, modal) {
+window.LoadInModal = function (url) {
+    var modalEl;
     $.get(url, function (data) {
-        el = $('#global_modal');
-        el.find('.modal-content').html(data);
-        el.modal('show');
-        if (el.find('[data-modal-init').length == 1) {
-            let callback = el.find('[data-modal-init]').data('modal-init');
+        modalEl = $('#global_modal');
+        modalEl.find('.modal-content').html(data);
+        modalEl.modal('show');
+        if (modalEl.find('[data-modal-init').length == 1) {
+            let callback = modalEl.find('[data-modal-init]').data('modal-init');
             var fn = window[callback];
             if (typeof fn === 'function') {
-                fn(el);
+                fn(modalEl);
             }
         }
     });
-}
+};
 
 /**
  *
@@ -708,4 +735,4 @@ window.textToClipBoard = function (text) {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-}
+};
