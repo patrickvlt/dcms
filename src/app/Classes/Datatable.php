@@ -8,11 +8,6 @@
 
 namespace Pveltrop\DCMS\Classes;
 
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Schema;
-
 class Datatable
 {
     public function __construct($query, $searchFields = null, $excludeSearchFields = [])
@@ -69,6 +64,41 @@ class Datatable
             $this->data = $this->data->{$sortBy}($params['sort']['field']);
         }
 
+        // Perform general search on remaining results
+        if (isset($params['query']['generalSearch']) && isset($this->data[0])){
+            $searchValue = $params['query']['generalSearch'];
+            $searchColumns = [];
+
+            // If no searchable columns are passed, use all columns
+            if (isset($this->searchFields)){
+                $searchColumns = $this->searchFields;
+            } else {
+                foreach ($this->data[0] as $key => $val){
+                    $searchColumns[] = $key;
+                }
+            }
+
+            // Make new array with foreach, this is faster than using array_filter
+            $newData = [];
+            foreach($searchColumns as $searchColumn){
+                foreach($this->data as $dataKey => $dataRow){
+                    $searchRe = '/\:(\"|)'.strtolower($searchValue).'.*?(\,)/m';
+                    $searchIn = strtolower(json_encode($dataRow));
+                    if (!in_array($searchColumn,$this->excludeSearchFields)){
+                        if (preg_match($searchRe,$searchIn) > 0){
+                            $newData[] = $dataRow;
+                        }
+                    }
+                }
+            }
+
+            // Clear data if general search cant find anything
+            // Or else the results wont be affected
+            $this->data = (count($newData) >! 0) ? [] : $newData;
+            $this->data = collect(array_unique($this->data,SORT_REGULAR));
+            $total = count($this->data);
+        }
+
         // Paginate the collection instead of query
         $total = count($this->data);
         if ($perPage){
@@ -84,56 +114,6 @@ class Datatable
         } else {
             $pages = 1;
             $page = 1;
-        }
-        
-        // Convert collection to array
-        $this->data = array_values($this->data->toArray());
-
-        // Perform general search on remaining results
-        if (isset($params['query']['generalSearch']) && isset($this->data[0])){
-            $searchValue = $params['query']['generalSearch'];
-            $searchColumns = [];
-
-            // If no searchable columns are passed, use all columns
-            if (isset($this->searchFields)){
-                $searchColumns = $this->searchFields;
-            } else {
-                foreach ($this->data[0] as $key => $val){
-                    $searchColumns[] = $key;
-                }
-            }
-            
-            // Make new array with foreach, this is faster than using array_filter
-            $newData = [];
-            foreach($searchColumns as $searchColumn){
-                foreach($this->data as $dataKey => $dataRow){
-                    $searchRe = '/\:(\"|)'.strtolower($searchValue).'.*?(\,)/m';
-                    $searchIn = strtolower(json_encode($dataRow));
-                    if (!in_array($searchColumn,$this->excludeSearchFields)){
-                        if (preg_match($searchRe,$searchIn) > 0){
-                            $newData[] = $dataRow;
-                        }
-                    }
-                }
-            }
-            
-            // Clear data if general search cant find anything
-            // Or else the results wont be affected
-            $this->data = (count($newData) >! 0) ? [] : $newData;
-            $this->data = array_unique($this->data,SORT_REGULAR);
-
-            if (count($this->data) > 0 && isset($perPage)){
-                if (count($newData) > $perPage){
-                    $page = 1;
-                    $repaginate = array_chunk($this->data, $perPage, true);
-                    $this->data = $repaginate[$page] ?? $this->data;
-                    $pages = count($repaginate);
-                } else {
-                    $pages = 1;
-                    $page = 1;
-                }
-            }
-            $total = count($this->data);
         }
 
         // Make response object with meta
