@@ -350,7 +350,11 @@ window.DCMSDatatable = function (parameters) {
             let datatable = $(table).KTDatatable(customProperties);
 
             // Reload datatable
-            $($(table).data('kt-parent')).find('[data-kt-action="reload"]').on('click', function () {
+	    $($(table).data('kt-parent')).find('[data-kt-action="reload"]').on('click', function () {
+                if (window.KTBeforeRefresh()){
+                    window.KTBeforeRefresh();
+                }
+                $(table).KTDatatable().setDataSourceParam('query','');
                 $(table).KTDatatable('reload');
             });
 
