@@ -64,7 +64,7 @@ class Datatable
             $this->data = $this->data->{$sortBy}($params['sort']['field']);
         }
 
-        // Perform general search on remaining results
+        // General search
         if (isset($params['query']['generalSearch']) && isset($this->data[0])){
             $searchValue = $params['query']['generalSearch'];
             $searchColumns = [];
@@ -78,17 +78,12 @@ class Datatable
                 }
             }
 
-            // Make new array with foreach, this is faster than using array_filter
             $newData = [];
-            foreach($searchColumns as $searchColumn){
-                foreach($this->data as $dataKey => $dataRow){
-                    $searchRe = '/\:(\"|)'.strtolower($searchValue).'.*?(\,)/m';
-                    $searchIn = strtolower(json_encode($dataRow));
-                    if (!in_array($searchColumn,$this->excludeSearchFields)){
-                        if (preg_match($searchRe,$searchIn) > 0){
-                            $newData[] = $dataRow;
-                        }
-                    }
+            foreach($this->data as $dataKey => $dataRow){
+                $searchRe = '/\:(\"|)'.strtolower($searchValue).'.*?(\,)/m';
+                $searchIn = strtolower(json_encode($dataRow));
+                if (preg_match($searchRe,$searchIn) > 0){
+                    $newData[] = $dataRow;
                 }
             }
 
