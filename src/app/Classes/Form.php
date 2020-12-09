@@ -210,29 +210,28 @@ class Form extends HtmlTag
                         $optionAttrs['data'] = Model()->{$optionAttrs['data']};
                     }
 
-                    try {
-                        foreach ($optionAttrs['data'] as $key => $data){
-                            $option = $selectElement->addElement('option')->attr([
-                                'value' => $primaryKey ? $data->{$primaryKey} : $data,
-                            ])->text(__($showKey ? $data->{$showKey} : $data));
-                            $dataValue = $primaryKey ? $data->{$primaryKey} : $key;
-                            if (FormMethod() == 'POST'){
-                                $modelValue = $foreignKey ? $data->{$foreignKey} : $data;
-                            } else {
-                                $modelValue = $foreignKey ? Model()->{$foreignKey} : Model()->{$column['name']};
-                            }
-                            if (is_array($modelValue)){
-                                foreach($modelValue as $modelValueRow){
-                                    if ($modelValueRow == $dataValue){
-                                        $option->attr(['selected' => 'selected']);
-                                    }
-                                }
-                            } else if ($modelValue == $dataValue) {
-                                $option->attr(['selected' => 'selected']);
-                            }
+                    foreach ($optionAttrs['data'] as $key => $data){
+                        $option = $selectElement->addElement('option')->attr([
+                            'value' => $primaryKey ? $data->{$primaryKey} : $data,
+                        ])->text(__($showKey ? $data->{$showKey} : $data));
+                        $dataValue = $primaryKey ? $data->{$primaryKey} : $key;
+                        if (FormMethod() == 'POST'){
+                            $modelValue = $foreignKey ? $data->{$foreignKey} : $data;
+                        } else {
+                            $modelValue = $foreignKey ? Model()->{$foreignKey} : Model()->{$column['name']};
                         }
-                    } catch (\Throwable $th) {
-                        //throw $th;
+                        if (is_array($modelValue) || $modelValue instanceof Collection){
+                            foreach($modelValue as $modelValueRow){
+                                // Compare with property if this exists
+                                $modelValueRow = $modelValueRow->{$primaryKey} ? $modelValueRow->{$primaryKey} : $modelValueRow;
+                                if ($modelValueRow == $dataValue){
+                                    $option->attr(['selected' => 'selected']);
+                                }
+                            }
+                        } 
+                        else if ((string)$modelValue == (string)$dataValue) {
+                            $option->attr(['selected' => 'selected']);
+                        }
                     }
                 }
             } else if ($makeCheckbox || $makeRadio) {

@@ -196,6 +196,12 @@ trait DCMSController
         }
         if ($createdOrUpdated === 'created'){
             ${$this->routePrefix} = (new $this->model)->create($request);
+            if (method_exists($this->modelRequest,'afterCreate')){
+                $this->modelRequest->afterCreate($request,${$this->routePrefix});
+            }
+            if (method_exists($this->modelRequest,'afterCreateOrUpdate')){
+                $this->modelRequest->afterCreateOrUpdate($request,${$this->routePrefix});
+            }
         } else if ($createdOrUpdated === 'updated') {
             ${$this->routePrefix} = (new $this->model)->findOrFail($id);
             // Update any arrays / files 
@@ -254,6 +260,12 @@ trait DCMSController
                 }
             }
             ${$this->routePrefix}->update($request);
+            if (method_exists($this->modelRequest,'afterUpdate')){
+                $this->modelRequest->afterUpdate($request,${$this->routePrefix});
+            }
+            if (method_exists($this->modelRequest,'afterCreateOrUpdate')){
+                $this->modelRequest->afterCreateOrUpdate($request,${$this->routePrefix});
+            }
         }
         if (isset($filesToMove) && count($filesToMove) > 0){
             foreach ($filesToMove as $key => $file) {
@@ -277,7 +289,12 @@ trait DCMSController
     public function destroy($id)
     {
         $this->__init();
-        (new $this->model)->findOrFail($id)->delete();
+        $model = (new $this->model)->findOrFail($id);
+        $passModel = $model;
+        $model->delete();
+        if (method_exists($this->modelRequest,'afterDelete')){
+            $this->modelRequest->afterDelete($id,$passModel);
+        }
     }
 
     public function DCMSJSON($object,$createdOrUpdated)
