@@ -169,8 +169,8 @@ window.language = (typeof window.locale !== 'undefined') ? window.locale : windo
 
 // TinyMCE
 window.langFiles = '/js/dcms/tinymce_lang/' + window.language + '.js';
-window.tinyMCEplugins = 'print preview fullpage searchreplace autolink directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists textcolor wordcount imagetools  contextmenu colorpicker textpattern help';
-window.tinyMCEtoolbar = 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat';
+window.tinyMCEtoolbar = 'formatselect | fullscreen | bold italic strikethrough forecolor backcolor | link | image | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent | emoticons | removeformat';
+window.tinyMCEplugins = 'advlist,anchor,autolink,autosave,charmap,codesample,colorpicker,contextmenu,directionality,emoticons,fullpage,fullscreen,help,hr,image,imagetools,insertdatetime,link,lists,media,nonbreaking,pagebreak,preview,print,searchreplace,table,template,textcolor,textpattern,toc,visualblocks,visualchars,wordcount';
 
 // Filepond
 window.FilePondMaxFileSize = 1; //in MB
