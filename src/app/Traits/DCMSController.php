@@ -90,7 +90,7 @@ trait DCMSController
         $this->__init();
         ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
         // Auto generated Form with HTMLTag package
-        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses);
+        $form = isset($this->form) ? Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses) : null;
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
@@ -100,7 +100,7 @@ trait DCMSController
         $this->__init();
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
         // Auto generated Form with HTMLTag package
-        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses);
+        $form = isset($this->form) ? Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses) : null;
         return view($this->routePrefix.'.'.$this->createView)->with($vars)->with(['form' => $form]);
     }
 
