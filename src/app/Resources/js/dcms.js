@@ -173,11 +173,11 @@ window.tinyMCEplugins = 'print preview fullpage searchreplace autolink direction
 window.tinyMCEtoolbar = 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat';
 
 // Filepond
-window.FilePondMaxFileSize = 1; //in MB
+window.FilePondMaxFileSize = "2000KB"; //in KB
 window.FilePondAllowRevert = true;
 window.FilePondInstantUpload = true;
 try {
-    window.FilePondMaxFileSize = window.maxSizeServer;
+    window.FilePondMaxFileSize = window.maxSizeServer+"KB";
 } catch (error) {
     window.FilePondMaxFileSize = window.FilePondMaxFileSize;
 }

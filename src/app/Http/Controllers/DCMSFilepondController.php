@@ -49,6 +49,7 @@ class DCMSFilepondController extends Controller
             $allRules = (new $this->classRequest())->rules();
             $uploadRules = [];
             foreach ($allRules as $key => $ruleArr) {
+                $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
                 foreach ($ruleArr as $x => $rule) {
                     if (preg_match('/mimes/',$rule)){
                         $uploadRules[$key] = $ruleArr;

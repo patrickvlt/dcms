@@ -22,6 +22,8 @@ trait DCMSController
             }
             if (!isset($this->request)){
                 throw new \RuntimeException("No custom request defined for: ".ucfirst($this->routePrefix)." in controller constructor.");
+            } else {
+                $this->request = (new $this->request());
             }
 
             // CRUD views
@@ -88,7 +90,7 @@ trait DCMSController
         $this->__init();
         ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
         // Auto generated Form with HTMLTag package
-        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses);
+        $form = (isset($this->form)) ? Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses) : null;
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
@@ -98,7 +100,7 @@ trait DCMSController
         $this->__init();
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
         // Auto generated Form with HTMLTag package
-        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses);
+        $form = (isset($this->form)) ? Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses) : null;
         return view($this->routePrefix.'.'.$this->createView)->with($vars)->with(['form' => $form]);
     }
 
@@ -112,6 +114,7 @@ trait DCMSController
         if($requestRules){
             $uploadRules = [];
             foreach ($requestRules as $key => $ruleArr) {
+                $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
                 foreach ($ruleArr as $x => $rule) {
                     if (preg_match('/mimes/',$rule)){
                         $uploadRules[$key] = $ruleArr;
@@ -197,6 +200,7 @@ trait DCMSController
         // Convert upload rules to string rules, otherwise the request will try to validate a mimetype on a path string
         // dd($uploadRules);
         foreach ($uploadRules as $key => $ruleArr) {
+            $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
             foreach ($ruleArr as $x => $rule) {
                 if (preg_match('/(min|max|mime)/',$rule)){
                     unset($ruleArr[$x]);
@@ -388,7 +392,7 @@ trait DCMSController
         $failed = false;
         $nullableColumns = [];
 
-        foreach ((new $this->request())->rules() as $key => $rule){
+        foreach ($this->request->rules() as $key => $rule){
             if (preg_match('/nullable/',$rule) || !preg_match('/required/',$rule)){
                 $nullableColumns[] = $key;
             }
@@ -409,7 +413,7 @@ trait DCMSController
                         $validateData[$x] = $row[$col];
                     }
                     $customRequest->request->add($validateData);
-                    $this->validate($customRequest, (new $this->request())->rules(), (new $this->request())->messages());
+                    $this->validate($customRequest, $this->request->rules(), $this->request->messages());
                 }
                 $x++;
             }
