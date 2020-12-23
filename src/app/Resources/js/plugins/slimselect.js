@@ -3,7 +3,7 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
         document.querySelectorAll('[data-type=slimselect]').forEach(function (element){
             let Slim = new SlimSelect({
                 select: element,
-                closeOnSelect: false,
+                closeOnSelect: element.dataset.slimselectAutoClose == 'false' ? false : true,
                 searchPlaceholder: " ",
                 searchText: Lang("No results found."),
                 placeholder: element.dataset.slimselectPlaceholder ?? ' ',
