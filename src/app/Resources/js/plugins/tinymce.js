@@ -9,6 +9,7 @@ hasLoaded('tinymce',function(){
             relative_urls : false,
             remove_script_host : false,
             convert_urls : true,
+            end_container_on_empty_block: true
         });   
     }
 });
