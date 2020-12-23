@@ -60,6 +60,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
         function MakePond(inputElement, method = 'POST') {
             var revertKey, parseData;
             const pond = FilePond.create(inputElement);
+            console.log(inputElement.dataset);
             revertKey = (inputElement.dataset.filepondRevertKey) ? '/' + inputElement.dataset.filepondRevertKey : '';
             if (!inputElement.dataset.filepondPrefix) {
                 console.log('No prefix found. Add a data-filepond-prefix to the input element (the prefix of the current model). e.g. (data-filepond-prefix="user")')
@@ -74,7 +75,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                 return false;
             }
             pond.allowMultiple = (inputElement.dataset.filepondMaxFiles > 1) ? true : false;
-            pond.maxFiles = inputElement.dataset.filepondMaxFiles ?? 1;
+            pond.maxFiles = (typeof inputElement.dataset.filepondMaxFiles !== 'undefined') ? inputElement.dataset.filepondMaxFiles : 1;
             pond.maxSize = inputElement.dataset.filepondMaxFileSize ? inputElement.dataset.filepondMaxFileSize : window.FilePondMaxFileSize;
             pond.name = inputElement.dataset.filepondColumn + "[]";
             pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.FilePondInstantUpload;
