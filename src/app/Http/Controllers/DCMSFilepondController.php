@@ -7,12 +7,6 @@ use Illuminate\Support\Facades\Validator;
 
 class DCMSFilepondController extends Controller
 {
-    // protected $prefix;
-    // protected $class;
-    // protected $file;
-    // protected $requestFile;
-    // protected $classRequest;
-
     public function __construct()
     {
         if(!app()->runningInConsole()){
@@ -43,7 +37,8 @@ class DCMSFilepondController extends Controller
                 'message' => __('Upload failed'),
                 'errors' => [
                     'file' => [
-                        __('File is above ').MaxSizeServer('mb').'MB.'
+                        __('An error has occurred while trying to process the '.$key.' field.'),
+                        __('File size exceeds global limit of ').MaxSizeServer('mb').'MB.'
                     ]
                 ]
             ], 422);
@@ -51,7 +46,16 @@ class DCMSFilepondController extends Controller
         if ($abort == false){
             $column = str_replace('[]','',$column);
 
-            $uploadRules = (new $this->classRequest())->uploadRules();
+            $allRules = (new $this->classRequest())->rules();
+            $uploadRules = [];
+            foreach ($allRules as $key => $ruleArr) {
+                foreach ($ruleArr as $x => $rule) {
+                    if (preg_match('/mimes/',$rule)){
+                        $uploadRules[$key] = $ruleArr;
+                        continue;
+                    }
+                }
+            }
 
             $request = Validator::make(request()->all(), $uploadRules,(new $this->classRequest())->messages());
             if ($request->failed()) {
@@ -95,7 +99,6 @@ class DCMSFilepondController extends Controller
         $path = str_replace("/storage/","/public/",$path);
 
         if (Storage::exists($path)){
-            Storage::delete($path);
             $msg = 'Deleted succesfully';
             $status = 200;
         }
@@ -142,8 +145,11 @@ class DCMSFilepondController extends Controller
                 $model->update([
                     $column => $fileArr
                 ]);
+                if (Storage::exists($path)){
+                    Storage::delete($path);
+                }
             }
         }
-        return response()->json([$msg,$status]);
+        return response()->json($msg,$status);
     }
 }

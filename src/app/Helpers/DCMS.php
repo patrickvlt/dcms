@@ -8,11 +8,14 @@ if (!function_exists('MaxSizeServer')) {
     {
         $max_upload = (int) (ini_get('upload_max_filesize'));
         $max_post = (int) (ini_get('post_max_size'));
-        $memory_limit = (int) (ini_get('memory_limit'));
-        $upload_mb = min($max_upload, $max_post, $memory_limit);
+        $upload_mb = min($max_upload, $max_post);
         switch ($type) {
             case 'bytes':
                 return $upload_mb * pow(1024, 2);
+                break;
+
+            case 'kb':
+                return $upload_mb * 1000;
                 break;
 
             default:
@@ -334,10 +337,12 @@ if (!function_exists('AppendContent')) {
 if (!function_exists('GetRule')){
     function GetRule($field,$ruleToGrab){
         // Convert rule to array by exploding |, or simply looping if its an array
+        $explodedRule = null;
         $fieldRules = (is_string($field)) ? explode('|',$field) : $field;
         foreach ($fieldRules as $key => $rule){
             if (strpos($rule, $ruleToGrab) === 0){
-                return explode(':',$rule)[1] ?? explode(':',$rule)[0];
+                $explodedRule = explode(':',$rule)[1] ?? explode(':',$rule)[0];
+                return $explodedRule;
             }
         }
     }

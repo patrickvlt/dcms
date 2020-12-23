@@ -58,6 +58,12 @@ class Datatable
         // Generate collection from results
         $this->data = collect($this->query->get());
 
+        // Sort the collection, nested columns will work too
+        if (isset($params['sort'])) {
+            $sortBy = ($params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
+            $this->data = $this->data->{$sortBy}($params['sort']['field']);
+        }
+
         // General search
         if (isset($params['query']['generalSearch']) && isset($this->data[0])){
             $searchValue = $params['query']['generalSearch'];
@@ -88,13 +94,7 @@ class Datatable
             $total = count($this->data);
         }
 
-        // Sort the collection, nested columns will work too
-        if (isset($params['sort'])) {
-            $sortBy = ($params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
-            $this->data = $this->data->{$sortBy}($params['sort']['field'])->values();
-        }
-
-        // Paginate the collection
+        // Paginate the collection instead of query
         $total = count($this->data);
         if ($perPage){
             Paginate:

@@ -169,8 +169,8 @@ window.language = (typeof window.locale !== 'undefined') ? window.locale : windo
 
 // TinyMCE
 window.langFiles = '/js/dcms/tinymce_lang/' + window.language + '.js';
-window.tinyMCEtoolbar = 'formatselect | fullscreen | bold italic strikethrough forecolor backcolor | link | image | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent | emoticons | removeformat';
-window.tinyMCEplugins = 'advlist,anchor,autolink,autosave,charmap,codesample,colorpicker,contextmenu,directionality,emoticons,fullpage,fullscreen,help,hr,image,imagetools,insertdatetime,link,lists,media,nonbreaking,pagebreak,preview,print,searchreplace,table,template,textcolor,textpattern,toc,visualblocks,visualchars,wordcount';
+window.tinyMCEplugins = 'print preview fullpage searchreplace autolink directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists textcolor wordcount imagetools  contextmenu colorpicker textpattern help';
+window.tinyMCEtoolbar = 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat';
 
 // Filepond
 window.FilePondMaxFileSize = 1; //in MB
@@ -407,8 +407,8 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
             } else {
                 if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
                     Swal.fire({
-                        title: Lang((response['title']) ? response['title'] : 'Voltooid'),
-                        text: Lang((response['message']) ? response['message'] : 'Klik op OK om door te gaan.'),
+                        title: Lang((response['title']) ? response['title'] : 'Successfull request'),
+                        text: Lang((response['message']) ? response['message'] : 'Press OK to return to the overview.'),
                         icon: "success",
                         confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
                         confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),

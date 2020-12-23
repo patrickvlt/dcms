@@ -1,6 +1,6 @@
 "use strict";
 
-hasLoaded(['jexcel'], function () {
+window.hasLoaded(['jexcel'], function () {
     var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table;
 
     if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
@@ -32,7 +32,7 @@ hasLoaded(['jexcel'], function () {
             // invalidMergeProperties:"Propriedades mescladas inválidas",
             // cellAlreadyMerged:"Cell já mesclado",
             // noCellsSelected:"Nenhuma célula selecionada",
-        }
+        };
 
         document.querySelectorAll('[data-type=jexcel]').forEach(function (htmlTable) {
             sheetData = '';
@@ -50,13 +50,12 @@ hasLoaded(['jexcel'], function () {
                         tableOverflow: true,
                         autocomplete: (header.dataset.jexcelAutocomplete == 'true') ? 'true' : 'false',
                         options: {
-                            format: (header.dataset.jexcelDateFormat) ? header.dataset.jexcelDateFormat : AppDateFormat
+                            format: (header.dataset.jexcelDateFormat) ? header.dataset.jexcelDateFormat : window.AppDateFormat
                         }
                     });
                     header.hidden = true;
                 }
                 if (header.dataset.jexcelFetchUrl !== null && typeof header.dataset.jexcelFetchUrl !== 'undefined') {
-                    let fetchColumn = (header.dataset.jexcelFetchColumn) ? header.dataset.jexcelFetchColumn : 'id';
                     $.ajax({
                         type: "GET",
                         url: header.dataset.jexcelFetchUrl,
@@ -98,7 +97,7 @@ hasLoaded(['jexcel'], function () {
                 function ClearInvalid(e) {
                     function CleanElement(element) {
                         if (element.classList.contains('invalid')) {
-                            element.classList.remove('invalid')
+                            element.classList.remove('invalid');
                         }
                     }
                     formRows = Array.from(e.target.getElementsByClassName('jexcel_content')[0].getElementsByTagName('table')[0].getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
@@ -134,18 +133,18 @@ hasLoaded(['jexcel'], function () {
                                                     Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function (cell) {
                                                         if (String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== "") {
                                                             cell.classList.add('invalid');
-                                                        };
+                                                        }
                                                     });
                                                 });
                                                 Swal.fire({
                                                     title: Lang('Import failed'),
                                                     html: alertMsg,
                                                     icon: "error",
-                                                    confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                                                    confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                                                    cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                                                    cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                                                })
+                                                    confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                                                    confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                                                    cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                                                    cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                                                });
                                             } else {
                                                 Array.from(reply.errors).forEach(function (error) {
                                                     formRows.forEach(function (row) {
@@ -158,11 +157,11 @@ hasLoaded(['jexcel'], function () {
                                                     title: reply.response.title,
                                                     html: reply.response.message,
                                                     icon: "error",
-                                                    confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                                                    confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                                                    cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                                                    cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                                                })
+                                                    confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                                                    confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                                                    cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                                                    cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                                                });
                                             }
                                             break;
 
@@ -171,10 +170,10 @@ hasLoaded(['jexcel'], function () {
                                                 title: reply.response.title,
                                                 html: reply.response.message,
                                                 icon: "success",
-                                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                                                confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                                                confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                                                cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                                                cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
                                             }).then(function (result) {
                                                 if (result.value) {
                                                     if (reply.url) {
@@ -187,21 +186,20 @@ hasLoaded(['jexcel'], function () {
                                 }
                             }
                         });
-                    })
+                    });
                 }
             }
 
             MakeTable();
 
-            $(currentForm).on('click', '#fixSheet', function (button) {
+            $(currentForm).on('click', '#fixSheet', function () {
                 var dropdownHeaders = [];
                 $.each($(htmlTable).find('th'), function (x, th) {
                     if ($(th).data('jexcel-type') == 'dropdown') {
-                        let ajUrl = $(th).data('jexcel-fetch-url');
                         dropdownHeaders.push({
                             column: th.cellIndex,
                             text: th.textContent,
-                        })
+                        });
                     }
                 });
                 $.ajax({
@@ -219,14 +217,14 @@ hasLoaded(['jexcel'], function () {
                             title: Lang('Are you sure?'),
                             html: Lang('This will try to fix empty dropdown columns.') + "<br>" + Lang('Do you want to continue?'),
                             icon: "warning",
-                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                            confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                            confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                            cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                            cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
                         }).then(function (result) {
                             if (result.value) {
                                 $(currentForm).find('table').jexcel('setData', file, false);
-                                toastr.success(Lang('Sheet has been updated.'))
+                                toastr.success(Lang('Sheet has been updated.'));
                             }
                         });
                     },
@@ -235,14 +233,14 @@ hasLoaded(['jexcel'], function () {
                             title: Lang('Data correction failed'),
                             text: Lang('The provided data couldn\'t be fixed.'),
                             icon: "error",
-                            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+                            confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                            confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                            cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                            cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
                         });
                     },
                 });
-            })
+            });
         });
     }
-})
+});

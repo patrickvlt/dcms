@@ -9,7 +9,6 @@
 namespace Pveltrop\DCMS\Classes;
 
 use HtmlGenerator\HtmlTag;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
 
 class Form extends HtmlTag
@@ -24,12 +23,9 @@ class Form extends HtmlTag
     public static function create($model, $request, $routePrefix, $formProperties, $responses)
     {
         $modelRequest = (new $request())->rules() ?? null;
-        $modelFiles = method_exists((new $request()),'uploadRules') ?? null;
         if (!isset($modelRequest)) {
             throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: " . $routePrefix);
         }
-        $table = (new $model())->getTable();
-        $builder = DB::getSchemaBuilder();
         $columns = [];
         foreach ($modelRequest as $requestCol => $rules) {
             $column['name'] = $requestCol;
@@ -57,6 +53,9 @@ class Form extends HtmlTag
         ]);
 
         foreach ($columns as $column) {
+            if (preg_match('/\.\*/',$column['name'])){
+                continue;
+            }
             $makeFormGroup = true;
             $makeLabel = true;
             $makeInputGroup = true;
@@ -91,9 +90,9 @@ class Form extends HtmlTag
                         $definedAttr['input']['type'] = 'file';
                         $definedAttr['input']['data-filepond-prefix'] = $routePrefix;
                         $definedAttr['input']['data-filepond-column'] = $column['name'];
-                        $minFiles = (isset($modelRequest[$column['name']])) ? GetRule($modelRequest[$column['name']], 'min') : 1;
+                        $minFiles = (isset($modelRequest[$column['name']])) ? GetRule($modelRequest[$column['name']], 'min') : 0;
                         $maxFiles = (isset($modelRequest[$column['name']])) ? GetRule($modelRequest[$column['name']], 'max') : 1;
-                        $maxFileSize = (isset($modelRequest[$column['name'] . '*'])) ? GetRule($modelFiles[$column['name'] . '*'], 'max') : MaxSizeServer('kb');
+                        $maxFileSize = (isset($modelRequest[$column['name'] . '.*'])) ? GetRule($modelRequest[$column['name'] . '.*'], 'max')."KB" : MaxSizeServer('kb')."KB";
                         $definedAttr['input']['data-filepond-min-files'] = $minFiles;
                         $definedAttr['input']['data-filepond-max-files'] = $maxFiles;
                         $definedAttr['input']['data-filepond-max-file-size'] = $maxFileSize;

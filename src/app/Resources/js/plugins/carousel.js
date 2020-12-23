@@ -4,7 +4,7 @@ var dcars = 0;
 
 if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
     document.querySelectorAll('[data-type=dcarousel]').forEach(function (element, x) {
-        var carousel, dcarSrc, imgElement, dcarPrefix, dcarColumn, defaultImgString, dcarHeight;
+        var carousel, dcarSrc, imgElement, dcarHeight, dcarPrefix, dcarColumn;
 
         try {
             dcarSrc = element.dataset.dcarSrc.split(' ');
@@ -16,9 +16,9 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
 
         }
 
-        dcarPrefix = element.dataset.dcarPrefix ?? null;
-        dcarColumn = element.dataset.dcarColumn ?? null;
-        dcarHeight = element.dataset.dcarHeight ?? null;
+        dcarPrefix = typeof(element.dataset.dcarPrefix !== 'undefined') ? element.dataset.dcarPrefix : null;
+        dcarColumn = typeof(element.dataset.dcarColumn !== 'undefined') ? element.dataset.dcarColumn : null;
+        dcarHeight = typeof(element.dataset.dcarHeight !== 'undefined') ? element.dataset.dcarHeight : null;
 
         if (dcarHeight) {
             dcarHeight = `style="height: `+dcarHeight+`"`;
@@ -63,7 +63,7 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
                 // loop through array and make image elements
                 Array.from(dcarSrc).forEach(function (img, y) {
                     imgElement = imgElement + TypeOfCard(img,element);
-                })
+                });
             } else {
                 imgElement = TypeOfCard(imgElement);
             }
@@ -71,7 +71,7 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
             // loop through array and make image elements
             Array.from(dcarSrc).forEach(function (img, y) {
                 imgElement = imgElement + TypeOfCard(img,element);
-            })
+            });
         }
 
 
@@ -94,12 +94,12 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
                 </svg>
             </button>
         </div>
-        `)
+        `);
 
         carousel = element.querySelector('#dCar-content');
 
         carousel.innerHTML = carousel.innerHTML + imgElement;
-    })
+    });
 
     if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         document.querySelectorAll('[data-type=dcarousel').forEach(function (element) {
@@ -133,11 +133,11 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
 
             let width = carousel.offsetWidth;
             window.addEventListener("resize", e => (width = carousel.offsetWidth));
-        })
+        });
     }
 
     $(document).on('click', '[data-dCar-action="destroy"]', function (element) {
-        var element, dCarPrefix, dCarColumn, dCarFile, dCarRevertKey, parentDiv, parentCar;
+        var dCarPrefix, dCarColumn, dCarFile, dCarRevertKey, parentDiv, parentCar;
         element = element.currentTarget;
 
         parentCar = element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
@@ -152,10 +152,10 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
             title: Lang('Deleting entry'),
             text: Lang('Are you sure you want to delete this entry?'),
             icon: "warning",
-            confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-            confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-            cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-            cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
+            confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+            confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+            cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+            cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
         }).then(function (result) {
             if (result.value) {
                 $.ajax({
@@ -167,7 +167,7 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
                         'X-CSRF-TOKEN': window.csrf
                     },
                     complete: function (response) {
-                        if (response.status == 200 || response.status == 422){
+                        if (response.status == 200){
                             if (parentCar.querySelectorAll('.dCar-div').length == 1) {
                                 $(parentCar).remove();
                             } else {
@@ -178,24 +178,24 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
                                 title: Lang('Unknown error'),
                                 html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                                 icon: "error",
-                                confirmButtonColor: window.SwalConfirmButtonColor ?? "var(--primary)",
-                                confirmButtonText: window.SwalConfirmButtonText ?? Lang("OK"),
-                                cancelButtonColor: window.SwalCancelButtonColor ?? "var(--dark)",
-                                cancelButtonText: window.SwalCancelButtonText ?? Lang("Cancel"),
-                            })
+                                confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                                confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                                cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                                cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                            });
                         }
                     }
                 });
             }
         });
-    })
+    });
 
-    $(document).on('click', '[data-dCar-action="copy"]', function (element) {
+    $(document).on('click', '[data-dCar-action="copy"]', function () {
         var img;
         img = $(this).data('dcar-file');
-        textToClipBoard(img);
-        toastr.info(Lang('Image copied to clipboard.'))
-    })
+        window.textToClipBoard(img);
+        toastr.info(Lang('Image copied to clipboard.'));
+    });
 
     $(document).on('mouseenter', '.dCar-div', function () {
         $(this).find('.dCar-controls').css('visibility', 'visible');

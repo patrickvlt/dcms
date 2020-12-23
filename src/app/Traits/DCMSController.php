@@ -22,8 +22,6 @@ trait DCMSController
             }
             if (!isset($this->request)){
                 throw new \RuntimeException("No custom request defined for: ".ucfirst($this->routePrefix)." in controller constructor.");
-            } else {
-                $this->modelRequest = (new $this->request);
             }
 
             // CRUD views
@@ -90,7 +88,7 @@ trait DCMSController
         $this->__init();
         ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
         // Auto generated Form with HTMLTag package
-        $form = isset($this->form) ? Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses) : null;
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses);
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
@@ -100,7 +98,7 @@ trait DCMSController
         $this->__init();
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
         // Auto generated Form with HTMLTag package
-        $form = isset($this->form) ? Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses) : null;
+        $form = Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses);
         return view($this->routePrefix.'.'.$this->createView)->with($vars)->with(['form' => $form]);
     }
 
@@ -109,10 +107,21 @@ trait DCMSController
         $this->__init();
         $requestData = request()->all();
         // Merge with modified request from beforeValidation()
-        $uploadRules = method_exists($this->modelRequest,'uploadRules') ? $this->modelRequest->uploadRules() : false;
-        $requestRules = method_exists($this->modelRequest,'rules') ? $this->modelRequest->rules() : false;
-        $requestMessages = method_exists($this->modelRequest,'messages') ? $this->modelRequest->messages() : false;
-        $beforeValidation = method_exists($this->modelRequest,'beforeValidation') ? $this->modelRequest->beforeValidation($requestData) : false;
+        $requestRules = method_exists($this->request,'rules') ? $this->request->rules() : false;
+        $uploadRules = false;
+        if($requestRules){
+            $uploadRules = [];
+            foreach ($requestRules as $key => $ruleArr) {
+                foreach ($ruleArr as $x => $rule) {
+                    if (preg_match('/mimes/',$rule)){
+                        $uploadRules[$key] = $ruleArr;
+                        continue;
+                    }
+                }
+            }
+        }
+        $requestMessages = method_exists($this->request,'messages') ? $this->request->messages() : false;
+        $beforeValidation = method_exists($this->request,'beforeValidation') ? $this->request->beforeValidation($requestData) : false;
         if ($beforeValidation){
             foreach ($beforeValidation as $changingKey => $changingValue){
                 $requestData[$changingKey] = $changingValue;
@@ -120,12 +129,12 @@ trait DCMSController
         }
         // Grab upload rules from custom request
         // Validate input file fields
-        $filesToRemove = [];
         if ($uploadRules){
             foreach ($uploadRules as $uploadKey => $uploadRule){
                 $key = explode('.',$uploadKey);
                 $key = $key[0];
-                if (isset($uploadRules[$key.".*"])){
+                // Check if this is a file rule, by looking for the mimes rule
+                if (isset($uploadRules[$key.".*"]) && GetRule($uploadRules[$key.".*"],'mimes')){
                     $required = GetRule($uploadRules[$key.".*"],'required') ? true : false;
                     $hasBeenFilled = array_key_exists($key,array_flip(array_keys($requestData)));
                     if ($required && !$hasBeenFilled){
@@ -185,9 +194,24 @@ trait DCMSController
                 }
             }
         }
+        // Convert upload rules to string rules, otherwise the request will try to validate a mimetype on a path string
+        // dd($uploadRules);
+        foreach ($uploadRules as $key => $ruleArr) {
+            foreach ($ruleArr as $x => $rule) {
+                if (preg_match('/(min|max|mime)/',$rule)){
+                    unset($ruleArr[$x]);
+                }
+                if (!preg_match('/string/',json_encode($ruleArr))){
+                    $ruleArr[] = 'string';
+                }
+            }
+            $uploadRules[$key] = $ruleArr;
+        }
+        $requestRules = array_merge($requestRules,$uploadRules);
+
         $request = Validator::make($requestData, $requestRules, $requestMessages);
         $request = $request->validated();
-        $afterValidation = method_exists($this->modelRequest,'afterValidation') ? $this->modelRequest->afterValidation($request) : false;
+        $afterValidation = method_exists($this->request,'afterValidation') ? $this->request->afterValidation($request) : false;
         // Merge with modified request from afterValidation()
         if ($afterValidation){
             foreach ($afterValidation as $modKey => $modValue){
@@ -196,11 +220,11 @@ trait DCMSController
         }
         if ($createdOrUpdated === 'created'){
             ${$this->routePrefix} = (new $this->model)->create($request);
-            if (method_exists($this->modelRequest,'afterCreate')){
-                $this->modelRequest->afterCreate($request,${$this->routePrefix});
+            if (method_exists($this->request,'afterCreate')){
+                $this->request->afterCreate($request,${$this->routePrefix});
             }
-            if (method_exists($this->modelRequest,'afterCreateOrUpdate')){
-                $this->modelRequest->afterCreateOrUpdate($request,${$this->routePrefix});
+            if (method_exists($this->request,'afterCreateOrUpdate')){
+                $this->request->afterCreateOrUpdate($request,${$this->routePrefix});
             }
         } else if ($createdOrUpdated === 'updated') {
             ${$this->routePrefix} = (new $this->model)->findOrFail($id);
@@ -260,11 +284,11 @@ trait DCMSController
                 }
             }
             ${$this->routePrefix}->update($request);
-            if (method_exists($this->modelRequest,'afterUpdate')){
-                $this->modelRequest->afterUpdate($request,${$this->routePrefix});
+            if (method_exists($this->request,'afterUpdate')){
+                $this->request->afterUpdate($request,${$this->routePrefix});
             }
-            if (method_exists($this->modelRequest,'afterCreateOrUpdate')){
-                $this->modelRequest->afterCreateOrUpdate($request,${$this->routePrefix});
+            if (method_exists($this->request,'afterCreateOrUpdate')){
+                $this->request->afterCreateOrUpdate($request,${$this->routePrefix});
             }
         }
         if (isset($filesToMove) && count($filesToMove) > 0){
@@ -292,8 +316,8 @@ trait DCMSController
         $model = (new $this->model)->findOrFail($id);
         $passModel = $model;
         $model->delete();
-        if (method_exists($this->modelRequest,'afterDelete')){
-            $this->modelRequest->afterDelete($id,$passModel);
+        if (method_exists($this->request,'afterDelete')){
+            $this->request->afterDelete($id,$passModel);
         }
     }
 
@@ -364,7 +388,7 @@ trait DCMSController
         $failed = false;
         $nullableColumns = [];
 
-        foreach ((new $this->modelRequest())->rules() as $key => $rule){
+        foreach ((new $this->request())->rules() as $key => $rule){
             if (preg_match('/nullable/',$rule) || !preg_match('/required/',$rule)){
                 $nullableColumns[] = $key;
             }
@@ -385,7 +409,7 @@ trait DCMSController
                         $validateData[$x] = $row[$col];
                     }
                     $customRequest->request->add($validateData);
-                    $this->validate($customRequest, (new $this->modelRequest())->rules(), (new $this->modelRequest())->messages());
+                    $this->validate($customRequest, (new $this->request())->rules(), (new $this->request())->messages());
                 }
                 $x++;
             }

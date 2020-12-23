@@ -1,4 +1,4 @@
-hasLoaded('tinymce',function(){
+window.hasLoaded('tinymce',function(){
     if (document.querySelectorAll('[data-type=tinymce]').length > 0) {
         tinymce.init({
             selector: '[data-type=tinymce]',
@@ -10,6 +10,6 @@ hasLoaded('tinymce',function(){
             remove_script_host : false,
             convert_urls : true,
             end_container_on_empty_block: true
-        });   
+        });
     }
 });

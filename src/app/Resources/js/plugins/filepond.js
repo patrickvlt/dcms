@@ -1,6 +1,6 @@
 if (document.querySelectorAll('[data-type=filepond]').length > 0) {
 
-    hasLoaded(['FilePond','FilePondPluginImagePreview','FilePondPluginFileValidateSize'],function(){
+    window.hasLoaded(['FilePond','FilePondPluginImagePreview','FilePondPluginFileValidateSize'],function(){
         window.ponds = [];
         /**
          *
@@ -50,7 +50,7 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
             imageValidateSizeLabelExpectedMinResolution: Lang('Minimum resolution is {minResolution}'),
             imageValidateSizeLabelExpectedMaxResolution: Lang('Maximum resolution is {maxResolution}'),
             onprocessfile: () => {
-                EnableSubmit();
+                window.EnableSubmit();
             }
         });
 
@@ -63,34 +63,35 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
             console.log(inputElement.dataset);
             revertKey = (inputElement.dataset.filepondRevertKey) ? '/' + inputElement.dataset.filepondRevertKey : '';
             if (!inputElement.dataset.filepondPrefix) {
-                console.log('No prefix found. Add a data-filepond-prefix to the input element (the prefix of the current model). e.g. (data-filepond-prefix="user")')
+                console.log('No prefix found. Add a data-filepond-prefix to the input element (the prefix of the current model). e.g. (data-filepond-prefix="user")');
                 return false;
             }
             if (!inputElement.dataset.filepondMime) {
-                console.log('No mime found. Add a data-filepond-mime to the input element. e.g. (data-filepond-mime="image")')
+                console.log('No mime found. Add a data-filepond-mime to the input element. e.g. (data-filepond-mime="image")');
                 return false;
             }
             if (!inputElement.dataset.filepondColumn) {
-                console.log('No column attribute assigned to FilePond. Add a data-filepond-column to the input element. e.g. (data-filepond-column="logo")')
+                console.log('No column attribute assigned to FilePond. Add a data-filepond-column to the input element. e.g. (data-filepond-column="logo")');
                 return false;
             }
             pond.allowMultiple = (inputElement.dataset.filepondMaxFiles > 1) ? true : false;
+            pond.allowFileSizeValidation = true;
             pond.maxFiles = (typeof inputElement.dataset.filepondMaxFiles !== 'undefined') ? inputElement.dataset.filepondMaxFiles : 1;
-            pond.maxSize = inputElement.dataset.filepondMaxFileSize ? inputElement.dataset.filepondMaxFileSize : window.FilePondMaxFileSize;
+            pond.maxFileSize = inputElement.dataset.filepondMaxFileSize ? inputElement.dataset.filepondMaxFileSize : window.FilePondMaxFileSize;
             pond.name = inputElement.dataset.filepondColumn + "[]";
             pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.FilePondInstantUpload;
             pond.allowRevert = (inputElement.dataset.filepondAllowRevert) ? inputElement.dataset.filepondAllowRevert : window.FilePondAllowRevert;
             pond.allowPaste = false;
-            pond.onerror = (res) => {
-                HaltSubmit();
-            }
+            pond.onerror = () => {
+                window.HaltSubmit();
+            };
             pond.onprocessfile = (error, file) => {
-                HaltSubmit();
+                window.HaltSubmit();
                 if (!error) {
                     window.fileArray.push({
                         "input": pond.name,
                         "file": file.serverId
-                    })
+                    });
                     if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
                         document.querySelectorAll('[data-type=jexcel]').forEach(function (table) {
                             if (document.querySelector(inputElement.dataset.filepondTableSelector)){
@@ -108,9 +109,9 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                             }
                         });
                     }
-                    EnableSubmit();
+                    window.EnableSubmit();
                 }
-            }
+            };
             pond.server = {
                 method: method,
                 headers: {
@@ -124,27 +125,27 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                         try {
                             response = JSON.parse(res);
                         } catch (error) {
-                            Swal.fire(Lang('Upload failed'), '', 'error')
+                            Swal.fire(Lang('Upload failed'), '', 'error');
                             return;
-                        };
+                        }
                         if (!response.errors) {
                             Swal.fire({
                                 title: Lang('Upload failed'),
                                 html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                                 icon: "error"
-                            })
+                            });
                         }
                         if (response.errors) {
                             $.each(response.errors, function (x, objWithErrors) {
                                 $.each(objWithErrors, function (x, error) {
-                                    errors += error + '<br>'
+                                    errors += error + '<br>';
                                 });
                             });
                             Swal.fire({
                                 title: Lang('Upload failed'),
                                 html: errors,
                                 icon: "error"
-                            })
+                            });
                         }
                     }
                 },
@@ -156,14 +157,14 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                     url: (inputElement.dataset.filepondRevertUrl) ? inputElement.dataset.filepondRevertUrl : '/dcms/file/revert/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
                     method: 'DELETE',
                 }
-            }
-            ponds.push(pond);
+            };
+            window.ponds.push(pond);
             $('[data-type=filepond]').show();
         }
-        const inputElement = document.querySelector('input[data-type=filepond]');
+        
         document.querySelectorAll('input[data-type=filepond]').forEach(function (element) {
             MakePond(element);
         });
         document.querySelectorAll('.filepond--drop-label').forEach(element => element.classList.add('input-group-text'));
-    })
+    });
 }

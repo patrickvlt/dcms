@@ -1,11 +1,11 @@
 if (window.enableEditors == true){
-    hasLoaded('axios',function(){
+    window.hasLoaded('axios',function(){
         async function authenticate() {
-            await axios.post('/dcms/content/authenticate', {}, Object.assign(axiosCfg, {})).then(function (response) {
+            await axios.post('/dcms/content/authenticate', {}, Object.assign(window.axiosCfg, {})).then(function (response) {
                 if (response.status == 200){
-                    hasLoaded('tinymce',function(){
+                    window.hasLoaded('tinymce',function(){
                         var dcmsCount = 0, elementContent, elementUID, elementDisplay, elForm, elEditor, elBtnsDiv, elCancelButton, elClearButton,
-                        elSaveButton, btn, editorValue, currentTiny, keyUps = 0, tagIsPresent, previousValue, previousFilledValue, elRightBtnsDiv, elLeftBtnsDiv;
+                        elSaveButton, btn, editorValue, elRightBtnsDiv, elLeftBtnsDiv;
                         function AssignEditors(){
                             document.querySelectorAll('dcms').forEach(function(element){
                                 element.addEventListener('click',function(event){
@@ -20,7 +20,7 @@ if (window.enableEditors == true){
 
                                     // Find parent element which spawns the editor, if user has clicked on a child element inside of it
                                     if (!element.dataset.uid){
-                                        element = element.closest("dcms")
+                                        element = element.closest("dcms");
                                     }
 
                                     elementContent = element.outerHTML;
@@ -36,7 +36,7 @@ if (window.enableEditors == true){
                                     elForm.style.display = 'none';
                                     // Textarea
                                     elEditor = document.createElement('textarea');
-                                    elEditor.value = elementContent
+                                    elEditor.value = elementContent;
                                     elEditor.id = elementUID+dcmsCount;
                                     elForm.appendChild(elEditor, elForm.nextSibling);
                                     // Buttons Div
@@ -120,7 +120,7 @@ if (window.enableEditors == true){
                                         async function clearContent() {
                                             await axios.post('/dcms/content/clear', {
                                                 contentUID: elementUID
-                                            }, Object.assign(axiosCfg, {})).then(function (response) {
+                                            }, Object.assign(window.axiosCfg, {})).then(function (response) {
                                                 if (response.status == 200){
                                                     location.reload();
                                                 } else {
@@ -128,7 +128,7 @@ if (window.enableEditors == true){
                                                         title: Lang('Unknown error'),
                                                         html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                                                         icon: "error"
-                                                    })
+                                                    });
                                                 }
                                             });
                                         }
@@ -146,7 +146,7 @@ if (window.enableEditors == true){
                                             await axios.post('/dcms/content/update', {
                                                 contentUID: elementUID,
                                                 contentValue: editorValue
-                                            }, Object.assign(axiosCfg, {})).then(function (response) {
+                                            }, Object.assign(window.axiosCfg, {})).then(function (response) {
                                                 DestroyInstance();
                                                 if (response.status == 200){
                                                     ReplaceContent(element,editorValue);
@@ -157,20 +157,20 @@ if (window.enableEditors == true){
                                                         title: Lang('Unknown error'),
                                                         html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                                                         icon: "error"
-                                                    })
+                                                    });
                                                 }
                                             });
                                         }
                                         saveContent();
                                     });
-                                })
+                                });
                             });
                         }
                         AssignEditors();
-                    })
+                    });
                 }
             });
         }
         authenticate();
-    })
+    });
 }
