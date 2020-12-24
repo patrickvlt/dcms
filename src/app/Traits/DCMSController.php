@@ -15,7 +15,9 @@ trait DCMSController
     {
         if (!app()->runningInConsole()) {
             // Route prefix
-            $this->routePrefix = $this->routePrefix ?? GetPrefix();
+            if (!isset($this->routePrefix)){
+                throw new \RuntimeException("No routePrefix defined. Define this property in your controller constructor.");
+            }
             // Get model and custom request class
             if (!isset($this->model)){
                 throw new \RuntimeException("No model defined for: ".ucfirst($this->routePrefix)." in controller constructor.");
@@ -79,7 +81,7 @@ trait DCMSController
     public function show($id)
     {
         $this->__init();
-        ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
+        ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->{$this->routePrefix});
 
         $vars = method_exists($this,'beforeShow') ? $this->beforeShow($id) : null;
         return view($this->routePrefix.'.'.$this->showView,compact(${$this->routePrefix}))->with($vars);
@@ -88,9 +90,9 @@ trait DCMSController
     public function edit($id)
     {
         $this->__init();
-        ${$this->routePrefix} = (new $this->model)->FindOrFail($id);
+        ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->{$this->routePrefix});
         // Auto generated Form with HTMLTag package
-        $form = (isset($this->form)) ? Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses) : null;
+        $form = (isset($this->form)) ? Form::create($this->request,$this->routePrefix,$this->form,$this->responses) : null;
         $vars = method_exists($this,'beforeEdit') ? $this->beforeEdit($id) : null;
         return view($this->routePrefix.'.'.$this->editView,compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
@@ -100,7 +102,7 @@ trait DCMSController
         $this->__init();
         $vars = method_exists($this,'beforeCreate') ? $this->beforeCreate() : null;
         // Auto generated Form with HTMLTag package
-        $form = (isset($this->form)) ? Form::create($this->model,$this->request,$this->routePrefix,$this->form,$this->responses) : null;
+        $form = (isset($this->form)) ? Form::create($this->request,$this->routePrefix,$this->form,$this->responses) : null;
         return view($this->routePrefix.'.'.$this->createView)->with($vars)->with(['form' => $form]);
     }
 
@@ -198,7 +200,6 @@ trait DCMSController
             }
         }
         // Convert upload rules to string rules, otherwise the request will try to validate a mimetype on a path string
-        // dd($uploadRules);
         foreach ($uploadRules as $key => $ruleArr) {
             $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
             foreach ($ruleArr as $x => $rule) {
@@ -231,7 +232,7 @@ trait DCMSController
                 $this->request->afterCreateOrUpdate($request,${$this->routePrefix});
             }
         } else if ($createdOrUpdated === 'updated') {
-            ${$this->routePrefix} = (new $this->model)->findOrFail($id);
+            ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
             // Update any arrays / files 
             foreach ($request as $requestKey => $requestVal){
                 // If request has an array, and points to storage, merge it with existing array if it has values already
@@ -311,13 +312,14 @@ trait DCMSController
 
     public function update($id)
     {
+        $id = request()->route()->parameters[$this->routePrefix];
         return $this->crud('updated',$id);
     }
 
     public function destroy($id)
     {
         $this->__init();
-        $model = (new $this->model)->findOrFail($id);
+        $model = ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
         $passModel = $model;
         $model->delete();
         if (method_exists($this->request,'afterDelete')){

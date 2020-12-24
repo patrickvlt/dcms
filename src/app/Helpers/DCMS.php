@@ -70,22 +70,17 @@ if (!function_exists('FindClass')) {
 }
 
 if (!function_exists('Model')) {
-    function Model()
+    function Model($prefix=null)
     {
         $model = request()->route()->controller->model ?? null;
         if (!$model){
-            return null;
+            $class = FindClass($prefix)['class'];
+            $model = (new $class())->find(request()->{$prefix});
         }
-        $routePrefix = request()->route()->controller->routePrefix;
-        if (request()->route()->parameters()){
-            if (isset(request()->route()->parameters()[$routePrefix])){
-                $id = request()->route()->parameters()[$routePrefix];
-            } else if (isset(request()->route()->parameters()['id'])){
-                $id = request()->route()->parameters()['id'];
-            }
-            return $model::find($id);
+        if(!$model){
+            return;
         }
-        return null;
+        return $model;
     }
 }
 
@@ -121,13 +116,35 @@ if (!function_exists('FormRoute')) {
         $routeAction = explode(".", $routeName);
         $routeAction = end($routeAction);
         $formRoute = null;
+
+        // Try to append parameters with Laravels route helper
+        function fixRoute($prefix,$action){
+            $addParameters = [];
+            foreach (request()->route()->parameters as $key => $parameter) {
+                if (isset(request()->route()->parameters[$prefix]) && $key == request()->route()->parameters[$prefix]){
+                    continue;
+                } else {
+                    $addParameters[] = $parameter;
+                }
+            }
+            return route($prefix . $action, $addParameters);
+        }
+
         switch ($routeAction) {
             case 'create':
-                $formRoute = route($prefix . '.store');
+                try {
+                    $formRoute = route($prefix . '.store', request()->route()->parameters[$prefix]);
+                } catch (\Throwable $th) {
+                    $formRoute = fixRoute($prefix,'.store');
+                }
                 break;
             case 'update':
             case 'edit':
-                $formRoute = route($prefix . '.update', is_object(Model()) ? Model()->id : Model());
+                try {
+                    $formRoute = route($prefix . '.update', request()->route()->parameters[$prefix]);
+                } catch (\Throwable $th) {
+                    $formRoute = fixRoute($prefix,'.update');
+                }
                 break;
         }
         return $formRoute;

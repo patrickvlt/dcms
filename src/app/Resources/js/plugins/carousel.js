@@ -28,20 +28,20 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         dcars = + 1;
 
         function defaultImgString(img, dcars, dcarPrefix, dcarColumn) {
-            return `<div class="dCar-div" `+dcarHeight+`>
-                <div class="dCar-controls">
-                    <a class="dcarBtn spotlight" href="`+ img + `" data-dcar="` + dcars + `" data-dcar-action="copy" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
-                        <i class="fas fa-eye"></i>
-                    </span></a>
-                    <a class="dcarBtn" data-dcar="`+ dcars + `" data-dcar-action="copy" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
-                        <i class="fas fa-copy"></i>
-                    </span></a>
-                    <a class="dcarBtn" data-dcar="`+ dcars + `" data-dcar-action="destroy" data-dcar-prefix="` + dcarPrefix + `" data-dcar-column="` + dcarColumn + `" data-dcar-file="` + img + `"><span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary ">
-                        <i class="ki ki-bold-close icon-xs"></i>
-                    </span></a>
-                </div>
-                <img class="dCar-item" src="`+ img + `">
-            </div>`;
+            return `<div class="dCar-div">
+                        <div class="dCar-controls">
+                            <a class="dCar-btn spotlight" href="`+img+`" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                                <i class="fas fa-eye"></i>
+                            </span></a>
+                            <a class="dCar-btn" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                                <i class="fas fa-copy"></i>
+                            </span></a>
+                            <a class="dCar-btn" data-dcar="`+dcars+`" data-dcar-action="destroy" data-dcar-prefix="`+dcarPrefix+`" data-dcar-column="`+dcarColumn+`" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                                <i class="fas fa-trash"></i>
+                            </span></a>
+                        </div>
+                        <img class="dCar-item" src="`+img+`">
+                    </div>`;
         }
 
         function TypeOfCard(entry,element){

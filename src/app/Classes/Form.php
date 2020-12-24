@@ -20,8 +20,18 @@ class Form extends HtmlTag
      * @return Form|null
      */
 
-    public static function create($model, $request, $routePrefix, $formProperties, $responses)
+    public static function create($request, $routePrefix, $formClass, $responses)
     {
+        $formProperties = (new $formClass())->properties();
+        $model = null;
+        if (FormMethod() == ('PUT')){
+            $model = Model($routePrefix) ?? Model();
+            if(is_string($model)){
+                $class = FindClass($routePrefix)['class'];
+                $model = (new $class())->find(request()->route()->parameters[$routePrefix]);
+            }
+        }
+
         $modelRequest = (new $request())->rules() ?? null;
         if (!isset($modelRequest)) {
             throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: " . $routePrefix);
@@ -34,7 +44,7 @@ class Form extends HtmlTag
         }
 
         // Start creating form
-        $method = (Model()) ? 'PUT' : 'POST';
+        $method = ($model) ? 'PUT' : 'POST';
         $form = self::createElement('form')->attr([
             'action' => FormRoute(),
             'method' => 'POST',
@@ -107,15 +117,15 @@ class Form extends HtmlTag
             }
 
             // Create carousel before the input element
-            if(isset($definedAttr['carousel']) && Model()){
-                $carouselArr = Model()->{$column['name']};
+            if(isset($definedAttr['carousel']) && $model){
+                $carouselArr = $model->{$column['name']};
                 if (!is_array($carouselArr)){
                     $carouselArr = explode(',',$carouselArr);
                 }
                 if (count($carouselArr) > 0 && $carouselArr[0] !== ""){
                     $carousel = $form->addElement('div')->attr([
                         'data-type' => 'dcarousel',
-                        'data-dcar-src' => Model()->{$column['name']},
+                        'data-dcar-src' => $model->{$column['name']},
                         'data-dcar-prefix' => $routePrefix,
                         'data-dcar-column' => $column['name'],
                         'data-dcar-height' => $definedAttr['carousel']['height'] ?? '200px' 
@@ -178,7 +188,7 @@ class Form extends HtmlTag
                     'type' => $inputType,
                     'name' => $column['name'],
                     'placeholder' => __($inputPlaceholder),
-                    'value' => Model()->{$column['name']} ?? old($column['name'])
+                    'value' => $model->{$column['name']} ?? old($column['name'])
                 ];
                 $addToEl = ($makeInputGroup) ? $inputGroup : $formGroup;
                 $addToEl->addElement('input')->attr($defaultInputAttr)->attr($inputCustomAttr);
@@ -206,7 +216,7 @@ class Form extends HtmlTag
                     unset($optionOptionalAttr['data'],$optionOptionalAttr['primaryKey'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['showKey']);
 
                     if (!is_array($optionAttrs['data']) && !$optionAttrs['data'] instanceof Collection){
-                        $optionAttrs['data'] = Model()->{$optionAttrs['data']};
+                        $optionAttrs['data'] = $model->{$optionAttrs['data']};
                     }
 
                     foreach ($optionAttrs['data'] as $key => $data){
@@ -217,7 +227,7 @@ class Form extends HtmlTag
                         if (FormMethod() == 'POST'){
                             $modelValue = $foreignKey ? $data->{$foreignKey} : $data;
                         } else {
-                            $modelValue = $foreignKey ? Model()->{$foreignKey} : Model()->{$column['name']};
+                            $modelValue = $foreignKey ? $model->{$foreignKey} : $model->{$column['name']};
                         }
                         if (is_array($modelValue) || $modelValue instanceof Collection){
                             foreach($modelValue as $modelValueRow){
@@ -253,8 +263,8 @@ class Form extends HtmlTag
 
                             $name = (count($properties) > 1 && !$makeRadio) ? $column['name'].'[]' : $column['name'];
                             $checked = null;
-                            if(Model()){
-                                $checked = ((Model()->{$column['name']} && Model()->{$column['name']} == $propertyValue) || old($column['name']) == $propertyValue) ? 'checked' : null;
+                            if($model){
+                                $checked = (($model->{$column['name']} && $model->{$column['name']} == $propertyValue) || old($column['name']) == $propertyValue) ? 'checked' : null;
                             }
 
                             if ($makeCheckbox){
@@ -295,7 +305,7 @@ class Form extends HtmlTag
                     'placeholder' => __($textareaPlaceholder),
                 ];
                 $addToEl = ($makeInputGroup) ? $inputGroup : $formGroup;
-                $addToEl->addElement('textarea')->attr($defaultInputAttr)->attr($textareaCustomAttr)->text(Model()->{$column['name']} ?? old($column['name']));
+                $addToEl->addElement('textarea')->attr($defaultInputAttr)->attr($textareaCustomAttr)->text($model->{$column['name']} ?? old($column['name']));
             }
 
             // Small text
@@ -318,18 +328,18 @@ class Form extends HtmlTag
         ])->attr($customAttr);
 
         // Save button: If creating a model
-        if (!Model()) {
-            $saveRedirect = $formProperties['created']['url'] ?? route($routePrefix . '.index');
-            $saveRoute = route($routePrefix . '.store');
+        if (!$model) {
+            $saveRedirect = $responses['created']['url'] ?? route($routePrefix . '.index');
+            $saveRoute = $formProperties['buttonRoutes']['store'] ?? route($routePrefix . '.store');
             $saveID = null;
             $saveText = $formProperties['formButtons']['create']['text'] ?? __('Create');
             $saveBtnAttr = $formProperties['formButtons']['create'] ?? null;
         }
         // Save button: If updating a model
         else {
-            $saveRedirect = $formProperties['updated']['url'] ?? route($routePrefix . '.index');
-            $saveRoute = route($routePrefix . '.update', Model()->id);
-            $saveID = Model()->id;
+            $saveRedirect = $responses['updated']['url'] ?? route($routePrefix . '.index');
+            $saveRoute = $formProperties['buttonRoutes']['update'] ?? route($routePrefix . '.update', $model->id);
+            $saveID = $model->id;
             $saveText = $formProperties['formButtons']['update']['text'] ?? __('Update');
             $saveBtnAttr = $formProperties['formButtons']['update'] ?? null;
         }
@@ -368,18 +378,18 @@ class Form extends HtmlTag
                 $x++;
             }
         }
-
+        
         // Delete button
-        if (Model()) {
+        if ($model) {
             $formGroup->addElement('br');
             $deleteBtn = self::createElement('button');
             $deleteBtn->attr([
                 'type' => 'button',
                 'class' => 'btn btn-danger mt-2',
-                'data-dcms-id' => Model()->id,
+                'data-dcms-id' => $model->id,
                 'data-dcms-action' => 'destroy',
-                'data-dcms-destroy-redirect' => route($routePrefix . '.index'),
-                'data-dcms-destroy-route' => route($routePrefix . '.destroy', '__id__'),
+                'data-dcms-destroy-redirect' => $responses['deleted']['url'] ?? route($routePrefix . '.index'),
+                'data-dcms-destroy-route' => $formProperties['buttonRoutes']['destroy'] ?? route($routePrefix . '.destroy', '__id__'),
                 'data-dcms-delete-confirm-title' => $responses['confirmDelete']['title'] ?? __('Delete object'),
                 'data-dcms-delete-confirm-message' => $responses['confirmDelete']['message'] ?? __('Are you sure you want to delete this object?'),
                 'data-dcms-delete-complete-title' => $responses['deleted']['title'] ?? __('Deleted object'),

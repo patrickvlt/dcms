@@ -107,7 +107,7 @@ if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=file
     window.LoadJS('FilePondPluginFileValidateSize', dcmsConfig.plugins.filepondValidateSize);
 }
 
-if (typeof tinymce == 'undefined' && document.querySelectorAll('[data-type=tinymce]').length > 0 && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)) {
+if (typeof tinymce == 'undefined' && (document.querySelectorAll('[data-type=tinymce]').length > 0 || window.enableEditors == true) && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)) {
     window.LoadJS('tinymce', dcmsConfig.plugins.tinymce, 'local');
 }
 
@@ -293,6 +293,7 @@ window.EnableSubmit = function (selector = null) {
 require('./plugins/carousel.js');
 require('./plugins/slimselect.js');
 require('./plugins/tinymce.js');
+require('./plugins/editor.js');
 require('./plugins/dateclockpicker.js');
 require('./plugins/jexcel.js');
 require('./plugins/filepond.js');
