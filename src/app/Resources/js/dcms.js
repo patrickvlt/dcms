@@ -408,7 +408,7 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
             } else {
                 if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
                     Swal.fire({
-                        title: Lang((response['title']) ? response['title'] : 'Successfull request'),
+                        title: Lang((response['title']) ? response['title'] : 'Successful request'),
                         text: Lang((response['message']) ? response['message'] : 'Press OK to return to the overview.'),
                         icon: "success",
                         confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
