@@ -70,17 +70,12 @@ if (!function_exists('FindClass')) {
 }
 
 if (!function_exists('Model')) {
-    function Model($prefix=null)
+    function Model()
     {
-        $model = request()->route()->controller->model ?? null;
-        if (!$model){
-            $class = FindClass($prefix)['class'];
-            $model = (new $class())->find(request()->{$prefix});
-        }
-        if(!$model){
-            return;
-        }
-        return $model;
+        $model = request()->route()->controller->model;
+        $routePrefix = request()->route()->controller->routePrefix;
+        $id = (request()->route()->parameters()) ? request()->route()->parameters()[$routePrefix] : null;
+        return $model::find($id);
     }
 }
 

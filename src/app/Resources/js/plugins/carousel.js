@@ -12,10 +12,6 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
             dcarSrc = element.dataset.dcarSrc;
         }
 
-        if (dcarSrc){
-
-        }
-
         dcarPrefix = typeof(element.dataset.dcarPrefix !== 'undefined') ? element.dataset.dcarPrefix : null;
         dcarColumn = typeof(element.dataset.dcarColumn !== 'undefined') ? element.dataset.dcarColumn : null;
         dcarHeight = typeof(element.dataset.dcarHeight !== 'undefined') ? element.dataset.dcarHeight : null;
@@ -27,7 +23,7 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         imgElement = '';
         dcars = + 1;
 
-        function defaultImgString(img, dcars, dcarPrefix, dcarColumn) {
+        function defaultImgString(img, dcars) {
             return `<div class="dCar-div">
                         <div class="dCar-controls">
                             <a class="dCar-btn spotlight" href="`+img+`" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
@@ -41,6 +37,7 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
                             </span></a>
                         </div>
                         <img class="dCar-item" src="`+img+`">
+                        <input style="display:none" name="${dcarColumn.match('/[]/') ? dcarColumn : dcarColumn+"[]"}" value=${img}>
                     </div>`;
         }
 
@@ -149,8 +146,8 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         parentDiv = element.parentNode.parentNode;
 
         Swal.fire({
-            title: Lang('Deleting entry'),
-            text: Lang('Are you sure you want to delete this entry?'),
+            title: Lang('Deleting item'),
+            text: Lang('Are you sure you want to delete this item?'),
             icon: "warning",
             confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
             confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
@@ -158,34 +155,16 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
             cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
         }).then(function (result) {
             if (result.value) {
-                $.ajax({
-                    type: "DELETE",
-                    url: "/dcms/file/revert/" + dCarPrefix + "/image/" + dCarColumn,
-                    data: dCarFile,
-                    dataType: "dataType",
-                    headers: {
-                        'X-CSRF-TOKEN': window.csrf
-                    },
-                    complete: function (response) {
-                        if (response.status == 200){
-                            if (parentCar.querySelectorAll('.dCar-div').length == 1) {
-                                $(parentCar).remove();
-                            } else {
-                                $(parentDiv).remove();
-                            }
-                        } else {
-                            Swal.fire({
-                                title: Lang('Unknown error'),
-                                html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
-                                icon: "error",
-                                confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                                confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                                cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                                cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                            });
-                        }
-                    }
-                });
+                try {
+                    toastr.success(Lang('Removed item.'));
+                } catch (error) {
+                    //
+                }
+                if (parentCar.querySelectorAll('.dCar-div').length == 1) {
+                    $(parentCar).remove();
+                } else {
+                    $(parentDiv).remove();
+                }
             }
         });
     });
@@ -194,7 +173,11 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         var img;
         img = $(this).data('dcar-file');
         window.textToClipBoard(img);
-        toastr.info(Lang('Image copied to clipboard.'));
+        try {
+            toastr.success(Lang('Image copied to clipboard.'));
+        } catch (error) {
+            //
+        }
     });
 
     $(document).on('mouseenter', '.dCar-div', function () {

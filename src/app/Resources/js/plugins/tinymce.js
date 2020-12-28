@@ -9,7 +9,10 @@ window.hasLoaded('tinymce',function(){
             relative_urls : false,
             remove_script_host : false,
             convert_urls : true,
-            end_container_on_empty_block: true
+            end_container_on_empty_block: true,
+            init_instance_callback: function (editor) {
+                $(editor.getContainer()).find('button.tox-statusbar__wordcount').click();  // if you use jQuery
+             }
         });
     }
 });
