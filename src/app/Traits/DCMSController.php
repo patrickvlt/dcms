@@ -124,7 +124,7 @@ trait DCMSController
             foreach ($requestRules as $key => $ruleArr) {
                 $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
                 foreach ($ruleArr as $x => $rule) {
-                    if (preg_match('/mimes/',$rule)){
+                    if (preg_match('/(mimes|mimetypes)/',$rule)){
                         $uploadRules[$key] = $ruleArr;
                         continue;
                     }
@@ -197,11 +197,12 @@ trait DCMSController
                 }
             }
         }
+        
         // Convert upload rules to string rules, otherwise the request will try to validate a mimetype on a path string
         foreach ($uploadRules as $key => $ruleArr) {
             $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
             foreach ($ruleArr as $x => $rule) {
-                if (preg_match('/(min|max|mime)/',$rule)){
+                if (preg_match('/(min|max|mime|mimetypes)/',$rule)){
                     unset($ruleArr[$x]);
                 }
                 if (!preg_match('/string/',json_encode($ruleArr))){
