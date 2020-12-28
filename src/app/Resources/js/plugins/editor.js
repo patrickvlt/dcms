@@ -89,6 +89,13 @@ if (window.enableEditors == true){
                                         force_br_newlines : true,
                                         force_p_newlines : false,
                                         forced_root_block : '',
+                                        relative_urls : false,
+                                        remove_script_host : false,
+                                        convert_urls : true,
+                                        end_container_on_empty_block: true,
+                                        init_instance_callback: function (editor) {
+                                            $(editor.getContainer()).find('button.tox-statusbar__wordcount').click();  // if you use jQuery
+                                        }
                                     });
 
                                     setTimeout(() => { elForm.style.display = 'initial'; }, 1000);
