@@ -8,6 +8,8 @@
 
 namespace Pveltrop\DCMS\Classes;
 
+use Illuminate\Database\Eloquent\Collection;
+
 class Datatable
 {
     public function __construct($query, $searchFields = null, $excludeSearchFields = [])
@@ -44,16 +46,56 @@ class Datatable
 
         // Build filters for query
         if (isset($params['query'])) {
-            foreach ($params['query'] as $key => $value) {
-                if ($key !== 'generalSearch') {
-                    $this->filter($key, $value);
+            $this->query->where(function ($q) use ($params){
+                foreach ($params['query'] as $key => $value) {
+                    if ($key !== 'generalSearch') {
+                        $this->filter($key, $value);
+                    }
                 }
-            }
+            });
         }
 
         // Get (per) page from Datatable query
         $perPage = isset($params['pagination']['perpage']) && $params['pagination']['perpage'] !== 'NaN' ? $params['pagination']['perpage'] : null;
         $page = isset($params['pagination']['page']) ? $params['pagination']['page'] : null;
+
+        // General search
+        if (isset($params['query']['generalSearch'])){
+            // Get first row from query to grab the keys/fields
+            $firstRow = $this->query->get()->first();
+            $firstRowArr = $firstRow->toArray();
+
+            $searchValue = strtolower($params['query']['generalSearch']);
+
+            $this->query->where(function ($q) use ($firstRow, $firstRowArr, $searchValue) {
+                foreach ($firstRowArr as $entry => $value) {  
+                    // If column name isnt in the models attributes, so its a relation
+                    // Dynamically make wherehas clauses for generalsearch
+                    if (!in_array($entry,array_keys($firstRow->getAttributes()))) {
+                        $q->whereHas($entry, function ($q) use ($entry, $searchValue, $firstRow) {
+                            $y = 0;
+                            foreach ($firstRow->{$entry}->toArray() as $relatedEntry => $relatedValue) {
+                                if(!is_array($relatedValue)){
+                                    if ($y == 0){
+                                        $q->where($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
+                                    } 
+                                    else {
+                                        $q->orWhere($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
+                                    }
+                                }
+                                $y++;
+                            }
+                        });
+                    }
+                }
+                foreach ($firstRowArr as $entry => $value) {  
+                    // Dynamically make where clauses for generalsearch
+                    if(!is_array($value)){
+                        $q->orWhere($entry,'LIKE','%'.strtolower($searchValue).'%');
+                    }
+                }
+            });
+        }
 
         // Generate collection from results
         $this->data = collect($this->query->get());
@@ -64,46 +106,14 @@ class Datatable
             $this->data = $this->data->{$sortBy}($params['sort']['field']);
         }
 
-        // General search
-        if (isset($params['query']['generalSearch']) && isset($this->data[0])){
-            $searchValue = $params['query']['generalSearch'];
-            $searchColumns = [];
-
-            // If no searchable columns are passed, use all columns
-            if (isset($this->searchFields)){
-                $searchColumns = $this->searchFields;
-            } else {
-                foreach ($this->data[0] as $key => $val){
-                    $searchColumns[] = $key;
-                }
-            }
-
-            $newData = [];
-            foreach($this->data as $dataKey => $dataRow){
-                $searchRe = '/\:(\"|)'.strtolower($searchValue).'.*?(\,)/m';
-                $searchIn = strtolower(json_encode($dataRow));
-                if (preg_match($searchRe,$searchIn) > 0){
-                    $newData[] = $dataRow;
-                }
-            }
-
-            // Clear data if general search cant find anything
-            // Or else the results wont be affected
-            $this->data = (count($newData) >! 0) ? [] : $newData;
-            $this->data = collect(array_unique($this->data,SORT_REGULAR));
-            $total = count($this->data);
-        }
-
         // Paginate the collection instead of query
         $total = count($this->data);
         if ($perPage){
-            Paginate:
             $pages = (int)ceil($total / $perPage);
             // If user is outside the pages range when changing pagination preferences
             if ($page > $pages) {
                 // Set page to max possible page
                 $page = $pages;
-                goto Paginate;
             }
             $this->data = $this->data->forPage($page,$perPage);
         } else {
@@ -113,7 +123,7 @@ class Datatable
 
         // Make response object with meta
         $response = (object) 'query';
-
+        
         // Paginate the results if page and perpage parameters are present
         if (isset($page, $perPage) && $total > 0) {
             $response->data = $this->data;

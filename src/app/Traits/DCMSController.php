@@ -143,7 +143,7 @@ trait DCMSController
                     $required = GetRule($uploadRules[$key.".*"],'required') ? true : false;
                     $hasBeenFilled = array_key_exists($key,array_flip(array_keys($requestData)));
                     if ($required && !$hasBeenFilled){
-                        $existingRecord = (Model() && Model()->{$key}) ? Model()->{$key} : false;
+                        $existingRecord = (Model() && isset(Model()->{$key})) ? Model()->{$key} : false;
                         if (!$existingRecord){
                             return response()->json([
                                 'message' => __('Missing file'),
@@ -312,6 +312,7 @@ trait DCMSController
 
     public function update($id)
     {
+        dd(Model());
         $id = request()->route()->parameters[$this->routePrefix];
         return $this->crud('updated',$id);
     }

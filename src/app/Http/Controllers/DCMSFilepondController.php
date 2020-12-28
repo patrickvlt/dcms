@@ -85,7 +85,7 @@ class DCMSFilepondController extends Controller
         }
     }
 
-    public function DeleteFile($prefix,$type,$column,$revertKey=null)
+    public function DeleteFile($column,$revertKey=null)
     {
         // Get route prefix and the class it belongs to
         $controller = '\App\Http\Controllers\\'.$this->file.'Controller';
@@ -98,7 +98,7 @@ class DCMSFilepondController extends Controller
         $path = str_replace('"','',stripslashes(request()->getContent()));
         $path = str_replace(env('APP_URL'),"",$path);
         $path = str_replace("/storage/","/public/",$path);
-
+        
         if (Storage::exists($path)){
             $msg = 'Deleted succesfully';
             $status = 200;
