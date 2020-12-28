@@ -157,7 +157,7 @@ trait DCMSController
                         foreach ($requestData[$key] as $x => $file){
                             // Check if file uploads have this applications URL in it
                             // If any upload doesnt have the url in its filename, then it has been tampered with
-                            if (!strpos(env('APP_URL'),$file) && strpos('http',$file)){
+                            if (!strpos(env('APP_URL'),$file) && strpos($file,'http')){
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
@@ -190,6 +190,19 @@ trait DCMSController
                                             $requestMessages[$uploadKey.'.notFound'] ?? __("The ".$key." field contains a path to a file which doesn't exist. <br> Please upload a new file.")
                                         ]
                                     ],
+                                ], 422);
+                            }
+                            // Check if a file is being assigned which actually belongs to this property
+                            // For example: dont allow a thumbnail to be used for a banner
+                            if (!strpos($file,$key)){
+                                return response()->json([
+                                    'message' => __('Invalid file'),
+                                    'errors' => [
+                                        'file' => [
+                                            //Example: logo.*.fileType
+                                            $requestMessages[$uploadKey.'.fileType'] ?? __("The ".$key." field contains a file which exists but can't be used by this field. <br> Please upload a new file.")
+                                            ]
+                                        ],
                                 ], 422);
                             }
                         }
