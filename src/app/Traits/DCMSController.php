@@ -252,22 +252,24 @@ trait DCMSController
                 $keyToCheck = str_replace('.*','',$key);
                 // Check if file exists in model and request
                 // If it exists in the model, and not in the request, delete the file
-                foreach($requestData[$keyToCheck] as $files){
-                    $modelFiles = ${$this->routePrefix}->{$keyToCheck};
-                    $requestFiles = $requestData[$keyToCheck];
-                    
-                    // If both properties are a string
-                    if (is_string($requestFiles) && is_string($modelFiles)){
-                        if ($requestFiles !== $modelFiles){
-                            $filesToRemove[] = $requestFiles;
+                if (isset($requestData[$keyToCheck])){
+                    foreach($requestData[$keyToCheck] as $files){
+                        $modelFiles = ${$this->routePrefix}->{$keyToCheck};
+                        $requestFiles = $requestData[$keyToCheck];
+                        
+                        // If both properties are a string
+                        if (is_string($requestFiles) && is_string($modelFiles)){
+                            if ($requestFiles !== $modelFiles){
+                                $filesToRemove[] = $requestFiles;
+                            }
                         }
-                    }
-
-                    // If both properties are an array
-                    if (is_array($requestFiles) && is_array($modelFiles)){
-                        foreach ($modelFiles as $fileKey => $modelFile) {
-                            if (!in_array($modelFile,$requestFiles)){
-                                $filesToRemove[] = $modelFile;
+    
+                        // If both properties are an array
+                        if (is_array($requestFiles) && is_array($modelFiles)){
+                            foreach ($modelFiles as $fileKey => $modelFile) {
+                                if (!in_array($modelFile,$requestFiles)){
+                                    $filesToRemove[] = $modelFile;
+                                }
                             }
                         }
                     }
