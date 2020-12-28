@@ -312,7 +312,6 @@ trait DCMSController
 
     public function update($id)
     {
-        dd(Model());
         $id = request()->route()->parameters[$this->routePrefix];
         return $this->crud('updated',$id);
     }
