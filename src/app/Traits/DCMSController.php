@@ -110,9 +110,15 @@ trait DCMSController
     {
         $this->__init();
         $requestData = request()->all();
-        // Merge with modified request from beforeValidation()
         $requestRules = method_exists($this->request,'rules') ? $this->request->rules() : false;
         $uploadRules = false;
+        $filesToMove = [];
+        $filesToRemove = [];
+
+        /**
+         * Build upload rules & request data
+         */
+
         if($requestRules){
             $uploadRules = [];
             foreach ($requestRules as $key => $ruleArr) {
@@ -126,47 +132,38 @@ trait DCMSController
             }
         }
         $requestMessages = method_exists($this->request,'messages') ? $this->request->messages() : false;
+
+        // Merge request with modified request from beforeValidation()
         $beforeValidation = method_exists($this->request,'beforeValidation') ? $this->request->beforeValidation($requestData) : false;
         if ($beforeValidation){
             foreach ($beforeValidation as $changingKey => $changingValue){
                 $requestData[$changingKey] = $changingValue;
             }
         }
+
+        /**
+         * File validations
+         */
+
         // Grab upload rules from custom request
-        // Validate input file fields
+        // Then loop through the requests' file rules
         if ($uploadRules){
             foreach ($uploadRules as $uploadKey => $uploadRule){
                 $key = explode('.',$uploadKey);
                 $key = $key[0];
-                // Check if this is a file rule, by looking for the mimes rule
-                if (isset($uploadRules[$key.".*"]) && GetRule($uploadRules[$key.".*"],'mimes')){
-                    $required = GetRule($uploadRules[$key.".*"],'required') ? true : false;
-                    $hasBeenFilled = array_key_exists($key,array_flip(array_keys($requestData)));
-                    if ($required && !$hasBeenFilled){
-                        $existingRecord = (Model() && isset(Model()->{$key})) ? Model()->{$key} : false;
-                        if (!$existingRecord){
-                            return response()->json([
-                                'message' => __('Missing file'),
-                                'errors' => [
-                                    'file' => [
-                                        $requestMessages[$uploadKey.'.missingFile'] ?? __('Missing a required file. Please upload a file on this page.')
-                                        ]
-                                    ],
-                                ], 422);
-                        }
-                    }
-                }
+                $appUrl = env('APP_URL');
                 if (array_key_exists($key, $requestData)){
                     if (is_array($requestData[$key])){
                         foreach ($requestData[$key] as $x => $file){
                             // Check if file uploads have this applications URL in it
                             // If any upload doesnt have the url in its filename, then it has been tampered with
-                            if (!strpos($file, env('APP_URL')) === 0){
+                            if (!strpos(env('APP_URL'),$file) && strpos('http',$file)){
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
                                         'file' => [
-                                            $requestMessages[$uploadKey.'.noRemote'] ?? __('Remote files can\'t be added. Please upload a file on this page.')
+                                            //Example: logo.*.noRemote
+                                            $requestMessages[$uploadKey.'.noRemote'] ?? __("The ".$key." field contains a remote file. <br> Please upload a new file.")
                                             ]
                                         ],
                                 ], 422);
@@ -177,8 +174,8 @@ trait DCMSController
                             $checkFile = str_replace(env('APP_URL'),'',$file);
                             $checkFile = str_replace('/storage/','/public/',$checkFile);
                             $storedFile = Storage::exists($checkFile);
+                            $newFilePath = str_replace('/tmp/','/',$checkFile);
                             if ($storedFile){
-                                $newFilePath = str_replace('/tmp/','/',$checkFile);
                                 $filesToMove[] = [
                                     'oldPath' => $checkFile,
                                     'newPath' => $newFilePath
@@ -189,7 +186,8 @@ trait DCMSController
                                     'message' => __('Invalid file'),
                                     'errors' => [
                                         $key => [
-                                            $requestMessages[$uploadKey.'.notFound'] ?? __('File couldn\'t be found. Try to upload it again to use it for ').$key.'.'
+                                            //Example: logo.*.notFound
+                                            $requestMessages[$uploadKey.'.notFound'] ?? __("The ".$key." field contains a path to a file which doesn't exist. <br> Please upload a new file.")
                                         ]
                                     ],
                                 ], 422);
@@ -212,96 +210,99 @@ trait DCMSController
             }
             $uploadRules[$key] = $ruleArr;
         }
-        $requestRules = array_merge($requestRules,$uploadRules);
 
-        $request = Validator::make($requestData, $requestRules, $requestMessages);
-        $request = $request->validated();
-        $afterValidation = method_exists($this->request,'afterValidation') ? $this->request->afterValidation($request) : false;
+        /**
+         * Validate final request
+         */
+
+        $requestRules = array_merge($requestRules,$uploadRules);
+        // Validate the final request
+        $customRequest = new \Illuminate\Http\Request();
+        $customRequest->setMethod('POST');
+        $customRequest->request->add($requestData);
+        $this->validate($customRequest, $requestRules, $requestMessages);
+        $afterValidation = method_exists($this->request,'afterValidation') ? $this->request->afterValidation($requestData) : false;
+
+        /**
+         * (re)move files, mass assign model and execute defined afterFunctions
+         */
+
         // Merge with modified request from afterValidation()
+        // This helps manipulating data before its being persisted
         if ($afterValidation){
             foreach ($afterValidation as $modKey => $modValue){
-                $request[$modKey] = $modValue;
+                $requestData[$modKey] = $modValue;
             }
         }
+        // Create a new model, or update an existing one, and initialise afterFunctions
+        // You can define these functions in the controller
         if ($createdOrUpdated === 'created'){
-            ${$this->routePrefix} = (new $this->model)->create($request);
-            if (method_exists($this->request,'afterCreate')){
-                $this->request->afterCreate($request,${$this->routePrefix});
+            ${$this->routePrefix} = (new $this->model)->create($requestData);
+            if (method_exists($this,'afterCreate')){
+                $this->afterCreate($requestData,${$this->routePrefix});
             }
-            if (method_exists($this->request,'afterCreateOrUpdate')){
-                $this->request->afterCreateOrUpdate($request,${$this->routePrefix});
+            if (method_exists($this,'afterCreateOrUpdate')){
+                $this->afterCreateOrUpdate($requestData,${$this->routePrefix});
             }
         } else if ($createdOrUpdated === 'updated') {
             ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
-            // Update any arrays / files 
-            foreach ($request as $requestKey => $requestVal){
-                // If request has an array, and points to storage, merge it with existing array if it has values already
-                if (is_array($requestVal) && (strpos(implode(" ", $requestVal), '/storage/') !== false)) {
-                    $newArr = [];
-                    foreach ($requestVal as $val){
-                        $newArr[] = $val;
-                    }
-                    try {
-                        // check if object has an array for this already
-                        $existing = ${$this->routePrefix}->$requestKey;
-                        if(count($existing) > 0){
-                            $newArr = array_merge($existing,$newArr);
-                        }
-                    } catch (\Throwable $th) {
-                        //
-                    }
-                    // Check if array limit isnt being overridden
-                    $loopRules = $requestRules[$requestKey];
-                    $loopRules = (is_string($loopRules)) ? explode('|',$loopRules) : $loopRules;
-                    foreach ($loopRules as $rule => $ruleVal){
-                        $min = null;
-                        $max = null;
-                        if (strpos($ruleVal, 'min') === 0){
-                            $min = explode(':',$ruleVal)[1];
-                        }
-                        if (strpos($ruleVal, 'max') === 0){
-                            $max = explode(':',$ruleVal)[1];
+
+            // Remove any files which are no longer being used
+            foreach ($uploadRules as $key => $ruleArr) {
+                $keyToCheck = str_replace('.*','',$key);
+                // Check if file exists in model and request
+                // If it exists in the model, and not in the request, delete the file
+                foreach($requestData[$keyToCheck] as $files){
+                    $modelFiles = ${$this->routePrefix}->{$keyToCheck};
+                    $requestFiles = $requestData[$keyToCheck];
+                    
+                    // If both properties are a string
+                    if (is_string($requestFiles) && is_string($modelFiles)){
+                        if ($requestFiles !== $modelFiles){
+                            $filesToRemove[] = $requestFiles;
                         }
                     }
-                    // If array limit is being overridden
-                    if (count($newArr) > $max){
-                        return response()->json([
-                            'message' => __('File limit reached'),
-                            'errors' => [
-                                $requestKey => [
-                                    $requestMessages[$requestKey.'.maxLimit'] ?? $requestKey.__(' can\'t have more than ').$max.__(' files.')
-                                ]
-                            ],
-                        ], 422);
+
+                    // If both properties are an array
+                    if (is_array($requestFiles) && is_array($modelFiles)){
+                        foreach ($modelFiles as $fileKey => $modelFile) {
+                            if (!in_array($modelFile,$requestFiles)){
+                                $filesToRemove[] = $modelFile;
+                            }
+                        }
                     }
-                    // If array doesnt reach amount of required files
-                    if (count($newArr) < $min){
-                        return response()->json([
-                            'message' => __('Missing files'),
-                            'errors' => [
-                                $requestKey => [
-                                    $requestMessages[$requestKey.'.minLimit'] ?? $requestKey.__(' requires more than ').$min.__(' files.')
-                                ]
-                            ],
-                        ], 422);
-                    }
-                    $request[$requestKey] = $newArr;
                 }
             }
-            ${$this->routePrefix}->update($request);
-            if (method_exists($this->request,'afterUpdate')){
-                $this->request->afterUpdate($request,${$this->routePrefix});
+
+            ${$this->routePrefix}->update($requestData);
+            if (method_exists($this,'afterUpdate')){
+                $this->afterUpdate($requestData,${$this->routePrefix});
             }
-            if (method_exists($this->request,'afterCreateOrUpdate')){
-                $this->request->afterCreateOrUpdate($request,${$this->routePrefix});
+            if (method_exists($this,'afterCreateOrUpdate')){
+                $this->afterCreateOrUpdate($requestData,${$this->routePrefix});
             }
         }
-        if (isset($filesToMove) && count($filesToMove) > 0){
+
+        // Remove files from storage which havent been passed in the request
+        if (count($filesToRemove) > 0){
+            foreach ($filesToRemove as $key => $file) {
+                $file = str_replace('storage','public',$file);
+                if (Storage::exists($file)){
+                    Storage::delete($file);
+                }
+            }
+        }
+
+        // Move files from tmp to files folder
+        if (count($filesToMove) > 0){
             foreach ($filesToMove as $key => $file) {
-                Storage::copy($file['oldPath'],$file['newPath']);
-                Storage::delete($file['oldPath']);
+                if (!Storage::exists($file['newPath'])){
+                    Storage::copy($file['oldPath'],$file['newPath']);
+                    Storage::delete($file['oldPath']);
+                }
             }
         }
+
         return $this->DCMSJSON(${$this->routePrefix},$createdOrUpdated);
     }
 
@@ -322,8 +323,8 @@ trait DCMSController
         $model = ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
         $passModel = $model;
         $model->delete();
-        if (method_exists($this->request,'afterDelete')){
-            $this->request->afterDelete($id,$passModel);
+        if (method_exists($this,'afterDestroy')){
+            $this->afterDestroy($id,$passModel);
         }
     }
 
