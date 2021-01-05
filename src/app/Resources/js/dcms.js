@@ -215,7 +215,7 @@ require('./_settings.js');
 try {
     var lang = require('../../../resources/lang/' + window.language + '.json');
 } catch (error) {
-    console.log('No translation yet for: ' + window.language);
+    //
 }
 
 window.Lang = function (string) {
