@@ -394,16 +394,16 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
         success: function (response) {
             if (customBeforeSuccess) {
                 if (typeof customBeforeSuccess == 'string') {
-                    window[customBeforeSuccess]();
+                    window[customBeforeSuccess](response);
                 } else {
-                    customBeforeSuccess();
+                    customBeforeSuccess(response);
                 }
             }
             if (customSuccess) {
                 if (typeof customSuccess == 'string') {
-                    window[customSuccess]();
+                    window[customSuccess](response);
                 } else {
-                    customSuccess();
+                    customSuccess(response);
                 }
             } else {
                 if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
@@ -432,16 +432,16 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
         error: function (response) {
             if (customBeforeError) {
                 if (typeof customBeforeError == 'string') {
-                    window[customBeforeError]();
+                    window[customBeforeError](response);
                 } else {
-                    customBeforeError();
+                    customBeforeError(response);
                 }
             }
             if (customError) {
                 if (typeof customError == 'string') {
-                    window[customError]();
+                    window[customError](response);
                 } else {
-                    customError();
+                    customError(response);
                 }
             } else {
                 var reply = response.responseJSON;
