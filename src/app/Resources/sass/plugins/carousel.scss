@@ -93,17 +93,18 @@
     cursor: pointer;
 }
 .dCar-btn.dCar-btn-white {
-    color: #3F4254;
     background-color: #ffffff;
     border-color: #ffffff;
 }
 
 .dCar-btn i {
+    color: #3F4254;
     font-size: 14px;
     display: inherit;
     text-align: center !important;
     width: 100%;
     margin-left: 0.3px;
+    padding-top: 5px;
 }
 
 .dCar-btn:hover {

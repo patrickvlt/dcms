@@ -122,7 +122,7 @@ window.onReady = function (yourMethod) {
             clearInterval(readyStateCheckInterval);
             yourMethod();
         }
-    }, 100);
+    }, 1000);
 };
 
 window.hasLoaded = function (plugins, yourMethod) {
@@ -138,7 +138,7 @@ window.hasLoaded = function (plugins, yourMethod) {
                 }
             }
         });
-    }, 100);
+    }, 1000);
 };
 
 /**
@@ -359,13 +359,22 @@ if (document.querySelector('.dcms-error-parent')){
     };
 }
 
-window.HttpReq = function (formMethod, formAction, formData, customFunctions = null) {
+window.HttpReq = function (formMethod, formAction, formData, customSettings = null) {
     // Grab custom functions if these have been defined
-    var customBefore = (customFunctions) ? customFunctions.customBefore : null;
-    var customBeforeSuccess = (customFunctions) ? customFunctions.customBeforeSuccess : null;
-    var customBeforeError = (customFunctions) ? customFunctions.customBeforeError : null;
-    var customSuccess = (customFunctions) ? customFunctions.customSuccess : null;
-    var customError = (customFunctions) ? customFunctions.customError : null;
+    var customBefore = (customSettings) ? customSettings.customBefore : null;
+    var customBeforeSuccess = (customSettings) ? customSettings.customBeforeSuccess : null;
+    var customBeforeError = (customSettings) ? customSettings.customBeforeError : null;
+    var customSuccess = (customSettings) ? customSettings.customSuccess : null;
+    var customSuccessTitle = (customSettings) ? customSettings.customSuccessTitle : null;
+    var customSuccessMessage = (customSettings) ? customSettings.customSuccessMessage : null;
+    var customSuccessRedirect = (customSettings) ? customSettings.customSuccessRedirect : null;
+    var customError = (customSettings) ? customSettings.customError : null;
+    var customErrorTitle = (customSettings) ? customSettings.customErrorTitle : null;
+    var customErrorMessage = (customSettings) ? customSettings.customErrorMessage : null;
+    var customComplete = (customSettings) ? customSettings.customComplete : null;
+    var customBeforeComplete = (customSettings) ? customSettings.customBeforeComplete : null;
+    var dontDisableSubmit = (customSettings) ? customSettings.dontDisableSubmit : null;
+
     if (customBefore) {
         if (typeof customBefore == 'string') {
             window[customBefore]();
@@ -381,7 +390,9 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
     if (errorBagParent) {
         errorBagParent.innerHTML = "";
     }
-    window.DisableSubmit();
+    if (dontDisableSubmit){
+        window.DisableSubmit();
+    }
     $.ajax({
         type: formMethod,
         url: formAction,
@@ -406,10 +417,33 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
                     customSuccess(response);
                 }
             } else {
+                var swalTitle, swalMessage, swalRedirect;
+                    // Make title
+                    if (response['title']){
+                        swalTitle = Lang(response['title']);
+                    } else if (customSuccessTitle){
+                        swalTitle = Lang(customSuccessTitle);
+                    } else {
+                        swalTitle = Lang('Successful request');
+                    }
+                    // Make message
+                    if (response['message']){
+                        swalMessage = Lang(response['message']);
+                    } else if (customSuccessMessage){
+                        swalMessage = Lang(customSuccessMessage);
+                    } else {
+                        swalMessage = Lang('Press OK to return to the overview.');
+                    }
+                    // Make redirect
+                    if (response['url']){
+                        swalRedirect = response['url'];
+                    } else if (customSuccessRedirect){
+                        swalRedirect = customSuccessRedirect;
+                    }
                 if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
                     Swal.fire({
-                        title: Lang((response['title']) ? response['title'] : 'Successful request'),
-                        text: Lang((response['message']) ? response['message'] : 'Press OK to return to the overview.'),
+                        title: swalTitle,
+                        text: swalMessage,
                         icon: "success",
                         confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
                         confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
@@ -417,14 +451,14 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
                         cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
                     }).then(function (result) {
                         if (result.value) {
-                            if (response.url) {
-                                window.location.href = response.url;
+                            if (swalRedirect) {
+                                window.location.href = swalRedirect;
                             }
                         }
                     });
                 } else {
-                    if (response.url) {
-                        window.location.href = response.url;
+                    if (swalRedirect) {
+                        window.location.href = swalRedirect;
                     }
                 }
             }
@@ -474,10 +508,23 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
                         });
                     }
                 } else {
+                    var swalTitle, swalMessage;
+                    // Make title
+                    if (customErrorTitle){
+                        swalTitle = Lang(customErrorTitle);
+                    } else {
+                        swalTitle = Lang('Unknown error');
+                    }
+                    // Make message
+                    if (customErrorMessage){
+                        swalMessage = Lang(customErrorMessage);
+                    } else {
+                        swalMessage = Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.');
+                    }
                     if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
                         Swal.fire({
-                            title: Lang('Unknown error'),
-                            html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                            title: swalTitle,
+                            html: swalMessage,
                             icon: "error",
                             confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
                             confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
@@ -486,8 +533,8 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
                         });
                     } else if (window.DCMSFormAlerts == false || window.DCMSFormErrorBag == true) {
                         window.FillErrorBag({
-                            title: Lang("Unknown error"),
-                            message: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.')
+                            title: swalTitle,
+                            message: swalMessage
                         });
                     }
 
@@ -498,7 +545,22 @@ window.HttpReq = function (formMethod, formAction, formData, customFunctions = n
             }
         },
         complete: function () {
-            window.EnableSubmit();
+            if (customBeforeComplete) {
+                if (typeof customBeforeComplete == 'string') {
+                    window[customBeforeComplete](response);
+                } else {
+                    customBeforeComplete(response);
+                }
+            }
+            if (customComplete) {
+                if (typeof customComplete == 'string') {
+                    window[customComplete](response);
+                } else {
+                    customComplete(response);
+                }
+            } else {
+                window.EnableSubmit();
+            }
         }
     });
 };
