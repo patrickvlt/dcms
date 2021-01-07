@@ -7,7 +7,6 @@ use Pveltrop\DCMS\Classes\Form;
 use Pveltrop\DCMS\Classes\PHPExcel;
 use Pveltrop\DCMS\Classes\Datatable;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 trait DCMSController
 {

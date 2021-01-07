@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Pveltrop\DCMS\Classes\Dropbox;
 
 class DCMSFilepondController extends Controller
 {
@@ -26,6 +27,8 @@ class DCMSFilepondController extends Controller
     public function ProcessFile($prefix,$type,$column,$revertKey=null)
     {
         $abort = false;
+
+        // Check if filesize exceeds max sizes in php.ini, this will throw errors
         foreach (request()->file() as $key => $file) {
             if ($file[0]->getSize() == false){
                 $abort = true;
@@ -43,6 +46,10 @@ class DCMSFilepondController extends Controller
                 ]
             ], 422);
         }
+
+        // Grab the correct rules from the correct request, and validate the file
+        // Note: request has to work with array for file uploads in DCMS
+
         if ($abort == false){
             $column = str_replace('[]','',$column);
 
@@ -81,8 +88,17 @@ class DCMSFilepondController extends Controller
             }
             
             $file = $request[$column][0];
-            $file->store('public/tmp/files/' . $type.'/'.$column);
-            return env('APP_URL').'/storage/tmp/files/'.$type.'/'.$column.'/'.$file->hashName();
+            $tmpPath = '/tmp/files/'.$type.'/'.$column.'/';
+
+            // If using server storage
+            if (!env('DCMS_STORAGE_SERVICE')){
+                $file->store('public/tmp/files/' . $type.'/'.$column);
+                $path = env('APP_URL').'/storage'.$tmpPath.$file->hashName();
+            } else if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+                Dropbox::upload($file,$tmpPath);
+            }
+
+            return $path;
         }
     }
 

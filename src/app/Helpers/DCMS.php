@@ -408,3 +408,17 @@ if (!function_exists('DCMSContent')){
         return null;
     }
 }
+
+if (!function_exists('RandomFileName')){
+    function RandomFileName($length)
+    {
+        $key = '';
+        $keys = array_merge(range(0, 9), range('a', 'z'));
+
+        for ($i = 0; $i < $length; $i++) {
+            $key .= $keys[array_rand($keys)];
+        }
+
+        return $key;
+    }
+}
