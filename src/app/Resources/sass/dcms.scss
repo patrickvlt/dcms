@@ -1,0 +1,112 @@
+@import "plugins/carousel.scss";
+
+.dcmsImg {
+    height: 13rem;
+    width: 13rem;
+    border-radius: 5px;
+    margin: 7px;
+    object-fit: cover;
+}
+
+.dcmsImgsDiv {
+    display: block !important;
+    justify-content: center;
+    max-height: 14rem;
+    overflow: scroll;
+    margin-bottom: 10px;
+    white-space: inherit;
+    text-align: center;
+}
+
+.dcmstable-image-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 0.42rem;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.spotlight:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.ss-main .ss-single-selected .ss-arrow span {
+    padding: 2px !important;
+}
+
+.ss-main, .ss-single-selected {
+    max-height: 50px !important;
+}
+
+.ss-main-multiple {
+    padding: 0px !important;
+    height: 100%;
+    border: 0px solid !important;
+}
+
+.ss-main .ss-single-selected {
+    height: 100% !important;
+    padding: 0px !important;
+    border: 1px !important;
+}
+
+.kt_datatable_rowcontrols {
+    display: inline-block;
+}
+
+[data-type=filepond] {
+    display:none;
+}
+
+.swal2-popup {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+    padding: 10px;
+    min-width: 25em;
+    width: auto;
+}
+
+.swal2-popup .swal2-title {
+    font-size: 1.4rem;
+}
+
+.swal2-content {
+    padding: 0 1.3em;
+}
+
+.swal2-icon.swal2-warning::before {
+    content: "" !important;
+}
+
+.toast-top-right {
+    position: fixed;
+    // Offset from the top
+    // top: 100px;
+}
+
+#toast-container > div {
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.jexcel {
+    table-layout: auto;
+    width: 100%;
+}
+
+.jexcel > tbody.draggable > tr > td::before {
+    min-width: 30px;
+}
+
+.ss-main .ss-single-selected {
+    height: 24px;
+    margin-left: -1px;
+}
+
+.alert [type="button"]:focus, .alert [type="button"]:hover, .alert [type="submit"]:focus, .alert [type="submit"]:hover, .alert button:focus, .alert button:hover {
+  background-color: inherit !important; 
+}
+
+.is-invalid {
+  border-color: #fd2727 !important;
+}

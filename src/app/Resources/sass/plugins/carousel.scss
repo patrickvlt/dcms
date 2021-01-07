@@ -1,0 +1,112 @@
+[data-type="dcarousel"] {
+    margin: -20px 0px 20px 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+#dCar-wrapper {
+    width: 100%;
+    position: relative;
+}
+
+#dCar-carousel {
+    overflow: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+
+#dCar-carousel::-webkit-scrollbar {
+    height: 0;
+}
+
+#dCar-prev,
+#dCar-next {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    background: white;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    outline: 0;
+    cursor: pointer;
+    position: absolute;
+}
+
+#dCar-prev {
+    top: 50%;
+    left: 0;
+    transform: translate(50%, -50%);
+    display: none;
+}
+
+#dCar-next {
+    top: 50%;
+    right: 0;
+    transform: translate(-50%, -50%);
+}
+
+#dCar-content {
+    display: flex;
+    grid-gap: 16px;
+    grid-auto-flow: column;
+    margin: auto;
+    box-sizing: border-box;
+}
+
+.dCar-item {
+    width: 182px;
+    height: 182px;
+    object-fit: cover;
+}
+
+.dCar-div {
+    width: 182px;
+    height: 200px;
+}
+
+.dCar-controls {
+    float: right;
+    position: relative;
+    top: 30px;
+    right: 5px;
+    visibility: hidden;
+}
+
+.dCar-iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.dCar-btn.dCar-btn-icon.dCar-btn-circle {
+    border-radius: 50%;
+}
+.dCar-btn.dCar-btn-icon.dCar-btn-xs {
+    display: inline-block;
+    height: 24px;
+    width: 24px;
+}
+.dCar-btn:not(:disabled):not(.disabled) {
+    cursor: pointer;
+}
+.dCar-btn.dCar-btn-white {
+    color: #3F4254;
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+
+.dCar-btn i {
+    font-size: 14px;
+    display: inherit;
+    text-align: center !important;
+    width: 100%;
+    margin-left: 0.3px;
+}
+
+.dCar-btn:hover {
+    opacity: 0.9;
+    transition: 0.25s;
+}

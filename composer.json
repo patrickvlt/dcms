@@ -1,0 +1,39 @@
+{
+    "name": "pveltrop/dcms",
+    "type": "library",
+    "description": "Dynamic Content Management Sysystem",
+    "keywords": [
+        "laravel",
+        "dynamic",
+        "crud boost"
+    ],
+    "require": {
+        "airmanbzh/php-html-generator": "1.0.*",
+        "phpoffice/phpspreadsheet": "1.14.*",
+        "doctrine/dbal": "2.*",
+        "stevebauman/purify": "3.0.*"
+    },
+    "homepage": "https://pv-media.nl",
+    "license": "MIT",
+    "authors": [{
+        "name": "Patrick Veltrop",
+        "email": "patrickveltrop@live.nl",
+        "homepage": "http://pv-media.nl/",
+        "role": "Developer"
+    }],
+    "autoload": {
+        "classmap": [
+            "src/"
+        ],
+        "psr-4": {
+            "Pveltrop\\DCMS\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Pveltrop\\DCMS\\DCMSProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,151 @@
+{
+    "plugins": {
+        "axios": {
+            "enable": true,
+            "cdn": {
+                "js": "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
+            },
+            "local": {
+                "js": "/js/dcms/assets/axios.js"
+            }
+        },
+        "datepicker": {
+            "enable": true,
+            "cdn": {
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css",
+                "js": "https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/jquery-ui.css",
+                "js": "/js/dcms/assets/jquery-ui.js"
+            }
+        },
+        "clockpicker": {
+            "enable": true,
+            "cdn": {
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.css",
+                "js": "https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/jquery-clockpicker.css",
+                "js": "/js/dcms/assets/jquery-clockpicker.js"
+            }
+        },
+        "vue": {
+            "enable": true,
+            "cdn": {
+                "js": "https://vuejs.org/js/vue.min.js"
+            },
+            "local": {
+                "js": "/js/dcms/assets/vue.dev.js"
+            }
+        },
+        "sweetalert2": {
+            "enable": true,
+            "cdn": {
+                "js": "https://cdn.jsdelivr.net/npm/sweetalert2@10"
+            },
+            "local": {
+                "js": "/js/dcms/assets/sweetalert2.js"
+            }
+        },
+        "toastr": {
+            "enable": true,
+            "cdn": {
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css",
+                "js": "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/toastr.css",
+                "js": "/js/dcms/assets/toastr.js"
+            }
+        },
+        "slimselect": {
+            "enable": true,
+            "cdn": {
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.0/slimselect.min.css",
+                "js": "https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.26.0/slimselect.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/slimselect.css",
+                "js": "/js/dcms/assets/slimselect.js"
+            }
+        },
+        "jexcel": {
+            "enable": true,
+            "cdn": {
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.4.1/jexcel.min.css",
+                "js": "https://cdn.jsdelivr.net/npm/jexcel@3.9.1/dist/jexcel.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/jexcel.css",
+                "js": "/js/dcms/assets/jexcel.js"
+            }
+        },
+        "jsuites": {
+            "enable": true,
+            "cdn": {
+                "css": "https://cdn.jsdelivr.net/npm/jsuites@3.5.4/dist/jsuites.css",
+                "js": "https://cdn.jsdelivr.net/npm/jsuites@3.5.4/dist/jsuites.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/jsuites.css",
+                "js": "/js/dcms/assets/jsuites.js"
+            }
+        },
+        "papa": {
+            "enable": true,
+            "local": {
+                "js": "/js/dcms/assets/papaparse.js"
+            }
+        },
+        "spotlight": {
+            "enable": true,
+            "local": {
+                "js": "/js/dcms/assets/spotlight.js"
+            }
+        },
+        "tinymce": {
+            "enable": true,
+            "local": {
+                "js": "/js/dcms/assets/tinymce.js"
+            }
+        },
+        "filepond": {
+            "enable": true,
+            "cdn": {
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/filepond/4.20.1/filepond.min.css",
+                "js": "https://cdnjs.cloudflare.com/ajax/libs/filepond/4.20.1/filepond.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/filepond.css",
+                "js": "/js/dcms/assets/filepond.js"
+            }
+        },
+        "filepondImagePreview": {
+            "cdn": {
+                "css": "https://cdn.jsdelivr.net/npm/filepond-plugin-image-preview@4.6.4/dist/filepond-plugin-image-preview.css",
+                "js": "https://cdn.jsdelivr.net/npm/filepond-plugin-image-preview@4.6.4/dist/filepond-plugin-image-preview.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/filepond-image-preview.css",
+                "js": "/js/dcms/assets/filepond-image-preview.js"
+            }
+        },
+        "filepondValidateSize": {
+            "cdn": {
+                "js": "https://cdn.jsdelivr.net/npm/filepond-plugin-file-validate-size@2.2.1/dist/filepond-plugin-file-validate-size.min.js"
+            },
+            "local": {
+                "js": "/js/dcms/assets/filepond-validate-size.js"
+            }
+        },
+        "KTDatatable": {
+            "enable": true,
+            "local": {
+                "js": "",
+                "css": "/css/dcms/assets/metronic/ktdatatable.css"
+            }
+        }
+    }
+}
