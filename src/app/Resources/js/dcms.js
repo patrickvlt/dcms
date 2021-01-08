@@ -16,7 +16,7 @@ if (typeof process.env.MIX_DCMS_ENV == 'undefined') {
     console.log('No environment defined for DCMS. Define this in your .env as MIX_DCMS_ENV.');
 }
 
-window.LoadJS = function (pluginFunction, plugin, pluginPath = 'cdn') {
+window.LoadJS = function (plugin, pluginPath = 'cdn') {
     var scriptSources = (process.env.MIX_DCMS_ENV == 'local' || pluginPath !== 'cdn') ? plugin['local']['js'] : plugin[pluginPath]['js'];
     function LoadJSSource(source) {
         var script = document.createElement('script');
@@ -55,64 +55,71 @@ window.LoadCSS = function (plugin, pluginPath = 'cdn') {
 };
 
 if (typeof axios == 'undefined' && (dcmsConfig.plugins.axios && dcmsConfig.plugins.axios.enable !== false)) {
-    window.LoadJS('axios', dcmsConfig.plugins.axios);
+    window.LoadJS(dcmsConfig.plugins.axios);
 }
 
 if (typeof Vue == 'undefined' && (dcmsConfig.plugins.vue && dcmsConfig.plugins.vue.enable !== false)) {
-    window.LoadJS('Vue', dcmsConfig.plugins.vue);
+    window.LoadJS(dcmsConfig.plugins.vue);
 }
 
 if (typeof Swal == 'undefined' && (dcmsConfig.plugins.sweetalert2 && dcmsConfig.plugins.sweetalert2.enable !== false)) {
-    window.LoadJS('Swal', dcmsConfig.plugins.sweetalert2);
+    window.LoadJS(dcmsConfig.plugins.sweetalert2);
 }
 
 if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr && dcmsConfig.plugins.toastr.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.toastr);
-    window.LoadJS('toastr', dcmsConfig.plugins.toastr);
+    window.LoadJS(dcmsConfig.plugins.toastr);
 }
 
 if (typeof SlimSelect == 'undefined' && document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.slimselect);
-    window.LoadJS('SlimSelect', dcmsConfig.plugins.slimselect);
+    window.LoadJS(dcmsConfig.plugins.slimselect);
 }
 
 if (typeof datepicker == 'undefined' && document.querySelectorAll('[data-type=datepicker]').length > 0 && (dcmsConfig.plugins.datepicker && dcmsConfig.plugins.datepicker.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.datepicker);
-    window.LoadJS('datepicker', dcmsConfig.plugins.datepicker);
+    window.LoadJS(dcmsConfig.plugins.datepicker);
 }
 
-if (typeof clockpicker == 'undefined' && document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker && dcmsConfig.plugins.clockpicker !== false)) {
+if (typeof clockpicker == 'undefined' && document.querySelectorAll('[data-type=clockpicker]').length > 0 && (dcmsConfig.plugins.clockpicker && dcmsConfig.plugins.clockpicker.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.clockpicker);
-    window.LoadJS('clockpicker', dcmsConfig.plugins.clockpicker);
+    window.LoadJS(dcmsConfig.plugins.clockpicker);
 }
 
-if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel && dcmsConfig.plugins.jexcel !== false)) {
+if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jexcel && dcmsConfig.plugins.jexcel.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.jexcel);
-    window.LoadJS('jexcel', dcmsConfig.plugins.jexcel);
+    window.LoadJS(dcmsConfig.plugins.jexcel);
 }
-if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites && dcmsConfig.plugins.jsuites !== false)) {
+if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (dcmsConfig.plugins.jsuites && dcmsConfig.plugins.jsuites.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.jsuites);
-    window.LoadJS('jsuites', dcmsConfig.plugins.jsuites);
+    window.LoadJS(dcmsConfig.plugins.jsuites);
 }
 
-if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa !== false)) {
-    window.LoadJS('Papa', dcmsConfig.plugins.papa, 'local');
+if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa.enable !== false)) {
+    window.LoadJS(dcmsConfig.plugins.papa, 'local');
 }
 
-if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond && dcmsConfig.plugins.filepond !== false)) {
+if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond && dcmsConfig.plugins.filepond.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.filepond);
-    window.LoadJS('FilePond', dcmsConfig.plugins.filepond);
+    window.LoadJS(dcmsConfig.plugins.filepond);
     window.LoadCSS(dcmsConfig.plugins.filepondImagePreview);
-    window.LoadJS('FilePondPluginImagePreview', dcmsConfig.plugins.filepondImagePreview);
-    window.LoadJS('FilePondPluginFileValidateSize', dcmsConfig.plugins.filepondValidateSize);
+    window.LoadJS(dcmsConfig.plugins.filepondImagePreview);
+    window.LoadJS(dcmsConfig.plugins.filepondValidateSize);
 }
 
-if (typeof tinymce == 'undefined' && (document.querySelectorAll('[data-type=tinymce]').length > 0 || window.enableEditors == true) && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce !== false)) {
-    window.LoadJS('tinymce', dcmsConfig.plugins.tinymce, 'local');
+window.enableICheck = false;
+if (document.querySelectorAll('[data-type=iCheck]').length > 0 && (dcmsConfig.plugins.iCheck && dcmsConfig.plugins.iCheck.enable !== false)) {
+    window.enableICheck = true;
+    window.LoadJS(dcmsConfig.plugins.iCheck);
+    window.LoadCSS(dcmsConfig.plugins.iCheck);
 }
 
-if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KTDatatable && dcmsConfig.plugins.KTDatatable !== false)) {
-    window.LoadJS('KTDatatable', dcmsConfig.plugins.KTDatatable, 'local');
+if (typeof tinymce == 'undefined' && (document.querySelectorAll('[data-type=tinymce]').length > 0 || window.enableEditors == true) && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce.enable !== false)) {
+    window.LoadJS(dcmsConfig.plugins.tinymce, 'local');
+}
+
+if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KTDatatable && dcmsConfig.plugins.KTDatatable.enable !== false)) {
+    window.LoadJS(dcmsConfig.plugins.KTDatatable, 'local');
     window.LoadCSS(dcmsConfig.plugins.KTDatatable, 'local');
 }
 
@@ -297,6 +304,7 @@ require('./plugins/editor.js');
 require('./plugins/dateclockpicker.js');
 require('./plugins/jexcel.js');
 require('./plugins/filepond.js');
+require('./plugins/icheck.js');
 require('./metronic/dcmsdatatable.js');
 require('../../../public/js/dcms/assets/spotlight.js');
 

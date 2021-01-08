@@ -389,11 +389,7 @@ trait DCMSController
         $this->__init();
         // Url
         $url = $this->{$createdOrUpdated.'Url'};
-        preg_match_all('/__\S*__/m',$url,$matches);
-        foreach($matches[0] as $match){
-            $prop = str_replace('__','',$match);
-            $url = str_replace($match,$object->$prop,$url);
-        }
+        $url = ReplaceWithAttr($url,$object);
         if ((isset($this->createdUrl) && $createdOrUpdated == 'created') || (isset($this->updatedUrl) && $createdOrUpdated == 'updated')){
             if (request()->ajax()){
                 $redirect = $url;
@@ -409,18 +405,10 @@ trait DCMSController
         }
         // Title
         $title = $this->{$createdOrUpdated.'Title'};
-        preg_match_all('/__\S*__/m',$title,$matches);
-        foreach($matches[0] as $match){
-            $prop = str_replace('__','',$match);
-            $title = str_replace($match,$object->$prop,$title);
-        }
+        $title = ReplaceWithAttr($title,$object);
         // Message
         $message = $this->{$createdOrUpdated.'Message'};
-        preg_match_all('/__\S*__/m',$message,$matches);
-        foreach($matches[0] as $match){
-            $prop = str_replace('__','',$match);
-            $message = str_replace($match,$object->$prop,$message);
-        }
+        $message = ReplaceWithAttr($message,$object);
         return response()->json([
             'title' => $title,
             'message' => $message,

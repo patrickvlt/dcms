@@ -37,9 +37,9 @@ class Form extends HtmlTag
             throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: " . $routePrefix);
         }
         $columns = [];
-        foreach ($modelRequest as $requestCol => $rules) {
+
+        foreach ($formProperties as $requestCol => $rules) {
             $column['name'] = $requestCol;
-            $column['rules'] = $rules;
             $columns[] = $column;
         }
 
@@ -255,7 +255,7 @@ class Form extends HtmlTag
                     }
                     foreach ($properties as $x => $property){
                         if (is_array($property)){
-                            $addToEl = $formGroup->addElement('div')->attr(['class' => 'form-check'])->attr($customParentElAttr);
+                            $addToEl = $formGroup->addElement('div')->attr($customParentElAttr);
                             $propertyText = $property['text'] ?? null;
                             $propertyValue = $property['value'] ?? null;
                             $inputCustomAttr = $property['input'] ?? null;
@@ -271,19 +271,20 @@ class Form extends HtmlTag
                                 $hiddenInput = $addToEl->addElement('input')->attr([
                                     'name' => $name,
                                     'type' => 'checkbox',
-                                    'value' => 0,
                                     'checked' => 'checked',
-                                    'style' => 'display:none'
+                                    'value' => 0,
+                                    'style' => 'display:none !important'
                                 ]);
                             }
 
                             $boxInput = $addToEl->addElement('input')->attr([
                                 'name' => $name,
-                                'class' => 'form-check-input',
                                 'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
                                 'checked' => $checked,
                                 'value' => $propertyValue ?? '',
-                                'id' => $column['name'].'Box'.$x
+                                'id' => $column['name'].'Box'.$x,
+                                'data-type' => 'iCheck',
+                                'style' => 'display:none'
                             ])->attr($inputCustomAttr);
 
                             $boxLabel = $addToEl->addElement('label')->attr([
@@ -324,7 +325,7 @@ class Form extends HtmlTag
 
         $customAttr = $definedAttr['form-group'] ?? null;
         $formGroup = $form->addElement('div')->attr([
-            'class' => 'form-group',
+            'class' => 'form-group pt-3 mb-0',
         ])->attr($customAttr);
 
         // Save button: If creating a model
@@ -390,12 +391,12 @@ class Form extends HtmlTag
                 'data-dcms-action' => 'destroy',
                 'data-dcms-destroy-redirect' => $responses['deleted']['url'] ?? route($routePrefix . '.index'),
                 'data-dcms-destroy-route' => $formProperties['buttonRoutes']['destroy'] ?? route($routePrefix . '.destroy', '__id__'),
-                'data-dcms-delete-confirm-title' => $responses['confirmDelete']['title'] ?? __('Delete object'),
-                'data-dcms-delete-confirm-message' => $responses['confirmDelete']['message'] ?? __('Are you sure you want to delete this object?'),
-                'data-dcms-delete-complete-title' => $responses['deleted']['title'] ?? __('Deleted object'),
-                'data-dcms-delete-complete-message' => $responses['deleted']['message'] ?? __('This object has been succesfully deleted.'),
-                'data-dcms-delete-failed-title' => $responses['failedDelete']['title'] ?? __('Deleting failed'),
-                'data-dcms-delete-failed-message' => $responses['failedDelete']['message'] ?? __('Failed to delete this object. An unknown error has occurred.'),
+                'data-dcms-delete-confirm-title' => (isset($responses['confirmDelete']['title'])) ? ReplaceWithAttr($responses['confirmDelete']['title'],$model) : __('Delete object'),
+                'data-dcms-delete-confirm-message' => (isset($responses['confirmDelete']['message'])) ?ReplaceWithAttr($responses['confirmDelete']['message'],$model) : __('Are you sure you want to delete this object?'),
+                'data-dcms-delete-complete-title' => (isset($responses['deleted']['title'])) ?ReplaceWithAttr($responses['deleted']['title'],$model) : __('Deleted object'),
+                'data-dcms-delete-complete-message' => (isset($responses['deleted']['message'])) ?ReplaceWithAttr($responses['deleted']['message'],$model) : __('This object has been succesfully deleted.'),
+                'data-dcms-delete-failed-title' => (isset($responses['failedDelete']['title'])) ?ReplaceWithAttr($responses['failedDelete']['title'],$model) : __('Deleting failed'),
+                'data-dcms-delete-failed-message' => (isset($responses['failedDelete']['message'])) ?ReplaceWithAttr($responses['failedDelete']['message'],$model) : __('Failed to delete this object. An unknown error has occurred.'),
             ])->attr($deleteBtnAttr);
             if ($deleteBtnText) {
                 $deleteBtn->text(__($deleteBtnText));

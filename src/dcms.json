@@ -146,6 +146,17 @@
                 "js": "",
                 "css": "/css/dcms/assets/metronic/ktdatatable.css"
             }
+        },
+        "iCheck": {
+            "enable": true,
+            "cdn": {
+                "css": "https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/all.min.css",
+                "js": "https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/icheck.min.js"
+            },
+            "local": {
+                "css": "/css/dcms/assets/icheck.css",
+                "js": "/js/dcms/assets/icheck.js"
+            }
         }
     }
 }

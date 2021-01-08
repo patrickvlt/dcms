@@ -408,3 +408,16 @@ if (!function_exists('DCMSContent')){
         return null;
     }
 }
+
+if (!function_exists('ReplaceWithAttr')){
+    function ReplaceWithAttr($message,$object)
+    {
+        preg_match_all('/__\S*__/m',$message,$matches);
+        foreach($matches[0] as $match){
+            $prop = str_replace('__','',$match);
+            $message = str_replace($match,$object->$prop,$message);
+        }
+        return $message;
+    }
+}
+
