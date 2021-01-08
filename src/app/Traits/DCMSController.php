@@ -14,8 +14,8 @@ trait DCMSController
 {
     public function __init()
     {
-        $this->hasBooted = true;
         if (!app()->runningInConsole()) {
+            $this->hasBooted = true;
             // Route prefix
             if (!isset($this->routePrefix)){
                 throw new \RuntimeException("No routePrefix defined. Define this property in your controller constructor.");
@@ -376,7 +376,7 @@ trait DCMSController
 
     public function destroy($id)
     {
-        if (!$this->hasBooted){
+        if(!isset($this->hasBooted)){
             $this->__init();
         }
         $model = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);

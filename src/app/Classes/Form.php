@@ -22,7 +22,8 @@ class Form extends HtmlTag
 
     public static function create($request, $routePrefix, $formClass, $responses)
     {
-        $formProperties = (new $formClass())->properties();
+        $formFields = (new $formClass())->fields();
+        $formRoutes = (new $formClass())->routes();
         $model = null;
         if (FormMethod() == ('PUT')){
             $model = Model($routePrefix) ?? Model();
@@ -38,7 +39,7 @@ class Form extends HtmlTag
         }
         $columns = [];
 
-        foreach ($formProperties as $requestCol => $rules) {
+        foreach ($formFields as $requestCol => $rules) {
             $column['name'] = $requestCol;
             $columns[] = $column;
         }
@@ -76,7 +77,7 @@ class Form extends HtmlTag
             $makeRadio = false;
             $makeTextarea = false;
 
-            $definedAttr = $formProperties[$column['name']] ?? null;
+            $definedAttr = $formFields[$column['name']] ?? null;
             // Take different steps according to various data-types
             if (isset($definedAttr['select'])) {
                 $makeInput = false;
@@ -331,18 +332,18 @@ class Form extends HtmlTag
         // Save button: If creating a model
         if (!$model) {
             $saveRedirect = $responses['created']['url'] ?? route($routePrefix . '.index');
-            $saveRoute = $formProperties['buttonRoutes']['store'] ?? route($routePrefix . '.store');
+            $saveRoute = $formRoutes['store'] ?? route($routePrefix . '.store');
             $saveID = null;
-            $saveText = $formProperties['formButtons']['create']['text'] ?? __('Create');
-            $saveBtnAttr = $formProperties['formButtons']['create'] ?? null;
+            $saveText = $formFields['formButtons']['create']['text'] ?? __('Create');
+            $saveBtnAttr = $formFields['formButtons']['create'] ?? null;
         }
         // Save button: If updating a model
         else {
             $saveRedirect = $responses['updated']['url'] ?? route($routePrefix . '.index');
-            $saveRoute = $formProperties['buttonRoutes']['update'] ?? route($routePrefix . '.update', $model->id);
+            $saveRoute = $formRoutes['update'] ?? route($routePrefix . '.update', $model->id);
             $saveID = $model->id;
-            $saveText = $formProperties['formButtons']['update']['text'] ?? __('Update');
-            $saveBtnAttr = $formProperties['formButtons']['update'] ?? null;
+            $saveText = $formFields['formButtons']['update']['text'] ?? __('Update');
+            $saveBtnAttr = $formFields['formButtons']['update'] ?? null;
         }
         // Get custom attributes for save button, dont use text as an attribute
         $x = 0;
@@ -368,8 +369,8 @@ class Form extends HtmlTag
         $formGroup->addElement($saveBtn);
 
         // Get custom attributes for delete button, dont use text as an attribute
-        $deleteBtnAttr = $formProperties['formButtons']['delete'] ?? null;
-        $deleteBtnText = $formProperties['formButtons']['delete']['text'] ?? null;
+        $deleteBtnAttr = $formFields['formButtons']['delete'] ?? null;
+        $deleteBtnText = $formFields['formButtons']['delete']['text'] ?? null;
         $x = 0;
         if ($deleteBtnAttr) {
             foreach ($deleteBtnAttr as $key => $attr) {
@@ -390,7 +391,7 @@ class Form extends HtmlTag
                 'data-dcms-id' => $model->id,
                 'data-dcms-action' => 'destroy',
                 'data-dcms-destroy-redirect' => $responses['deleted']['url'] ?? route($routePrefix . '.index'),
-                'data-dcms-destroy-route' => $formProperties['buttonRoutes']['destroy'] ?? route($routePrefix . '.destroy', '__id__'),
+                'data-dcms-destroy-route' => $formRoutes['destroy'] ?? route($routePrefix . '.destroy', '__id__'),
                 'data-dcms-delete-confirm-title' => (isset($responses['confirmDelete']['title'])) ? ReplaceWithAttr($responses['confirmDelete']['title'],$model) : __('Delete object'),
                 'data-dcms-delete-confirm-message' => (isset($responses['confirmDelete']['message'])) ?ReplaceWithAttr($responses['confirmDelete']['message'],$model) : __('Are you sure you want to delete this object?'),
                 'data-dcms-delete-complete-title' => (isset($responses['deleted']['title'])) ?ReplaceWithAttr($responses['deleted']['title'],$model) : __('Deleted object'),
