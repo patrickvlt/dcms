@@ -351,7 +351,7 @@ window.DCMSDatatable = function (parameters) {
 
             // Reload datatable
 	    $($(table).data('kt-parent')).find('[data-kt-action="reload"]').on('click', function () {
-                if (window.KTBeforeRefresh()){
+                if (window.KTBeforeRefresh){
                     window.KTBeforeRefresh();
                 }
                 $(table).KTDatatable().setDataSourceParam('query','');
@@ -392,7 +392,7 @@ window.DCMSDatatable = function (parameters) {
 
                 window.DeleteModel({
                     id: activeIds,
-                    route: $(table).data('kt-destroy-route'),
+                    route: $(table).data('kt-destroy-multiple-route'),
                     confirmTitle: (table.dataset.ktDeleteRowsConfirmTitle) ? Lang(table.dataset.ktDeleteRowsConfirmTitle) : Lang('Delete rows'),
                     confirmMsg: (table.dataset.ktDeleteRowsConfirmMessage) ? Lang(table.dataset.ktDeleteRowsConfirmMessage) : Lang('Are you sure you want to delete these rows?'),
                     completeTitle: (table.dataset.ktDeleteRowsCompleteTitle) ? Lang(table.dataset.ktDeleteRowsCompleteTitle) : Lang('Deleted rows'),

@@ -639,22 +639,48 @@ window.DeleteModel = function (args) {
         if (result.value) {
             if (id != null) {
                 if (isArray(id)) {
-                    let success = true;
-                    $.each(id, function (key, x) {
-                        jQuery.ajax({
-                            type: "POST",
-                            async: false,
-                            headers: {
-                                'X-CSRF-TOKEN': window.csrf
-                            },
-                            url: route.replace('__id__', x),
-                            data: {
-                                _method: "DELETE"
-                            },
-                            error: function () {
-                                success = false;
-                            }
-                        });
+                    jQuery.ajax({
+                        type: "DELETE",
+                        headers: {
+                            'X-CSRF-TOKEN': window.csrf
+                        },
+                        url: route,
+                        data: {
+                            deleteIDs: id
+                        },
+                        success: function () {
+                            ReloadDT();
+                            Swal.fire({
+                                title: completeTitle,
+                                text: completeMsg,
+                                icon: "success",
+                                confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                                confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                                cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                                cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                            }).then(function (result) {
+                                if (result.value) {
+                                    if (redirect !== '') {
+                                        if (window.AllowNewTab == false) {
+                                            window.location.href = redirect;
+                                        } else {
+                                            window.open(redirect, '_blank');
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        error: function () {
+                            Swal.fire({
+                                title: failedTitle,
+                                text: failedMsg,
+                                icon: "error",
+                                confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                                confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                                cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                                cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                            });
+                        }
                     });
                     if (success == true) {
                         ReloadDT();

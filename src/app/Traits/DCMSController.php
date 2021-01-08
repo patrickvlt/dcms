@@ -14,6 +14,7 @@ trait DCMSController
 {
     public function __init()
     {
+        $this->hasBooted = true;
         if (!app()->runningInConsole()) {
             // Route prefix
             if (!isset($this->routePrefix)){
@@ -375,12 +376,23 @@ trait DCMSController
 
     public function destroy($id)
     {
-        $this->__init();
-        $model = ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
+        if (!$this->hasBooted){
+            $this->__init();
+        }
+        $model = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
         $passModel = $model;
         $model->delete();
         if (method_exists($this,'afterDestroy')){
             $this->afterDestroy($id,$passModel);
+        }
+    }
+
+    public function destroyMultiple()
+    {
+        $this->__init();
+        $deleteIDs = request()->deleteIDs;
+        foreach ($deleteIDs as $id) {
+            $this->destroy($id);
         }
     }
 
