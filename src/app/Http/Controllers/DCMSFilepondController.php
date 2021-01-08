@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Pveltrop\DCMS\Classes\Dropbox;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -81,31 +82,62 @@ class DCMSFilepondController extends Controller
             }
             
             $file = $request[$column][0];
-            $file->store('public/tmp/files/' . $type.'/'.$column);
-            return env('APP_URL').'/storage/tmp/files/'.$type.'/'.$column.'/'.$file->hashName();
+            $path = '/tmp/files/' . $type.'/'.$column;
+
+            // If using Dropbox for storage
+            if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+                $dropbox = Dropbox::upload($file,$path);
+                // If dropbox upload method returns a string (path to file which has been uploaded)
+                if (is_string($dropbox)){
+                    return $dropbox;
+                } else {
+                    return response()->json([
+                        'message' => __('Upload failed'),
+                        'errors' => [
+                            'file' => [
+                                __('Failed to upload file to Dropbox.')
+                            ]
+                        ]
+                    ], 422);
+                }
+                // If using storage on webserver
+            } else if (!env('DCMS_STORAGE_SERVICE')){
+                $file->store('public/tmp/files/' . $type.'/'.$column);
+                return env('APP_URL').'/storage/tmp/files/'.$type.'/'.$column.'/'.$file->hashName();
+            }
+
         }
     }
 
     public function DeleteFile($column,$revertKey=null)
     {
+        $msg = 'File doesn\'t exist';
+        $status = 422;
         // Get route prefix and the class it belongs to
         $controller = '\App\Http\Controllers\\'.$this->file.'Controller';
         // Get column for request and folder structure
         $column = str_replace('[]','',$column);
-        // Convert path to variable in database, remove APP URL and strip slashes
-        // Also rename storage to public, /storage is for Front End
-        $path = str_replace('"','',stripslashes(request()->getContent()));
-        $path = str_replace(env('APP_URL'),"",$path);
-        $path = str_replace("/storage/","/public/",$path);
         
-        if (Storage::exists($path)){
-            $msg = 'Deleted succesfully';
-            $status = 200;
-            Storage::delete($path);
-        }
-        else {
-            $msg = 'File doesn\'t exist';
-            $status = 422;
+        // If using Dropbox for storage
+        if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+            $dropboxPath = Dropbox::findBySharedLink(request()->getContent());
+            if ($dropboxPath->status == 200){
+                $dropboxPath = $dropboxPath->response->path_lower;
+                Dropbox::remove($dropboxPath);
+                $msg = 'Deleted succesfully';
+                $status = 200;
+            }
+        } else if (!env('DCMS_STORAGE_SERVICE')){
+            // Convert path to variable in database, remove APP URL and strip slashes
+            // Also rename storage to public, /storage is for Front End
+            $path = str_replace('"','',stripslashes(request()->getContent()));
+            $path = str_replace(env('APP_URL'),"",$path);
+            $path = str_replace("/storage/","/public/",$path);
+            if (Storage::exists($path)){
+                $msg = 'Deleted succesfully';
+                $status = 200;
+                Storage::delete($path);
+            }
         }
         
         return response()->json($msg,$status);

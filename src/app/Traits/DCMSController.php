@@ -4,6 +4,7 @@ namespace App\Traits;
 include __DIR__ . '/../Helpers/DCMS.php';
 
 use Pveltrop\DCMS\Classes\Form;
+use Pveltrop\DCMS\Classes\Dropbox;
 use Pveltrop\DCMS\Classes\PHPExcel;
 use Pveltrop\DCMS\Classes\Datatable;
 use Illuminate\Support\Facades\Storage;
@@ -151,13 +152,13 @@ trait DCMSController
             foreach ($uploadRules as $uploadKey => $uploadRule){
                 $key = explode('.',$uploadKey);
                 $key = $key[0];
-                $appUrl = env('APP_URL');
                 if (array_key_exists($key, $requestData)){
                     if (is_array($requestData[$key])){
                         foreach ($requestData[$key] as $x => $file){
                             // Check if file uploads have this applications URL in it
                             // If any upload doesnt have the url in its filename, then it has been tampered with
-                            if (!strpos(env('APP_URL'),$file) && strpos($file,'http')){
+                            // Only check this if using local webserver storage
+                            if (!strpos(env('APP_URL'),$file) && strpos($file,'http') && !env('DCMS_STORAGE_SERVICE')){
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
@@ -170,18 +171,31 @@ trait DCMSController
                             }
                             // Check if file exists in tmp folder
                             // Then move it to final public folder
-                            // Strip APP_URL to locate this file locally
-                            $checkFile = str_replace(env('APP_URL'),'',$file);
-                            $checkFile = str_replace('/storage/','/public/',$checkFile);
-                            $storedFile = Storage::exists($checkFile);
-                            $newFilePath = str_replace('/tmp/','/',$checkFile);
+                            if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+                                $storedFile = false;
+                                $findFile = Dropbox::findBySharedLink($file);
+                                if ($findFile->status == 200){
+                                    $storedFile = true;
+                                    $oldPath = $findFile->response->path_lower;
+                                    $newPath = str_replace('/tmp','',$findFile->response->path_lower);
+                                }
+                            } else if (!env('DCMS_STORAGE_SERVICE')){
+                                // Strip APP_URL to locate this file locally on webserver
+                                $oldPath = str_replace(env('APP_URL'),'',$file);
+                                $oldPath = str_replace('/storage/','/public/',$oldPath);
+                                $newPath = str_replace('/tmp/','/',$oldPath);
+                                $storedFile = Storage::exists($oldPath);
+                                if ($storedFile && strpos($oldPath,'tmp')){
+                                    $requestData[$key][$x] = str_replace('/public/','/storage/',$newPath);
+                                }
+                            }
                             if ($storedFile){
                                 $filesToMove[] = [
-                                    'oldPath' => $checkFile,
-                                    'newPath' => $newFilePath
+                                    'oldPath' => $oldPath,
+                                    'newPath' => $newPath
                                 ];
-                                $requestData[$key][$x] = str_replace('/public/','/storage/',$newFilePath);
-                            } else {
+                            }
+                            else {
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
@@ -194,7 +208,7 @@ trait DCMSController
                             }
                             // Check if a file is being assigned which actually belongs to this property
                             // For example: dont allow a thumbnail to be used for a banner
-                            if (!strpos($file,$key)){
+                            if (!strpos($newPath,$key)){
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
@@ -238,8 +252,37 @@ trait DCMSController
         $afterValidation = method_exists($this->request,'afterValidation') ? $this->request->afterValidation($requestData) : false;
 
         /**
-         * (re)move files, mass assign model and execute defined afterFunctions
+         * (re)move files, then mass assign model and execute defined afterFunctions
          */
+        
+        // Move files from tmp to files folder
+        if (count($filesToMove) > 0){
+            foreach ($filesToMove as $key => $file) {
+                if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+                    $findFileDropbox = Dropbox::findByPath($file['newPath']);
+                    if ($findFileDropbox->status !== 200){
+                        $move = Dropbox::move($file['oldPath'],$file['newPath']);
+                        // If file cant be moved from tmp to files folder
+                        if ($move->status !== 200){
+                            return response()->json([
+                                'message' => __('Unable to persist file'),
+                                'errors' => [
+                                    'file' => [
+                                        //Example: logo.*.cantPersist
+                                        $requestMessages[$uploadKey.'.cantPersist'] ?? __("The ".$key." field contains a file which can't be persisted.")
+                                        ]
+                                    ],
+                            ], 422);
+                        }
+                    }
+                } else if (!env('DCMS_STORAGE_SERVICE')){
+                    if (!Storage::exists($file['newPath'])){
+                        Storage::copy($file['oldPath'],$file['newPath']);
+                        Storage::delete($file['oldPath']);
+                    }
+                }
+            }
+        }
 
         // Merge with modified request from afterValidation()
         // This helps manipulating data before its being persisted
@@ -302,19 +345,16 @@ trait DCMSController
         // Remove files from storage which havent been passed in the request
         if (count($filesToRemove) > 0){
             foreach ($filesToRemove as $key => $file) {
-                $file = str_replace('storage','public',$file);
-                if (Storage::exists($file)){
-                    Storage::delete($file);
-                }
-            }
-        }
-
-        // Move files from tmp to files folder
-        if (count($filesToMove) > 0){
-            foreach ($filesToMove as $key => $file) {
-                if (!Storage::exists($file['newPath'])){
-                    Storage::copy($file['oldPath'],$file['newPath']);
-                    Storage::delete($file['oldPath']);
+                if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+                    $file = Dropbox::findBySharedLink($file);
+                    if ($file->status == 200){
+                        Dropbox::remove($file->response->path_lower);
+                    }
+                } else if (!env('DCMS_STORAGE_SERVICE')){
+                    $file = str_replace('storage','public',$file);
+                    if (Storage::exists($file)){
+                        Storage::delete($file);
+                    }
                 }
             }
         }
