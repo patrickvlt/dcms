@@ -398,7 +398,7 @@ window.HttpReq = function (formMethod, formAction, formData, customSettings = nu
     if (errorBagParent) {
         errorBagParent.innerHTML = "";
     }
-    if (dontDisableSubmit){
+    if (dontDisableSubmit == false || dontDisableSubmit == null){
         window.DisableSubmit();
     }
     $.ajax({

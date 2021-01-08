@@ -23,7 +23,7 @@ class Form extends HtmlTag
     public static function create($request, $routePrefix, $formClass, $responses)
     {
         $formFields = (new $formClass())->fields();
-        $formRoutes = (new $formClass())->routes();
+        $formRoutes = method_exists((new $formClass()),'routes') ? (new $formClass())->routes() : null;
         $model = null;
         if (FormMethod() == ('PUT')){
             $model = Model($routePrefix) ?? Model();
