@@ -7,7 +7,7 @@ if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
                 searchPlaceholder: " ",
                 searchText: Lang("No results found."),
                 placeholder: (element.dataset.slimselectPlaceholder) ? element.dataset.slimselectPlaceholder : ' ',
-                addable: (element.dataset.slimselectAddable) ? function(value){
+                addable: (element.dataset.slimselectAddable == 'true') ? function(value){
                     if (element.dataset.slimselectAddRoute !== null && typeof element.dataset.slimselectAddRoute !== 'undefined'){
                         let column = (element.dataset.slimselectAddColumn !== null && typeof element.dataset.slimselectAddColumn !== 'undefined') ? element.dataset.slimselectAddColumn : '';
                         var data = {};
