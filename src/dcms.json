@@ -154,8 +154,8 @@
                 "js": "https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/icheck.min.js"
             },
             "local": {
-                "css": "/css/dcms/assets/icheck.css",
-                "js": "/js/dcms/assets/icheck.js"
+                "css": "/css/dcms/assets//iCheck/iCheck.css",
+                "js": "/js/dcms/assets/iCheck.js"
             }
         }
     }
