@@ -36,8 +36,11 @@ class PHPExcel
             $headerPos = 0;
             
             foreach ($headers as $headerKey => $headerVal) {
+                // Start from row one, since first row is for headers
                 $sheetRow = ($row + 1 + 1);
                 $sheetColumn = $headerPos + 1;
+
+                // If current header is a nested array column
                 if (count(explode('.',$headerKey)) > 1){
                     $dataEntry = '';
                     foreach (explode('.',$headerKey) as $header){
@@ -46,6 +49,7 @@ class PHPExcel
                     $dataEntry = "\$data[\$row]".$dataEntry;
                     $dataEntry = eval("return ".$dataEntry." ?? null;");
                 } else {
+                    // If header is a normal column
                     $dataEntry = $data[$row][$headerKey];
                 }
                 $sheet->setCellValueByColumnAndRow($sheetColumn, $sheetRow, $dataEntry);

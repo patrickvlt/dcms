@@ -17,93 +17,129 @@ class DCMSFilepondController extends Controller
             $this->file = FindClass($this->prefix)['file'];
             // Get class with namespace, by route prefix
             $this->class = FindClass($this->prefix)['class'];
-            // Get class request file
-            $this->requestFile = ($this->file . 'Request');
             // Get class request with namespace
-            $this->classRequest = '\App\Http\Requests\\'.$this->requestFile;
+            $this->classRequest = '\App\Http\Requests\\'.($this->file . 'Request');
         }
     }
 
-    public function ProcessFile($prefix,$type,$column,$revertKey=null)
-    {
-        $abort = false;
+    public function checkFileSizes(){
+        $this->abort = false;
         foreach (request()->file() as $key => $file) {
             if ($file[0]->getSize() == false){
-                $abort = true;
+                $this->abort = true;
+                $this->key = $key;
                 break;
             }
         }
-        if ($abort == true){
+    }
+
+    public function makeUploadRules()
+    {
+        $allRules = (new $this->classRequest())->rules();
+        $this->uploadRules = [];
+
+        foreach ($allRules as $key => $ruleArr) {
+            $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
+            foreach ($ruleArr as $x => $rule) {
+                if (preg_match('/(mimes|mimetypes)/',$rule)){
+                    $this->uploadRules[$key] = $ruleArr;
+                    continue;
+                }
+            }
+        }
+    }
+
+    public function validateFile()
+    {
+        $column = str_replace('[]','',$this->column);
+        $request = Validator::make(request()->all(), $this->uploadRules,(new $this->classRequest())->messages());
+        $response = null;
+        
+        if ($request->failed()) {
+            $response = response()->json([
+                'message' => __('Upload failed'),
+                'errors' => [
+                    $request->errors()
+                    ]
+                ], 422);
+            }
+        $request = $request->validated();
+        
+        if (count($request) <= 0){
+            $response = response()->json([
+                'message' => __('Upload failed'),
+                'errors' => [
+                    'file' => [
+                        __('File couldn\'t get validated.')
+                    ]
+                ]
+            ], 422);
+        }
+
+        if (!$response){
+            $this->file = $request[$column][0];
+            $this->path = '/tmp/files/' . $this->type.'/'.$column;
+        }
+        
+        return $response;
+    }
+
+    public function storeOnDropbox()
+    {
+        $dropbox = Dropbox::upload($this->file,$this->path);
+        // If dropbox upload method returns a string (path to file which has been uploaded)
+        if (is_string($dropbox)){
+            return $dropbox;
+        } else {
             return response()->json([
                 'message' => __('Upload failed'),
                 'errors' => [
                     'file' => [
-                        __('An error has occurred while trying to process the '.$key.' field.'),
+                        __('Failed to upload file to Dropbox.')
+                    ]
+                ]
+            ], 422);
+        }
+    }
+    
+    public function ProcessFile($prefix,$type,$column,$revertKey=null)
+    {
+        $this->prefix = $prefix;
+        $this->type = $type;
+        $this->column = $column;
+        $this->revertKey = $revertKey;
+
+        // Check if request doesnt contain a file which exceeds limit in php.ini
+        $this->checkFileSizes();
+
+        if ($this->abort == true){
+            return response()->json([
+                'message' => __('Upload failed'),
+                'errors' => [
+                    'file' => [
+                        __('An error has occurred while trying to process the '.$this->key.' field.'),
                         __('File size exceeds global limit of ').MaxSizeServer('mb').'MB.'
                     ]
                 ]
             ], 422);
         }
-        if ($abort == false){
-            $column = str_replace('[]','',$column);
 
-            $allRules = (new $this->classRequest())->rules();
-            $uploadRules = [];
-            foreach ($allRules as $key => $ruleArr) {
-                $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
-                foreach ($ruleArr as $x => $rule) {
-                    if (preg_match('/(mimes|mimetypes)/',$rule)){
-                        $uploadRules[$key] = $ruleArr;
-                        continue;
-                    }
-                }
-            }
+        if ($this->abort == false){
+            $this->makeUploadRules();
 
-            $request = Validator::make(request()->all(), $uploadRules,(new $this->classRequest())->messages());
-            if ($request->failed()) {
-                return response()->json([
-                    'message' => __('Upload failed'),
-                    'errors' => [
-                        $request->errors()
-                    ]
-                ], 422);
+            // If validating file has a response (error), return this
+            $validateFile = $this->validateFile();
+            if($validateFile){
+                return $validateFile;
             }
-
-            $request = $request->validated();
-            if (count($request) <= 0){
-                return response()->json([
-                    'message' => __('Upload failed'),
-                    'errors' => [
-                        'file' => [
-                            __('File couldn\'t get validated.')
-                        ]
-                    ]
-                ], 422);
-            }
-            
-            $file = $request[$column][0];
-            $path = '/tmp/files/' . $type.'/'.$column;
 
             // If using Dropbox for storage
             if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
-                $dropbox = Dropbox::upload($file,$path);
-                // If dropbox upload method returns a string (path to file which has been uploaded)
-                if (is_string($dropbox)){
-                    return $dropbox;
-                } else {
-                    return response()->json([
-                        'message' => __('Upload failed'),
-                        'errors' => [
-                            'file' => [
-                                __('Failed to upload file to Dropbox.')
-                            ]
-                        ]
-                    ], 422);
-                }
-                // If using storage on webserver
+                return $this->storeOnDropbox();
             } else if (!env('DCMS_STORAGE_SERVICE')){
-                $file->store('public/tmp/files/' . $type.'/'.$column);
-                return env('APP_URL').'/storage/tmp/files/'.$type.'/'.$column.'/'.$file->hashName();
+                // If using storage on webserver
+                $this->file->store('public/tmp/files/' . $this->type.'/'.$this->column);
+                return env('APP_URL').'/storage/tmp/files/'.$this->type.'/'.$this->column.'/'.$this->file->hashName();
             }
 
         }
@@ -113,8 +149,6 @@ class DCMSFilepondController extends Controller
     {
         $msg = 'File doesn\'t exist';
         $status = 422;
-        // Get route prefix and the class it belongs to
-        $controller = '\App\Http\Controllers\\'.$this->file.'Controller';
         // Get column for request and folder structure
         $column = str_replace('[]','',$column);
         
