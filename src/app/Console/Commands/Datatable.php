@@ -40,98 +40,28 @@ class Datatable extends Command
         $console = $this;
         $model = $console->option('model') ?? null;
         if ($model == null || $model == ''){
-            $console->error('Specify a Model for this Datatable with --model=');
+            $console->error('Specify an existing model for this Datatable with --model=');
             exit;
         }
         try {
             $class = FindClass($model)['class'];
             $class = new $class;
         } catch (\Exception $e) {
-            throw new \Exception ('No class found for: '.$model);
+            throw new \Exception ('Model not found: '.$model);
         }
 
-        $content =
-            '<?php
-
-namespace App\\Datatables;
-
-use Pveltrop\\DCMS\\Classes\\Datatable;
-
-class '.$model.'Datatable extends Datatable
-{
-    /**
-     * @param $field
-     * @param $value
-     */
-
-    public function filter($field=null, $value=null)
-    {
-        public function filter($field=null, $value=null)
-        {
-            if ($field == "price"){
-                $this->query->where($field,"<=",$value);
-            } else {
-                $this->query->where($field,"=",$value);
-            }
-        }
-    }
-}';
+        // Write content to new Datatable file
+        $content = include __DIR__ . '/Code/Datatable/Class.php';
         $path = 'app/Datatables/'.$model.'Datatable.php';
         file_put_contents($path,$content);
-
+        
         $console->comment('');
         $console->comment('Implement this code to use the new Datatable:');
         $console->comment('');
 
-        $console->info(
-'
-/**
- * Generate JSON response for KTDatatable.
- *
- * @return \Illuminate\Http\JsonResponse
- */
-
-public function fetch()
-{
-    $query = '.$model.'::select(\'*\', \'name as something_name\')->selectRaw(\'column_one + column_two AS total_columns\')->with([\'relation\' => function ($query) {
-        $query->select(\'*\');
-    }]);
-
-    // To simply select everything
-    // $query = '.$model.'::query();
-
-    // Specify which columns to search in
-    // If no columns are passed as parameter, all columns will be searched
-    // $searchInColumns = [\'id\',\'name\',\'email\'];
-    // return (new '.$model.'Datatable($query,$searchInColumns))->render();
-
-    return (new '.$model.'Datatable($query))->render();
-}
-
-/**
- * Export visible data in Datatable.
- *
- * @return string
- */
-
-public function export(): string
-{
-    // This is the visible data in the datatable, based on chosen filters/search results
-    $data = request()->data;
-
-    // Headers in the excel sheet
-    $headers = [
-        "id" => "#",
-        "name" => __("Name"),
-        "user.posts.title" => __("Title"),
-        "user.posts.category.name" => __("Category")
-    ];
-
-    // return $this->StoreExport($data,$headers);
-
-    // to export all columns and rows for this model
-    return $this->StoreExport();
-}');
+        // Show sample code in console
+        $sampleCode = include __DIR__ . '/Code/Datatable/SampleCode.php';
+        $console->info($sampleCode);
 
         $console->comment('');
         $console->comment('Generated '.$model.' Datatable in: '.$path);

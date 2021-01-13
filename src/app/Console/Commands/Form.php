@@ -40,29 +40,17 @@ class Form extends Command
         $console = $this;
         $model = $console->option('model') ?? null;
         if ($model == null || $model == ''){
-            $console->error('Specify a Model for this Datatable with --model=');
+            $console->error('Specify an existing model for this Form with --model=');
             exit;
         }
         try {
             $class = FindClass($model)['class'];
             $class = new $class;
         } catch (\Exception $e) {
-            throw new \Exception ('No class found for: '.$model);
+            throw new \Exception ('Model not found: '.$model);
         }
 
-        $content = '<?php
-
-namespace App\Forms;
-
-class '.$model.'Form
-{
-    public static function properties(){
-        return [
-            //
-        ];
-    }
-}
-';
+        $content = include __DIR__ . '/Code/Form/Class.php';
 
         $path = 'app/Forms/'.$model.'Form.php';
         file_put_contents($path,$content);

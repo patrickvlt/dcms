@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Schema;
 use Pveltrop\DCMS\Classes\Content;
 
+/**
+ * Return max file size, defined in php.ini
+ */
 if (!function_exists('MaxSizeServer')) {
     function MaxSizeServer($type = 'mb')
     {
@@ -25,17 +28,23 @@ if (!function_exists('MaxSizeServer')) {
     }
 }
 
+/**
+ * Get route prefix for current model
+ */
 if (!function_exists('GetPrefix')) {
     function GetPrefix()
     {
-        if(!app()->runningInConsole()){
+        if (!app()->runningInConsole()) {
             return explode('/', request()->route()->uri)[0];
         }
     }
 }
 
-if (!function_exists('GetClasses')) {
-    function GetClasses()
+/**
+ * Get all models
+ */
+if (!function_exists('GetModels')) {
+    function GetModels()
     {
         $classes = [];
         foreach (config('dcms.modelFolders') as $folder) {
@@ -57,18 +66,24 @@ if (!function_exists('GetClasses')) {
     }
 }
 
+/**
+ * Find class which belongs to a certain prefix, names have to be identical
+ */
 if (!function_exists('FindClass')) {
     function FindClass($prefix)
     {
-        foreach (GetClasses() as $class) {
+        foreach (GetModels() as $class) {
             if (strtolower($class['file']) == strtolower($prefix)) {
                 return $class;
             }
         }
-        throw new \RuntimeException("Couldn't find Model which belongs to: ".$prefix.". Make sure to configure the Models folder in config/dcms.php");
+        throw new \RuntimeException("Couldn't find Model which belongs to: " . $prefix . ". Make sure to configure the Models folder in config/dcms.php");
     }
 }
 
+/**
+ * Grab current model
+ */
 if (!function_exists('Model')) {
     function Model()
     {
@@ -79,6 +94,9 @@ if (!function_exists('Model')) {
     }
 }
 
+/**
+ * Return correct Form method, based on current route
+ */
 if (!function_exists('FormMethod')) {
     // Which @method to return
     function FormMethod()
@@ -100,12 +118,15 @@ if (!function_exists('FormMethod')) {
     }
 }
 
+/**
+ * Generate correct formroute, if Laravel conventions are correct
+ */
 if (!function_exists('FormRoute')) {
     // Return store or update route for form
-    function FormRoute($prefix=null)
+    function FormRoute($prefix = null)
     {
         $routeName = request()->route()->getName();
-        if(!$prefix){
+        if (!$prefix) {
             $prefix = $prefix ?? explode(".", $routeName)[0];
         }
         $routeAction = explode(".", $routeName);
@@ -113,10 +134,11 @@ if (!function_exists('FormRoute')) {
         $formRoute = null;
 
         // Try to append parameters with Laravels route helper
-        function fixRoute($prefix,$action){
+        function fixRoute($prefix, $action)
+        {
             $addParameters = [];
             foreach (request()->route()->parameters as $key => $parameter) {
-                if (isset(request()->route()->parameters[$prefix]) && $key == request()->route()->parameters[$prefix]){
+                if (isset(request()->route()->parameters[$prefix]) && $key == request()->route()->parameters[$prefix]) {
                     continue;
                 } else {
                     $addParameters[] = $parameter;
@@ -130,7 +152,7 @@ if (!function_exists('FormRoute')) {
                 try {
                     $formRoute = route($prefix . '.store', request()->route()->parameters[$prefix]);
                 } catch (\Throwable $th) {
-                    $formRoute = fixRoute($prefix,'.store');
+                    $formRoute = fixRoute($prefix, '.store');
                 }
                 break;
             case 'update':
@@ -138,7 +160,7 @@ if (!function_exists('FormRoute')) {
                 try {
                     $formRoute = route($prefix . '.update', request()->route()->parameters[$prefix]);
                 } catch (\Throwable $th) {
-                    $formRoute = fixRoute($prefix,'.update');
+                    $formRoute = fixRoute($prefix, '.update');
                 }
                 break;
         }
@@ -146,6 +168,9 @@ if (!function_exists('FormRoute')) {
     }
 }
 
+/**
+ * Get the routeprefix from current model
+ */
 if (!function_exists('RoutePrefix')) {
     // Return store or update route for form
     function RoutePrefix()
@@ -160,6 +185,9 @@ if (!function_exists('RoutePrefix')) {
     }
 }
 
+/**
+ * Return current route's name
+ */
 if (!function_exists('CurrentRoute')) {
     function CurrentRoute()
     {
@@ -168,6 +196,9 @@ if (!function_exists('CurrentRoute')) {
     }
 }
 
+/**
+ * Return delete route which belongs to form
+ */
 if (!function_exists('DeleteRoute')) {
     // Return delete route for form
     function DeleteRoute()
@@ -179,6 +210,9 @@ if (!function_exists('DeleteRoute')) {
     }
 }
 
+/**
+ * Remove a directory
+ */
 if (!function_exists('RemoveDir')) {
     function RemoveDir($dir)
     {
@@ -201,6 +235,9 @@ if (!function_exists('RemoveDir')) {
     }
 }
 
+/**
+ * Copy a directory
+ */
 if (!function_exists('CopyDir')) {
     function CopyDir($src, $dst)
     {
@@ -219,6 +256,10 @@ if (!function_exists('CopyDir')) {
     }
 }
 
+
+/**
+ * Generate a random string, useful for tokens or links
+ */
 if (!function_exists('RandomString')) {
     function RandomString($length = 30)
     {
@@ -235,21 +276,9 @@ if (!function_exists('RandomString')) {
     }
 }
 
-if (!function_exists('Flatten')) {
-    function Flatten($array, $prefix = '')
-    {
-        $result = array();
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $result += Flatten($value, $prefix . $key . '.');
-            } else {
-                $result[$prefix . $key] = $value;
-            }
-        }
-        return $result;
-    }
-}
-
+/**
+ * Reflect and clean code, to insert content easily and prevent whitespace problems
+ */
 if (!function_exists('ReflectClass')) {
     function ReflectClass($class)
     {
@@ -265,8 +294,7 @@ if (!function_exists('ReflectClass')) {
         $body = implode("", array_slice(file($filename), $start_line, $length));
         // Convert body to array to trim whitespace at end
         $body = preg_split("/\\r\\n|\\r|\\n/", $body);
-        while ("" === end($body))
-        {
+        while ("" === end($body)) {
             array_pop($body);
         }
         // Convert body to normal string again
@@ -277,6 +305,9 @@ if (!function_exists('ReflectClass')) {
     }
 }
 
+/**
+ * Reflect and clean code, to insert content easily and prevent whitespace problems
+ */
 if (!function_exists('ReflectCode')) {
     function ReflectCode($reflection)
     {
@@ -290,8 +321,7 @@ if (!function_exists('ReflectCode')) {
         $body = implode("", array_slice(file($filename), $start_line, $length));
         // Convert body to array to trim whitespace at end
         $body = preg_split("/\\r\\n|\\r|\\n/", $body);
-        while ("" === end($body))
-        {
+        while ("" === end($body)) {
             array_pop($body);
         }
         // Convert body to normal string again
@@ -302,6 +332,9 @@ if (!function_exists('ReflectCode')) {
     }
 }
 
+/**
+ * Insert content starting from a defined line
+ */
 if (!function_exists('WriteContent')) {
     function WriteContent($content, $line, $addContent)
     {
@@ -309,20 +342,22 @@ if (!function_exists('WriteContent')) {
         $content = preg_split("/\\r\\n|\\r|\\n/", $content);
         $content = array_values($content);
         // Trim content whitespace
-        while ("" === end($content))
-        {
+        while ("" === end($content)) {
             array_pop($content);
         }
         // Append content anywhere in this array
-        $appendToRow = $line-1;
-        array_splice($content, $appendToRow, 0,$addContent);
+        $appendToRow = $line - 1;
+        array_splice($content, $appendToRow, 0, $addContent);
 
-        $content = implode("\n",$content);
+        $content = implode("\n", $content);
 
         return $content;
     }
 }
 
+/**
+ * Append content to a file, with additional offset
+ */
 if (!function_exists('AppendContent')) {
     function AppendContent($content, $offset, $addContent)
     {
@@ -331,42 +366,48 @@ if (!function_exists('AppendContent')) {
         $content = array_values($content);
 
         // Trim content whitespace
-        while ("" === end($content))
-        {
+        while ("" === end($content)) {
             array_pop($content);
         }
 
         // Append content anywhere in this array
-        $appendToRow = count($content)-$offset;
+        $appendToRow = count($content) - $offset;
         array_splice($content, $appendToRow, 0, $addContent);
 
-        $content = implode("\n",$content);
+        $content = implode("\n", $content);
 
         return $content;
     }
 }
 
-if (!function_exists('GetRule')){
-    function GetRule($field,$ruleToGrab){
+/**
+ * Grab a single rule from a Request
+ */
+if (!function_exists('GetRule')) {
+    function GetRule($field, $ruleToGrab)
+    {
         // Convert rule to array by exploding |, or simply looping if its an array
         $explodedRule = null;
-        $fieldRules = (is_string($field)) ? explode('|',$field) : $field;
-        foreach ($fieldRules as $key => $rule){
-            if (strpos($rule, $ruleToGrab) === 0){
-                $explodedRule = explode(':',$rule)[1] ?? explode(':',$rule)[0];
+        $fieldRules = (is_string($field)) ? explode('|', $field) : $field;
+        foreach ($fieldRules as $key => $rule) {
+            if (strpos($rule, $ruleToGrab) === 0) {
+                $explodedRule = explode(':', $rule)[1] ?? explode(':', $rule)[0];
                 return $explodedRule;
             }
         }
     }
 }
 
-if (!function_exists('JoinRelations')){
+/**
+ * Join eager loaded columns in query
+ */
+if (!function_exists('JoinRelations')) {
     function JoinRelations($query)
     {
         $relations = $query->getEagerLoads();
         $query->setEagerLoads([]);
-        if (count($relations) > 0){
-            foreach ($relations as $relationName => $relationProps){
+        if (count($relations) > 0) {
+            foreach ($relations as $relationName => $relationProps) {
                 $relation = $query->getRelation($relationName);
 
                 $foreignKey = $relation->getForeignKeyName();
@@ -376,48 +417,56 @@ if (!function_exists('JoinRelations')){
                 $relationTable = (new $relationClass())->getTable();
                 $joinTable = $relationTable;
                 $joinForeignKey = $foreignKey;
-                $joinRightKey = $relationTable.'.'.$ownerKey;
+                $joinRightKey = $relationTable . '.' . $ownerKey;
 
-                $query->join($joinTable,$joinForeignKey,'=',$joinRightKey);
+                $query->join($joinTable, $joinForeignKey, '=', $joinRightKey);
             }
         }
         return $query;
     }
 }
 
-if (!function_exists('SelectFields')){
-    function SelectFields($query,$table,$excludeFields=[])
+/**
+ * Select all fields present in query
+ */
+if (!function_exists('SelectFields')) {
+    function SelectFields($query, $table, $excludeFields = [])
     {
         $fields = Schema::getColumnListing($table);
         foreach ($fields as $key => $field) {
-            if (!in_array($field,$excludeFields)){
-                $query->addSelect($table.'.'.$field);
+            if (!in_array($field, $excludeFields)) {
+                $query->addSelect($table . '.' . $field);
             }
         }
         return $query;
     }
 }
 
-if (!function_exists('DCMSContent')){
+/**
+ * Return user defined content if present in database
+ */
+if (!function_exists('DCMSContent')) {
     function DCMSContent($UID)
     {
-        $content = Content::where('UID',$UID)->get()->first()->value ?? null;
-        if ($content !== ''){
+        $content = Content::where('UID', $UID)->get()->first()->value ?? null;
+        if ($content !== '') {
             return $content;
         }
         return null;
     }
 }
 
-if (!function_exists('ReplaceWithAttr')){
-    function ReplaceWithAttr($message,$object)
+/**
+ * Return a string where for example: __name__ gets replaced with the objects' name attribute
+ */
+if (!function_exists('ReplaceWithAttr')) {
+    function ReplaceWithAttr($message, $object)
     {
-        preg_match_all('/__\S*__/m',$message,$matches);
-        foreach($matches[0] as $match){
-            $prop = str_replace('__','',$match);
-            $message = str_replace($match,$object->$prop,$message);
+        preg_match_all('/__\S*__/m', $message, $matches);
+        foreach ($matches[0] as $match) {
+            $prop = str_replace('__', '', $match);
+            $message = str_replace($match, $object->$prop, $message);
         }
         return $message;
     }
 }
-

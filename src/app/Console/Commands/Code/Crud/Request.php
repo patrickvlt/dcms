@@ -1,6 +1,6 @@
 <?php
 
-$requestContent = '<?php
+return '<?php
 
 namespace App\\Http\\Requests;
 

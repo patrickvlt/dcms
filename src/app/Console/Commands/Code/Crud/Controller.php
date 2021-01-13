@@ -1,6 +1,6 @@
 <?php
 
-$contentToAdd = '<?php
+return '<?php
 
 namespace App\\Http\\Controllers;
 

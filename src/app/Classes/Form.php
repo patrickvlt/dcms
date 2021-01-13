@@ -11,19 +11,19 @@ namespace Pveltrop\DCMS\Classes;
 use HtmlGenerator\HtmlTag;
 use Illuminate\Database\Eloquent\Collection;
 
+$a = 'a';
+
 class Form extends HtmlTag
 {
     /**
-     * Generate an HTML form based on passed in form properties from the main controller.
-     * Uses columns which are defined in custom request in second parameter.
+     * Try to grab current model being used
+     * Or return null if a model is being created
+     *
      * @param $model
-     * @return Form|null
+     * @param $routePrefix
      */
-
-    public static function create($request, $routePrefix, $formClass, $responses)
+    public static function getModel($routePrefix)
     {
-        $formFields = (new $formClass())->fields();
-        $formRoutes = method_exists((new $formClass()),'routes') ? (new $formClass())->routes() : null;
         $model = null;
         if (FormMethod() == ('PUT')){
             $model = Model($routePrefix) ?? Model();
@@ -32,20 +32,18 @@ class Form extends HtmlTag
                 $model = (new $class())->find(request()->route()->parameters[$routePrefix]);
             }
         }
+        return $model;
+    }
 
-        $modelRequest = (new $request())->rules() ?? null;
-        if (!isset($modelRequest)) {
-            throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: " . $routePrefix);
-        }
-        $columns = [];
-
-        foreach ($formFields as $requestCol => $rules) {
-            $column['name'] = $requestCol;
-            $columns[] = $column;
-        }
-
-        // Start creating form
-        $method = ($model) ? 'PUT' : 'POST';
+    /**
+     * Initialise a basic Form element
+     * Setup the form method and CSRF token
+     *
+     * @param $method
+     * @return Form
+     */
+    public static function initForm($method)
+    {
         $form = self::createElement('form')->attr([
             'action' => FormRoute(),
             'method' => 'POST',
@@ -62,23 +60,40 @@ class Form extends HtmlTag
             'name' => '_token',
             'value' => csrf_token()
         ]);
+        return $form;
+    }
 
+    /**
+     * Create the input elements for the current models' Form
+     * This will use default DCMS plugins, provided in resources/js
+     * You can adjust every columns' properties by passing a custom Form class in your controllers' constructor
+     *
+     * @param $columns
+     * @param $routePrefix
+     * @param $form
+     * @param $formFields
+     * @param $formRoutes
+     * @param $model
+     */
+    public static function createInputs($columns,$routePrefix,$form,$formFields,$formRoutes,$model){
         foreach ($columns as $column) {
+            // Dont create an input field if this is a request rule just for files
             if (preg_match('/\.\*/',$column['name'])){
                 continue;
             }
+
+            // Make a simple input by default
             $makeFormGroup = true;
             $makeLabel = true;
             $makeInputGroup = true;
-
             $makeInput = true;
             $makeSelect = false;
             $makeCheckbox = false;
             $makeRadio = false;
             $makeTextarea = false;
 
+            // Take different steps according to various data-types, defined for each field/input
             $definedAttr = $formFields[$column['name']] ?? null;
-            // Take different steps according to various data-types
             if (isset($definedAttr['select'])) {
                 $makeInput = false;
                 $makeSelect = true;
@@ -95,6 +110,8 @@ class Form extends HtmlTag
                 $makeInput = false;
                 $makeTextarea = true;
             }
+
+            // Set Front-End plugin data-attributes, depending on which data-type is being passed
             if (isset($definedAttr['input']['data-type'])) {
                 switch ($definedAttr['input']['data-type']) {
                     case 'filepond':
@@ -124,7 +141,7 @@ class Form extends HtmlTag
                     $carouselArr = explode(',',$carouselArr);
                 }
                 if (count($carouselArr) > 0 && $carouselArr[0] !== ""){
-                    $carousel = $form->addElement('div')->attr([
+                    $form->addElement('div')->attr([
                         'data-type' => 'dcarousel',
                         'data-dcar-src' => $model->{$column['name']},
                         'data-dcar-prefix' => $routePrefix,
@@ -178,7 +195,7 @@ class Form extends HtmlTag
                 }
             }
 
-            // Input field
+            // Input element
             if ($makeInput) {
                 $inputCustomAttr = $definedAttr['input'] ?? null;
                 $inputType = $inputCustomAttr['type'] ?? 'text';
@@ -193,6 +210,7 @@ class Form extends HtmlTag
                 ];
                 $addToEl = ($makeInputGroup) ? $inputGroup : $formGroup;
                 $addToEl->addElement('input')->attr($defaultInputAttr)->attr($inputCustomAttr);
+
             // Select element
             } else if ($makeSelect) {
                 $selectCustomAttr = $definedAttr['select'];
@@ -244,8 +262,9 @@ class Form extends HtmlTag
                         }
                     }
                 }
+
+            // Checkbox/radio element
             } else if ($makeCheckbox || $makeRadio) {
-                // Check if checkboxes have been defined
                 $properties = ($makeCheckbox) ? $definedAttr['checkbox'] : $definedAttr['radio'];
                 if (isset($properties)){
                     $customParentElAttr = [];
@@ -295,6 +314,8 @@ class Form extends HtmlTag
                         }
                     }
                 }
+
+            // Textarea element
             } else if ($makeTextarea) { 
                 $textareaCustomAttr = $definedAttr['textarea'] ?? null;
                 $textareaType = $textareaCustomAttr['type'] ?? 'text';
@@ -323,6 +344,38 @@ class Form extends HtmlTag
                 }
             }
         }
+    }
+
+    /**
+     * Generate an HTML form based on passed in form properties from the main controller.
+     * Uses columns which are defined in custom request in second parameter.
+     * @param $model
+     * @return Form|null
+     */
+
+    public static function create($request, $routePrefix, $formClass, $responses)
+    {
+        $formFields = (new $formClass())->fields();
+        $formRoutes = method_exists((new $formClass()),'routes') ? (new $formClass())->routes() : null;
+
+        $modelRequest = (new $request())->rules() ?? null;
+        if (!isset($modelRequest)) {
+            throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: " . $routePrefix);
+        }
+        $columns = [];
+
+        foreach ($formFields as $requestCol => $rules) {
+            $column['name'] = $requestCol;
+            $columns[] = $column;
+        }
+
+        $model = self::getModel($routePrefix);
+
+        // Start creating form
+        $method = ($model) ? 'PUT' : 'POST';
+        $form = self::initForm($method);
+
+        $formGroup = self::createInputs($columns,$routePrefix,$form,$formFields,$formRoutes,$model);
 
         $customAttr = $definedAttr['form-group'] ?? null;
         $formGroup = $form->addElement('div')->attr([
