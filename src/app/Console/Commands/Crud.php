@@ -90,7 +90,7 @@ class Crud extends Command
 
         /**
          *
-         * Create the basic Laravel files
+         * Create the basic Laravel files (model, controller, factory, seeder, request)
          *
          */
 
@@ -343,10 +343,9 @@ class Crud extends Command
             $modelPath = '\\App\\Models\\'.$model.'::class';
         }
         $modelImport = str_replace('::class','',$modelPath);
-        include __DIR__ . '/../../Templates/Controller.php';
-
+        
         // Modify the content
-        $newContent = $contentToAdd;
+        $newContent = include __DIR__ . '/Code/Crud/Controller.php';
         // Write to file
         file_put_contents(base_path($controllerFile),$contentToAdd);
 
@@ -408,14 +407,11 @@ class Crud extends Command
         foreach ($columns as $name => $column){
             try {
                 if (array_key_exists('foreign',$column)){
-                        $relEntries .= '
-    public function '.$column['foreign']['relationFunction'].'()
-    {
-        return $this->'.$column['foreign']['relation'].'('.$column['foreign']['class'].'::class, \''.$column['foreign']['foreign_column'].'\', \''.$column['foreign']['references'].'\');
-    }
-    ';
+                        $relEntries .= include __DIR__ . '/../../Templates/Relation.php';;
                     }
-                } catch (\Throwable $th) {}
+                } catch (\Throwable $th) {
+                    //
+                }
         }
 
         $contentToAdd = $relEntries;
@@ -446,9 +442,7 @@ class Crud extends Command
             }
         }
 
-        include __DIR__ . '/../../Templates/Request.php';
-
-        $contentToAdd = $requestContent;
+        $contentToAdd = include __DIR__ . '/../../Templates/Request.php';
         // Write to file
         file_put_contents(base_path($requestFile),$requestContent);
 

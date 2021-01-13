@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Pveltrop\DCMS\Classes\Content;
@@ -8,22 +8,26 @@ use Stevebauman\Purify\Facades\Purify;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
-trait DCMSContentController
+class DCMSContentController extends Controller
 {
+    // Override authenticate and entries method below to use this Controller
+
     /**
     * Define conditions a user must match to spawn a DCMS editor.
     * @return \Illuminate\Http\JsonResponse
     */
-
     public function authenticate()
     {
-        return response()->json(['message' => 'Unauthenticated'],422);
+        if ('foo' == 'bar'){
+            return response()->json(['message' => 'Authenticated'],200);
+        } else {
+            return response()->json(['message' => 'Unauthenticated'],422);
+        }
     }
 
     /**
     * Define which entries can be edited.
     */
-
     public function entries(): array
     {
         return [
@@ -33,15 +37,15 @@ trait DCMSContentController
         ];
     }
 
+    // The methods below work out of the box
+
     /**
     * Edit accessable content.
     * @return \Illuminate\Http\JsonResponse
     */
-
     public function update(Request $request)
     {
         $canBeEdited = false;
-        $fullRequest = $request;
         $request = json_decode($request->getContent());
 
         foreach($this->entries() as $entryKey => $entryValue){
@@ -88,7 +92,6 @@ trait DCMSContentController
     * Clear stored content.
     * @return \Illuminate\Http\JsonResponse
     */
-
     public function clear(Request $request)
     {
         $canBeCleared = false;
@@ -118,6 +121,5 @@ trait DCMSContentController
                 'message' => __('Unable to delete content.'),
             ],422);
         }
-
     }
 }
