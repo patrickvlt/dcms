@@ -4,12 +4,12 @@ return '<?php
 
 namespace App\\Http\\Controllers;
 
-use Illuminate\\Http\\Request;
-use App\\Http\\Requests\\'.$model.'Request;
-
 use '.$modelImport.';
+use Illuminate\\Http\\Request;
+use App\\Forms\\'.$model.'Form;
 use App\\Traits\\DCMSController;
 use Pveltrop\DCMS\Classes\Datatable;
+use App\\Http\\Requests\\'.$model.'Request;
 
 class '.$model.'Controller extends Controller
 {
@@ -17,62 +17,57 @@ class '.$model.'Controller extends Controller
 
     // This function defines all the settings for DCMS for the current model which belongs to this controller.
     // This will help automatically pointing this controller to the right route, class, use the right messages in alerts, etc.
-    function DCMS()
+    function __construct()
     {
-        return [
-            // Class and request should be defined, these are required
-            // Define classes with complete namespace below
-            "model" => '.$modelPath.',
-            "request" => '.$modelRequestPath.',
-
-            // All keys below are optional
-
-            "routePrefix" => "'.$prefix.'",
-            // DCMS JSON responses and redirects for CRUD
+        $this->routePrefix = "'.$prefix.'";
+        $this->model => '.$modelPath.',
+        $this->request => '.$modelRequestPath.',
+        $this->form = '.$model.'Form::class;
+        $this->responses = [
             "created" => [
-                "title" => __("'.$model.' created"),
-                "message" => __("'.$model.' created on __created_at__"),
-                "url" => "/'.$prefix.'"
+                "title" => __("'.ucfirst($model).' created"),
+                "message" => __("'.ucfirst($model).' created on __created_at__"),
             ],
             "updated" => [
-                "title" => __("__name__ updated"),
-                "message" => __("__name__ updated on __created_at__"),
-                "url" => "/'.$prefix.'"
+                "title" => __("'.ucfirst($model).' updated"),
+                "message" => __("'.ucfirst($model).' updated on __created_at__"),
+            ]
+        ];
+        $this->views = [
+            "index" => "index",
+            "show" => "show",
+            "create" => "create",
+            "edit" => "edit"
+        ];
+        $this->jExcel = [
+            // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
+            "columns" => [
+                "name" => 0,
+                "title" => 1,
+                "email" => 2
             ],
-            "deleted" => [
-                "url" => "/'.$prefix.'"
+            // which class to use when trying to autocorrect/compare?
+            // which classes/route prefixes to use when trying to autocorrect?
+            "autocorrect" => [
+                "user" => [
+                    // which column/cell in jExcel
+                    "column" => 1,
+                    // class which belongs to this column
+                    "class" => User::class,
+                    // which attribute to use when searching to autocorrect
+                    "searchAttributes" => [
+                        "name"
+                    ],
+                    // which attribute to return back to jExcel
+                    "returnAttribute" => "id",
+                ]
             ],
-            "imported" => [
-                "url" => "/'.$prefix.'"
-            ],           
-            "views" => [
-                "index" => "index",
-                "show" => "crud",
-                "edit" => "crud",
-                "create" => "crud"
-            ],
-            // for jExcel imports
-            "import" => [
-                // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
-                "columns" => [
-                    "name" => 0,
-                    "created_at" => 5
-                ],
-                // which classes/route prefixes to use when trying to autocorrect?
-                "autocorrect" => [
-                    "foo" => [
-                        // which column/cell in jExcel
-                        "column" => 1,
-                        // which fields to compare with
-                        "fields" => [
-                            "bar"
-                        ]
-                    ]
-                ],
-                // finished or failed custom messages
+            // finished or failed custom messages
+            "responses" => [
                 "finished" => [
                     "title" => __("Import succeeded"),
                     "message" => __("All data has been imported."),
+                    "url" => 
                 ],
                 "failed" => [
                     "title" => __("Import failed"),
@@ -85,11 +80,11 @@ class '.$model.'Controller extends Controller
     // if you want to override store or update functions, uncomment and override the according function, two examples can be found below
     // DCMSJSON returns the dynamic JSON response after creating/updating
 
-    public function store('.$model.'Request $request, '.$model.' $'.$prefix.'){
+    public function store('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
         return $this->DCMSJSON($'.$prefix.',"created");
     }
 
-    public function update('.$model.'Request $request, '.$model.' $'.$prefix.'){
+    public function update('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
         return $this->DCMSJSON($'.$prefix.',"updated");
     }
 
@@ -97,18 +92,27 @@ class '.$model.'Controller extends Controller
     // NOTE: remember to define the same default parameters for these functions.
 
     public function beforeIndex(){
-        $someVar = "someValue";
-        $someArr = [];
-        return compact("someVar","someArr");
+        return [
+            // "options" => $options 
+        ];
     }
 
     public function beforeEdit($id){
-        $someVar = "someValue";
-        $someArr = [];
-        return compact("someVar","someArr");
+        return [
+            // "users" => $users 
+        ];
     }
 
-    // If you plan to use server side filtering/sorting/paging in the DCMS KTDatatables wrapper, define the base query below
+    // Define code to be executed after a model has been created/updated/deleted
+    public function afterCreate('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
+        // logger("A new '.$prefix.' has been created.");
+    }
+
+    public function afterCreateOrUpdate('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
+        // logger("A new '.$prefix.' has been created.");
+    }
+
+    // If you want to use server side filtering/sorting/paging in the DCMS KTDatatables wrapper, define the base query below
     public function fetch(): \Illuminate\Http\JsonResponse
     {
         // Get class to make a query for

@@ -49,7 +49,7 @@ if (!function_exists('GetModels')) {
         $classes = [];
         foreach (config('dcms.modelFolders') as $folder) {
             foreach (scandir(base_path() . '/' . $folder) as $file) {
-                if (strpos($file, '.php') !== false) {
+                if (preg_match('/\.php/',$file)) {
                     $re = '/namespace \S*;/m';
                     $str = file_get_contents(base_path() . '/' . $folder . '/' . $file);
                     preg_match($re, $str, $namespace);
@@ -390,7 +390,7 @@ if (!function_exists('GetRule')) {
         $explodedRule = null;
         $fieldRules = (is_string($field)) ? explode('|', $field) : $field;
         foreach ($fieldRules as $key => $rule) {
-            if (strpos($rule, $ruleToGrab) === 0) {
+            if (preg_match('/'.$ruleToGrab.'/',$rule)) {
                 $explodedRule = explode(':', $rule)[1] ?? explode(':', $rule)[0];
                 return $explodedRule;
             }
