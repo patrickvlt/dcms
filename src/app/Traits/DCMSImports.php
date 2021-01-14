@@ -89,14 +89,14 @@ trait DCMSImports {
         $this->__init();
         // Get data from ajax request at jexcel table
         $data = request()->data;
-        $th = request()->th;
 
-        // Get data from controller, class and columns to use for autocorrection
+        // Get data from controller, class and attributes to use for autocorrection
         if ($this->autoFixColumns == null){
             return false;
         }
 
-        // Search for a column and retrieve its value
+        // search for column in jExcel constructor
+        // this has to be done by finding the key/position of the column
         function searchForColumn($column, $array) {
             foreach ($array as $key => $val) {
                 if ($val['column'] == $column) {
@@ -105,29 +105,37 @@ trait DCMSImports {
             }
             return null;
         }
+        
         // Loop through table dropdown columns
-        foreach ($th as $y => $header){
-            $column = searchForColumn($header['column'],$this->autoFixColumns);
-            // Find the class which belongs to the provided prefix, sent from the table header in jExcel
-            $class = FindClass(strtolower($column))['class'];
-            $class = new $class;
-            // Loop through data the user has sent
-            foreach ($data as $x => $row){
-                // Make a query for each Table Header
-                $query = $class::query();
-                $fields = $this->autoFixColumns[$column]['fields'];
-                // Strip whitespace from value and loop through the class` table to find a match
-                $value = $data[$x][$header['column']];
-                $value = str_replace(" ","",$value);
-                foreach ($fields as $field) {
-                    $query->orWhere($field, 'LIKE', '%'.$value.'%');
+        foreach (request()->th as $y => $header){
+            $jExcelColumn = searchForColumn($header['column'],$this->autoFixColumns);
+            $jExcelColumn = isset($this->autoFixColumns[$jExcelColumn]) ? $this->autoFixColumns[$jExcelColumn] : null;
+            if ($jExcelColumn){
+                // 
+                try {
+                    $class = $jExcelColumn['class'];
+                    $class = new $class;
+                } catch (\Throwable $th) {
+                    continue;
                 }
-                $match = $query->get()->first();
-                // If a match is found, replace the cells value by the id from the match
-                $data[$x][$header['column']] = !empty($match) ? $match['id'] : $data[$x][$header['column']];
+                // Loop through data the user has sent
+                foreach ($data as $x => $row){
+                    // Make a query for each Table Header
+                    $query = $class::query();
+                    // Strip whitespace from value and loop through the class` table to find a match
+                    // Search by making dynamic where clauses
+                    $value = $data[$x][$header['column']];
+                    $value = str_replace(" ","",$value);
+                    foreach ($jExcelColumn['searchAttributes'] as $field) {
+                        $query->orWhere($field, 'LIKE', '%'.$value.'%');
+                    }
+                    $match = $query->first();
+                    // If a match is found, replace the cells value by the right attribute or id from the match
+                    $returnAttr = isset($jExcelColumn['returnAttribute']) ? $jExcelColumn['returnAttribute'] : 'id';
+                    $data[$x][$header['column']] = !empty($match) ? $match[$returnAttr] : $data[$x][$header['column']];
+                }
             }
         }
-
 
         return $data;
     }

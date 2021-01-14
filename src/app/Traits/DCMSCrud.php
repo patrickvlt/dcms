@@ -71,13 +71,13 @@ trait DCMSCrud {
                             // Check if file uploads have this applications URL in it
                             // If any upload doesnt have the url in its filename, then it has been tampered with
                             // Only check this if using local webserver storage
-                            if (!strpos(env('APP_URL'),$file) && strpos($file,'http') && !env('DCMS_STORAGE_SERVICE')){
+                            if (!preg_match('~'.env('APP_URL').'~',$file) && preg_match('/http/',$file) && !env('DCMS_STORAGE_SERVICE')){
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
                                         'file' => [
                                             //Example: logo.*.noRemote
-                                            $requestMessages[$uploadKey.'.noRemote'] ?? __("The ".$key." field contains a remote file. <br> Please upload a new file.")
+                                            $requestMessages[$uploadKey.'.noRemote'] ?? __("The ".$key." field contains an invalid remote file. <br> Please use a different file.")
                                             ]
                                         ],
                                 ], 422);
@@ -98,7 +98,7 @@ trait DCMSCrud {
                                 $oldPath = str_replace('/storage/','/public/',$oldPath);
                                 $newPath = str_replace('/tmp/','/',$oldPath);
                                 $storedFile = Storage::exists($oldPath);
-                                if ($storedFile && strpos($oldPath,'tmp')){
+                                if ($storedFile && preg_match('/tmp/',$oldPath)){
                                     $this->requestData[$key][$x] = str_replace('/public/','/storage/',$newPath);
                                 }
                             }
@@ -121,7 +121,7 @@ trait DCMSCrud {
                             }
                             // Check if a file is being assigned which actually belongs to this property
                             // For example: dont allow a thumbnail to be used for a banner
-                            if (!strpos($newPath,$key)){
+                            if (!preg_match('/'.$key.'/',$newPath)){
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
