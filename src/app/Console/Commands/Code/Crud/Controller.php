@@ -109,7 +109,11 @@ class '.$model.'Controller extends Controller
     }
 
     public function afterCreateOrUpdate('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
-        // logger("A new '.$prefix.' has been created.");
+        // logger("A new '.$prefix.' has been updated.");
+    }
+
+    public function afterDestroy($id, '.ucfirst($model).' $'.$prefix.'){
+        // logger("An instance of '.$prefix.' has been deleted.");
     }
 
     // If you want to use server side filtering/sorting/paging in the DCMS KTDatatables wrapper, define the base query below
