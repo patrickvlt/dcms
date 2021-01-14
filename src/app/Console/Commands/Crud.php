@@ -353,6 +353,21 @@ class Crud extends Command
         $console->comment('Generated controller.');
         $console->comment('');
 
+        /**
+         *
+         * Generating form
+         *
+         */
+
+        // Modify the content
+        $newContent = include __DIR__ . '/Code/Crud/Form.php';
+        // Write to file
+        file_put_contents(base_path('app/Forms/' . $model . 'Form.php'),$contentToAdd);
+
+        $console->comment('');
+        $console->comment('Generated form.');
+        $console->comment('');
+
 
         /**
          *
