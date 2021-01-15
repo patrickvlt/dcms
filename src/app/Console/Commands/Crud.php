@@ -2,7 +2,10 @@
 
 namespace Pveltrop\DCMS\Console\Commands;
 
+use DirectoryIterator;
+use RecursiveIteratorIterator;
 use Illuminate\Console\Command;
+use RecursiveDirectoryIterator;
 use Illuminate\Support\Facades\Storage;
 
 class Crud extends Command
@@ -24,6 +27,35 @@ class Crud extends Command
     protected $description = 'Generate full crud functionality.';
 
     /**
+     * Find and return path to file
+     *
+     * @param string $name
+     * @return void
+     */
+    public function findFile($name){
+        $rootFolders = [];
+        $excludeDirs = array('.git', 'vendor', 'node_modules', 'storage');
+
+        // Make array with folders to search in
+        $dir = new DirectoryIterator(base_path());
+        foreach ($dir as $file) {
+            if ($file->isDir() && !$file->isDot() && !in_array($file->getBasename(),$excludeDirs)) {
+                $rootFolders[] = $file->getPathname();
+            }
+        }
+
+        // Loop through array with folders
+        foreach ($rootFolders as $key => $rootFolder) {
+            $it = new RecursiveDirectoryIterator($rootFolder);
+            foreach(new RecursiveIteratorIterator($it) as $file) {
+                if(preg_match('~'.$name.'~',$file)){
+                    return $file;
+                }
+            }
+        }
+    }
+
+    /**
      * Execute the console command.
      *
      * @return mixed
@@ -35,13 +67,15 @@ class Crud extends Command
         $initManual = true;
         $mainVersion = app()->version()[0];
 
-        if (Storage::exists('/DCMS/Generate.php')){
+        $crudFile = ($this->findFile('DCMSCrud.php')) ? $this->findFile('DCMSCrud.php')->getPathname() : null;
+
+        if ($crudFile){
             $initManual = false;
             try {
-                include(base_path().'/storage/app/DCMS/Generate.php');
+                include($crudFile);
             } catch (\Exception $e){
                 $console->comment('');
-                $console->error('File not found: /storage/app/DCMS/Generate.php');
+                $console->error('File not found: DCMSCrud.php');
                 $console->comment('Initalising manual creation in two seconds.');
                 $console->comment('');
                 $initManual = true;
@@ -49,29 +83,29 @@ class Crud extends Command
             }
             if ($initManual == false){
                 try {
-                    $fileContent = file_get_contents(base_path().'/storage/app/DCMS/Generate.php');
+                    // $fileContent = file_get_contents();
                     $fileModel = preg_match('/\$model(\s|=)/m', $fileContent) == 1;
                     $filePrefix = preg_match('/\$prefix(\s|=)/m', $fileContent) == 1;
                     $fileColumns = preg_match('/\$columns(\s|=)/m', $fileContent) == 1;
                     if (!$fileModel){
                         $console->comment('');
-                        $console->error('$model not defined in: /storage/app/DCMS/Generate.php');
+                        $console->error('$model not defined in: DCMSCrud.php');
                         $console->comment('');
                         $initManual = true;
                     }
                     if (!$filePrefix){
                         $console->comment('');
-                        $console->error('$prefix not defined in: /storage/app/DCMS/Generate.php');
+                        $console->error('$prefix not defined in: DCMSCrud.php');
                         $console->comment('');
                         $initManual = true;
                     }
                     if (!$fileColumns){
                         $console->comment('');
-                        $console->error('$columns not defined in: /storage/app/DCMS/Generate.php');
+                        $console->error('$columns not defined in: DCMSCrud.php');
                         $console->comment('');
                         $initManual = true;
                     }
-                    include (base_path().'/storage/app/DCMS/Generate.php');
+                    include ($crudFile);
                 } catch (\Exception $e){
                     sleep(2);
                 }
@@ -225,19 +259,18 @@ class Crud extends Command
 
             $seedAmount = $console->ask('How many objects should be seeded through factories? Enter a number.');
 
-            if ($mainVersion <= 7){
-                $file = 'database/seeds/DatabaseSeeder.php';
-            } else if ($mainVersion >= 8){
-                $file = 'database/seeders/DatabaseSeeder.php';
-            }
-
+            $file = ($this->findFile('DatabaseSeeder.php')) ? $this->findFile('DatabaseSeeder.php')->getPathname() : null;
             $contentToAdd = '        $this->call(' . $model . 'Seeder::class);';
 
             // Modify the content
-            $content = file_get_contents(base_path($file));
-            $newContent = AppendContent($content,2,$contentToAdd);
-            // Write to file
-            file_put_contents(base_path($file),str_replace($content,$newContent,file_get_contents(base_path($file))));
+            try {
+                $content = file_get_contents($file);
+                $newContent = AppendContent($content,2,$contentToAdd);
+                // Write to file
+                file_put_contents($file,str_replace($content,$newContent,file_get_contents($file)));
+            } catch (\Throwable $th) {
+                $console->error("Couldn't write to DatabaseSeeder. Folder structure might be incorrect.");
+            }
 
             $console->comment('');
             $console->comment('Added entry to DatabaseSeeder.');
@@ -259,20 +292,24 @@ class Crud extends Command
                 }
             }
 
-            $factoryFile = 'database/factories/'.$model.'Factory.php';
+            $factoryFile = ($this->findFile($model.'Factory.php')) ? $this->findFile($model.'Factory.php')->getPathname() : null;
             if ($mainVersion <= 7){
                 $factoryLine = 10;
             } else if ($mainVersion >= 8){
                 $factoryLine = 25;
             }
 
-            // File
-            $contentToAdd = $fakerEntries;
-            // Modify the content
-            $content = file_get_contents(base_path($factoryFile));
-            $newContent = WriteContent($content,$factoryLine,$contentToAdd);
-            // Write to file
-            file_put_contents(base_path($factoryFile),str_replace($content,$newContent,file_get_contents(base_path($factoryFile))));
+            try {
+                // File
+                $contentToAdd = $fakerEntries;
+                // Modify the content
+                $content = file_get_contents($factoryFile);
+                $newContent = WriteContent($content,$factoryLine,$contentToAdd);
+                // Write to file
+                file_put_contents($factoryFile,str_replace($content,$newContent,file_get_contents($factoryFile)));
+            } catch (\Throwable $th) {
+                $console->error("Couldn't write Factory. Folder structure might be incorrect.");
+            }
 
             $console->comment('');
             $console->comment('Generated factory.');
@@ -286,18 +323,21 @@ class Crud extends Command
                  *
                  */
 
+                $seederFile = ($this->findFile($model.'Seeder.php')) ? $this->findFile($model.'Seeder.php')->getPathname() : null;
                 if ($mainVersion <= 7){
-                    $seederFile = 'database/seeds/'.$model.'Seeder.php';
                     $contentToAdd = "        factory(App\\".$model."::class, ".$seedAmount.")->create();";
                 } else if ($mainVersion >= 8){
-                    $seederFile = 'database/seeders/'.$model.'Seeder.php';
                     $contentToAdd = '        \App\Models\\'.$model.'::factory()->count('.$seedAmount.')->create();';
                 }
-                // Modify the content
-                $content = file_get_contents(base_path($seederFile));
-                $newContent = AppendContent($content,3,$contentToAdd);
-                // Write to file
-                file_put_contents(base_path($seederFile),str_replace($content,$newContent,file_get_contents(base_path($seederFile))));
+                try {
+                    // Modify the content
+                    $content = file_get_contents($seederFile);
+                    $newContent = AppendContent($content,3,$contentToAdd);
+                    // Write to file
+                    file_put_contents($seederFile,str_replace($content,$newContent,file_get_contents($seederFile)));
+                } catch (\Throwable $th) {
+                    $console->error("Couldn't write Seeder. Folder structure might be incorrect.");
+                }
 
                 $console->comment('');
                 $console->comment('Generated seeder.');
@@ -311,18 +351,22 @@ class Crud extends Command
          *
          */
 
-        $routeFile = 'routes/web.php';
+        $routeFile = ($this->findFile('web.php')) ? $this->findFile('web.php')->getPathname() : null;
         if ($mainVersion <= 7){
             $contentToAdd = "Route::resource('" . $prefix . "', '" . $model . "Controller');";
         } else if ($mainVersion >= 8){
             $contentToAdd = "Route::resource('" . $prefix . "', \App\Http\Controllers\\".$model."Controller::class);";
         }
 
-        // Modify the content
-        $content = file_get_contents(base_path($routeFile));
-        $newContent = AppendContent($content,0,$contentToAdd);
-        // Write to file
-        file_put_contents(base_path($routeFile),str_replace($content,$newContent,file_get_contents(base_path($routeFile))));
+        try {
+            // Modify the content
+            $content = file_get_contents($routeFile);
+            $newContent = AppendContent($content,0,$contentToAdd);
+            // Write to file
+            file_put_contents($routeFile,str_replace($content,$newContent,file_get_contents($routeFile)));
+        } catch (\Throwable $th) {
+            $console->error("Couldn't write to routes. Folder structure might be incorrect.");
+        }
 
         $console->comment('');
         $console->comment('Added route.');
@@ -334,20 +378,25 @@ class Crud extends Command
          *
          */
 
-        $controllerFile = 'app/Http/Controllers/' . $model . 'Controller.php';
-        $modelRequestPath = '\\App\\Http\\Requests\\'.$model.'Request::class';
-
-        if ($mainVersion <= 7){
-            $modelPath = '\\App\\'.$model.'::class';
-        } else if ($mainVersion >= 8){
+        $controllerFile = ($this->findFile($model . 'Controller.php')) ? $this->findFile($model . 'Controller.php')->getPathname() : null;
+        
+        if ($mainVersion >= 8 && is_dir(base_path().'/app/Models')){
             $modelPath = '\\App\\Models\\'.$model.'::class';
+        } else {
+            $modelPath = '\\App\\'.$model.'::class';
         }
+
+        $modelRequestPath = '\\App\\Http\\Requests\\'.$model.'Request::class';
         $modelImport = str_replace('::class','',$modelPath);
         
         // Modify the content
         $newContent = include __DIR__ . '/Code/Crud/Controller.php';
         // Write to file
-        file_put_contents(base_path($controllerFile),$contentToAdd);
+        try {
+            file_put_contents($controllerFile,$newContent);
+        } catch (\Throwable $th) {
+            $console->error("Couldn't write Controller. Folder structure might be incorrect.");
+        }
 
         $console->comment('');
         $console->comment('Generated controller.');
@@ -360,9 +409,13 @@ class Crud extends Command
          */
 
         // Modify the content
-        $newContent = include __DIR__ . '/Code/Crud/Form.php';
+        $newContent = include __DIR__ . '/Code/Form/Class.php';
         // Write to file
-        file_put_contents(base_path('app/Forms/' . $model . 'Form.php'),$contentToAdd);
+        try {
+            file_put_contents(base_path('app/Forms/' . $model . 'Form.php'),$newContent);
+        } catch (\Throwable $th) {
+            $console->error("Couldn't write Form. Folder structure might be incorrect.");
+        }
 
         $console->comment('');
         $console->comment('Generated form.');
@@ -391,13 +444,17 @@ class Crud extends Command
             }
         }
 
-        $files = scandir(base_path().'/database/migrations', SCANDIR_SORT_DESCENDING);
-        $migrationFile = '/database/migrations/'.$files[0];
-        // Modify the content
-        $content = file_get_contents(base_path($migrationFile));
-        $newContent = WriteContent($content,18,$migEntries);
-        // Write to file
-        file_put_contents(base_path($migrationFile),str_replace($content,$newContent,file_get_contents(base_path($migrationFile))));
+        try {
+            $files = scandir(base_path().'/database/migrations', SCANDIR_SORT_DESCENDING);
+            $migrationFile = '/database/migrations/'.$files[0];
+            // Modify the content
+            $content = file_get_contents(base_path($migrationFile));
+            $newContent = WriteContent($content,18,$migEntries);
+            // Write to file
+            file_put_contents(base_path($migrationFile),str_replace($content,$newContent,file_get_contents(base_path($migrationFile))));
+        } catch (\Throwable $th) {
+            $console->error("Couldn't write Migration. Folder structure might be incorrect.");
+        }
 
         $console->comment('');
         $console->comment('Configured migration.');
@@ -409,11 +466,10 @@ class Crud extends Command
          *
          */
 
+        $modelFile = ($this->findFile($model . '.php')) ? $this->findFile($model . '.php')->getPathname() : null;
         if ($mainVersion <= 7){
-            $modelFile = 'app/' . $model . '.php';
             $relLine = 9;
         } else if ($mainVersion >= 8){
-            $modelFile = 'app/Models/' . $model . '.php';
             $relLine = 11;
         }
 
@@ -422,26 +478,30 @@ class Crud extends Command
         foreach ($columns as $name => $column){
             try {
                 if (array_key_exists('foreign',$column)){
-                        $relEntries .= include __DIR__ . '/../../Templates/Relation.php';;
+                        $relEntries .= include __DIR__ . '/Code/Crud/Relation.php';
                     }
                 } catch (\Throwable $th) {
                     //
                 }
         }
 
-        $contentToAdd = $relEntries;
-        // Modify the content
-        $content = file_get_contents(base_path($modelFile));
-        $newContent = WriteContent($content,$relLine,$contentToAdd);
-        // Write to file
-        file_put_contents(base_path($modelFile),str_replace($content,$newContent,file_get_contents(base_path($modelFile))));
+        try {
+            $contentToAdd = $relEntries;
+            // Modify the content
+            $content = file_get_contents($modelFile);
+            $newContent = WriteContent($content,$relLine,$contentToAdd);
+            // Write to file
+            file_put_contents($modelFile,str_replace($content,$newContent,file_get_contents($modelFile)));
+        } catch (\Throwable $th) {
+            $console->error("Couldn't write to Model. Folder structure might be incorrect.");
+        }
 
         $console->comment('');
         $console->comment('Generated model.');
         $console->comment('');
 
         //configure request
-        $requestFile = 'app/Http/Requests/'.$model.'Request.php';
+        $requestFile = ($this->findFile($model.'Request.php')) ? $this->findFile($model.'Request.php')->getPathname() : null;
         $reqEntries = '    ';
         foreach ($columns as $column){
             if (array_key_exists('validation',$column)){
@@ -457,9 +517,9 @@ class Crud extends Command
             }
         }
 
-        $contentToAdd = include __DIR__ . '/../../Templates/Request.php';
+        $contentToAdd = include __DIR__ . '/Code/Crud/Request.php';
         // Write to file
-        file_put_contents(base_path($requestFile),$requestContent);
+        file_put_contents($requestFile,$contentToAdd);
 
         $console->comment('');
         $console->comment('Generated custom request.');

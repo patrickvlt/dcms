@@ -5,11 +5,10 @@ return '<?php
 namespace App\\Http\\Controllers;
 
 use '.$modelImport.';
-use Illuminate\\Http\\Request;
 use App\\Forms\\'.$model.'Form;
 use App\\Traits\\DCMSController;
-use Pveltrop\DCMS\Classes\Datatable;
 use App\\Http\\Requests\\'.$model.'Request;
+use Pveltrop\DCMS\Classes\Datatable;
 
 class '.$model.'Controller extends Controller
 {
@@ -19,9 +18,9 @@ class '.$model.'Controller extends Controller
     // This will help automatically pointing this controller to the right route, class, use the right messages in alerts, etc.
     function __construct()
     {
-        $this->routePrefix = "'.$prefix.'";
-        $this->model => '.$modelPath.',
-        $this->request => '.$modelRequestPath.',
+        $this->routePrefix = "'.strtolower($prefix).'";
+        $this->model = '.$model.'::class;
+        $this->request = '.$modelRequestPath.';
         $this->form = '.$model.'Form::class;
         $this->responses = [
             "created" => [
