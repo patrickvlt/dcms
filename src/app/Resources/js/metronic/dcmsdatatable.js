@@ -150,7 +150,7 @@ window.DCMSDatatable = function (parameters) {
                                 var cardTextColor = (column.dataset.ktCardTextColor) ? column.dataset.ktCardTextColor : 'white';
                                 var titleColor = (column.dataset.ktTitleColor) ? column.dataset.ktTitleColor : 'primary';
 
-                                return `<div data-id='` + useRow['id'] + `'><span style="width: 250px;"><div class="d-flex align-items-center">
+                                return `<div data-id='` + row.id + `'><span style="width: 250px;"><div class="d-flex align-items-center">
 									<div class="symbol symbol-40 symbol-`+ cardColor + ` flex-shrink-0">
 										<div class="symbol-label text-` + cardTextColor + `" style="background-image:url('`+ cardImg + `')">` + cardImgText + `</div>
 									</div>
@@ -163,7 +163,7 @@ window.DCMSDatatable = function (parameters) {
                             // Generate a simple checkbox column, works best with boolean fields
                             case 'boolean':
                                 if (useRow[column.dataset.ktColumn] !== null && useRow[column.dataset.ktColumn] !== 0 && typeof useRow[column.dataset.ktColumn] !== 'undefined') {
-                                    return `<i data-id='`+useRow.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.ktMaxHeight+`"></i>`;
+                                    return `<i data-id='`+row.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.ktMaxHeight+`"></i>`;
                                 }
                                 else {
                                     return '';
@@ -171,19 +171,19 @@ window.DCMSDatatable = function (parameters) {
                                 break;
                             // Simple text column
                             case 'text':
-                                return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
+                                return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
                             // Prepend an icon to the visible value
                             case 'icon':
                                 let icon = '';
                                 if (column.dataset.ktIconClass && value !== ''){
                                     icon = `<i class="d-inline `+column.dataset.ktIconClass+` text-muted"></i>`;
                                 }
-                                return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
+                                return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
                             // Simple price column
                             case 'price':
                                 let currency = (column.dataset.ktCurrency) ? column.dataset.ktCurrency : '€';
                                 value = (value == '') ? 0 : value;
-                                return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+currency+prepend+value+append+`,-`+`</div>`;
+                                return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+currency+prepend+value+append+`,-`+`</div>`;
                             // Image column which can be made fullscreen if spotlight is also included
                             case 'image':
                                 var changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
@@ -204,14 +204,14 @@ window.DCMSDatatable = function (parameters) {
                                     value = value[0];
                                 }
 
-                                return `<div class="dcmstable-image" data-id='`+useRow.id+`'>
+                                return `<div class="dcmstable-image" data-id='`+row.id+`'>
 								<div class="dcmstable-image-wrapper `+spotlightClass+`" data-src='`+prepend+value+append+`' style="background-image: url(`+prepend+value+append+`); max-height:`+column.dataset.ktMaxHeight+`"></div>
 								`+changeControl+`
 								`+deleteControl+`
 							</div>`;
                             default:
                                 // return prepend+value+append;
-                                return `<div data-id='`+useRow.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
+                                return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
                         }
                     },
                 };

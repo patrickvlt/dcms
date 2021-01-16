@@ -31,6 +31,7 @@ trait DCMSImports {
         $nullableColumns = [];
 
         foreach ($this->request->rules() as $key => $rule){
+            $rule = is_array($rule) ? implode('|',$rule) : $rule;
             if (preg_match('/nullable/',$rule) || !preg_match('/required/',$rule)){
                 $nullableColumns[] = $key;
             }
