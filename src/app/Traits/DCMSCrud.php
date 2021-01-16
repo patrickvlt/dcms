@@ -71,7 +71,7 @@ trait DCMSCrud {
                             // Check if file uploads have this applications URL in it
                             // If any upload doesnt have the url in its filename, then it has been tampered with
                             // Only check this if using local webserver storage
-                            if (!preg_match('~'.env('APP_URL').'~',$file) && preg_match('/http/',$file) && $this->storageConfig == 'laravel'){
+                            if (!preg_match('~'.rtrim(env('APP_URL'), "/").'~',$file) && preg_match('/http/',$file) && $this->storageConfig == 'laravel'){
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
@@ -94,7 +94,7 @@ trait DCMSCrud {
                                 }
                             } else {
                                 // Strip APP_URL to locate this file locally on webserver
-                                $oldPath = str_replace(env('APP_URL'),'',$file);
+                                $oldPath = str_replace(rtrim(env('APP_URL'), "/"),'',$file);
                                 $oldPath = str_replace('/storage/','/public/',$oldPath);
                                 $newPath = str_replace('/tmp/','/',$oldPath);
                                 $storedFile = Storage::exists($oldPath);

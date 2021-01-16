@@ -141,7 +141,8 @@ class DCMSFilepondController extends Controller
             } else {
                 // If using storage on webserver
                 $this->file->store('public/tmp/files/' . $this->type.'/'.$this->column);
-                return env('APP_URL').'/storage/tmp/files/'.$this->type.'/'.$this->column.'/'.$this->file->hashName();
+                $link = rtrim(env('APP_URL'), "/").'/storage/tmp/files/'.$this->type.'/'.$this->column.'/'.$this->file->hashName();
+                return $link;
             }
 
         }
