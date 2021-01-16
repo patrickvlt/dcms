@@ -71,7 +71,7 @@ trait DCMSCrud {
                             // Check if file uploads have this applications URL in it
                             // If any upload doesnt have the url in its filename, then it has been tampered with
                             // Only check this if using local webserver storage
-                            if (!preg_match('~'.env('APP_URL').'~',$file) && preg_match('/http/',$file) && !env('DCMS_STORAGE_SERVICE')){
+                            if (!preg_match('~'.env('APP_URL').'~',$file) && preg_match('/http/',$file) && $this->storageConfig == 'laravel'){
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
@@ -84,7 +84,7 @@ trait DCMSCrud {
                             }
                             // Check if file exists in tmp folder
                             // Then move it to final public folder
-                            if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+                            if ($this->storageConfig == 'dropbox'){
                                 $storedFile = false;
                                 $findFile = Dropbox::findBySharedLink($file);
                                 if ($findFile->status == 200){
@@ -92,7 +92,7 @@ trait DCMSCrud {
                                     $oldPath = $findFile->response->path_lower;
                                     $newPath = str_replace('/tmp','',$findFile->response->path_lower);
                                 }
-                            } else if (!env('DCMS_STORAGE_SERVICE')){
+                            } else {
                                 // Strip APP_URL to locate this file locally on webserver
                                 $oldPath = str_replace(env('APP_URL'),'',$file);
                                 $oldPath = str_replace('/storage/','/public/',$oldPath);
@@ -171,7 +171,7 @@ trait DCMSCrud {
         // Move files from tmp to files folder
         if (count($this->filesToMove) > 0){
             foreach ($this->filesToMove as $key => $file) {
-                if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+                if ($this->storageConfig == 'dropbox'){
                     $findFileDropbox = Dropbox::findByPath($file['newPath']);
                     if ($findFileDropbox->status !== 200){
                         $move = Dropbox::move($file['oldPath'],$file['newPath']);
@@ -188,7 +188,7 @@ trait DCMSCrud {
                             ], 422);
                         }
                     }
-                } else if (!env('DCMS_STORAGE_SERVICE')){
+                } else {
                     if (!Storage::exists($file['newPath'])){
                         Storage::copy($file['oldPath'],$file['newPath']);
                         Storage::delete($file['oldPath']);
@@ -258,12 +258,12 @@ trait DCMSCrud {
         // Remove files from storage which havent been passed in the request
         if (count($this->filesToRemove) > 0){
             foreach ($this->filesToRemove as $key => $file) {
-                if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+                if ($this->storageConfig == 'dropbox'){
                     $file = Dropbox::findBySharedLink($file);
                     if ($file->status == 200){
                         Dropbox::remove($file->response->path_lower);
                     }
-                } else if (!env('DCMS_STORAGE_SERVICE')){
+                } else {
                     $file = str_replace('storage','public',$file);
                     if (Storage::exists($file)){
                         Storage::delete($file);

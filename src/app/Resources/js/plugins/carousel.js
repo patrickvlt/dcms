@@ -169,17 +169,6 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         });
     });
 
-    $(document).on('click', '[data-dCar-action="copy"]', function () {
-        var img;
-        img = $(this).data('dcar-file');
-        window.textToClipBoard(img);
-        try {
-            toastr.success(Lang('Image copied to clipboard.'));
-        } catch (error) {
-            //
-        }
-    });
-
     $(document).on('mouseenter', '.dCar-div', function () {
         $(this).find('.dCar-controls').css('visibility', 'visible');
     });

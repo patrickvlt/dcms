@@ -65,6 +65,9 @@ trait DCMSController
             $this->importCols = $this->jExcel['columns'] ?? null;
             // jExcel autocorrect columns
             $this->autoFixColumns = $this->jExcel['autocorrect'] ?? null;
+
+            // Check if DCMS config has a separate storage config for the current model
+            $this->storageConfig = (config('dcms.storage.service.'.strtolower($this->routePrefix))) ? config('dcms.storage.service.'.strtolower($this->routePrefix)) : config('dcms.storage.service.global');
         }
     }
 

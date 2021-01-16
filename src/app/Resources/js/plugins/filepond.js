@@ -91,6 +91,9 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
                         "input": pond.name,
                         "file": file.serverId
                     });
+                    $(`<button class="filepond--file-action-button filepond--action-copy-item-processing" type="button" data-filepond-copy-button="${pond.name.replace('[]','')}-copy" data-dcms-action="copy" data-dcms-file="${file.serverId}" data-align="right" style="transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1); opacity: 1;top: 2.35em">
+                        <i class="fas fa-copy" style="color: white;font-size: 10px;margin-bottom: 4px;"></i>
+                    </button>`).insertAfter($("#"+pond.name.replace('[]','')+".filepond--root.filepond--hopper").find('.filepond--action-revert-item-processing').first());
                     if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
                         document.querySelectorAll('[data-type=jexcel]').forEach(function (table) {
                             if (document.querySelector(inputElement.dataset.filepondTableSelector)){
@@ -165,5 +168,16 @@ if (document.querySelectorAll('[data-type=filepond]').length > 0) {
             MakePond(element);
         });
         document.querySelectorAll('.filepond--drop-label').forEach(element => element.classList.add('input-group-text'));
+    });
+
+    $(document).on('click', '[data-dcms-action="copy"]', function () {
+        var img;
+        img = $(this).data('dcms-file');
+        window.textToClipBoard(img);
+        try {
+            toastr.success(Lang('Image copied to clipboard.'));
+        } catch (error) {
+            //
+        }
     });
 }

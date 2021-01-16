@@ -19,6 +19,8 @@ class DCMSFilepondController extends Controller
             $this->class = FindClass($this->prefix)['class'];
             // Get class request with namespace
             $this->classRequest = '\App\Http\Requests\\'.($this->file . 'Request');
+            // Check if DCMS config has a separate storage config for the current model
+            $this->storageConfig = (config('dcms.storage.service.'.strtolower($this->prefix))) ? config('dcms.storage.service.'.strtolower($this->prefix)) : config('dcms.storage.service.global');
         }
     }
 
@@ -134,9 +136,9 @@ class DCMSFilepondController extends Controller
             }
 
             // If using Dropbox for storage
-            if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+            if ($this->storageConfig == 'dropbox'){
                 return $this->storeOnDropbox();
-            } else if (!env('DCMS_STORAGE_SERVICE')){
+            } else {
                 // If using storage on webserver
                 $this->file->store('public/tmp/files/' . $this->type.'/'.$this->column);
                 return env('APP_URL').'/storage/tmp/files/'.$this->type.'/'.$this->column.'/'.$this->file->hashName();
@@ -153,7 +155,7 @@ class DCMSFilepondController extends Controller
         $column = str_replace('[]','',$column);
         
         // If using Dropbox for storage
-        if (env('DCMS_STORAGE_SERVICE') == 'dropbox'){
+        if ($this->storageConfig == 'dropbox'){
             $dropboxPath = Dropbox::findBySharedLink(request()->getContent());
             if ($dropboxPath->status == 200){
                 $dropboxPath = $dropboxPath->response->path_lower;
@@ -161,7 +163,7 @@ class DCMSFilepondController extends Controller
                 $msg = 'Deleted succesfully';
                 $status = 200;
             }
-        } else if (!env('DCMS_STORAGE_SERVICE')){
+        } else {
             // Convert path to variable in database, remove APP URL and strip slashes
             // Also rename storage to public, /storage is for Front End
             $path = str_replace('"','',stripslashes(request()->getContent()));
