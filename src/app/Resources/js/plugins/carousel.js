@@ -26,13 +26,13 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         function defaultImgString(img, dcars) {
             return `<div class="dCar-div">
                         <div class="dCar-controls">
-                            <a class="dCar-btn spotlight" href="`+img+`" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                            <a class="dCar-btn spotlight" href="`+img+`" data-dcar="`+dcars+`" data-dcms-action="copy" data-dcms-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
                                 <i class="fas fa-eye"></i>
                             </span></a>
-                            <a class="dCar-btn" data-dcar="`+dcars+`" data-dcar-action="copy" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                            <a class="dCar-btn" data-dcar="`+dcars+`" data-dcms-action="copy" data-dcms-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
                                 <i class="fas fa-copy"></i>
                             </span></a>
-                            <a class="dCar-btn" data-dcar="`+dcars+`" data-dcar-action="destroy" data-dcar-prefix="`+dcarPrefix+`" data-dcar-column="`+dcarColumn+`" data-dcar-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                            <a class="dCar-btn" data-dcar="`+dcars+`" data-dCar-action="destroy" data-dcar-prefix="`+dcarPrefix+`" data-dcar-column="`+dcarColumn+`" data-dcms-file="`+img+`"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
                                 <i class="fas fa-trash"></i>
                             </span></a>
                         </div>
@@ -141,7 +141,7 @@ if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         dCarPrefix = parentCar.dataset.dcarPrefix;
         dCarColumn = parentCar.dataset.dcarColumn;
         dCarRevertKey = (parentCar.dataset.dcarRevertKey) ? '/' + parentCar.dataset.dcarRevertKey : '/' + dCarColumn;
-        dCarFile = element.dataset.dcarFile;
+        dCarFile = element.dataset.dcmsFile;
 
         parentDiv = element.parentNode.parentNode;
 
