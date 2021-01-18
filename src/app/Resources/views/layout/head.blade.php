@@ -8,6 +8,7 @@
     <!--begin::Fonts-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" />
     <!--end::Fonts-->
+    <link href="/css/dcms/portal/portal.css" rel="stylesheet" type="text/css" />
     <!--begin::Page Vendors Styles(used by this page)-->
     <link href="/css/dcms/portal/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />
     <!--end::Page Vendors Styles-->

@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Pveltrop\DCMS\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Pveltrop\DCMS\Classes\Content;
+use App\Http\Controllers\Controller;
 use Stevebauman\Purify\Facades\Purify;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
-class DCMSContentController extends Controller
+class ContentController extends Controller
 {
     // Override authenticate and entries method below to use this Controller
 

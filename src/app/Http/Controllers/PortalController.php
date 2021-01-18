@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Pveltrop\DCMS\Http\Controllers;
 
-class DCMSDashboardController extends Controller
+use App\Http\Controllers\Controller;
+
+class PortalController extends Controller
 {
     public function generate()
     {

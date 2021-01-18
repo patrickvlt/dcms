@@ -3,24 +3,32 @@
 use Illuminate\Support\Facades\Route;
 
 /**
-* DCMS Dashboard
+* DCMS Portal
 */
 
-Route::get('/dcms/dashboard', 'App\Http\Controllers\DCMSDashboardController@index')->name('dcms.portal.dashboard');
+Route::get('/dcms/dashboard', 'Pveltrop\DCMS\Http\Controllers\PortalController@index')->name('dcms.portal.dashboard');
+Route::get('/dcms/activity', 'Pveltrop\DCMS\Http\Controllers\PortalController@activity')->name('dcms.portal.activity');
+
+Route::prefix('/dcms')->group(function () {
+    Route::resource('permission', 'Pveltrop\DCMS\Http\Controllers\PermissionController',['as' => 'dcms.portal']);
+    Route::resource('role', 'Pveltrop\DCMS\Http\Controllers\RoleController',['as' => 'dcms.portal']);
+    Route::resource('user', 'Pveltrop\DCMS\Http\Controllers\UserController',['as' => 'dcms.portal']);
+    Route::resource('model', 'Pveltrop\DCMS\Http\Controllers\ModelController',['as' => 'dcms.portal']);
+});
 
 /**
 * File uploads
 */
 
-Route::post('/dcms/file/process/{prefix}/{type}/{column}', 'App\Http\Controllers\DCMSFilepondController@ProcessFile');
-Route::delete('/dcms/file/revert/{prefix}/{type}/{column}', 'App\Http\Controllers\DCMSFilepondController@DeleteFile');
+Route::post('/dcms/file/process/{prefix}/{type}/{column}', 'Pveltrop\DCMS\Http\Controllers\FilepondController@ProcessFile');
+Route::delete('/dcms/file/revert/{prefix}/{type}/{column}', 'Pveltrop\DCMS\Http\Controllers\FilepondController@DeleteFile');
 
 /**
 * Use these routes as a reference for the DCMS editor
 * Make sure your controller uses the DCMSContent trait
 */
 
-// Route::post('/dcms/content/authenticate', 'App\Http\Controllers\ContentController@authenticate');
-// Route::post('/dcms/content/update', 'App\Http\Controllers\ContentController@update');
-// Route::post('/dcms/content/clear', 'App\Http\Controllers\ContentController@clear');
+// Route::post('/dcms/content/authenticate', 'Pveltrop\DCMS\Http\Controllers\ContentController@authenticate');
+// Route::post('/dcms/content/update', 'Pveltrop\DCMS\Http\Controllers\ContentController@update');
+// Route::post('/dcms/content/clear', 'Pveltrop\DCMS\Http\Controllers\ContentController@clear');
 
