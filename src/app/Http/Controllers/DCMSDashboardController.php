@@ -8,4 +8,9 @@ class DCMSDashboardController extends Controller
     {
         return view('dcms::generate');
     }
+
+    public function index()
+    {
+        return view('dcms::index');
+    }
 }
