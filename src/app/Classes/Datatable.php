@@ -62,39 +62,43 @@ class Datatable
         // General search
         if (isset($params['query']['generalSearch'])){
             // Get first row from query to grab the keys/fields
-            $firstRow = $this->query->get()->first();
+            $firstRow = $this->query->first();
             $firstRowArr = $firstRow->toArray();
 
             $searchValue = strtolower($params['query']['generalSearch']);
 
-            $this->query->where(function ($q) use ($firstRow, $firstRowArr, $searchValue) {
-                foreach ($firstRowArr as $entry => $value) {  
-                    // If column name isnt in the models attributes, so its a relation
-                    // Dynamically make wherehas clauses for generalsearch
-                    if (!in_array($entry,array_keys($firstRow->getAttributes()))) {
-                        $q->whereHas($entry, function ($q) use ($entry, $searchValue, $firstRow) {
-                            $y = 0;
-                            foreach ($firstRow->{$entry}->toArray() as $relatedEntry => $relatedValue) {
-                                if(!is_array($relatedValue)){
-                                    if ($y == 0){
-                                        $q->where($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
-                                    } 
-                                    else {
-                                        $q->orWhere($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
+            if ($firstRow){
+                $this->query->where(function ($q) use ($firstRow, $firstRowArr, $searchValue) {
+                    foreach ($firstRowArr as $entry => $value) {  
+                        // If column name isnt in the models attributes, so its a relation
+                        // Dynamically make wherehas clauses for generalsearch
+                        if (!in_array($entry,array_keys($firstRow->getAttributes()))) {
+                            $q->whereHas($entry, function ($q) use ($entry, $searchValue, $firstRow) {
+                                $y = 0;
+                                if (isset($firstRow->{$entry})){
+                                    foreach ($firstRow->{$entry}->toArray() as $relatedEntry => $relatedValue) {
+                                        if(!is_array($relatedValue)){
+                                            if ($y == 0){
+                                                $q->where($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
+                                            } 
+                                            else {
+                                                $q->orWhere($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
+                                            }
+                                        }
+                                        $y++;
                                     }
                                 }
-                                $y++;
-                            }
-                        });
+                            });
+                        }
                     }
-                }
-                foreach ($firstRowArr as $entry => $value) {  
-                    // Dynamically make where clauses for generalsearch
-                    if(!is_array($value)){
-                        $q->orWhere($entry,'LIKE','%'.strtolower($searchValue).'%');
+                    foreach ($firstRowArr as $entry => $value) {  
+                        // Dynamically make where clauses for generalsearch
+                        if(!is_array($value) && in_array($entry,array_keys($firstRow->getAttributes()))){
+                            $q->orWhere($entry,'LIKE','%'.strtolower($searchValue).'%');
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         // Generate collection from results
