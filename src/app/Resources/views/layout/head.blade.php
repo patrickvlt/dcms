@@ -1,13 +1,15 @@
 <!--begin::Head-->
 <head><base href="">
     <meta charset="utf-8" />
-    <title>Metronic Live preview | Keenthemes</title>
+    <title>{{ __('DCMS Portal') }}</title>
     <meta name="description" content="Updates and statistics" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link rel="canonical" href="https://keenthemes.com/metronic" />
     <!--begin::Fonts-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" />
     <!--end::Fonts-->
+    <link href="/css/dcms/dcms.css" rel="stylesheet" type="text/css" />
     <link href="/css/dcms/portal/portal.css" rel="stylesheet" type="text/css" />
     <!--begin::Page Vendors Styles(used by this page)-->
     <link href="/css/dcms/portal/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />

@@ -2,8 +2,8 @@
 
 namespace Pveltrop\DCMS\Http\Controllers;
 
-use Pveltrop\DCMS\Classes\Dropbox;
 use App\Http\Controllers\Controller;
+use Pveltrop\DCMS\Classes\Dropbox;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 

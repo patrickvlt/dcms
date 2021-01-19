@@ -14,7 +14,7 @@
 					@include('dcms::layout.header')
 					<!--begin::Content-->
 					<div class="content d-flex flex-column flex-column-fluid pt-5" id="kt_content">
-						@include('dcms::layout.subheader')
+						@yield('subheader')
 						<!--begin::Entry-->
 						<div class="d-flex flex-column-fluid">
 							<!--begin::Container-->
@@ -67,7 +67,13 @@
 		<!--end::Page Vendors-->
 		<!--begin::Page Scripts(used by this page)-->
 		<script src="/js/dcms/portal/widgets.js"></script>
+		<script>
+			var locale = "{{ App::getLocale() }}"; 
+			var maxSizeServer = {!! MaxSizeServer('kb') !!};
+		</script>
+		<script src="/js/dcms/dcms.js"></script>
 		<!--end::Page Scripts-->
+		@stack('footer-scripts')
 	</body>
 	<!--end::Body-->
 </html>

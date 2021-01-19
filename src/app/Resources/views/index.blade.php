@@ -1,4 +1,23 @@
 @extends('dcms::layout.app')
+@section('subheader')
+<!--begin::Subheader-->
+<div class="subheader py-2 py-lg-6 subheader-transparent" id="kt_subheader">
+    <div class="container d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
+        <!--begin::Info-->
+        <div class="d-flex align-items-center flex-wrap mr-2">
+        </div>
+        <!--end::Info-->
+        <!--begin::Toolbar-->
+        <div class="d-flex align-items-center flex-wrap">
+            <!--begin::Actions-->
+            
+            <!--end::Actions-->
+        </div>
+        <!--end::Toolbar-->
+    </div>
+</div>
+<!--end::Subheader-->
+@endsection
 @section('content')
 <!--begin::Dashboard-->
 <!--begin::Row-->

@@ -127,14 +127,14 @@ if (!function_exists('FormRoute')) {
     {
         $routeName = request()->route()->getName();
         if (!$prefix) {
-            $prefix = $prefix ?? explode(".", $routeName)[0];
+            $prefix = explode(".", $routeName)[0];
         }
         $routeAction = explode(".", $routeName);
         $routeAction = end($routeAction);
         $formRoute = null;
 
         // Try to append parameters with Laravels route helper
-        function fixRoute($prefix, $action)
+        function fixRoute($prefix, $action,$routeName)
         {
             $addParameters = [];
             foreach (request()->route()->parameters as $key => $parameter) {
@@ -144,7 +144,13 @@ if (!function_exists('FormRoute')) {
                     $addParameters[] = $parameter;
                 }
             }
-            return route($prefix . $action, $addParameters);
+            try {
+                return route($prefix . $action, $addParameters);
+            } catch (\Throwable $th) {
+                preg_match_all('/(\S*)(\.edit|\.create)/m',$routeName,$matches,PREG_SET_ORDER, 0);
+                $prefix = $matches[0][1];
+                return route($prefix . $action, $addParameters);
+            }
         }
 
         switch ($routeAction) {
@@ -152,7 +158,7 @@ if (!function_exists('FormRoute')) {
                 try {
                     $formRoute = route($prefix . '.store', request()->route()->parameters[$prefix]);
                 } catch (\Throwable $th) {
-                    $formRoute = fixRoute($prefix, '.store');
+                    $formRoute = fixRoute($prefix, '.store',$routeName);
                 }
                 break;
             case 'update':
@@ -160,7 +166,7 @@ if (!function_exists('FormRoute')) {
                 try {
                     $formRoute = route($prefix . '.update', request()->route()->parameters[$prefix]);
                 } catch (\Throwable $th) {
-                    $formRoute = fixRoute($prefix, '.update');
+                    $formRoute = fixRoute($prefix, '.update',$routeName);
                 }
                 break;
         }
