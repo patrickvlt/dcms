@@ -48,7 +48,7 @@ class Datatable
 
         // Build filters for query
         if (isset($params['query'])) {
-            $this->query->where(function ($q) use ($params){
+            $this->query->where(function ($q) use ($params) {
                 foreach ($params['query'] as $key => $value) {
                     if ($key !== 'generalSearch') {
                         $this->filter($key, $value);
@@ -62,61 +62,67 @@ class Datatable
         $page = isset($params['pagination']['page']) ? $params['pagination']['page'] : null;
 
         // General search
-        if (isset($params['query']['generalSearch'])){
-            // Get first row from query to grab the keys/fields
-            $firstRow = $this->query->get()->first();
-            $firstRowArr = $firstRow->toArray();
+        if (isset($params['query']['generalSearch'])) {
+            $this->searchValue = strtolower($params['query']['generalSearch']);
+            $this->queryModel = $this->query->getModel();
+            $this->model = new $this->queryModel();
+            $this->table = $this->queryModel->getTable();
+            $this->columns = Schema::getColumnListing($this->table);
+            $this->relations = (is_countable($this->query->getEagerLoads()) && $this->query->getEagerLoads() > 0) ? array_keys($this->query->getEagerLoads()) : null;
+            $this->usedOuterWhere = false;
 
-            $searchValue = strtolower($params['query']['generalSearch']);
-
-            if ($firstRow){
-                $this->queryModel = $this->query->getModel();
-                $this->model = new $this->queryModel();
-
-                $this->query->where(function ($q) use ($firstRow, $firstRowArr, $searchValue) {
-                    foreach ($firstRowArr as $entry => $value) {  
-                        // If column name isnt in the models attributes, so its a relation
-                        // Dynamically make wherehas clauses for generalsearch
-                        if (!in_array($entry,array_keys($firstRow->getAttributes()))) {
-                            $q->whereHas($entry, function ($q) use ($entry, $searchValue, $firstRow) {
-                                $y = 0;
-
-                                // To make dynamic where clauses for any relation, the array keys are needed
-                                // If the first row has a relation, but the relation returns null, the array keys need to be fetched with Schema
-                                // By instantiating the class which belongs to the relation, so the naming conventions have to be correct, or this wont work
-                                try {
-                                    $relationMethod = new \ReflectionClass($this->model->{$entry}());
-                                    $relationMethod = $relationMethod->getName();
-                                } catch (\Throwable $th) {
-                                    $relationMethod = null;
-                                }
-                                if (preg_match('/Relation/',$relationMethod)){
-                                    $relationMethod = $this->model->{$entry}();
-                                    $relationClass = $relationMethod->getRelated();
-                                    $relationTable = $relationClass->getTable();
-                                    $relationProps = Schema::getColumnListing($relationTable);
-                                    $relation = array_flip($relationProps);
-                                    
-                                    foreach ($relation as $relatedEntry => $relatedValue) {
-                                        if(!is_array($relatedValue)){
-                                            if ($y == 0){
-                                                $q->where($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
-                                            } 
-                                            else {
-                                                $q->orWhere($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
-                                            }
-                                        }
-                                        $y++;
+            /**
+             * Make where clauses from relations
+             */
+            if($this->relations){
+                foreach ($this->relations as $x => $relationName) {
+                    $this->relationName = $relationName;
+                    $innerWhere = ($x > 0) ? 'orWhere' : 'where';
+                    $this->query->{$innerWhere}(function ($q) {
+                        $this->usedInnerWhere = false;
+                        // To make dynamic where clauses for any relation, the array keys are needed
+                        // The relations' keys will be fetched with Schema
+                        $q->whereHas($this->relationName, function ($q) {
+                            try {
+                                $relationMethod = new \ReflectionClass($this->model->{$this->relationName}());
+                                $relationMethod = $relationMethod->getName();
+                            } catch (\Throwable $th) {
+                                $relationMethod = null;
+                            }
+                            if (preg_match('/Relation/', $relationMethod)) {
+                                $relationMethod = $this->model->{$this->relationName}();
+                                $relationClass = $relationMethod->getRelated();
+                                $relationTable = $relationClass->getTable();
+                                $relationProps = Schema::getColumnListing($relationTable);
+                                $relation = array_flip($relationProps);
+    
+                                foreach ($relation as $relatedEntry => $relatedValue) {
+                                    if (!is_array($relatedValue)) {
+                                        $thisInnerWhere = ($this->usedInnerWhere) ? 'orWhere' : 'where';
+                                        $q->{$thisInnerWhere}($relationTable . '.' . $relatedEntry, 'LIKE', '%' . strtolower($this->searchValue) . '%');
+                                        $this->usedInnerWhere = true;
                                     }
+                                    $this->usedOuterWhere = true;
                                 }
-                            });
-                        }
-                    }
-                    foreach ($firstRowArr as $entry => $value) {  
+                            }
+                        });
+                    });
+                }
+            }
+
+            $outerWhere = ($this->usedOuterWhere) ? 'orWhere' : 'where';
+            
+            /**
+             * Make where clauses from query models' table
+             */
+            if($this->columns){
+                $this->query->{$outerWhere}(function ($q) {
+                    foreach ($this->columns as $z => $column) {
                         // Dynamically make where clauses for generalsearch
                         // These are the models' default properties
-                        if(!is_array($value) && in_array($entry,array_keys($firstRow->getAttributes()))){
-                            $q->orWhere($entry,'LIKE','%'.strtolower($searchValue).'%');
+                        if(!is_array($column)){
+                            $finalInnerWhere = ($z > 0) ? 'orWhere' : 'where';
+                            $q->{$finalInnerWhere}($column,'LIKE','%'.strtolower($this->searchValue).'%');
                         }
                     }
                 });
@@ -134,14 +140,14 @@ class Datatable
 
         // Paginate the collection instead of query
         $total = count($this->data);
-        if ($perPage){
+        if ($perPage) {
             $pages = (int)ceil($total / $perPage);
             // If user is outside the pages range when changing pagination preferences
             if ($page > $pages) {
                 // Set page to max possible page
                 $page = $pages;
             }
-            $this->data = $this->data->forPage($page,$perPage);
+            $this->data = $this->data->forPage($page, $perPage);
         } else {
             $pages = 1;
             $page = 1;
@@ -149,7 +155,7 @@ class Datatable
 
         // Make response object with meta
         $response = (object) 'query';
-        
+
         // Paginate the results if page and perpage parameters are present
         if (isset($page, $perPage) && $total > 0) {
             $response->data = $this->data;
