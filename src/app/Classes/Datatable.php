@@ -8,7 +8,9 @@
 
 namespace Pveltrop\DCMS\Classes;
 
-use Illuminate\Database\Eloquent\Collection;
+use ReflectionClass;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class Datatable
 {
@@ -62,12 +64,15 @@ class Datatable
         // General search
         if (isset($params['query']['generalSearch'])){
             // Get first row from query to grab the keys/fields
-            $firstRow = $this->query->first();
+            $firstRow = $this->query->get()->first();
             $firstRowArr = $firstRow->toArray();
 
             $searchValue = strtolower($params['query']['generalSearch']);
 
             if ($firstRow){
+                $this->queryModel = $this->query->getModel();
+                $this->model = new $this->queryModel();
+
                 $this->query->where(function ($q) use ($firstRow, $firstRowArr, $searchValue) {
                     foreach ($firstRowArr as $entry => $value) {  
                         // If column name isnt in the models attributes, so its a relation
@@ -75,8 +80,24 @@ class Datatable
                         if (!in_array($entry,array_keys($firstRow->getAttributes()))) {
                             $q->whereHas($entry, function ($q) use ($entry, $searchValue, $firstRow) {
                                 $y = 0;
-                                if (isset($firstRow->{$entry})){
-                                    foreach ($firstRow->{$entry}->toArray() as $relatedEntry => $relatedValue) {
+
+                                // To make dynamic where clauses for any relation, the array keys are needed
+                                // If the first row has a relation, but the relation returns null, the array keys need to be fetched with Schema
+                                // By instantiating the class which belongs to the relation, so the naming conventions have to be correct, or this wont work
+                                try {
+                                    $relationMethod = new \ReflectionClass($this->model->{$entry}());
+                                    $relationMethod = $relationMethod->getName();
+                                } catch (\Throwable $th) {
+                                    $relationMethod = null;
+                                }
+                                if (preg_match('/Relation/',$relationMethod)){
+                                    $relationMethod = $this->model->{$entry}();
+                                    $relationClass = $relationMethod->getRelated();
+                                    $relationTable = $relationClass->getTable();
+                                    $relationProps = Schema::getColumnListing($relationTable);
+                                    $relation = array_flip($relationProps);
+                                    
+                                    foreach ($relation as $relatedEntry => $relatedValue) {
                                         if(!is_array($relatedValue)){
                                             if ($y == 0){
                                                 $q->where($relatedEntry,'LIKE','%'.strtolower($searchValue).'%');
@@ -93,6 +114,7 @@ class Datatable
                     }
                     foreach ($firstRowArr as $entry => $value) {  
                         // Dynamically make where clauses for generalsearch
+                        // These are the models' default properties
                         if(!is_array($value) && in_array($entry,array_keys($firstRow->getAttributes()))){
                             $q->orWhere($entry,'LIKE','%'.strtolower($searchValue).'%');
                         }
