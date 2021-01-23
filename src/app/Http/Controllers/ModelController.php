@@ -28,6 +28,11 @@ class ModelController extends Controller
         return view('dcms::model.index');
     }
 
+    public function create()
+    {
+        return view('dcms::model.create');
+    }
+
     // public function afterCreate($request, $model)
     // {
     //     event(new Registered($model));

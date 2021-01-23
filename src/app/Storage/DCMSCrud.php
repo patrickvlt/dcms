@@ -1,9 +1,10 @@
 <?php
 
-// This is an example file for a pre-defined model
+// This is an example file with pre-defined attributes for the Crud command.
 
 $model = 'Foo';
-$prefix = 'Foo';
+$prefix = 'foo';
+$amountToSeed = 10;
 $columns = [
     "title" => [
         "attributes" => [
@@ -34,6 +35,8 @@ $columns = [
             "table" => "users",
             "relation" => "belongsTo",
             "relationFunction" => "user",
+            "onUpdate" => "cascade",
+            "onDelete" => "cascade",
         ],
         "validation" => [
             0 => "min:0",

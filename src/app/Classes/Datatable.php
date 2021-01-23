@@ -8,7 +8,9 @@
 
 namespace Pveltrop\DCMS\Classes;
 
-use Illuminate\Support\Collection;
+use ReflectionClass;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class Datatable
 {
@@ -32,6 +34,12 @@ class Datatable
         $this->query->where($field, '=', $value);
     }
 
+    /**
+     * Build query filters, this has to be done in different ways
+     * if the base query isnt an instance of Builder
+     *
+     * @return void
+     */
     public function buildFilters()
     {
         foreach ($this->params['query'] as $key => $value) {
@@ -58,7 +66,7 @@ class Datatable
         $this->params = request()->all();
 
         // Check if a query builder has been passed, or an array/collection
-        $this->queryBuilder = (!$this->query instanceof Collection && !is_array($this->query)) ? true : false;
+        $this->queryBuilder = class_basename($this->query) == 'Builder' ? true : false;
 
         // Build filters for query
         if (isset($this->params['query'])) {
@@ -71,58 +79,85 @@ class Datatable
             }
         }
 
-
         // Get (per) page from Datatable query
         $perPage = isset($this->params['pagination']['perpage']) && $this->params['pagination']['perpage'] !== 'NaN' ? $this->params['pagination']['perpage'] : null;
         $page = isset($this->params['pagination']['page']) ? $this->params['pagination']['page'] : null;
 
         // General search
         if (isset($this->params['query']['generalSearch'])) {
-
-            // Get first row from query to grab the keys/fields
-            $this->firstRow = ($this->query) ? $this->query->first() : null;
-
-            // If there's no data already, skip this step
-            if (!$this->firstRow) {
-                goto GenerateData;
-            }
-
-            $this->firstRowArr = is_array($this->firstRow) ? $this->firstRow : $this->firstRow->toArray();
             $this->searchValue = strtolower($this->params['query']['generalSearch']);
 
-            // Dynamically make where(has) clauses for generalsearch, if a query builder has been passed
-            if($this->queryBuilder){
-                $this->query->where(function ($q) {
-                    foreach ($this->firstRowArr as $this->entry => $value) {  
-                        // If column name isnt in the models attributes, so its a relation
-                        // Dynamically make wherehas clauses for generalsearch
-                        if (!in_array($this->entry,array_keys($this->firstRow->getAttributes()))) {
-                            $q->whereHas($this->entry, function ($q) {
-                                $y = 0;
-                                foreach ($this->firstRow->{$this->entry}->toArray() as $relatedEntry => $relatedValue) {
-                                    if(!is_array($relatedValue)){
-                                        if ($y == 0){
-                                            $q->where($relatedEntry,'LIKE','%'.strtolower($this->searchValue).'%');
-                                        } 
-                                        else {
-                                            $q->orWhere($relatedEntry,'LIKE','%'.strtolower($this->searchValue).'%');
+            if ($this->queryBuilder){
+                $this->queryModel = $this->query->getModel();
+                $this->model = new $this->queryModel();
+                $this->table = $this->queryModel->getTable();
+                $this->columns = Schema::getColumnListing($this->table);
+                $this->relations = (is_countable($this->query->getEagerLoads()) && $this->query->getEagerLoads() > 0) ? array_keys($this->query->getEagerLoads()) : null;
+                $this->usedOuterWhere = false;
+
+                /**
+                 * Make where clauses from relations
+                 */
+                if($this->relations){
+                    foreach ($this->relations as $x => $relationName) {
+                        $this->relationName = $relationName;
+                        $innerWhere = ($x > 0) ? 'orWhere' : 'where';
+                        $this->query->{$innerWhere}(function ($q) {
+                            $this->usedInnerWhere = false;
+                            // To make dynamic where clauses for any relation, the array keys are needed
+                            // The relations' keys will be fetched with Schema
+                            $q->whereHas($this->relationName, function ($q) {
+                                try {
+                                    $relationMethod = new \ReflectionClass($this->model->{$this->relationName}());
+                                    $relationMethod = $relationMethod->getName();
+                                } catch (\Throwable $th) {
+                                    $relationMethod = null;
+                                }
+                                if (preg_match('/Relation/', $relationMethod)) {
+                                    $relationMethod = $this->model->{$this->relationName}();
+                                    $relationClass = $relationMethod->getRelated();
+                                    $relationTable = $relationClass->getTable();
+                                    $relationProps = Schema::getColumnListing($relationTable);
+                                    $relation = array_flip($relationProps);
+        
+                                    foreach ($relation as $relatedEntry => $relatedValue) {
+                                        if (!is_array($relatedValue)) {
+                                            $thisInnerWhere = ($this->usedInnerWhere) ? 'orWhere' : 'where';
+                                            $q->{$thisInnerWhere}($relationTable . '.' . $relatedEntry, 'LIKE', '%' . strtolower($this->searchValue) . '%');
+                                            $this->usedInnerWhere = true;
                                         }
+                                        $this->usedOuterWhere = true;
                                     }
-                                    $y++;
                                 }
                             });
-                        }
+                        });
                     }
-                    foreach ($this->firstRowArr as $entry => $value) {  
-                        // Dynamically make where clauses for generalsearch
-                        if(!is_array($value)){
-                            $q->orWhere($entry,'LIKE','%'.strtolower($this->searchValue).'%');
+                }
+
+                $outerWhere = ($this->usedOuterWhere) ? 'orWhere' : 'where';
+                
+                /**
+                 * Make where clauses from query models' table
+                 */
+                if($this->columns){
+                    $this->query->{$outerWhere}(function ($q) {
+                        foreach ($this->columns as $z => $column) {
+                            // Dynamically make where clauses for generalsearch
+                            // These are the models' default properties
+                            if(!is_array($column)){
+                                $finalInnerWhere = ($z > 0) ? 'orWhere' : 'where';
+                                $q->{$finalInnerWhere}($column,'LIKE','%'.strtolower($this->searchValue).'%');
+                            }
                         }
-                    }
-                });
+                    });
+                }
             } else {
                 $fetchData = $this->query;
                 $this->query = [];
+                /**
+                 * Search for the user input by encoding the rows in JSON, 
+                 * and matching with RegEx (this is a lot slower than working with a Builder instance, use this for smaller amounts of data)
+                 */
                 foreach($fetchData as $dataKey => $dataRow){
                     $searchRe = '/\:(\"|)'.strtolower($this->searchValue).'.*?(\,)/m';
                     $searchIn = strtolower(json_encode($dataRow));
@@ -132,10 +167,7 @@ class Datatable
                 }
             }
         }
-
-        // Generate collection from results
-        GenerateData:
-
+        
         $this->data = [];
         if ($this->queryBuilder) {
             $this->data = collect($this->query->get());
