@@ -125,7 +125,7 @@ if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KT
 
 window.onReady = function (yourMethod) {
     var readyStateCheckInterval = setInterval(function () {
-        if (document && document.readyState === 'complete') {
+        if (document && document.readyState === 'interactive') {
             clearInterval(readyStateCheckInterval);
             yourMethod();
         }
