@@ -85,7 +85,7 @@
                             <!--begin: Wizard Form-->
                             <form class="form mt-0 mt-lg-10 fv-plugins-bootstrap fv-plugins-framework" id="kt_form">
                                 <!--begin: Wizard Step 1-->
-                                <div class="pb-5" data-wizard-type="step-content" data-wizard-state="current">
+                                <div class="pb-5" data-wizard-step="1" data-wizard-type="step-content" data-wizard-state="current">
                                     <!--begin::Input-->
                                     <div class="form-group fv-plugins-icon-container col-12">
                                         <label>Name</label>
@@ -203,17 +203,26 @@
                                 </div>
                                 <!--end: Wizard Step 1-->
                                 <!--begin: Wizard Step 2-->
-                                <div class="pb-5" data-wizard-type="step-content">
+                                <div class="pb-5" data-wizard-step="2" data-wizard-type="step-content">
                                     <div data-column>
                                         <i class="fas fa-caret-down" data-column-control></i>
                                         <h4 class="mb-10 font-weight-bold text-dark d-inline ml-2" data-column-name></h4>
                                         <div class="mt-5" data-column-properties>
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container">
-                                                <label>Name</label>
+                                                <label>Column</label>
                                                 <input type="text" class="form-control form-control-solid form-control-lg"
                                                     name="name" placeholder="email">
-                                                <span class="form-text text-muted">Enter the name of the new column.</span>
+                                                <span class="form-text text-muted">The name of the column, to insert in the database.</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container">
+                                                <label>Title</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="title" placeholder="E-mail Address">
+                                                <span class="form-text text-muted">The title of the column, to show above it's input in a form.</span>
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
                                             <!--end::Input-->
@@ -258,7 +267,7 @@
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
                                             <!--end::Input-->
-                                            <div data-input-div>
+                                            <div data-input-div style="display:none">
                                                 <!--begin::Input-->
                                                 <div class="form-group fv-plugins-icon-container">
                                                     <label>Input Type</label>
@@ -321,80 +330,66 @@
                                 </div>
                                 <!--end: Wizard Step 2-->
                                 <!--begin: Wizard Step 3-->
-                                <div class="pb-5" data-wizard-type="step-content">
-                                    <div class="mb-10 font-weight-bold text-dark">Enter your Payment Details</div>
-                                    <div class="row">
-                                        <div class="col-xl-6">
-                                            <!--begin::Input-->
-                                            <div class="form-group fv-plugins-icon-container">
-                                                <label>Name on Card</label>
-                                                <input type="text"
-                                                    class="form-control form-control-solid form-control-lg"
-                                                    name="ccname" placeholder="Card Name" value="John Wick">
-                                                <span class="form-text text-muted">Please enter your Card Name.</span>
-                                                <div class="fv-plugins-message-container"></div>
+                                <div class="pb-5" data-wizard-step="3" data-wizard-type="step-content">
+                                    <h4 class="mb-10 font-weight-bold text-dark">Datatable</h4>
+                                    <div class="mb-10 font-weight-bold text-dark">Select which columns you want to show in the main datatable for this model.</div>
+                                    <!--begin::Column checkboxes-->
+                                    <div data-column-checkboxes class="mb-5 pt-5">
+                                        <div data-column-checkbox>
+                                            <div class="row pt-5">
+                                                <div class="col-12">
+                                                    <div class="form-group fv-plugins-icon-container">
+                                                        <!--begin::Input-->
+                                                        <div>
+                                                            <input name="firstColumn_kt_enable" type="checkbox" checked="checked" value="0" data-kt-checkbox style="display:none !important">
+                                                            <input name="firstColumn_kt_enable" type="checkbox" value="1" id="firstColumn_kt_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
+                                                            <label class="form-check-label" for="firstColumn_kt_enableBox0">firstColumn</label>
+                                                        </div>
+                                                        <!--end::Input-->
+                                                    </div>
+                                                    <!--begin::Input-->
+                                                    <div class="form-group fv-plugins-icon-container" data-kt-title-div style="display:none">
+                                                        <label>Title</label>
+                                                        <input type="text" class="form-control form-control-solid form-control-lg"
+                                                            name="firstColumn_kt_column_title" placeholder="firstColumn">
+                                                        <span class="form-text text-muted">Enter the title of the table header for this column.</span>
+                                                        <div class="fv-plugins-message-container"></div>
+                                                    </div>
+                                                    <!--end::Input-->
+                                                    <!--begin::Input-->
+                                                    <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
+                                                        <label>Related key</label>
+                                                        <input type="text" class="form-control form-control-solid form-control-lg"
+                                                            name="firstColumn_kt_column_key" placeholder="id">
+                                                        <span class="form-text text-muted">Which key from the related class should be used as the value?</span>
+                                                        <div class="fv-plugins-message-container"></div>
+                                                    </div>
+                                                    <!--end::Input-->
+                                                    <!--begin::Input-->
+                                                    <div class="form-group fv-plugins-icon-container" data-kt-type-div style="display:none">
+                                                        <label class="form-check-label">Column type</label>
+                                                        <select name="firstColumn_kt_column_type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
+                                                            <option value="">..</option>
+                                                            <option value="text">Text</option>
+                                                            <option value="boolean">Boolean</option>
+                                                            <option value="card">Card</option>
+                                                            <option value="image">Image</option>
+                                                            <option value="icon">Icon</option>
+                                                            <option value="price">Price</option>
+                                                        </select>
+                                                        <span class="form-text text-muted">Choose how you wish to show the value of this column in the datatable.</span>
+                                                    </div>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                    <!--end::Input-->
+                                                </div>
                                             </div>
-                                            <!--end::Input-->
-                                        </div>
-                                        <div class="col-xl-6">
-                                            <!--begin::Input-->
-                                            <div class="form-group fv-plugins-icon-container">
-                                                <label>Card Number</label>
-                                                <input type="text"
-                                                    class="form-control form-control-solid form-control-lg"
-                                                    name="ccnumber" placeholder="Card Number"
-                                                    value="4444 3333 2222 1111">
-                                                <span class="form-text text-muted">Please enter your Address.</span>
-                                                <div class="fv-plugins-message-container"></div>
-                                            </div>
-                                            <!--end::Input-->
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-xl-4">
-                                            <!--begin::Input-->
-                                            <div class="form-group fv-plugins-icon-container">
-                                                <label>Card Expiry Month</label>
-                                                <input type="number"
-                                                    class="form-control form-control-solid form-control-lg"
-                                                    name="ccmonth" placeholder="Card Expiry Month" value="01">
-                                                <span class="form-text text-muted">Please enter your Card Expiry
-                                                    Month.</span>
-                                                <div class="fv-plugins-message-container"></div>
-                                            </div>
-                                            <!--end::Input-->
-                                        </div>
-                                        <div class="col-xl-4">
-                                            <!--begin::Input-->
-                                            <div class="form-group fv-plugins-icon-container">
-                                                <label>Card Expiry Year</label>
-                                                <input type="number"
-                                                    class="form-control form-control-solid form-control-lg"
-                                                    name="ccyear" placeholder="Card Expire Year" value="21">
-                                                <span class="form-text text-muted">Please enter your Card Expiry
-                                                    Year.</span>
-                                                <div class="fv-plugins-message-container"></div>
-                                            </div>
-                                            <!--end::Input-->
-                                        </div>
-                                        <div class="col-xl-4">
-                                            <!--begin::Input-->
-                                            <div class="form-group fv-plugins-icon-container">
-                                                <label>Card CVV Number</label>
-                                                <input type="password"
-                                                    class="form-control form-control-solid form-control-lg" name="cccvv"
-                                                    placeholder="Card CVV Number" value="123">
-                                                <span class="form-text text-muted">Please enter your Card CVV
-                                                    Number.</span>
-                                                <div class="fv-plugins-message-container"></div>
-                                            </div>
-                                            <!--end::Input-->
                                         </div>
                                     </div>
+                                    <!--end::Column checkboxes-->
                                 </div>
                                 <!--end: Wizard Step 3-->
                                 <!--begin: Wizard Step 4-->
-                                <div class="pb-5" data-wizard-type="step-content">
+                                <div class="pb-5" data-wizard-step="4" data-wizard-type="step-content">
                                     <!--begin::Section-->
                                     <h4 class="mb-10 font-weight-bold text-dark">Review your Details and Submit</h4>
                                     <h6 class="font-weight-bolder mb-3">Current Address:</h6>
