@@ -81,15 +81,13 @@ window.DCMSDatatable = function (parameters) {
                             useRow = row[column.dataset.ktObject];
                         }
 
-                        if (column.dataset.ktColumn.split('.').length > 1){
-                            eagerColumns = '';
-                            splitColumns = column.dataset.ktColumn.split('.');
-                            splitColumns.map((column) => {
-                                eagerColumns += "['"+column+"']";
+                        // Check if a nested column should be the row instead
+                        if (column.dataset.ktColumn.split('.').length > 1) {
+                            column.dataset.ktColumn.split('.').map((column) => {
+                                value = value.length === 0 ? row[column] : value[column];
                             });
-                            value = eval('row'+eagerColumns);
                         } else {
-                            value = useRow[column.dataset.ktColumn];
+                            value = row[column.dataset.ktColumn];
                         }
 
                         // Check if the default value should have appended or prepended information
