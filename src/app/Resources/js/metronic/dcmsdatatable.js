@@ -6,7 +6,7 @@
 *
 */
 
-window.DCMSDatatable = function (parameters) {
+window.DCMS.datatable = function (parameters) {
     $(document).ready(function(){
         window.KTDebug = false;
 
