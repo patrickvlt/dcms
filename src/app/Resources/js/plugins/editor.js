@@ -127,7 +127,10 @@ if (window.enableEditors == true){
                                         contentUID: elementUID
                                     }, Object.assign(window.axiosCfg, {})).then(function (response) {
                                         if (response.status == 200){
-                                            location.reload();
+                                            toastr.success((typeof window.EditorContentChangedText !== 'undefined') ? window.EditorContentChangedText : Lang("Content has been updated."));
+                                            setTimeout(function(){
+                                                location.reload();
+                                            },2500);
                                         } else {
                                             Swal.fire({
                                                 title: Lang('Unknown error'),

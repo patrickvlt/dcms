@@ -168,21 +168,12 @@ window.hasLoaded(['jexcel'], function () {
                                             break;
 
                                         case 200:
-                                            Swal.fire({
-                                                title: reply.response.title,
-                                                html: reply.response.message,
-                                                icon: "success",
-                                                confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                                                confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                                                cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                                                cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                                            }).then(function (result) {
-                                                if (result.value) {
-                                                    if (reply.url) {
-                                                        window.location.href = reply.url;
-                                                    }
-                                                }
-                                            });
+                                            toastr.success(reply.response.message);
+                                            if (reply.url) {
+                                                setTimeout(function(){
+                                                    window.location.href = reply.url;
+                                                },2500);
+                                            }
                                             break;
                                     }
                                 }
