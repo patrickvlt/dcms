@@ -18,11 +18,12 @@
     <link href="/css/dcms/portal/plugins.bundle.css" rel="stylesheet" type="text/css" />
     <link href="/css/dcms/portal/prismjs.bundle.css" rel="stylesheet" type="text/css" />
     <link href="/css/dcms/portal/style.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="/css/dcms/portal/wizard.css" rel="stylesheet" type="text/css" />
     <!--end::Global Theme Styles-->
     <!--begin::Layout Themes(used by all pages)-->
     <!--end::Layout Themes-->
     <link rel="shortcut icon" href="assets/media/logos/favicon.ico" />
-
+    @yield('head')
     <script src="https://kit.fontawesome.com/15aae207b8.js" crossorigin="anonymous"></script>
 </head>
 <!--end::Head-->

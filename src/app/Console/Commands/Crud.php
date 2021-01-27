@@ -4,9 +4,8 @@ namespace Pveltrop\DCMS\Console\Commands;
 
 use DirectoryIterator;
 use RecursiveIteratorIterator;
-use Illuminate\Console\Command;
 use RecursiveDirectoryIterator;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Console\Command;
 
 class Crud extends Command
 {

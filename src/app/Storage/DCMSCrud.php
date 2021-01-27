@@ -2,10 +2,11 @@
 
 // This is an example file with pre-defined attributes for the Crud command.
 
-$model = 'Foo';
-$prefix = 'foo';
-$amountToSeed = 10;
-$columns = [
+$this->model = 'Foo';
+$this->prefix = 'foo';
+$this->amountToSeed = 10;
+
+$this->columns = [
     "title" => [
         "attributes" => [
             "name" => "title",

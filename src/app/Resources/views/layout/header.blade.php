@@ -5,11 +5,13 @@
         <!--begin::Container-->
         <div class="container">
             <!--begin::Left-->
-            <div class="d-none d-lg-flex align-items-center mr-3">
+            <div class="mr-3">
                 <!--begin::Logo-->
-                <a href="{{ route('dcms.portal.dashboard') }}" class="mr-10">
-                    <img alt="Logo" src="assets/media/logos/logo-letter-5.png" class="max-h-35px" />
+                <a href="{{ route('dcms.portal.dashboard') }}" class="mr-10" id="titleLogo">
+                    {{-- <img alt="Logo" src="assets/media/logos/logo-letter-5.png" class="max-h-35px" /> --}}
+                    DCMS
                 </a>
+                <label id="titleLabel">Dynamic Content Management System</label>
                 <!--end::Logo-->
             </div>
             <!--end::Left-->
