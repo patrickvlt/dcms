@@ -373,7 +373,6 @@ window.HttpReq = function (formMethod, formAction, formData, customSettings = nu
     var customBeforeSuccess = (customSettings) ? customSettings.customBeforeSuccess : null;
     var customBeforeError = (customSettings) ? customSettings.customBeforeError : null;
     var customSuccess = (customSettings) ? customSettings.customSuccess : null;
-    var customSuccessTitle = (customSettings) ? customSettings.customSuccessTitle : null;
     var customSuccessMessage = (customSettings) ? customSettings.customSuccessMessage : null;
     var customSuccessRedirect = (customSettings) ? customSettings.customSuccessRedirect : null;
     var customError = (customSettings) ? customSettings.customError : null;
@@ -425,15 +424,7 @@ window.HttpReq = function (formMethod, formAction, formData, customSettings = nu
                     customSuccess(response);
                 }
             } else {
-                var swalTitle, swalMessage, swalRedirect;
-                    // Make title
-                    if (response['title']){
-                        swalTitle = Lang(response['title']);
-                    } else if (customSuccessTitle){
-                        swalTitle = Lang(customSuccessTitle);
-                    } else {
-                        swalTitle = Lang('Successful request');
-                    }
+                var swalMessage, swalRedirect;
                     // Make message
                     if (response['message']){
                         swalMessage = Lang(response['message']);
@@ -449,24 +440,11 @@ window.HttpReq = function (formMethod, formAction, formData, customSettings = nu
                         swalRedirect = customSuccessRedirect;
                     }
                 if (window.DCMSFormAlerts == true || window.DCMSFormErrorBag == false) {
-                    Swal.fire({
-                        title: swalTitle,
-                        text: swalMessage,
-                        icon: "success",
-                        confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                        confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                        cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                        cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                    }).then(function (result) {
-                        if (result.value) {
-                            if (swalRedirect) {
-                                window.location.href = swalRedirect;
-                            }
-                        }
-                    });
-                } else {
+                    toastr.success(swalMessage);
                     if (swalRedirect) {
-                        window.location.href = swalRedirect;
+                        setTimeout(function(){
+                            window.location.href = swalRedirect;
+                        },2500);
                     }
                 }
             }
@@ -620,7 +598,6 @@ window.DeleteModel = function (args) {
     var route = (typeof args['route'] !== 'undefined') ? args['route'] : null;
     var confirmTitle = (typeof args['confirmTitle'] !== 'undefined') ? Lang(args['confirmTitle']) : '';
     var confirmMsg = (typeof args['confirmMsg'] !== 'undefined') ? Lang(args['confirmMsg']) : '';
-    var completeTitle = (typeof args['completeTitle'] !== 'undefined') ? Lang(args['completeTitle']) : '';
     var completeMsg = (typeof args['completeMsg'] !== 'undefined') ? Lang(args['completeMsg']) : '';
     var failedTitle = (typeof args['failedTitle'] !== 'undefined') ? Lang(args['failedTitle']) : '';
     var failedMsg = (typeof args['failedMsg'] !== 'undefined') ? Lang(args['failedMsg']) : '';
@@ -650,25 +627,12 @@ window.DeleteModel = function (args) {
                         },
                         success: function () {
                             ReloadDT();
-                            Swal.fire({
-                                title: completeTitle,
-                                text: completeMsg,
-                                icon: "success",
-                                confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                                confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                                cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                                cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                            }).then(function (result) {
-                                if (result.value) {
-                                    if (redirect !== '') {
-                                        if (window.AllowNewTab == false) {
-                                            window.location.href = redirect;
-                                        } else {
-                                            window.open(redirect, '_blank');
-                                        }
-                                    }
-                                }
-                            });
+                            toastr.success(completeMsg);
+                            if (redirect) {
+                                setTimeout(function(){
+                                    window.location.href = redirect;
+                                },2500);
+                            }
                         },
                         error: function () {
                             Swal.fire({
@@ -682,28 +646,6 @@ window.DeleteModel = function (args) {
                             });
                         }
                     });
-                    if (success == true) {
-                        ReloadDT();
-                        Swal.fire({
-                            title: completeTitle,
-                            text: completeMsg,
-                            icon: "success",
-                            confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                            confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                            cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                            cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                        });
-                    } else {
-                        Swal.fire({
-                            title: failedTitle,
-                            text: failedMsg,
-                            icon: "error",
-                            confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                            confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                            cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                            cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                        });
-                    }
                 } else {
                     jQuery.ajax({
                         type: "POST",
@@ -716,25 +658,12 @@ window.DeleteModel = function (args) {
                         },
                         success: function () {
                             ReloadDT();
-                            Swal.fire({
-                                title: completeTitle,
-                                text: completeMsg,
-                                icon: "success",
-                                confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                                confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                                cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                                cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                            }).then(function (result) {
-                                if (result.value) {
-                                    if (redirect !== '') {
-                                        if (window.AllowNewTab == false) {
-                                            window.location.href = redirect;
-                                        } else {
-                                            window.open(redirect, '_blank');
-                                        }
-                                    }
-                                }
-                            });
+                            toastr.success(completeMsg);
+                            if (redirect) {
+                                setTimeout(function(){
+                                    window.location.href = redirect;
+                                },2500);
+                            }
                         },
                         error: function () {
                             Swal.fire({
