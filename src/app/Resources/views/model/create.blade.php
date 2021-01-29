@@ -304,27 +304,27 @@
                                                     <div class="fv-plugins-message-container"></div>
                                                 </div>
                                                 <!--end::Input-->
-                                                <!--begin::Input-->
-                                                <div class="form-group fv-plugins-icon-container" data-input-datatype-div>
-                                                    <label>Add another column?</label>
-                                                    <br>
-                                                    <button class="btn btn-primary btn-icon" style="min-width: 90px" data-add-column type="button">
-                                                        <span class="menu-text">Yes</span>
-                                                    </button>
-                                                    <div class="fv-plugins-message-container"></div>
-                                                </div>
-                                                <!--end::Input-->
-                                                <!--begin::Input-->
-                                                <div class="form-group fv-plugins-icon-container" data-input-datatype-div>
-                                                    <label>Delete this column?</label>
-                                                    <br>
-                                                    <button class="btn btn-danger btn-icon" style="min-width: 90px" data-delete-column type="button">
-                                                        <span class="menu-text">Yes</span>
-                                                    </button>
-                                                    <div class="fv-plugins-message-container"></div>
-                                                </div>
-                                                <!--end::Input-->
                                             </div>
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container" data-input-datatype-div>
+                                                <label>Add another column?</label>
+                                                <br>
+                                                <button class="btn btn-primary btn-icon" style="min-width: 90px" data-add-column type="button">
+                                                    <span class="menu-text">Yes</span>
+                                                </button>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container" data-input-datatype-div>
+                                                <label>Delete this column?</label>
+                                                <br>
+                                                <button class="btn btn-danger btn-icon" style="min-width: 90px" data-delete-column type="button">
+                                                    <span class="menu-text">Yes</span>
+                                                </button>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
                                         </div>
                                     </div>
                                 </div>
@@ -356,15 +356,7 @@
                                                         <div class="fv-plugins-message-container"></div>
                                                     </div>
                                                     <!--end::Input-->
-                                                    <!--begin::Input-->
-                                                    <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
-                                                        <label>Related key</label>
-                                                        <input type="text" class="form-control form-control-solid form-control-lg"
-                                                            name="firstColumn_kt_column_key" placeholder="id">
-                                                        <span class="form-text text-muted">Which key from the related class should be used as the value?</span>
-                                                        <div class="fv-plugins-message-container"></div>
-                                                    </div>
-                                                    <!--end::Input-->
+                                                    <!--optional::Key-->
                                                     <!--begin::Input-->
                                                     <div class="form-group fv-plugins-icon-container" data-kt-type-div style="display:none">
                                                         <label class="form-check-label">Column type</label>
