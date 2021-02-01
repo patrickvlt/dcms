@@ -4,9 +4,8 @@ namespace Pveltrop\DCMS\Console\Commands;
 
 use DirectoryIterator;
 use RecursiveIteratorIterator;
-use Illuminate\Console\Command;
 use RecursiveDirectoryIterator;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Console\Command;
 
 class Crud extends Command
 {
@@ -16,7 +15,7 @@ class Crud extends Command
      * @var string
      */
 
-    protected $signature = 'dcms:make-crud {model}';
+    protected $signature = 'dcms:make-crud {model?}';
 
     /**
      * The console command description.
@@ -34,7 +33,7 @@ class Crud extends Command
      */
     public function findFile($name){
         $rootFolders = [];
-        $excludeDirs = array('.git', 'vendor', 'node_modules', 'storage');
+        $excludeDirs = array('.git', 'vendor', 'node_modules');
 
         // Make array with folders to search in
         $dir = new DirectoryIterator(base_path());
@@ -82,32 +81,27 @@ class Crud extends Command
                 sleep(2);
             }
             if ($initManual == false){
-                try {
-                    // $fileContent = file_get_contents();
-                    $fileModel = preg_match('/\$model(\s|=)/m', $fileContent) == 1;
-                    $filePrefix = preg_match('/\$prefix(\s|=)/m', $fileContent) == 1;
-                    $fileColumns = preg_match('/\$columns(\s|=)/m', $fileContent) == 1;
-                    if (!$fileModel){
-                        $console->comment('');
-                        $console->error('$model not defined in: DCMSCrud.php');
-                        $console->comment('');
-                        $initManual = true;
-                    }
-                    if (!$filePrefix){
-                        $console->comment('');
-                        $console->error('$prefix not defined in: DCMSCrud.php');
-                        $console->comment('');
-                        $initManual = true;
-                    }
-                    if (!$fileColumns){
-                        $console->comment('');
-                        $console->error('$columns not defined in: DCMSCrud.php');
-                        $console->comment('');
-                        $initManual = true;
-                    }
-                    include ($crudFile);
-                } catch (\Exception $e){
-                    sleep(2);
+                $fileContent = file_get_contents($crudFile);
+                $fileModel = preg_match('/\$model(\s|=)/m', $fileContent) == 1;
+                $filePrefix = preg_match('/\$prefix(\s|=)/m', $fileContent) == 1;
+                $fileColumns = preg_match('/\$columns(\s|=)/m', $fileContent) == 1;
+                if (!$fileModel){
+                    $console->comment('');
+                    $console->error('$model not defined in PHP file.');
+                    $console->comment('');
+                    $initManual = true;
+                }
+                if (!$filePrefix){
+                    $console->comment('');
+                    $console->error('$prefix not defined in PHP file.');
+                    $console->comment('');
+                    $initManual = true;
+                }
+                if (!$fileColumns){
+                    $console->comment('');
+                    $console->error('$columns not defined in PHP file.');
+                    $console->comment('');
+                    $initManual = true;
                 }
             }
         } else {
@@ -117,7 +111,7 @@ class Crud extends Command
         }
 
         if ($initManual){
-            if (!$console->confirm('Couldn\'t find predefined columns. Do you want to proceed? ')){
+            if (!$console->confirm('Couldn\'t find file with defined attributes. Do you want to proceed? ')){
                 exit;
             }
         }
@@ -228,7 +222,7 @@ class Crud extends Command
                         } else if ($mainVersion >= 8){
                             $fakerExample = '$this->faker->word()';
                         }
-                        $column['seed'] = $console->ask('Enter the data to seed. (For example: '.$fakerExample.', or "Seed this sentence"). Don\'t end with a semicolon or parentheses.');
+                        $column['seed']['value'] = $console->ask('Enter the data to seed. (For example: '.$fakerExample.', or "Seed this sentence").');
                     }
 
                     $columns[$dbColumn] = $column;
@@ -257,7 +251,7 @@ class Crud extends Command
              *
              */
 
-            $seedAmount = $console->ask('How many objects should be seeded through factories? Enter a number.');
+            $seedAmount = $amountToSeed ?? $console->ask('How many objects should be seeded through factories? Enter a number.');
 
             $file = ($this->findFile('DatabaseSeeder.php')) ? $this->findFile('DatabaseSeeder.php')->getPathname() : null;
             $contentToAdd = '        $this->call(' . $model . 'Seeder::class);';
@@ -436,9 +430,9 @@ class Crud extends Command
             $migEntries .= '$table->'.$column['attributes']['type'].'("'.$column['attributes']['name'].'")'.$rowNullable.$rowUnsigned.';'."\n".'            ';
             if (array_key_exists('foreign',$column)){
                 $console->info('Generating migration row for relation from: '.$column['foreign']['foreign_column'].' to '.$column['foreign']['table'].': '.$column['foreign']['references'] );
-                $onUpdate = $console->ask('What to do on update? (cascade, no action, restrict, set null)');
+                $onUpdate = $column['foreign']['onUpdate'] ?? $console->ask('What to do on update? (cascade, no action, restrict, set null)');
                 $onUpdate = '->onUpdate("'.$onUpdate.'")';
-                $onDelete = ($console->ask('What to do on delete? (cascade, no action, restrict, set null)'));
+                $onDelete = $column['foreign']['onDelete'] ?? ($console->ask('What to do on delete? (cascade, no action, restrict, set null)'));
                 $onDelete = '->onDelete("'.$onDelete.'")';
                 $migEntries .= '$table->foreign("'.$column['foreign']['foreign_column'].'")->references("'.$column['foreign']['references'].'")->on("'.$column['foreign']['table'].'")'.$onUpdate.$onDelete.';'."\n".'            ';
             }

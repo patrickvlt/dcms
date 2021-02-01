@@ -6,7 +6,7 @@ namespace App\\Datatables;
 
 use Pveltrop\\DCMS\\Classes\\Datatable;
 
-class '.$model.'Datatable extends Datatable
+class ' . $this->model . 'Datatable extends Datatable
 {
     /**
      * @param $field

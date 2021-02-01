@@ -54,6 +54,12 @@ window.LoadCSS = function (plugin, pluginPath = 'cdn') {
     }
 };
 
+/**
+ *
+ *  Load assets from CDN or locally, configure this in dcms.json
+ *
+ */
+
 if (typeof axios == 'undefined' && (dcmsConfig.plugins.axios && dcmsConfig.plugins.axios.enable !== false)) {
     window.LoadJS(dcmsConfig.plugins.axios);
 }
@@ -69,6 +75,10 @@ if (typeof Swal == 'undefined' && (dcmsConfig.plugins.sweetalert2 && dcmsConfig.
 if (typeof toastr == 'undefined' && (dcmsConfig.plugins.toastr && dcmsConfig.plugins.toastr.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.toastr);
     window.LoadJS(dcmsConfig.plugins.toastr);
+}
+
+if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa.enable !== false)) {
+    window.LoadJS(dcmsConfig.plugins.papa, 'local');
 }
 
 if (typeof SlimSelect == 'undefined' && document.querySelectorAll('[data-type=slimselect]').length > 0 && (dcmsConfig.plugins.slimselect && dcmsConfig.plugins.slimselect.enable !== false)) {
@@ -95,9 +105,6 @@ if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexce
     window.LoadJS(dcmsConfig.plugins.jsuites);
 }
 
-if (typeof Papa == 'undefined' && (dcmsConfig.plugins.papa && dcmsConfig.plugins.papa.enable !== false)) {
-    window.LoadJS(dcmsConfig.plugins.papa, 'local');
-}
 
 if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=filepond]').length > 0 && (dcmsConfig.plugins.filepond && dcmsConfig.plugins.filepond.enable !== false)) {
     window.LoadCSS(dcmsConfig.plugins.filepond);
@@ -296,6 +303,14 @@ window.EnableSubmit = function (selector = null) {
         element.disabled = false;
     });
 };
+
+/**
+ *
+ *  Setup global DCMS object
+ *
+ */
+
+ window.DCMS = {};
 
 require('./plugins/carousel.js');
 require('./plugins/slimselect.js');

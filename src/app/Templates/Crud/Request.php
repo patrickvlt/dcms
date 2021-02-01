@@ -6,7 +6,7 @@ namespace App\\Http\\Requests;
 
 use Illuminate\\Foundation\\Http\\FormRequest;
 
-class '.$model.'Request extends FormRequest
+class ' . $this->model . 'Request extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -69,7 +69,7 @@ class '.$model.'Request extends FormRequest
     public function rules()
     {
         return [
-        '.$reqEntries.'
+        ' . $reqEntries . '
         ];
     }
 
