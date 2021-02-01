@@ -2,6 +2,7 @@
 
 namespace Pveltrop\DCMS\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Pveltrop\DCMS\Classes\Crud;
 use App\Http\Controllers\Controller;
 use Pveltrop\DCMS\Classes\Datatable;
@@ -76,6 +77,11 @@ class ModelController extends Controller
         //     ]
         // ]);
         return view('dcms::model.create');
+    }
+
+    public function store(Request $request)
+    {
+        dd($request->all());
     }
 
     // public function afterCreate($request, $model)

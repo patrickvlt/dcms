@@ -83,7 +83,7 @@
                     <div class="row justify-content-center py-8 px-8 py-lg-15 px-lg-10">
                         <div class="col-xl-12 col-xxl-7">
                             <!--begin: Wizard Form-->
-                            <form class="form mt-0 mt-lg-10 fv-plugins-bootstrap fv-plugins-framework" id="kt_form">
+                            <form class="form mt-0 mt-lg-10 fv-plugins-bootstrap fv-plugins-framework" id="kt_form" action="{{ route('dcms.portal.model.store') }}" method="POST" data-dcms-action="ajax" enctype="multipart/form-data">
                                 <!--begin: Wizard Step 1-->
                                 <div class="pb-5" data-wizard-step="1" data-wizard-type="step-content" data-wizard-state="current">
                                     <!--begin::Input-->
@@ -231,6 +231,67 @@
                                                 <label>Data Type</label>
                                                 <select name="datatype" data-type="slimselect" id="datatype" class="form-control form-control-solid form-control-lg">
                                                     <option value="">..</option>
+                                                    <option value="bigIncrements">bigIncrements</option>
+                                                    <option value="bigInteger">bigInteger</option>
+                                                    <option value="binary">binary</option>
+                                                    <option value="boolean">boolean</option>
+                                                    <option value="char">char</option>
+                                                    <option value="dateTimeTz">dateTimeTz</option>
+                                                    <option value="dateTime">dateTime</option>
+                                                    <option value="date">date</option>
+                                                    <option value="decimal">decimal</option>
+                                                    <option value="double">double</option>
+                                                    <option value="enum">enum</option>
+                                                    <option value="float">float</option>
+                                                    <option value="foreignId">foreignId</option>
+                                                    <option value="geometryCollection">geometryCollection</option>
+                                                    <option value="geometry">geometry</option>
+                                                    <option value="id">id</option>
+                                                    <option value="increments">increments</option>
+                                                    <option value="integer">integer</option>
+                                                    <option value="ipAddress">ipAddress</option>
+                                                    <option value="json">json</option>
+                                                    <option value="jsonb">jsonb</option>
+                                                    <option value="lineString">lineString</option>
+                                                    <option value="longText">longText</option>
+                                                    <option value="macAddress">macAddress</option>
+                                                    <option value="mediumIncrements">mediumIncrements</option>
+                                                    <option value="mediumInteger">mediumInteger</option>
+                                                    <option value="mediumText">mediumText</option>
+                                                    <option value="morphs">morphs</option>
+                                                    <option value="multiLineString">multiLineString</option>
+                                                    <option value="multiPoint">multiPoint</option>
+                                                    <option value="multiPolygon">multiPolygon</option>
+                                                    <option value="nullableMorphs">nullableMorphs</option>
+                                                    <option value="nullableTimestamps">nullableTimestamps</option>
+                                                    <option value="nullableUuidMorphs">nullableUuidMorphs</option>
+                                                    <option value="point">point</option>
+                                                    <option value="polygon">polygon</option>
+                                                    <option value="rememberToken">rememberToken</option>
+                                                    <option value="set">set</option>
+                                                    <option value="smallIncrements">smallIncrements</option>
+                                                    <option value="smallInteger">smallInteger</option>
+                                                    <option value="softDeletesTz">softDeletesTz</option>
+                                                    <option value="softDeletes">softDeletes</option>
+                                                    <option value="string">string</option>
+                                                    <option value="text">text</option>
+                                                    <option value="timeTz">timeTz</option>
+                                                    <option value="time">time</option>
+                                                    <option value="timestampTz">timestampTz</option>
+                                                    <option value="timestamp">timestamp</option>
+                                                    <option value="timestampsTz">timestampsTz</option>
+                                                    <option value="timestamps">timestamps</option>
+                                                    <option value="tinyIncrements">tinyIncrements</option>
+                                                    <option value="tinyInteger">tinyInteger</option>
+                                                    <option value="unsignedBigInteger">unsignedBigInteger</option>
+                                                    <option value="unsignedDecimal">unsignedDecimal</option>
+                                                    <option value="unsignedInteger">unsignedInteger</option>
+                                                    <option value="unsignedMediumInteger">unsignedMediumInteger</option>
+                                                    <option value="unsignedSmallInteger">unsignedSmallInteger</option>
+                                                    <option value="unsignedTinyInteger">unsignedTinyInteger</option>
+                                                    <option value="uuidMorphs">uuidMorphs</option>
+                                                    <option value="uuid">uuid</option>
+                                                    <option value="yea">yea</option>
                                                 </select>
                                                 <span class="form-text text-muted">Select the data type for this column.</span>
                                                 <div class="fv-plugins-message-container"></div>
@@ -305,6 +366,19 @@
                                                 </div>
                                                 <!--end::Input-->
                                             </div>
+                                            <!--begin::relatedKey-->
+                                            <div data-key-div style="display:none">
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
+                                                    <label>Related key</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="jExcel_column_key" placeholder="id">
+                                                    <span class="form-text text-muted">Which field to use from the related class?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                            </div>
+                                            <!--end::relatedKey-->
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container" data-input-datatype-div>
                                                 <label>Add another column?</label>
@@ -333,34 +407,34 @@
                                 <div class="pb-5" data-wizard-step="3" data-wizard-type="step-content">
                                     <h4 class="mb-10 font-weight-bold text-dark">Datatable</h4>
                                     <div class="mb-10 font-weight-bold text-dark">Select which columns you want to show in the main datatable for this model.</div>
-                                    <!--begin::Column checkboxes-->
-                                    <div data-column-checkboxes class="mb-5 pt-5">
-                                        <div data-column-checkbox>
-                                            <div class="row pt-5">
+                                    <!--begin::KT columns-->
+                                    <div data-kt-columns class="mb-5 pt-5">
+                                        <div data-kt-column>
+                                            <div class="row">
                                                 <div class="col-12">
+                                                    <!--begin::Enable column-->
                                                     <div class="form-group fv-plugins-icon-container">
-                                                        <!--begin::Input-->
                                                         <div>
-                                                            <input name="firstColumn_kt_enable" type="checkbox" checked="checked" value="0" data-kt-checkbox style="display:none !important">
-                                                            <input name="firstColumn_kt_enable" type="checkbox" value="1" id="firstColumn_kt_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
-                                                            <label class="form-check-label" for="firstColumn_kt_enableBox0">firstColumn</label>
+                                                            <input name="ktColumn_enable" type="checkbox" checked="checked" value="0" data-kt-checkbox style="display:none !important">
+                                                            <input name="ktColumn_enable" type="checkbox" value="1" data-kt-column-name id="ktColumn_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
+                                                            <label class="form-check-label" for="ktColumn_enableBox0">ktColumn</label>
                                                         </div>
-                                                        <!--end::Input-->
                                                     </div>
-                                                    <!--begin::Input-->
+                                                    <!--end::Enable column-->
+                                                    <!--begin::Title-->
                                                     <div class="form-group fv-plugins-icon-container" data-kt-title-div style="display:none">
                                                         <label>Title</label>
                                                         <input type="text" class="form-control form-control-solid form-control-lg"
-                                                            name="firstColumn_kt_column_title" placeholder="firstColumn">
+                                                            name="ktColumn_column_title" placeholder="ktColumn">
                                                         <span class="form-text text-muted">Enter the title of the table header for this column.</span>
                                                         <div class="fv-plugins-message-container"></div>
                                                     </div>
-                                                    <!--end::Input-->
+                                                    <!--end::Title-->
                                                     <!--optional::Key-->
-                                                    <!--begin::Input-->
+                                                    <!--begin::Type-->
                                                     <div class="form-group fv-plugins-icon-container" data-kt-type-div style="display:none">
                                                         <label class="form-check-label">Column type</label>
-                                                        <select name="firstColumn_kt_column_type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
+                                                        <select name="ktColumn_column_type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
                                                             <option value="">..</option>
                                                             <option value="text">Text</option>
                                                             <option value="boolean">Boolean</option>
@@ -372,12 +446,69 @@
                                                         <span class="form-text text-muted">Choose how you wish to show the value of this column in the datatable.</span>
                                                     </div>
                                                     <div class="fv-plugins-message-container"></div>
-                                                    <!--end::Input-->
+                                                    <!--end::Type-->
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <!--end::Column checkboxes-->
+                                    <!--end::KT columns-->
+                                    <hr>
+                                    <!--begin::jExcel imports-->
+                                    <h4 class="mb-10 font-weight-bold text-dark mt-5 pt-5">Imports</h4>
+                                    <!--begin::enable jExcel-->
+                                    <div class="form-group fv-plugins-icon-container pb-5">
+                                        <div>
+                                            <input name="enableImports" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                            <input name="enableImports" type="checkbox" value="1" id="enableImportsBox0" data-type="iCheck" style="display:none">
+                                            <label class="form-check-label" for="enableImportsBox0">Do you want to enable jExcel imports?</label>
+                                        </div>
+                                        <div class="fv-plugins-message-container"></div>
+                                    </div>
+                                    <!--end::enable jExcel-->
+                                    <div data-jexcel-columns class="mb-5 pt-5">
+                                        <div data-jexcel-column>
+                                            <!--begin::Enable column-->
+                                            <div class="form-group fv-plugins-icon-container">
+                                                <div>
+                                                    <input name="jExcel_enable" type="checkbox" checked="checked" value="0" data-kt-checkbox style="display:none !important">
+                                                    <input name="jExcel_enable" type="checkbox" value="1" id="jExcel_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
+                                                    <label class="form-check-label" for="jExcel_enableBox0">jExcel</label>
+                                                </div>
+                                            </div>
+                                            <!--end::Enable column-->
+                                            <!--begin::Title-->
+                                            <div class="form-group fv-plugins-icon-container" data-kt-title-div style="display:none">
+                                                <label>Title</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="jExcel_column_title" placeholder="jExcel">                                                
+                                                    <span class="form-text text-muted">Enter the title of the table header for this column.</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Title-->
+                                            <!--optional::Key-->
+                                            <!--begin::Title-->
+                                            <div class="form-group fv-plugins-icon-container" data-kt-type-div style="display:none">
+                                                <label class="form-check-label">Column type</label>
+                                                <select name="jExcel_column_type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
+                                                    <option value="">..</option>
+                                                    <option value="text">Text</option>
+                                                    <option value="numeric">Numeric</option>
+                                                    <option value="hidden">Hidden</option>
+                                                    <option value="dropdown">Dropdown</option>
+                                                    <option value="autocomplete">Autocomplete</option>
+                                                    <option value="checkbox">Checkbox</option>
+                                                    <option value="radio">Radio</option>
+                                                    <option value="calendar">Calendar</option>
+                                                    <option value="image">Image</option>
+                                                    <option value="color">Color</option>
+                                                </select>
+                                                <span class="form-text text-muted">What kind of data type belongs to the column?</span>
+                                            </div>
+                                            <div class="fv-plugins-message-container"></div>
+                                            <!--end::Title-->
+                                        </div>
+                                    </div>
+                                    <!--end::jExcel imports-->
                                 </div>
                                 <!--end: Wizard Step 3-->
                                 <!--begin: Wizard Step 4-->
