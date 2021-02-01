@@ -1,4 +1,4 @@
-window.DCMS.SlimSelect = function () {
+window.DCMS.slimSelect = function () {
     if (document.querySelectorAll('[data-type=slimselect]').length > 0) {
         window.hasLoaded('SlimSelect', function () {
             document.querySelectorAll('[data-type=slimselect]:not([data-ssid])').forEach(function (element) {
@@ -53,5 +53,5 @@ window.DCMS.SlimSelect = function () {
         });
     }
 };
-window.DCMS.SlimSelect();
+window.DCMS.slimSelect();
 
