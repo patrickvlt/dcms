@@ -30,12 +30,16 @@ class Update extends Command
         $console = $this;
         $rootjs = base_path() . '/resources/js/dcms/';
         $rootjsassets = base_path() . '/public/js/dcms/assets';
+        $rootjsportal = base_path() . '/public/js/dcms/portal';
         $rootscss = base_path() . '/resources/sass/dcms/';
         $rootcssassets = base_path() . '/public/css/dcms/assets';
+        $rootcssportal = base_path() . '/public/css/dcms/portal';
         $vendorjs = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/js';
         $vendorjsassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/js/assets';
+        $vendorjsportal = base_path() . '/vendor/pveltrop/dcms/src/app/Public/js/portal';
         $vendorscss = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/sass';
         $vendorcssassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/assets';
+        $vendorcssportal = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/portal';
 
         if ($console->confirm('Do you want to update the JavaScript files?')){
             // JS
@@ -43,6 +47,10 @@ class Update extends Command
             CopyDir($rootjs,$vendorjs);
             RemoveDir($vendorjsassets);
             CopyDir($rootjsassets,$vendorjsassets);
+            if(config('dcms.portal') == 'true'){
+                RemoveDir($vendorjsportal);
+                CopyDir($rootjsportal,$vendorjsportal);
+            }
         }
 
         if ($console->confirm('Do you want to update the CSS files?')){
@@ -51,6 +59,10 @@ class Update extends Command
             CopyDir($rootscss,$vendorscss);
             RemoveDir($vendorcssassets);
             CopyDir($rootcssassets,$vendorcssassets);
+            if(config('dcms.portal') == 'true'){
+                RemoveDir($vendorcssportal);
+                CopyDir($rootcssportal,$vendorcssportal);
+            }
         }
         
         if ($console->confirm('Do you want to update the configs?')){

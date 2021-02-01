@@ -4,13 +4,13 @@ return '<?php
 
 namespace App\\Http\\Controllers;
 
-use '.$modelImport.';
-use App\\Forms\\'.$model.'Form;
+use ' . $this->modelImport . ';
+use App\\Forms\\' . $this->model . 'Form;
 use App\\Traits\\DCMSController;
-use App\\Http\\Requests\\'.$model.'Request;
+use App\\Http\\Requests\\' . $this->model . 'Request;
 use Pveltrop\DCMS\Classes\Datatable;
 
-class '.$model.'Controller extends Controller
+class ' . $this->model . 'Controller extends Controller
 {
     use DCMSController;
 
@@ -18,18 +18,18 @@ class '.$model.'Controller extends Controller
     // This will help automatically pointing this controller to the right route, class, use the right messages in alerts, etc.
     function __construct()
     {
-        $this->routePrefix = "'.strtolower($prefix).'";
-        $this->model = '.$model.'::class;
-        $this->request = '.$modelRequestPath.';
-        $this->form = '.$model.'Form::class;
+        $this->routePrefix = "' . strtolower($this->prefix) . '";
+        $this->model = ' . $this->model . '::class;
+        $this->request = ' . $this->modelRequestPath . ';
+        $this->form = ' . $this->model . 'Form::class;
         $this->responses = [
             "created" => [
-                "title" => __("'.ucfirst($model).' created"),
-                "message" => __("'.ucfirst($model).' created on __created_at__"),
+                "title" => __("' . ucfirst($this->model) . ' created"),
+                "message" => __("' . ucfirst($this->model) . ' created on __created_at__"),
             ],
             "updated" => [
-                "title" => __("'.ucfirst($model).' updated"),
-                "message" => __("'.ucfirst($model).' updated on __created_at__"),
+                "title" => __("' . ucfirst($this->model) . ' updated"),
+                "message" => __("' . ucfirst($this->model) . ' updated on __created_at__"),
             ]
         ];
         $this->views = [
@@ -41,9 +41,9 @@ class '.$model.'Controller extends Controller
         $this->jExcel = [
             // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
             "columns" => [
-                "name" => 0,
-                "title" => 1,
-                "email" => 2
+                // "name" => 0,
+                // "title" => 1,
+                // "email" => 2
             ],
             // which class to use when trying to autocorrect/compare?
             // which classes/route prefixes to use when trying to autocorrect?
@@ -66,7 +66,7 @@ class '.$model.'Controller extends Controller
                 "finished" => [
                     "title" => __("Import succeeded"),
                     "message" => __("All data has been imported."),
-                    "url" => 
+                    "url" => route("'.$this->prefix.'.index")
                 ],
                 "failed" => [
                     "title" => __("Import failed"),
@@ -74,17 +74,6 @@ class '.$model.'Controller extends Controller
                 ]
             ]
         ];
-    }
-
-    // if you want to override store or update functions, uncomment and override the according function, two examples can be found below
-    // DCMSJSON returns the dynamic JSON response after creating/updating
-
-    public function store('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
-        return $this->DCMSJSON($'.$prefix.',"created");
-    }
-
-    public function update('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
-        return $this->DCMSJSON($'.$prefix.',"updated");
     }
 
     // if you want to pass variables to the default Laravel functions, but still use DCMS functions, you can do it like below:
@@ -103,23 +92,27 @@ class '.$model.'Controller extends Controller
     }
 
     // Define code to be executed after a model has been created/updated/deleted
-    public function afterCreate('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
-        // logger("A new '.$prefix.' has been created.");
+    public function afterCreate(' . $this->model . 'Request $request, ' . ucfirst($this->model) . ' $' . $this->prefix . '){
+        // logger("A new ' . $this->prefix . ' has been created.");
     }
 
-    public function afterCreateOrUpdate('.$model.'Request $request, '.ucfirst($model).' $'.$prefix.'){
-        // logger("A new '.$prefix.' has been updated.");
+    public function afterUpdate(' . $this->model . 'Request $request, ' . ucfirst($this->model) . ' $' . $this->prefix . '){
+        //
     }
 
-    public function afterDestroy($id, '.ucfirst($model).' $'.$prefix.'){
-        // logger("An instance of '.$prefix.' has been deleted.");
+    public function afterCreateOrUpdate(' . $this->model . 'Request $request, ' . ucfirst($this->model) . ' $' . $this->prefix . '){
+        //
+    }
+
+    public function afterDestroy($id, ' . ucfirst($this->model) . ' $' . $this->prefix . '){
+        //
     }
 
     // If you want to use server side filtering/sorting/paging in the DCMS KTDatatables wrapper, define the base query below
     public function fetch(): \Illuminate\Http\JsonResponse
     {
         // Get class to make a query for
-        $query = '.$model.'::query();
+        $query = ' . $this->model . '::query();
 
         return (new Datatable($query))->render();
     }

@@ -1,0 +1,26 @@
+.menu-dropdown-icon {
+    min-width: 20px;
+    text-align: center;
+}
+
+.menu-item-div {
+    display: flex;
+    align-items: center;
+}
+
+a#titleLogo {
+    color: white;
+    font-size: 25px;
+}
+
+label#titleLabel {
+    display:block;
+}
+
+.ss-main .ss-single-selected {
+    background-color: #f3f6f9 !important;
+}
+
+[data-column-control]:hover {
+    cursor:pointer;
+}

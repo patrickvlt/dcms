@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace Pveltrop\DCMS\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 

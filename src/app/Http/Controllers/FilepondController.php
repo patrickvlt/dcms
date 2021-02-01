@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Pveltrop\DCMS\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Pveltrop\DCMS\Classes\Dropbox;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class DCMSFilepondController extends Controller
+class FilepondController extends Controller
 {
     public function __construct()
     {

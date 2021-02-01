@@ -9,18 +9,18 @@ return '
 
 public function fetch()
 {
-    $query = '.$model.'::select(\'*\', \'name as something_name\')->selectRaw(\'column_one + column_two AS total_columns\')->with([\'relation\' => function ($query) {
+    $query = ' . $this->model . '::select(\'*\', \'name as something_name\')->selectRaw(\'column_one + column_two AS total_columns\')->with([\'relation\' => function ($query) {
         $query->select(\'*\');
     }]);
 
     // To simply select everything (don\'t use the get() method when instantiating a new DCMS Datatable class)
-    // $query = '.$model.'::query();
+    // $query = ' . $this->model . '::query();
 
     // $searchInColumns = [\'id\',\'name\',\'email\'];
     // $excludeColumns = [\'password\',\'token\'];
-    // return (new '.$model.'Datatable($query,$searchInColumns,$excludeColumns))->render();
+    // return (new ' . $this->model . 'Datatable($query,$searchInColumns,$excludeColumns))->render();
 
-    return (new '.$model.'Datatable($query))->render();
+    return (new ' . $this->model . 'Datatable($query))->render();
 }
 
 /**

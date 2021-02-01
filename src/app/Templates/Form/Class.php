@@ -4,7 +4,7 @@ return '<?php
 
 namespace App\Forms;
 
-class '.$model.'Form
+class '.$this->model.'Form
 {
     public function fields(){
         return [
