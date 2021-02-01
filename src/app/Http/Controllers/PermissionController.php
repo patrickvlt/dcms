@@ -8,11 +8,11 @@ class PermissionController extends Controller
 {
     public function index()
     {
-        dd('index');
+        //
     }
     
     public function create()
     {
-        dd('create');
+        //
     }
 }

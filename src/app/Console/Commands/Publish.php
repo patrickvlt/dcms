@@ -47,8 +47,10 @@ class Publish extends Command
             CopyDir($vendorjs,$rootjs);
             RemoveDir($rootjsassets);
             CopyDir($vendorjsassets,$rootjsassets);
-            RemoveDir($rootjsportal);
-            CopyDir($vendorjsportal,$rootjsportal);
+            if(config('dcms.portal') == 'true'){
+                RemoveDir($rootjsportal);
+                CopyDir($vendorjsportal,$rootjsportal);
+            }
         }
 
         if ($console->confirm('Do you want to update the CSS files?')){
@@ -57,8 +59,10 @@ class Publish extends Command
             CopyDir($vendorscss,$rootscss);
             RemoveDir($rootcssassets);
             CopyDir($vendorcssassets,$rootcssassets);
-            RemoveDir($rootcssportal);
-            CopyDir($vendorcssportal,$rootcssportal);
+            if(config('dcms.portal') == 'true'){
+                RemoveDir($rootcssportal);
+                CopyDir($vendorcssportal,$rootcssportal);
+            }
         }
 
         if ($console->confirm('Do you want to update the configs?')){

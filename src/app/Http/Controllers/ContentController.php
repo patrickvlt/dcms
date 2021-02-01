@@ -19,11 +19,7 @@ class ContentController extends Controller
     */
     public function authenticate()
     {
-        if ('foo' == 'bar'){
-            return response()->json(['message' => 'Authenticated'],200);
-        } else {
-            return response()->json(['message' => 'Unauthenticated'],422);
-        }
+        return response()->json(['message' => 'Unauthenticated'],422);
     }
 
     /**

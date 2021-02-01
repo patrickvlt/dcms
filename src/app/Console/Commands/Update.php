@@ -47,8 +47,10 @@ class Update extends Command
             CopyDir($rootjs,$vendorjs);
             RemoveDir($vendorjsassets);
             CopyDir($rootjsassets,$vendorjsassets);
-            RemoveDir($vendorjsportal);
-            CopyDir($rootjsportal,$vendorjsportal);
+            if(config('dcms.portal') == 'true'){
+                RemoveDir($vendorjsportal);
+                CopyDir($rootjsportal,$vendorjsportal);
+            }
         }
 
         if ($console->confirm('Do you want to update the CSS files?')){
@@ -57,8 +59,10 @@ class Update extends Command
             CopyDir($rootscss,$vendorscss);
             RemoveDir($vendorcssassets);
             CopyDir($rootcssassets,$vendorcssassets);
-            RemoveDir($vendorcssportal);
-            CopyDir($rootcssportal,$vendorcssportal);
+            if(config('dcms.portal') == 'true'){
+                RemoveDir($vendorcssportal);
+                CopyDir($rootcssportal,$vendorcssportal);
+            }
         }
         
         if ($console->confirm('Do you want to update the configs?')){
