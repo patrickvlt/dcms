@@ -66,7 +66,7 @@ class Datatable
         $this->params = request()->all();
 
         // Check if a query builder has been passed, or an array/collection
-        $this->queryBuilder = class_basename($this->query) == 'Builder' ? true : false;
+        $this->queryBuilder = !is_array($this->query) ? true : false;
 
         // Build filters for query
         if (isset($this->params['query'])) {
