@@ -369,19 +369,6 @@
                                                 </div>
                                                 <!--end::Input-->
                                             </div>
-                                            <!--begin::relatedKey-->
-                                            <div data-key-div style="display:none">
-                                                <!--begin::Input-->
-                                                <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
-                                                    <label>Related key</label>
-                                                    <input type="text" class="form-control form-control-solid form-control-lg"
-                                                        name="jExcel_column_key" placeholder="id">
-                                                    <span class="form-text text-muted">Which field to use from the related class?</span>
-                                                    <div class="fv-plugins-message-container"></div>
-                                                </div>
-                                                <!--end::Input-->
-                                            </div>
-                                            <!--end::relatedKey-->
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container" data-input-datatype-div>
                                                 <label>Add another column?</label>
@@ -412,14 +399,14 @@
                                     <div class="mb-10 font-weight-bold text-dark">Select which columns you want to show in the main datatable for this model.</div>
                                     <!--begin::KT columns-->
                                     <div data-kt-columns class="mb-5 pt-5">
-                                        <div data-kt-column>
+                                        <div data-kt-column data-kt-column-name="ktColumn">
                                             <div class="row">
                                                 <div class="col-12">
                                                     <!--begin::Enable column-->
                                                     <div class="form-group fv-plugins-icon-container">
                                                         <div>
-                                                            <input name="ktColumn_enable" type="checkbox" checked="checked" value="0" data-kt-checkbox style="display:none !important">
-                                                            <input name="ktColumn_enable" type="checkbox" value="1" data-kt-column-name id="ktColumn_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
+                                                            <input name="enable" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                                            <input name="enable" type="checkbox" value="1" id="ktColumn_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
                                                             <label class="form-check-label" for="ktColumn_enableBox0">ktColumn</label>
                                                         </div>
                                                     </div>
@@ -428,7 +415,7 @@
                                                     <div class="form-group fv-plugins-icon-container" data-kt-title-div style="display:none">
                                                         <label>Title</label>
                                                         <input type="text" class="form-control form-control-solid form-control-lg"
-                                                            name="ktColumn_column_title" placeholder="ktColumn">
+                                                            name="title" placeholder="ktColumn">
                                                         <span class="form-text text-muted">Enter the title of the table header for this column.</span>
                                                         <div class="fv-plugins-message-container"></div>
                                                     </div>
@@ -437,7 +424,7 @@
                                                     <!--begin::Type-->
                                                     <div class="form-group fv-plugins-icon-container" data-kt-type-div style="display:none">
                                                         <label class="form-check-label">Column type</label>
-                                                        <select name="ktColumn_column_type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
+                                                        <select name="type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
                                                             <option value="">..</option>
                                                             <option value="text">Text</option>
                                                             <option value="boolean">Boolean</option>
@@ -469,30 +456,30 @@
                                     </div>
                                     <!--end::enable jExcel-->
                                     <div data-jexcel-columns class="mb-5 pt-5">
-                                        <div data-jexcel-column>
+                                        <div data-jexcel-column data-jexcel-column-name="jExcel">
                                             <!--begin::Enable column-->
                                             <div class="form-group fv-plugins-icon-container">
                                                 <div>
-                                                    <input name="jExcel_enable" type="checkbox" checked="checked" value="0" data-kt-checkbox style="display:none !important">
-                                                    <input name="jExcel_enable" type="checkbox" value="1" id="jExcel_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
-                                                    <label class="form-check-label" for="jExcel_enableBox0">jExcel</label>
+                                                    <input name="enable" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                                    <input name="enable" type="checkbox" value="1" id="enableBox0" data-type="iCheck" data-jexcel-checkbox style="display:none">
+                                                    <label class="form-check-label" for="enableBox0">jExcel</label>
                                                 </div>
                                             </div>
                                             <!--end::Enable column-->
                                             <!--begin::Title-->
-                                            <div class="form-group fv-plugins-icon-container" data-kt-title-div style="display:none">
+                                            <div class="form-group fv-plugins-icon-container" data-jexcel-title-div style="display:none">
                                                 <label>Title</label>
                                                 <input type="text" class="form-control form-control-solid form-control-lg"
-                                                    name="jExcel_column_title" placeholder="jExcel">                                                
+                                                    name="title" placeholder="jExcel">                                                
                                                     <span class="form-text text-muted">Enter the title of the table header for this column.</span>
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
                                             <!--end::Title-->
                                             <!--optional::Key-->
                                             <!--begin::Title-->
-                                            <div class="form-group fv-plugins-icon-container" data-kt-type-div style="display:none">
+                                            <div class="form-group fv-plugins-icon-container" data-jexcel-type-div style="display:none">
                                                 <label class="form-check-label">Column type</label>
-                                                <select name="jExcel_column_type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
+                                                <select name="type" data-type="slimselect" data-jexcel-column-type class="form-control form-control-solid form-control-lg mt-2">
                                                     <option value="">..</option>
                                                     <option value="text">Text</option>
                                                     <option value="numeric">Numeric</option>
