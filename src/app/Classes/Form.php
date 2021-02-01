@@ -228,11 +228,11 @@ class Form extends HtmlTag
                     $optionAttrs = $definedAttr['select']['options'];
                     $optionOptionalAttr = $optionAttrs;
 
-                    $primaryKey = isset($optionAttrs['primaryKey']) ? $optionAttrs['primaryKey'] : null;
-                    $showKey = isset($optionAttrs['showKey']) ? $optionAttrs['showKey'] : null;
+                    $value = isset($optionAttrs['value']) ? $optionAttrs['value'] : null;
+                    $text = isset($optionAttrs['text']) ? $optionAttrs['text'] : null;
                     $foreignKey = isset($optionAttrs['foreignKey']) ? $optionAttrs['foreignKey'] : null;
 
-                    unset($optionOptionalAttr['data'],$optionOptionalAttr['primaryKey'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['showKey']);
+                    unset($optionOptionalAttr['data'],$optionOptionalAttr['value'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['text']);
 
                     if (!is_array($optionAttrs['data']) && !$optionAttrs['data'] instanceof Collection){
                         $optionAttrs['data'] = $model->{$optionAttrs['data']};
@@ -240,9 +240,9 @@ class Form extends HtmlTag
 
                     foreach ($optionAttrs['data'] as $key => $data){
                         $option = $selectElement->addElement('option')->attr([
-                            'value' => $primaryKey ? $data->{$primaryKey} : $data,
-                        ])->text(__($showKey ? $data->{$showKey} : $data));
-                        $dataValue = $primaryKey ? $data->{$primaryKey} : $key;
+                            'value' => $value ? $data->{$value} : $data,
+                        ])->text(__($text ? $data->{$text} : $data));
+                        $dataValue = $value ? $data->{$value} : $key;
                         if (FormMethod() == 'POST'){
                             $modelValue = $foreignKey ? $data->{$foreignKey} : $data;
                         } else {
@@ -251,7 +251,7 @@ class Form extends HtmlTag
                         if (is_array($modelValue) || $modelValue instanceof Collection){
                             foreach($modelValue as $modelValueRow){
                                 // Compare with property if this exists
-                                $modelValueRow = $modelValueRow->{$primaryKey} ? $modelValueRow->{$primaryKey} : $modelValueRow;
+                                $modelValueRow = $modelValueRow->{$value} ? $modelValueRow->{$value} : $modelValueRow;
                                 if ($modelValueRow == $dataValue){
                                     $option->attr(['selected' => 'selected']);
                                 }

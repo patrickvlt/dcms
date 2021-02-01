@@ -113,8 +113,8 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_created_url" placeholder="Created user">
-                                            <span class="form-text text-muted">Enter a path to redirect the user after
+                                                name="response_created_url" placeholder="/user/index">
+                                            <span class="form-text text-muted">Enter a relative path to redirect the user after
                                                 creating a new entry.</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -134,8 +134,8 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_updated_url" placeholder="Updated user">
-                                            <span class="form-text text-muted">Enter a path to redirect the user after
+                                                name="response_updated_url" placeholder="/user/index">
+                                            <span class="form-text text-muted">Enter a relative path to redirect the user after
                                                 editing an entry.</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -155,7 +155,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_deleted_url" placeholder="Deleted user">
+                                                name="response_deleted_url" placeholder="/user/index">
                                             <span class="form-text text-muted">Enter a path to redirect the user after
                                                 deleting an entry.</span>
                                             <div class="fv-plugins-message-container"></div>
@@ -224,7 +224,7 @@
                                             <div class="form-group fv-plugins-icon-container">
                                                 <label>Title</label>
                                                 <input type="text" class="form-control form-control-solid form-control-lg"
-                                                    name="title" placeholder="E-mail Address">
+                                                    name="title" placeholder="E-mail address">
                                                 <span class="form-text text-muted">The title of the column, to show above it's input in a form.</span>
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
@@ -232,7 +232,7 @@
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container">
                                                 <label>Data Type</label>
-                                                <select name="datatype" data-type="slimselect" id="datatype" class="form-control form-control-solid form-control-lg">
+                                                <select name="dataType" data-type="slimselect" id="dataType" class="form-control form-control-solid form-control-lg">
                                                     <option value="">..</option>
                                                     <option value="bigIncrements">bigIncrements</option>
                                                     <option value="bigInteger">bigInteger</option>
@@ -321,16 +321,32 @@
                                             </div>
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container">
-                                                <label>Foreign</label>
-                                                <select name="foreign" data-type="slimselect" id="foreign" class="form-control form-control-solid form-control-lg">
-                                                    <option value="">..</option>
-                                                    <option value="No">No</option>
-                                                    <option value="Yes">Yes</option>
-                                                </select>
-                                                <span class="form-text text-muted">Does this column contain a foreign key?</span>
+                                                <div>
+                                                    <input name="foreign" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                                    <input name="foreign" type="checkbox" value="1" id="foreignBox0" data-type="iCheck" data-foreign-checkbox style="display:none">
+                                                    <label class="form-check-label" for="foreignBox0">Is this a foreign key?</label>
+                                                </div>
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
                                             <!--end::Input-->
+                                            <!--begin::Relation-->
+                                            <div data-relation-div style="display:none">
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Value</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="value" placeholder="id">
+                                                    <span class="form-text text-muted">A dropdown element will be generated in the form with all related objects. Which field should be used as the value in the option element?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Text</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="text" placeholder="name">
+                                                    <span class="form-text text-muted">Which field should be shown to the user in the option element?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                            </div>
+                                            <!--end::Relation-->
                                             <div data-input-div style="display:none">
                                                 <!--begin::Input-->
                                                 <div class="form-group fv-plugins-icon-container">
@@ -449,8 +465,8 @@
                                     <div class="form-group fv-plugins-icon-container pb-5">
                                         <div>
                                             <input name="enableImports" type="checkbox" checked="checked" value="0" style="display:none !important">
-                                            <input name="enableImports" type="checkbox" value="1" id="enableImportsBox0" data-type="iCheck" style="display:none">
-                                            <label class="form-check-label" for="enableImportsBox0">Do you want to enable jExcel imports?</label>
+                                            <input name="enableImports" type="checkbox" value="1" id="jExcel_enableImportsBox0" data-type="iCheck" style="display:none">
+                                            <label class="form-check-label" for="jExcel_enableImportsBox0">Do you want to enable jExcel imports?</label>
                                         </div>
                                         <div class="fv-plugins-message-container"></div>
                                     </div>
@@ -461,8 +477,8 @@
                                             <div class="form-group fv-plugins-icon-container">
                                                 <div>
                                                     <input name="enable" type="checkbox" checked="checked" value="0" style="display:none !important">
-                                                    <input name="enable" type="checkbox" value="1" id="enableBox0" data-type="iCheck" data-jexcel-checkbox style="display:none">
-                                                    <label class="form-check-label" for="enableBox0">jExcel</label>
+                                                    <input name="enable" type="checkbox" value="1" id="jExcel_enableBox0" data-type="iCheck" data-jexcel-checkbox style="display:none">
+                                                    <label class="form-check-label" for="jExcel_enableBox0">jExcel</label>
                                                 </div>
                                             </div>
                                             <!--end::Enable column-->
