@@ -26,28 +26,7 @@ var KTWizard4 = function () {
             })), i.on("changed", (function (t) {
                 KTUtil.scrollTop()
             })), i.on("submit", (function (t) {
-                Swal.fire({
-                    text: "All is good! Please confirm the form submission.",
-                    icon: "success",
-                    showCancelButton: !0,
-                    buttonsStyling: !1,
-                    confirmButtonText: "Yes, submit!",
-                    cancelButtonText: "No, cancel",
-                    customClass: {
-                        confirmButton: "btn font-weight-bold btn-primary",
-                        cancelButton: "btn font-weight-bold btn-default"
-                    }
-                }).then((function (t) {
-                    t.value ? e.submit() : "cancel" === t.dismiss && Swal.fire({
-                        text: "Your form has not been submitted!.",
-                        icon: "error",
-                        buttonsStyling: !1,
-                        confirmButtonText: "Ok, got it!",
-                        customClass: {
-                            confirmButton: "btn font-weight-bold btn-primary"
-                        }
-                    })
-                }))
+
             })), o.push(FormValidation.formValidation(e, {
                 fields: {
                     fname: {
@@ -188,27 +167,23 @@ var KTWizard4 = function () {
 }();
 
 jQuery(document).ready((function () {
-    KTWizard4.init()
+    KTWizard4.init();
 }));
 
 
 // DCMS Model Form
-var inputDataType, inputDiv, inputType, inputDataTypeDiv, columnDiv, columnNameEl, columnName, currentClasses, emptyColumnDiv, emptyCheckboxDiv, changedColumns;
+var inputDataType, inputDiv, inputType, inputDataTypeDiv, columnDiv, columnNameEl, columnName, currentClasses, emptyColumnDiv, emptyKtColumnDiv, emptyjExcelColumnDiv, changedColumns, keyDiv;
 
 emptyColumnDiv = document.querySelector('[data-column]').outerHTML;
-emptyCheckboxDiv = document.querySelector('[data-column-checkbox]').outerHTML;
+emptyKtColumnDiv = document.querySelector('[data-kt-column]').outerHTML;
+$('[data-kt-column]').remove();
+emptyjExcelColumnDiv = document.querySelector('[data-jExcel-column]').outerHTML;
+$('[data-jExcel-column]').remove();
 changedColumns = false;
-    
-// Get available datatypes to use in Laravel and the database
-$.getJSON('/js/dcms/portal/assets/datatypes.json', function(type) {
-    $.each(type, function (x, datatype) { 
-        $('#datatype').append(`<option value="${datatype}">${datatype}</option>`);  
-    });
- });
 
- $(document).on('click','[data-column-control]',function(e){
+$(document).on('click', '[data-column-control]', function (e) {
     currentClasses = e.currentTarget.classList.value;
-    if (new RegExp(/fa-caret-down/gm).test(currentClasses)){
+    if (new RegExp(/fa-caret-down/gm).test(currentClasses)) {
         $(e.currentTarget).removeClass('fa-caret-down');
         $(e.currentTarget).addClass('fa-caret-right');
         $(e.currentTarget).parent().find('[data-column-properties]').hide();
@@ -217,35 +192,41 @@ $.getJSON('/js/dcms/portal/assets/datatypes.json', function(type) {
         $(e.currentTarget).addClass('fa-caret-down');
         $(e.currentTarget).parent().find('[data-column-properties]').show();
     }
-}); 
-
-$(document).on('click','[data-add-column]',function(e){
-    changedColumns = true;
-    document.querySelector('[data-column]').parentNode.insertAdjacentHTML('beforeend',emptyColumnDiv);
-    $(e.currentTarget.parentNode.parentNode.parentNode).hide();
 });
 
-$(document).on('click','[data-delete-column]',function(e){
+$(document).on('click', '[data-add-column]', function (e) {
     changedColumns = true;
-    e.currentTarget.parentNode.parentNode.parentNode.parentNode.remove();
+    document.querySelector('[data-column]').parentNode.insertAdjacentHTML('beforeend', emptyColumnDiv);
+    $(e.currentTarget.parentNode.parentNode).hide();
+    window.DCMS.iCheck();
+    window.DCMS.slimSelect();
 });
 
- $(document).on('keyup','[name="name"]',function(e){
+$(document).on('click', '[data-delete-column]', function (e) {
+    changedColumns = true;
+    e.currentTarget.parentNode.parentNode.parentNode.remove();
+    window.DCMS.iCheck();
+    window.DCMS.slimSelect();
+});
+
+$(document).on('keyup', '[name="name"]', function (e) {
     columnDiv = e.currentTarget.parentNode.parentNode.parentNode;
-    columnName = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm,'');
-    e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm,'');
+    columnName = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm, '');
+    e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm, '');
     columnNameEl = columnDiv.querySelector('[data-column-name]');
     columnNameEl.innerHTML = columnName;
+    columnNameEl.dataset.columnName = columnName;
 
     changedColumns = true;
 });
 
-$(document).on('change','[name="foreign"]',function(e){
+$(document).on('change', '[name="foreign"]', function (e) {
     inputDiv = e.currentTarget.parentNode.parentNode.querySelector('[data-input-div]');
+    keyDiv = e.currentTarget.parentNode.parentNode.querySelector('[data-key-div]');
     inputType = inputDiv.querySelector('[name=inputType]');
     inputDataType = inputDiv.querySelector('[name=inputDataType]');
 
-    if (e.currentTarget.value == 'No'){
+    if (e.currentTarget.value == 'No') {
         $(inputDiv).show();
         inputType.selectedIndex = 0;
         inputDataType.selectedIndex = 0;
@@ -261,7 +242,7 @@ $(document).on('change','[name="foreign"]',function(e){
 
 });
 
-$(document).on('change','[name="inputType"]',function(e){
+$(document).on('change', '[name="inputType"]', function (e) {
     inputDiv = e.currentTarget.parentNode.parentNode;
     inputDataType = inputDiv.querySelector('[name=inputDataType]');
     inputDataTypeDiv = inputDiv.querySelector('[data-input-datatype-div]');
@@ -294,33 +275,126 @@ $(document).on('change','[name="inputType"]',function(e){
     inputDataType.dispatchEvent(new Event("change"));
 });
 
-$(document).on('click','[data-wizard-type="action-next"], [data-wizard-type="action-prev"]',function(){
-    // If on step 3
-    if (changedColumns){
-        if (document.querySelector('[data-wizard-step="3"][data-wizard-state="current"]')){
-            $.each(document.querySelector('[data-column-checkbox]').parentNode.querySelectorAll('[data-column-checkbox]'), function (x, checkboxEl) { 
-                $(checkboxEl).remove();
-            });
-            $.each($("[data-column-name]"), function (x, columnEl) { 
-                columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm,'');
-                document.querySelector('[data-column-checkboxes]').insertAdjacentHTML('beforeend',emptyCheckboxDiv.replace(/firstColumn/gm,columnName));
-            });
-            window.DCMS.iCheck();
-            window.DCMS.SlimSelect();
+// Inserting kt column divs function
+var ktColumnProperties;
+function InsertKTColumns() {
+    if (document.querySelector('[data-kt-column]')) {
+        $.each(document.querySelector('[data-kt-column]').parentNode.querySelectorAll('[data-kt-column]'), function (x, ktColumn) {
+            $(ktColumn).remove();
+        });
+    }
+    $.each($("[data-column-name]"), function (x, columnEl) {
+        columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
+        ktColumnProperties = emptyKtColumnDiv.replace(/ktColumn/gm, columnName);
+        if ($(columnEl).parent().find('[name="foreign"]').val() == 'Yes') {
+            ktColumnProperties = ktColumnProperties.replace(/<!--optional::Key-->/gm,
+                `<!--begin::Input-->
+            <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
+                <label>Related key</label>
+                <input type="text" class="form-control form-control-solid form-control-lg"
+                    name="ktColumn_column_key" placeholder="id">
+                <span class="form-text text-muted">Which field to use from the related class?</span>
+                <div class="fv-plugins-message-container"></div>
+            </div>
+            <!--end::Input-->`);
         }
-        changedColumns = false;
+        document.querySelector('[data-kt-columns]').insertAdjacentHTML('beforeend', ktColumnProperties);
+    });
+    window.DCMS.iCheck();
+    window.DCMS.slimSelect();
+}
+function InsertjExcelColumns() {
+    var jExcelProperties;
+    $.each($("[data-jexcel-column]"), function (x, jExcelColumn) {
+        $(jExcelColumn).remove();
+    });
+    $.each($("[data-column-name]"), function (x, columnEl) {
+        columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
+        jExcelProperties = emptyjExcelColumnDiv.replace(/jExcel/gm, columnName);
+        if ($(columnEl).parent().find('[name="foreign"]').val() == 'Yes') {
+            jExcelProperties = jExcelProperties.replace(/<!--optional::Key-->/gm,
+                `<!--begin::Input-->
+            <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
+                <label>Related key</label>
+                <input type="text" class="form-control form-control-solid form-control-lg"
+                    name="jExcel_column_key" placeholder="id">
+                <span class="form-text text-muted">Which field to use from the related class?</span>
+                <div class="fv-plugins-message-container"></div>
+            </div>
+            <!--end::Input-->`);
+        }
+        document.querySelector('[data-jexcel-columns]').insertAdjacentHTML('beforeend', jExcelProperties);
+    });
+}
+InsertKTColumns();
+
+// Inserting kt table columns when changing steps
+$(document).on('click', '[data-wizard-type="action-next"], [data-wizard-type="action-prev"]', function () {
+    // If on step 3
+    if (document.querySelector('[data-wizard-step="3"][data-wizard-state="current"]')) {
+        InsertKTColumns();
+        InsertjExcelColumns();
     }
 });
 
-$(document).on('change','[data-kt-checkbox]',function(e){
+// Enabling kt columns
+$(document).on('change', '[data-kt-checkbox]', function (e) {
     var ktTypeDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-type-div]');
     var ktTitleDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-title-div]');
     var ktKeyDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-key-div]');
-    if (e.currentTarget.checked){
+    if (e.currentTarget.checked) {
         $(ktTypeDiv).show();
         $(ktTitleDiv).show();
+        if ($(ktKeyDiv)) {
+            $(ktKeyDiv).show();
+        }
     } else {
         $(ktTypeDiv).hide();
         $(ktTitleDiv).hide();
+        if ($(ktKeyDiv)) {
+            $(ktKeyDiv).hide();
+        }
     }
+});
+
+// Enabling imports
+$(document).on('change', '[name="enableImports"]', function (e) {
+    if (e.currentTarget.checked) {
+        InsertjExcelColumns();
+        window.DCMS.iCheck();
+        window.DCMS.slimSelect();
+    } else {
+        $.each($("[data-jexcel-column]"), function (x, jExcelColumn) {
+            $(jExcelColumn).remove();
+        });
+    }
+});
+
+function GenerateData() {
+    var formData = new FormData();
+
+    streetName = document.querySelector('[name=street_name]') ? document.querySelector('[name=street_name]').value : '';
+
+    formData.append('street_name', streetName);
+
+    return formData;
+}
+
+document.querySelector('[data-wizard-type="action-submit"]').addEventListener('click', function (event) {
+    event.preventDefault();
+    let formAction = event.target.form.action,
+        formMethod = event.target.form.method,
+        formData = GenerateData();
+
+    window.HttpReq(formMethod, formAction, formData, {
+        customBefore: () => {
+            window.DisableSubmit('button[data-wizard-type="action-submit"]');
+        },
+        customBeforeError: () => {
+            window.EnableSubmit('button[data-wizard-type="action-submit"]');
+        },
+        customBeforeSuccess: () => {
+            window.EnableSubmit('button[data-wizard-type="action-submit"]');
+        },
+    });
 });

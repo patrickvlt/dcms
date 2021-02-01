@@ -10,7 +10,9 @@
         <!--begin::Toolbar-->
         <div class="d-flex align-items-center flex-wrap">
             <!--begin::Actions-->
-            <button data-kt-action="reload" class="btn btn-bg-white btn-icon-info btn-hover-primary btn-icon mr-3 my-2 my-lg-0" style="min-width: 120px;">
+            <button data-kt-action="reload"
+                class="btn btn-bg-white btn-icon-info btn-hover-primary btn-icon mr-3 my-2 my-lg-0"
+                style="min-width: 120px;">
                 <span class="menu-text">Refresh table</span>
             </button>
             <a href="{{ route('dcms.portal.model.create') }}" class="btn btn-primary btn-icon" style="min-width: 120px">
@@ -34,7 +36,8 @@
             <div class="card-body d-flex flex-column" id="modelParentDiv">
                 <div class="flex-grow-1 pb-5">
                     <!--begin::Link-->
-                    <a href="{{ route('dcms.portal.model.index') }}" class="text-dark font-weight-bolder text-hover-primary font-size-h4">Models</a>
+                    <a href="{{ route('dcms.portal.model.index') }}"
+                        class="text-dark font-weight-bolder text-hover-primary font-size-h4">Models</a>
                     <!--end::Link-->
                     <!--begin::Desc-->
                     <p class="text-dark-50 font-weight-normal font-size-lg mt-6"></p>
@@ -61,16 +64,11 @@
                         </div>
                     </div>
                 </div>
-                <div class='datatable datatable-bordered datatable-head-custom'
-                    data-kt-parent="#kt_body"
+                <div class='datatable datatable-bordered datatable-head-custom' data-kt-parent="#kt_body"
                     data-kt-route={{ route('dcms.portal.model.fetch') }}
-                    data-kt-edit-route={{ route('dcms.portal.model.edit','__id__') }}
-                    data-kt-page-size=10
-                    data-kt-pagination=true
-                    data-kt-scrolling=false
-                    data-kt-include-actions=false
-                    data-kt-include-selector=false
-                    data-kt-delete-rows-confirm-title="{{ __('Delete models') }}"
+                    data-kt-edit-route={{ route('dcms.portal.model.edit','__id__') }} data-kt-page-size=10
+                    data-kt-pagination=true data-kt-scrolling=false data-kt-include-actions=false
+                    data-kt-include-selector=false data-kt-delete-rows-confirm-title="{{ __('Delete models') }}"
                     data-kt-delete-rows-confirm-message="{{ __('Are you sure you want to delete these models?') }}"
                     data-kt-delete-rows-complete-title="{{ __('Posts deleted') }}"
                     data-kt-delete-rows-complete-message="{{ __('The models have been deleted.') }}"
@@ -81,8 +79,7 @@
                     data-kt-delete-single-complete-title='{{ __('Deleted model') }}'
                     data-kt-delete-single-complete-message='{{ __('The model has been deleted.') }}'
                     data-kt-delete-single-failed-title='{{ __('Deleting failed') }}'
-                    data-kt-delete-single-failed-message='{{ __('This model couldn\'t be deleted.') }}'
-                    >
+                    data-kt-delete-single-failed-message='{{ __('This model couldn\'t be deleted.') }}'>
                     <div data-kt-type="columns">
                         <div data-kt-title="{{ __('Class') }}" data-kt-column="class"></div>
                         <div data-kt-title="{{ __('Table') }}" data-kt-column="table"></div>
@@ -99,7 +96,7 @@
 @endsection
 @push('footer-scripts')
 <script>
-    DCMSDatatable({
+    DCMS.datatable({
         table: $(".datatable")
     });
 </script>

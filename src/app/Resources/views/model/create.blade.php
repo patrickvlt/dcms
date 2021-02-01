@@ -20,6 +20,9 @@
 </div>
 <!--end::Subheader-->
 @endsection
+@push('extra-styles')
+<link href="/css/dcms/wizard.css" rel="stylesheet" type="text/css" />
+@endpush
 @section('content')
 <!--begin::Users-->
 <!--begin::Row-->

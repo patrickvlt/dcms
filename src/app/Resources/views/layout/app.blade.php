@@ -59,7 +59,7 @@
 		<!--end::Global Config-->
 		<!--begin::Global Theme Bundle(used by all pages)-->
 		<script src="/js/dcms/portal/plugins.bundle.js"></script>
-		<script src="/js/dcms/portal/prismjs/prismjs.bundle.js"></script>
+		<script src="/js/dcms/portal/prismjs.bundle.js"></script>
 		<script src="/js/dcms/portal/scripts.bundle.js"></script>
 		<!--end::Global Theme Bundle-->
 		<!--begin::Page Vendors(used by this page)-->
