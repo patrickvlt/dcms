@@ -693,6 +693,16 @@ window.DeleteModel = function (args) {
                         }
                     });
                 }
+            } else {
+                Swal.fire({
+                    title: Lang('Unknown error'),
+                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                    icon: "error",
+                    confirmButtonColor: (typeof window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
+                    confirmButtonText: (typeof window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
+                    cancelButtonColor: (typeof window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
+                    cancelButtonText: (typeof window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
+                });
             }
         }
     });
