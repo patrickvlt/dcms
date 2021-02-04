@@ -99,12 +99,12 @@
                                     </div>
                                     <!--end::Input-->
                                     <div class="mb-10 font-weight-bold text-dark col-12">Responses</div>
-                                    <div class="d-sm-flex">
+                                    <div class="d-sm-flex" data-response-created>
                                         <!--begin::Input-->
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Message for new entry</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_created" placeholder="Created user">
+                                                name="message" placeholder="Created user">
                                             <span class="form-text text-muted">Which message to show when user creates a new entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -113,19 +113,19 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_created_url" placeholder="/user/index">
+                                                name="url" placeholder="/user/index">
                                             <span class="form-text text-muted">Enter a relative path to redirect the user after
                                                 creating a new entry.</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
                                         <!--end::Input-->
                                     </div>
-                                    <div class="d-sm-flex">
+                                    <div class="d-sm-flex" data-response-updated>
                                         <!--begin::Input-->
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Message for updated entry</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_updated" placeholder="Updated user">
+                                                name="message" placeholder="Updated user">
                                             <span class="form-text text-muted">Which message to show when user has edited an entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -134,19 +134,19 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_updated_url" placeholder="/user/index">
+                                                name="url" placeholder="/user/index">
                                             <span class="form-text text-muted">Enter a relative path to redirect the user after
                                                 editing an entry.</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
                                         <!--end::Input-->
                                     </div>
-                                    <div class="d-sm-flex">
+                                    <div class="d-sm-flex" data-response-deleted>
                                         <!--begin::Input-->
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Message for deleted entry</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_deleted" placeholder="Deleted user">
+                                                name="message" placeholder="Deleted user">
                                             <span class="form-text text-muted">Which message to show when user has deleted an entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -155,7 +155,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_deleted_url" placeholder="/user/index">
+                                                name="url" placeholder="/user/index">
                                             <span class="form-text text-muted">Enter a path to redirect the user after
                                                 deleting an entry.</span>
                                             <div class="fv-plugins-message-container"></div>
@@ -168,7 +168,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Create</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="view_create" placeholder="user.create">
+                                                name="create" data-view placeholder="user.create">
                                             <span class="form-text text-muted">Which view to return when creating a new entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -177,7 +177,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Index</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="view_index" placeholder="user.index">
+                                                name="index" data-view placeholder="user.index">
                                             <span class="form-text text-muted">Which view to return for the index route?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -188,7 +188,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Show</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="view_show" placeholder="user.show">
+                                                name="show" data-view placeholder="user.show">
                                             <span class="form-text text-muted">Which view to return when viewing an entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -197,7 +197,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Edit</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="view_edit" placeholder="user.edit">
+                                                name="edit" data-view placeholder="user.edit">
                                             <span class="form-text text-muted">Which view to return when editing an entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>

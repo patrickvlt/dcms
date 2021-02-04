@@ -172,17 +172,15 @@ jQuery(document).ready((function () {
 
 
 // DCMS Model Form
-var inputDataType, inputDiv, inputType, inputDataTypeDiv, columnDiv, columnNameEl, columnName, currentClasses, emptyColumnDiv, emptyKtColumnDiv, emptyjExcelColumnDiv, changedColumns, keyDiv;
-
-emptyColumnDiv = document.querySelector('[data-column]').outerHTML;
-emptyKtColumnDiv = document.querySelector('[data-kt-column]').outerHTML;
+var emptyColumnDiv = document.querySelector('[data-column]').outerHTML;
+var emptyKtColumnDiv = document.querySelector('[data-kt-column]').outerHTML;
 $('[data-kt-column]').remove();
-emptyjExcelColumnDiv = document.querySelector('[data-jExcel-column]').outerHTML;
+var emptyjExcelColumnDiv = document.querySelector('[data-jExcel-column]').outerHTML;
 $('[data-jExcel-column]').remove();
-changedColumns = false;
+var changedColumns = false;
 
 $(document).on('click', '[data-column-control]', function (e) {
-    currentClasses = e.currentTarget.classList.value;
+    var currentClasses = e.currentTarget.classList.value;
     if (new RegExp(/fa-caret-down/gm).test(currentClasses)) {
         $(e.currentTarget).removeClass('fa-caret-down');
         $(e.currentTarget).addClass('fa-caret-right');
@@ -210,10 +208,10 @@ $(document).on('click', '[data-delete-column]', function (e) {
 });
 
 $(document).on('keyup', '[name="name"]', function (e) {
-    columnDiv = e.currentTarget.parentNode.parentNode.parentNode;
-    columnName = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm, '');
+    var columnDiv = e.currentTarget.parentNode.parentNode.parentNode;
+    var columnName = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm, '');
     e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm, '');
-    columnNameEl = columnDiv.querySelector('[data-column-name]');
+    var columnNameEl = columnDiv.querySelector('[data-column-name]');
     columnNameEl.innerHTML = columnName;
     columnNameEl.dataset.columnName = columnName;
 
@@ -221,21 +219,23 @@ $(document).on('keyup', '[name="name"]', function (e) {
 });
 
 $(document).on('change', '[name="foreign"]', function (e) {
-    inputDiv = e.currentTarget.parentNode.parentNode.querySelector('[data-input-div]');
-    keyDiv = e.currentTarget.parentNode.parentNode.querySelector('[data-key-div]');
-    inputType = inputDiv.querySelector('[name=inputType]');
-    inputDataType = inputDiv.querySelector('[name=inputDataType]');
+    var inputDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-input-div]');
+    var relationDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-relation-div]');
+    var inputType = inputDiv.querySelector('[name=inputType]');
+    var inputDataType = inputDiv.querySelector('[name=inputDataType]');
 
-    if (e.currentTarget.value == 'No') {
-        $(inputDiv).show();
-        inputType.selectedIndex = 0;
-        inputDataType.selectedIndex = 0;
+    if (e.currentTarget.checked) {
+        $(inputDiv).hide();
+        $(relationDiv).show();
+        inputType.selectedIndex = 2;
+        inputDataType.selectedIndex = 4;
         inputType.dispatchEvent(new Event("change"));
         inputDataType.dispatchEvent(new Event("change"));
     } else {
-        $(inputDiv).hide();
-        inputType.selectedIndex = 2;
-        inputDataType.selectedIndex = 4;
+        $(inputDiv).show();
+        $(relationDiv).hide();
+        inputType.selectedIndex = 0;
+        inputDataType.selectedIndex = 0;
         inputType.dispatchEvent(new Event("change"));
         inputDataType.dispatchEvent(new Event("change"));
     }
@@ -243,9 +243,9 @@ $(document).on('change', '[name="foreign"]', function (e) {
 });
 
 $(document).on('change', '[name="inputType"]', function (e) {
-    inputDiv = e.currentTarget.parentNode.parentNode;
-    inputDataType = inputDiv.querySelector('[name=inputDataType]');
-    inputDataTypeDiv = inputDiv.querySelector('[data-input-datatype-div]');
+    var inputDiv = e.currentTarget.parentNode.parentNode;
+    var inputDataType = inputDiv.querySelector('[name=inputDataType]');
+    var inputDataTypeDiv = inputDiv.querySelector('[data-input-datatype-div]');
 
     $(inputDataTypeDiv).show();
     switch (e.currentTarget.value) {
@@ -284,16 +284,16 @@ function InsertKTColumns() {
         });
     }
     $.each($("[data-column-name]"), function (x, columnEl) {
-        columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
+        var columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
         ktColumnProperties = emptyKtColumnDiv.replace(/ktColumn/gm, columnName);
-        if ($(columnEl).parent().find('[name="foreign"]').val() == 'Yes') {
+        if ($(columnEl).parent().find('[data-foreign-checkbox]')[0].checked) {
             ktColumnProperties = ktColumnProperties.replace(/<!--optional::Key-->/gm,
                 `<!--begin::Input-->
             <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
-                <label>Related key</label>
+                <label>Value</label>
                 <input type="text" class="form-control form-control-solid form-control-lg"
-                    name="ktColumn_column_key" placeholder="id">
-                <span class="form-text text-muted">Which field to use from the related class?</span>
+                    name="value" placeholder="id">
+                <span class="form-text text-muted">Which field should be used as the value?</span>
                 <div class="fv-plugins-message-container"></div>
             </div>
             <!--end::Input-->`);
@@ -303,22 +303,32 @@ function InsertKTColumns() {
     window.DCMS.iCheck();
     window.DCMS.slimSelect();
 }
+
 function InsertjExcelColumns() {
     var jExcelProperties;
     $.each($("[data-jexcel-column]"), function (x, jExcelColumn) {
         $(jExcelColumn).remove();
     });
     $.each($("[data-column-name]"), function (x, columnEl) {
-        columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
+        var columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
         jExcelProperties = emptyjExcelColumnDiv.replace(/jExcel/gm, columnName);
-        if ($(columnEl).parent().find('[name="foreign"]').val() == 'Yes') {
+        if ($(columnEl).parent().find('[data-foreign-checkbox]')[0].checked) {
             jExcelProperties = jExcelProperties.replace(/<!--optional::Key-->/gm,
                 `<!--begin::Input-->
-            <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
-                <label>Related key</label>
+            <div class="form-group fv-plugins-icon-container" data-jexcel-key-div style="display:none">
+                <label>Value</label>
                 <input type="text" class="form-control form-control-solid form-control-lg"
-                    name="jExcel_column_key" placeholder="id">
-                <span class="form-text text-muted">Which field to use from the related class?</span>
+                    name="value" placeholder="id">
+                <span class="form-text text-muted">Which field should be used as the value?</span>
+                <div class="fv-plugins-message-container"></div>
+            </div>
+            <!--end::Input-->
+            <!--begin::Input-->
+            <div class="form-group fv-plugins-icon-container" data-jexcel-text-div style="display:none">
+                <label>Text</label>
+                <input type="text" class="form-control form-control-solid form-control-lg"
+                    name="text" placeholder="name">
+                <span class="form-text text-muted">Which field should be shown to the user?</span>
                 <div class="fv-plugins-message-container"></div>
             </div>
             <!--end::Input-->`);
@@ -357,6 +367,29 @@ $(document).on('change', '[data-kt-checkbox]', function (e) {
     }
 });
 
+// Enabling jexcel columns
+$(document).on('change', '[data-jexcel-checkbox]', function (e) {
+    var jExcelTypeDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-type-div]');
+    var jExcelTitleDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-title-div]');
+    var jExcelKeyDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-key-div]');
+    var jExcelTextDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-text-div]');
+    if (e.currentTarget.checked) {
+        $(jExcelTypeDiv).show();
+        $(jExcelTitleDiv).show();
+        if ($(jExcelKeyDiv) && $(jExcelTextDiv)) {
+            $(jExcelKeyDiv).show();
+            $(jExcelTextDiv).show();
+        }
+    } else {
+        $(jExcelTypeDiv).hide();
+        $(jExcelTitleDiv).hide();
+        if ($(jExcelKeyDiv) && $(jExcelTextDiv)) {
+            $(jExcelKeyDiv).hide();
+            $(jExcelTextDiv).hide();
+        }
+    }
+});
+
 // Enabling imports
 $(document).on('change', '[name="enableImports"]', function (e) {
     if (e.currentTarget.checked) {
@@ -373,9 +406,73 @@ $(document).on('change', '[name="enableImports"]', function (e) {
 function GenerateData() {
     var formData = new FormData();
 
-    streetName = document.querySelector('[name=street_name]') ? document.querySelector('[name=street_name]').value : '';
+    formData.append('name', $('[name="model"]').val());
 
-    formData.append('street_name', streetName);
+    // Add responses as array
+    var responseGroups = ['created','updated','deleted'];
+    var responses = {};
+    var thisResponse = {};
+    $.each(responseGroups, function (y, thisResponseGroup) { 
+        $.each($('[data-wizard-step="1"] [data-response-'+thisResponseGroup+']'), function (x, response) {
+            thisResponse = {};
+            $.each($(response).find('[name]'), function (y, responseProperty) {
+                thisResponse[responseProperty.name] = responseProperty.value;
+            });
+            responses[thisResponseGroup] = thisResponse;
+        });  
+    });
+    formData.append('responses', JSON.stringify(responses));
+
+    // Add views as array
+    var views = {};
+    $.each($('[data-wizard-step="1"] [data-view]'), function (x, viewProperty) {
+        views[viewProperty.name] = viewProperty.value;
+    });
+    formData.append('views', JSON.stringify(views));
+
+    // Add columns with defined options/properties
+    var columns = {};
+    var thisColumn = {};
+    $.each($('[data-wizard-step="2"] [data-column]'), function (x, column) {
+        thisColumn = {};
+        $.each($(column).find('[name]'), function (y, columnProperty) {
+            thisColumn[columnProperty.name] = columnProperty.value;
+        });
+        columns[thisColumn['name']] = thisColumn;
+    });
+    formData.append('columns', JSON.stringify(columns));
+
+    // Add kt columns
+    var ktColumns = {};
+    var thisKtColumn = {};
+    $.each($('[data-wizard-step="3"] [data-kt-column]'), function (x, column) {
+        var isEnabled = $(column).find('[data-kt-checkbox]')[0].checked;
+        if (isEnabled) {
+            thisKtColumn = {};
+            thisKtColumn['name'] = $(column).data('kt-column-name');
+            $.each($(column).find('[name]'), function (y, columnProperty) {
+                thisKtColumn[columnProperty.name] = columnProperty.value;
+            });
+            ktColumns[thisKtColumn['name']] = thisKtColumn;
+        }
+    });
+    formData.append('ktColumns', JSON.stringify(ktColumns));
+
+    // Add jExcel columns
+    var jExcelColumns = {};
+    var thisjExcelColumn = {};
+    $.each($('[data-wizard-step="3"] [data-jexcel-column]'), function (x, column) {
+        var isEnabled = $(column).find('[data-jexcel-checkbox]')[0].checked;
+        if (isEnabled) {
+            thisjExcelColumn = {};
+            thisjExcelColumn['name'] = $(column).data('jexcel-column-name');
+            $.each($(column).find('[name]'), function (y, columnProperty) {
+                thisjExcelColumn[columnProperty.name] = columnProperty.value;
+            });
+            jExcelColumns[thisjExcelColumn['name']] = thisjExcelColumn;
+        }
+    });
+    formData.append('jExcelColumns', JSON.stringify(jExcelColumns));
 
     return formData;
 }
