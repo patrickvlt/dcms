@@ -9,7 +9,6 @@
 namespace Pveltrop\DCMS\Classes;
 
 use ReflectionClass;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -66,7 +65,7 @@ class Datatable
         // Get parameters from request
         $this->params = request()->all();
 
-        // Check if an array or collection has been passed
+        // Check if a query builder has been passed, or an array/collection
         $this->queryBuilder = is_array($this->query) || $this->query instanceof Collection ? false : true;
 
         // Build filters for query
