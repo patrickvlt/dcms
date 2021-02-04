@@ -275,6 +275,18 @@ $(document).on('change', '[name="inputType"]', function (e) {
     inputDataType.dispatchEvent(new Event("change"));
 });
 
+// Check if theres empty columns
+function existingColumns(){
+    var existingColumns = true;
+    // If on step 3
+    $.each($("[data-column-name]"), function (x, column) { 
+        if (column.innerHTML == ""){
+            existingColumns = false;
+        }
+    });
+    return existingColumns;
+}
+
 // Inserting kt column divs function
 var ktColumnProperties;
 function InsertKTColumns() {
@@ -335,19 +347,22 @@ function InsertjExcelColumns() {
         }
         document.querySelector('[data-jexcel-columns]').insertAdjacentHTML('beforeend', jExcelProperties);
     });
+    if ($("#jExcel_enableImportsBox0").prop('checked')){
+        $('[data-jexcel-columns]').show();
+    } else {
+        $('[data-jexcel-columns]').hide();
+    }
 }
-InsertKTColumns();
 
-// Inserting kt table columns when changing steps
+// When the user is at step 3, generate the available columns for KT Datatable
 $(document).on('click', '[data-wizard-type="action-next"], [data-wizard-type="action-prev"]', function () {
-    // If on step 3
-    if (document.querySelector('[data-wizard-step="3"][data-wizard-state="current"]')) {
+    if (document.querySelector('[data-wizard-step="3"][data-wizard-state="current"]') && existingColumns()) {
         InsertKTColumns();
         InsertjExcelColumns();
     }
 });
 
-// Enabling kt columns
+// When the user wants to include a column in the datatable, show the related inputs
 $(document).on('change', '[data-kt-checkbox]', function (e) {
     var ktTypeDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-type-div]');
     var ktTitleDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-title-div]');
@@ -367,7 +382,7 @@ $(document).on('change', '[data-kt-checkbox]', function (e) {
     }
 });
 
-// Enabling jexcel columns
+// When the user enables a column for jExcel, generate the related inputs
 $(document).on('change', '[data-jexcel-checkbox]', function (e) {
     var jExcelTypeDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-type-div]');
     var jExcelTitleDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-title-div]');
@@ -390,9 +405,9 @@ $(document).on('change', '[data-jexcel-checkbox]', function (e) {
     }
 });
 
-// Enabling imports
+// When the user is at step 3 and enables imports, generate the jExcel columns
 $(document).on('change', '[name="enableImports"]', function (e) {
-    if (e.currentTarget.checked) {
+    if (e.currentTarget.checked && existingColumns()) {
         InsertjExcelColumns();
         window.DCMS.iCheck();
         window.DCMS.slimSelect();
@@ -403,6 +418,8 @@ $(document).on('change', '[name="enableImports"]', function (e) {
     }
 });
 
+// Generate the form data, merge some properties into arrays etc.
+// This provides more readabilty server-side
 function GenerateData() {
     var formData = new FormData();
 
@@ -435,8 +452,14 @@ function GenerateData() {
     var thisColumn = {};
     $.each($('[data-wizard-step="2"] [data-column]'), function (x, column) {
         thisColumn = {};
-        $.each($(column).find('[name]'), function (y, columnProperty) {
-            thisColumn[columnProperty.name] = columnProperty.value;
+        $.each($(column).find('[name]'), function (y, columnElement) {
+            if (columnElement.type == 'checkbox'){
+                if (columnElement.checked && columnElement.style.display !== 'none'){
+                    thisColumn[columnElement.name] = columnElement.value;
+                }
+            } else {
+                thisColumn[columnElement.name] = columnElement.value;
+            }
         });
         columns[thisColumn['name']] = thisColumn;
     });
@@ -450,8 +473,8 @@ function GenerateData() {
         if (isEnabled) {
             thisKtColumn = {};
             thisKtColumn['name'] = $(column).data('kt-column-name');
-            $.each($(column).find('[name]'), function (y, columnProperty) {
-                thisKtColumn[columnProperty.name] = columnProperty.value;
+            $.each($(column).find('[name]'), function (y, columnElement) {
+                thisKtColumn[columnElement.name] = columnElement.value;
             });
             ktColumns[thisKtColumn['name']] = thisKtColumn;
         }
@@ -466,8 +489,8 @@ function GenerateData() {
         if (isEnabled) {
             thisjExcelColumn = {};
             thisjExcelColumn['name'] = $(column).data('jexcel-column-name');
-            $.each($(column).find('[name]'), function (y, columnProperty) {
-                thisjExcelColumn[columnProperty.name] = columnProperty.value;
+            $.each($(column).find('[name]'), function (y, columnElement) {
+                thisjExcelColumn[columnElement.name] = columnElement.value;
             });
             jExcelColumns[thisjExcelColumn['name']] = thisjExcelColumn;
         }

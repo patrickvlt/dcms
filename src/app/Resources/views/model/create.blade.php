@@ -422,8 +422,8 @@
                                                     <div class="form-group fv-plugins-icon-container">
                                                         <div>
                                                             <input name="enable" type="checkbox" checked="checked" value="0" style="display:none !important">
-                                                            <input name="enable" type="checkbox" value="1" id="ktColumn_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
-                                                            <label class="form-check-label" for="ktColumn_enableBox0">ktColumn</label>
+                                                            <input name="enable" type="checkbox" value="1" id="ktColumn_enableKtBox0" data-type="iCheck" data-kt-checkbox style="display:none">
+                                                            <label class="form-check-label" for="ktColumn_enableKtBox0">ktColumn</label>
                                                         </div>
                                                     </div>
                                                     <!--end::Enable column-->
@@ -471,14 +471,14 @@
                                         <div class="fv-plugins-message-container"></div>
                                     </div>
                                     <!--end::enable jExcel-->
-                                    <div data-jexcel-columns class="mb-5 pt-5">
+                                    <div data-jexcel-columns class="mb-5 pt-5" style="display:none">
                                         <div data-jexcel-column data-jexcel-column-name="jExcel">
                                             <!--begin::Enable column-->
                                             <div class="form-group fv-plugins-icon-container">
                                                 <div>
                                                     <input name="enable" type="checkbox" checked="checked" value="0" style="display:none !important">
-                                                    <input name="enable" type="checkbox" value="1" id="jExcel_enableBox0" data-type="iCheck" data-jexcel-checkbox style="display:none">
-                                                    <label class="form-check-label" for="jExcel_enableBox0">jExcel</label>
+                                                    <input name="enable" type="checkbox" value="1" id="jExcel_enableImportBox0" data-type="iCheck" data-jexcel-checkbox style="display:none">
+                                                    <label class="form-check-label" for="jExcel_enableImportBox0">jExcel</label>
                                                 </div>
                                             </div>
                                             <!--end::Enable column-->
