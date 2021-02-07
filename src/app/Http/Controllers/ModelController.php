@@ -84,6 +84,10 @@ class ModelController extends Controller
                     'text' => '',
                     'inputType' => 'text',
                     'inputDataType' => '',
+                    'rules' => [
+                        0 => 'min:5',
+                        1 => 'max:10'
+                    ]
                 ],
                 'user_id' => [
                     'name' => 'user_id',
@@ -96,6 +100,9 @@ class ModelController extends Controller
                     'text' => 'name',
                     'inputType' => 'dropdown',
                     'inputDataType' => 'slimselect',
+                    'rules' => [
+                        0 => 'exists:users,id',
+                    ]
                 ],
             ],
             "ktColumns" => [

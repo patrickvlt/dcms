@@ -98,6 +98,25 @@
                                         <div class="fv-plugins-message-container"></div>
                                     </div>
                                     <!--end::Input-->
+                                     <!--begin::Input-->
+                                     <div class="form-group fv-plugins-icon-container col-12">
+                                        <div>
+                                            <input name="seed" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                            <input name="seed" type="checkbox" value="1" id="seedBox0" data-type="iCheck" style="display:none">
+                                            <label class="form-check-label" for="seedBox0">Do you want to seed this model?</label>
+                                        </div>
+                                        <div class="fv-plugins-message-container"></div>
+                                    </div>
+                                    <!--end::Input-->
+                                    <!--begin::Input-->
+                                    <div class="form-group fv-plugins-icon-container col-12" data-seed-amount style="display:none">
+                                        <label>Amount to seed</label>
+                                        <input type="number" class="form-control form-control-solid form-control-lg"
+                                            name="amountToSeed" placeholder="20">
+                                        <span class="form-text text-muted">How many objects do you want to seed?</span>
+                                        <div class="fv-plugins-message-container"></div>
+                                    </div>
+                                    <!--end::Input-->
                                     <div class="mb-10 font-weight-bold text-dark col-12">Responses</div>
                                     <div class="d-sm-flex" data-response-created>
                                         <!--begin::Input-->
@@ -210,7 +229,7 @@
                                     <div data-column>
                                         <i class="fas fa-caret-down" data-column-control></i>
                                         <h4 class="mb-10 font-weight-bold text-dark d-inline ml-2" data-column-name></h4>
-                                        <div class="mt-5" data-column-properties>
+                                        <div class="mt-5 pt-5" data-column-properties>
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container">
                                                 <label>Column</label>
@@ -331,20 +350,100 @@
                                             <!--end::Input-->
                                             <!--begin::Relation-->
                                             <div data-relation-div style="display:none">
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Class</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="class" placeholder="Post">
+                                                    <span class="form-text text-muted">Which class does the foreign key point to?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Table</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="table" placeholder="posts">
+                                                    <span class="form-text text-muted">Which database table contains the records of this class?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Relation</label>
+                                                    <select name="relation" data-type="slimselect" class="form-control form-control-solid form-control-lg">
+                                                        <option value="">..</option>
+                                                        <option value="hasOne">hasOne</option>
+                                                        <option value="belongsTo">belongsTo</option>
+                                                        <option value="hasMany">hasMany</option>
+                                                        <option value="belongsToMany">belongsToMany</option>
+                                                        <option value="hasOneThrough">hasOneThrough</option>
+                                                        <option value="hasManyThrough">hasManyThrough</option>
+                                                        <option value="morphTo">morphTo</option>
+                                                        <option value="morphMany">morphMany</option>
+                                                        <option value="morphToMany">morphToMany</option>
+                                                        <option value="morphedByMany">morphedByMany</option>
+                                                        <option value="getMorphedModel">getMorphedModel</option>
+                                                    </select>
+                                                    <span class="form-text text-muted">What kind of a relation is this? Click <a href="https://laravel.com/docs/8.x/eloquent-relationships" target="_blank">here</a> to view all available relation types.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Relation method</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="method" placeholder="post">
+                                                    <span class="form-text text-muted">Define the name of the method to call this relation.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>On Update?</label>
+                                                    <select name="onUpdate" data-type="slimselect" class="form-control form-control-solid form-control-lg">
+                                                        <option value="">..</option>
+                                                        <option value="cascade">cascade</option>
+                                                        <option value="restrict">restrict</option>
+                                                        <option value="set null">set null</option>
+                                                        <option value="no action">no action</option>
+                                                    </select>
+                                                    <span class="form-text text-muted">What should this column do when it's related object changes?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>On Delete?</label>
+                                                    <select name="onDelete" data-type="slimselect" class="form-control form-control-solid form-control-lg">
+                                                        <option value="">..</option>
+                                                        <option value="cascade">cascade</option>
+                                                        <option value="restrict">restrict</option>
+                                                        <option value="set null">set null</option>
+                                                        <option value="no action">no action</option>
+                                                    </select>
+                                                    <span class="form-text text-muted">What should this column do when it's related object is deleted?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
                                                 <div class="form-group fv-plugins-icon-container">
                                                     <label>Value</label>
                                                     <input type="text" class="form-control form-control-solid form-control-lg"
-                                                        name="value" placeholder="id">
+                                                    name="value" placeholder="id">
                                                     <span class="form-text text-muted">A dropdown element will be generated in the form with all related objects. Which field should be used as the value in the option element?</span>
                                                     <div class="fv-plugins-message-container"></div>
                                                 </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
                                                 <div class="form-group fv-plugins-icon-container">
                                                     <label>Text</label>
                                                     <input type="text" class="form-control form-control-solid form-control-lg"
-                                                        name="text" placeholder="name">
+                                                    name="text" placeholder="name">
                                                     <span class="form-text text-muted">Which field should be shown to the user in the option element?</span>
                                                     <div class="fv-plugins-message-container"></div>
                                                 </div>
+                                                <!--end::Input-->
                                             </div>
                                             <!--end::Relation-->
                                             <div data-input-div style="display:none">
@@ -386,7 +485,64 @@
                                                 <!--end::Input-->
                                             </div>
                                             <!--begin::Input-->
-                                            <div class="form-group fv-plugins-icon-container" data-input-datatype-div>
+                                            <div data-seed-div style="display:none">
+                                                <div class="form-group fv-plugins-icon-container" data-seed-input style="display:none">
+                                                    <label>Seed</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="seed" placeholder="Random string">
+                                                    <span class="form-text text-muted">Enter the data to seed this column.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <div class="form-group fv-plugins-icon-container" data-seed-auto style="display:none">
+                                                    <div class="alert alert-custom alert-light-primary fade show mb-5" role="alert">
+                                                        <div class="alert-icon">
+                                                            <i class="fas fa-exclamation-triangle"></i>
+                                                        </div>
+                                                        <div class="alert-text">Since this is a foreign key, DCMS will seed this column with a random related object.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <hr>
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container mt-5 pt-5">
+                                                <div>
+                                                    <input name="validation" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                                    <input name="validation" type="checkbox" value="1" id="validationBox0" data-type="iCheck" data-validation-checkbox style="display:none">
+                                                    <label class="form-check-label" for="validationBox0">Do you want to write the validation rules for this column?</label>
+                                                </div>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <div data-validation-div style="display:none">
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container" data-validation-rule>
+                                                    <label>Rule</label>
+                                                    <div class="d-flex">
+                                                        <input type="text" class="form-control form-control-solid form-control-lg w-75"
+                                                        name="rule" placeholder="min:5">
+                                                        <button class="btn btn-danger btn-icon ml-5 mt-1" style="min-width: 90px" data-delete-rule type="button">
+                                                        <span class="menu-text">Delete</span>
+                                                    </div>
+                                                    </button>
+                                                    <span class="form-text text-muted">Click <a href="https://laravel.com/docs/8.x/validation#available-validation-rules" target="_blank">here</a> to view all available rules.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                            </div>
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container mb-5 pb-5" data-add-rule-div style="display:none">
+                                                <label>Add another rule?</label>
+                                                <br>
+                                                <button class="btn btn-primary btn-icon" style="min-width: 90px" data-add-rule type="button">
+                                                    <span class="menu-text">Yes</span>
+                                                </button>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <hr>
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container mt-5 pt-5" data-input-datatype-div>
                                                 <label>Add another column?</label>
                                                 <br>
                                                 <button class="btn btn-primary btn-icon" style="min-width: 90px" data-add-column type="button">
