@@ -559,7 +559,7 @@
                                     <h4 class="mb-10 font-weight-bold text-dark">Datatable</h4>
                                     <div class="mb-10 font-weight-bold text-dark">Select which columns you want to show in the main datatable for this model.</div>
                                     <!--begin::KT columns-->
-                                    <div data-kt-columns class="mb-5 pt-5">
+                                    <div data-kt-columns class="mb-5 pt-5 col-12">
                                         <div data-kt-column data-kt-column-name="ktColumn">
                                             <div class="row">
                                                 <div class="col-12">
@@ -607,7 +607,7 @@
                                     <!--begin::jExcel imports-->
                                     <h4 class="mb-10 font-weight-bold text-dark mt-5 pt-5">Imports</h4>
                                     <!--begin::enable jExcel-->
-                                    <div class="form-group fv-plugins-icon-container pb-5">
+                                    <div class="form-group fv-plugins-icon-container pb-5 col-12">
                                         <div>
                                             <input name="enableImports" type="checkbox" checked="checked" value="0" style="display:none !important">
                                             <input name="enableImports" type="checkbox" value="1" id="jExcel_enableImportsBox0" data-type="iCheck" style="display:none">
@@ -616,7 +616,7 @@
                                         <div class="fv-plugins-message-container"></div>
                                     </div>
                                     <!--end::enable jExcel-->
-                                    <div data-jexcel-columns class="mb-5 pt-5" style="display:none">
+                                    <div data-jexcel-columns class="mb-5 pt-5 pb-5 col-12" style="display:none">
                                         <div data-jexcel-column data-jexcel-column-name="jExcel">
                                             <!--begin::Enable column-->
                                             <div class="form-group fv-plugins-icon-container">
@@ -660,6 +660,51 @@
                                         </div>
                                     </div>
                                     <!--end::jExcel imports-->
+                                    <!--begin::jExcel responses-->
+                                    <div data-jexcel-responses style="display:none">
+                                        <div class="d-sm-flex" data-jexcel-response="success">
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container col-sm-6">
+                                                <label>Message for successful import</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="message" placeholder="All data has been imported.">
+                                                <span class="form-text text-muted">Which message to show when importing has succeeded?</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container col-sm-6">
+                                                <label>Redirect</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="url" placeholder="/user/index">
+                                                <span class="form-text text-muted">Enter a relative path to redirect the user after
+                                                    successfully importing data.</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                        </div>
+                                        <div class="d-sm-flex pt-5" data-jexcel-response="failed">
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container col-sm-6">
+                                                <label>Title for failed import</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="title" placeholder="Unknown error">
+                                                <span class="form-text text-muted">Which title to show in the alert when importing has failed?</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container col-sm-6">
+                                                <label>Message for failed import</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="message" placeholder="The table contains invalid data.">
+                                                <span class="form-text text-muted">Which message to show in the alert when importing has failed?</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                        </div>
+                                    </div>
+                                    <!--end::jExcel responses-->
                                 </div>
                                 <!--end: Wizard Step 3-->
                                 <!--begin: Wizard Actions-->

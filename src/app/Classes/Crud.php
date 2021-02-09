@@ -42,10 +42,10 @@ class Crud
     {
         // Model path
         $this->modelPath = '';
-        if ($this->mainVersion <= 7){
-            $this->modelPath = 'App\\'.$this->model;
-        } else if ($this->mainVersion >= 8){
+        if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')){
             $this->modelPath = 'App\\Models\\'.$this->model;
+        } else {
+            $this->modelPath = 'App\\'.$this->model;
         }
     }
 
@@ -172,11 +172,12 @@ class Crud
         $controllerFile = ($this->findFile($this->model . 'Controller.php')) ? $this->findFile($this->model . 'Controller.php')->getPathname() : null;
         
         if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')){
-            $modelPath = '\\App\\Models\\'.$this->model.'::class';
+            $nameSpace = 'App\\Models\\';
         } else {
-            $modelPath = '\\App\\'.$this->model.'::class';
+            $nameSpace = 'App\\';
         }
 
+        // CRUD responses
         $this->responseStr = '';
         foreach ($this->responses as $groupName => $responseGroup) {
             $this->responseGrp = '';
@@ -187,13 +188,55 @@ class Crud
             ],';
         }
 
+        // jExcel columns
+        $this->jExcelColumnsStr = '';
+        $x = 0;
+        foreach ($this->jExcelColumns as $key => $column) {
+            $this->jExcelColumnsStr .= "\n                ".'"'.$key.'" => '.$x.',';
+            $x++;
+        }
+
+        // jExcel autocorrect
+        $this->jExcelCorrectStr = '';
+        $this->jExcelGrp = '';
+        $this->controllerImports = '';
+        $x = 0;
+        foreach ($this->jExcelColumns as $key => $jExcelColumn) {
+            if (isset($this->columns[$jExcelColumn['name']]['foreign'])){
+                $this->controllerImports .= 'Use '.$nameSpace.$this->columns[$jExcelColumn['name']]['foreign']['class'].';';
+                $this->jExcelGrp = '';
+                $this->jExcelGrp .= "\n                    ".'"column" => "'.$x.'",';
+                $this->jExcelGrp .= "\n                    ".'"class" => '.$this->columns[$jExcelColumn['name']]['foreign']['class'].'::class,';
+                $this->jExcelGrp .= "\n                    ".'"searchAttributes" => [
+                        "'.$jExcelColumn['text'].'"
+                    ],';
+                $this->jExcelGrp .= "\n                    ".'"returnAttribute" => "'.$this->columns[$jExcelColumn['name']]['foreign']['references'].'",';
+            }
+            if ($this->jExcelGrp !== ''){
+                $this->jExcelCorrectStr .= "\n                ".'"'.$jExcelColumn['name'].'" => ['.$this->jExcelGrp.'
+                ],';
+            }
+            $x++;
+        }
+
+        // jExcel responses
+        $this->jExcelResponseStr = '';
+        foreach ($this->jExcelResponses as $groupName => $jExcelResponseGroup) {
+            $this->jExcelResponseGrp = '';
+            foreach ($jExcelResponseGroup as $key => $value) {
+                $this->jExcelResponseGrp .= "\n                    ".'"'.$key.'" => '.($key == 'message' || $key == 'title' ? '__("'.$value.'")' : '"'.$value.'"').',';
+            }
+            $this->jExcelResponseStr .= "\n                ".'"'.$groupName.'" => ['.$this->jExcelResponseGrp.'
+                ],';
+        }
+
+        // Views
         $this->viewStr = '';
         foreach ($this->views as $key => $value) {
             $this->viewStr .= "\n            ".'"'.$key.'" => "'.$value.'",';
         }
 
-        $this->modelRequestPath = '\\App\\Http\\Requests\\'.$this->model.'Request::class';
-        $this->modelImport = str_replace('::class','',$modelPath);
+        $this->modelRequest = $this->model.'Request::class';
         
         // Modify the content
         $newContent = include __DIR__ . '/../Templates/Crud/Controller.php';
@@ -317,6 +360,8 @@ class Crud
         $this->views = $data['views'];
         $this->prefix = strtolower($this->model);
         $this->amountToSeed = $data['amountToSeed'];
+        $this->jExcelColumns = $data['jExcelColumns'];
+        $this->jExcelResponses = $data['jExcelResponses'];
 
         // Create the basic Laravel files (model, migration, controller, factory, seeder, request)
         Artisan::call('make:model',[
@@ -330,6 +375,7 @@ class Crud
             'name' => $this->model.'Request'
         ]);
 
+        $this->versionSpecificVariables();
         $this->generateSeed();
         $this->generateFactory();
         $this->generateRoute();
