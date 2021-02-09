@@ -22,21 +22,9 @@ class ' . $this->model . 'Controller extends Controller
         $this->model = ' . $this->model . '::class;
         $this->request = ' . $this->modelRequestPath . ';
         $this->form = ' . $this->model . 'Form::class;
-        $this->responses = [
-            "created" => [
-                "title" => __("' . ucfirst($this->model) . ' created"),
-                "message" => __("' . ucfirst($this->model) . ' created on __created_at__"),
-            ],
-            "updated" => [
-                "title" => __("' . ucfirst($this->model) . ' updated"),
-                "message" => __("' . ucfirst($this->model) . ' updated on __created_at__"),
-            ]
+        $this->responses = ['.$this->responseStr.'
         ];
-        $this->views = [
-            "index" => "index",
-            "show" => "show",
-            "create" => "create",
-            "edit" => "edit"
+        $this->views = ['.$this->viewStr.'
         ];
         $this->jExcel = [
             // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3

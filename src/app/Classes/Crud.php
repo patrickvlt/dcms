@@ -60,18 +60,27 @@ class Crud
         $fakerEntries = '';
         $tab = '            ';
 
-        foreach ($this->columns as $name => $column){
-            if (array_key_exists('seed',$column)){
-                $fakerEntries .= $tab.'"'.$name.'" => '.$column['seed'].','."\n";
-            }
+        if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')){
+            $modelPath = '\\App\\Models\\';
+        } else {
+            $modelPath = '\\App\\';
         }
 
-        $factoryFile = ($this->findFile($this->model.'Factory.php')) ? $this->findFile($this->model.'Factory.php')->getPathname() : null;
         if ($this->mainVersion <= 7){
             $factoryLine = 10;
         } else if ($this->mainVersion >= 8){
             $factoryLine = 25;
         }
+
+        foreach ($this->columns as $name => $column){
+            if (array_key_exists('seed',$column) && isset($column['seed']) && !isset($column['foreign'])){
+                $fakerEntries .= $tab.'"'.$name.'" => '.$column['seed'].','."\n";
+            } else if (isset($column['foreign'])) {
+                $fakerEntries = '           "'.$name.'" => '.$modelPath.$column['foreign']['class'].'::inRandomOrder()->first()->'.$column['foreign']['references'].',';
+            }
+        }
+
+        $factoryFile = ($this->findFile($this->model.'Factory.php')) ? $this->findFile($this->model.'Factory.php')->getPathname() : null;
 
         // File
         $contentToAdd = $fakerEntries;
@@ -168,6 +177,21 @@ class Crud
             $modelPath = '\\App\\'.$this->model.'::class';
         }
 
+        $this->responseStr = '';
+        foreach ($this->responses as $groupName => $responseGroup) {
+            $this->responseGrp = '';
+            foreach ($responseGroup as $key => $value) {
+                $this->responseGrp .= "\n                ".'"'.$key.'" => '.($key == 'message' ? '__("'.$value.'")' : '"'.$value.'"').',';
+            }
+            $this->responseStr .= "\n            ".'"'.$groupName.'" => ['.$this->responseGrp.'
+            ],';
+        }
+
+        $this->viewStr = '';
+        foreach ($this->views as $key => $value) {
+            $this->viewStr .= "\n            ".'"'.$key.'" => "'.$value.'",';
+        }
+
         $this->modelRequestPath = '\\App\\Http\\Requests\\'.$this->model.'Request::class';
         $this->modelImport = str_replace('::class','',$modelPath);
         
@@ -201,8 +225,7 @@ class Crud
         $migEntries = '            ';
         foreach ($this->columns as $name => $column){
             $rowNullable = ($column['attributes']['nullable'] == 1) ? '->nullable()' : '';
-            $rowUnsigned = ($column['attributes']['unsigned'] == 1) ? '->unsigned()' : '';
-            $migEntries .= '$table->'.$column['attributes']['type'].'("'.$column['attributes']['name'].'")'.$rowNullable.$rowUnsigned.';'."\n".'            ';
+            $migEntries .= '$table->'.$column['attributes']['type'].'("'.$column['attributes']['name'].'")'.$rowNullable.';'."\n".'            ';
             if (array_key_exists('foreign',$column)){
                 $onUpdate = $column['foreign']['onUpdate'];
                 $onUpdate = '->onUpdate("'.$onUpdate.'")';
@@ -290,6 +313,8 @@ class Crud
         $this->mainVersion = app()->version()[0];
         $this->model = $data['model'];
         $this->columns = $data['columns'];
+        $this->responses = $data['responses'];
+        $this->views = $data['views'];
         $this->prefix = strtolower($this->model);
         $this->amountToSeed = $data['amountToSeed'];
 
