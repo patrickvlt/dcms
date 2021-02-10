@@ -39,7 +39,7 @@ class Datatable extends Command
     {
         $console = $this;
         $model = $console->option('model') ?? null;
-        if ($model == null || $model == ''){
+        if ($model == null || $model == '') {
             $console->error('Specify an existing model for this Datatable with --model=');
             exit;
         }
@@ -47,13 +47,13 @@ class Datatable extends Command
             $class = FindClass($model)['class'];
             $class = new $class;
         } catch (\Exception $e) {
-            throw new \Exception ('Model not found: '.$model);
+            throw new \Exception('Model not found: '.$model);
         }
 
         // Write content to new Datatable file
         $content = include __DIR__ . '/Code/Datatable/Class.php';
         $path = 'app/Datatables/'.$model.'Datatable.php';
-        file_put_contents($path,$content);
+        file_put_contents($path, $content);
         
         $console->comment('');
         $console->comment('Implement this code to use the new Datatable:');

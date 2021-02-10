@@ -13,11 +13,11 @@ class DCMSProvider extends ServiceProvider
 {
     public function boot()
     {
-        if(config('dcms.migrations') == 'true'){
+        if (config('dcms.migrations') == 'true') {
             $this->loadMigrationsFrom(__DIR__ . '/app/Database/Migrations');
         }
 
-        $this->loadViewsFrom(__DIR__.'/app/Resources/views','dcms');
+        $this->loadViewsFrom(__DIR__.'/app/Resources/views', 'dcms');
         $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         if ($this->app->runningInConsole()) {

@@ -41,31 +41,31 @@ class Update extends Command
         $vendorcssassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/assets';
         $vendorcssportal = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/portal';
 
-        if ($console->confirm('Do you want to update the JavaScript files?')){
+        if ($console->confirm('Do you want to update the JavaScript files?')) {
             // JS
             RemoveDir($vendorjs);
-            CopyDir($rootjs,$vendorjs);
+            CopyDir($rootjs, $vendorjs);
             RemoveDir($vendorjsassets);
-            CopyDir($rootjsassets,$vendorjsassets);
-            if(config('dcms.portal') == 'true'){
+            CopyDir($rootjsassets, $vendorjsassets);
+            if (config('dcms.portal') == 'true') {
                 RemoveDir($vendorjsportal);
-                CopyDir($rootjsportal,$vendorjsportal);
+                CopyDir($rootjsportal, $vendorjsportal);
             }
         }
 
-        if ($console->confirm('Do you want to update the CSS files?')){
-            // CSS        
+        if ($console->confirm('Do you want to update the CSS files?')) {
+            // CSS
             RemoveDir($vendorscss);
-            CopyDir($rootscss,$vendorscss);
+            CopyDir($rootscss, $vendorscss);
             RemoveDir($vendorcssassets);
-            CopyDir($rootcssassets,$vendorcssassets);
-            if(config('dcms.portal') == 'true'){
+            CopyDir($rootcssassets, $vendorcssassets);
+            if (config('dcms.portal') == 'true') {
                 RemoveDir($vendorcssportal);
-                CopyDir($rootcssportal,$vendorcssportal);
+                CopyDir($rootcssportal, $vendorcssportal);
             }
         }
         
-        if ($console->confirm('Do you want to update the configs?')){
+        if ($console->confirm('Do you want to update the configs?')) {
             // Configs
             copy(base_path() . '/config/dcms.php', base_path() . '/vendor/pveltrop/dcms/src/Config/dcms.php');
             copy(base_path() . '/dcms.json', base_path() . '/vendor/pveltrop/dcms/src/dcms.json');

@@ -435,14 +435,14 @@
                                                 <!--end::Input-->
                                             </div>
                                             <!--end::Relation-->
-                                            <div data-input-div style="display:none">
+                                            <div data-input-div>
                                                 <!--begin::Input-->
                                                 <div class="form-group fv-plugins-icon-container">
                                                     <label>Input Type</label>
                                                     <select name="inputType" data-type="slimselect" id="inputType" class="form-control form-control-solid form-control-lg">
                                                         <option value="text">Text</option>
                                                         <option value="checkbox">Checkbox</option>
-                                                        <option value="dropdown">Dropdown</option>
+                                                        <option value="select">Dropdown</option>
                                                         <option value="textarea">Textarea</option>
                                                         <option value="color">Color</option>
                                                         <option value="date">Date</option>
@@ -469,6 +469,15 @@
                                                         <option value="tinymce">TinyMCE</option>
                                                     </select>
                                                     <span class="form-text text-muted">DCMS ships with various Front-End plugins to improve input elements.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container" data-filepond-div>
+                                                    <label>Mime</label>
+                                                    <input type="filePondMime" class="form-control form-control-solid form-control-lg"
+                                                    name="filePondMime" placeholder="image">
+                                                    <span class="form-text text-muted">What kind of file will be uploaded to the FilePond element? This is important for the folder structure where files get stored.</span>
                                                     <div class="fv-plugins-message-container"></div>
                                                 </div>
                                                 <!--end::Input-->

@@ -39,7 +39,7 @@ class Form extends Command
     {
         $console = $this;
         $model = $console->option('model') ?? null;
-        if ($model == null || $model == ''){
+        if ($model == null || $model == '') {
             $console->error('Specify an existing model for this Form with --model=');
             exit;
         }
@@ -47,13 +47,13 @@ class Form extends Command
             $class = FindClass($model)['class'];
             $class = new $class;
         } catch (\Exception $e) {
-            throw new \Exception ('Model not found: '.$model);
+            throw new \Exception('Model not found: '.$model);
         }
 
         $content = include __DIR__ . '/Code/Form/Class.php';
 
         $path = 'app/Forms/'.$model.'Form.php';
-        file_put_contents($path,$content);
+        file_put_contents($path, $content);
 
         $console->comment('');
         $console->comment('Generated '.$model.' Form in: '.$path);

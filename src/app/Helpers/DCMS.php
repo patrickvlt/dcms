@@ -49,7 +49,7 @@ if (!function_exists('GetModels')) {
         $classes = [];
         foreach (config('dcms.modelFolders') as $folder) {
             foreach (scandir(base_path() . '/' . $folder) as $file) {
-                if (preg_match('/\.php/',$file)) {
+                if (preg_match('/\.php/', $file)) {
                     $re = '/namespace \S*;/m';
                     $str = file_get_contents(base_path() . '/' . $folder . '/' . $file);
                     preg_match($re, $str, $namespace);
@@ -134,7 +134,7 @@ if (!function_exists('FormRoute')) {
         $formRoute = null;
 
         // Try to append parameters with Laravels route helper
-        function fixRoute($prefix, $action,$routeName)
+        function fixRoute($prefix, $action, $routeName)
         {
             $addParameters = [];
             foreach (request()->route()->parameters as $key => $parameter) {
@@ -147,7 +147,7 @@ if (!function_exists('FormRoute')) {
             try {
                 return route($prefix . $action, $addParameters);
             } catch (\Throwable $th) {
-                preg_match_all('/(\S*)(\.edit|\.create)/m',$routeName,$matches,PREG_SET_ORDER, 0);
+                preg_match_all('/(\S*)(\.edit|\.create)/m', $routeName, $matches, PREG_SET_ORDER, 0);
                 $prefix = $matches[0][1];
                 return route($prefix . $action, $addParameters);
             }
@@ -158,7 +158,7 @@ if (!function_exists('FormRoute')) {
                 try {
                     $formRoute = route($prefix . '.store', request()->route()->parameters[$prefix]);
                 } catch (\Throwable $th) {
-                    $formRoute = fixRoute($prefix, '.store',$routeName);
+                    $formRoute = fixRoute($prefix, '.store', $routeName);
                 }
                 break;
             case 'update':
@@ -166,7 +166,7 @@ if (!function_exists('FormRoute')) {
                 try {
                     $formRoute = route($prefix . '.update', request()->route()->parameters[$prefix]);
                 } catch (\Throwable $th) {
-                    $formRoute = fixRoute($prefix, '.update',$routeName);
+                    $formRoute = fixRoute($prefix, '.update', $routeName);
                 }
                 break;
         }
@@ -396,7 +396,7 @@ if (!function_exists('GetRule')) {
         $explodedRule = null;
         $fieldRules = (is_string($field)) ? explode('|', $field) : $field;
         foreach ($fieldRules as $key => $rule) {
-            if (preg_match('/'.$ruleToGrab.'/',$rule)) {
+            if (preg_match('/'.$ruleToGrab.'/', $rule)) {
                 $explodedRule = explode(':', $rule)[1] ?? explode(':', $rule)[0];
                 return $explodedRule;
             }

@@ -25,7 +25,7 @@ class PHPExcel
 
         // Loop through headers array
         $headerCount = 0;
-        foreach ($headers as $header => $visibleText){
+        foreach ($headers as $header => $visibleText) {
             $sheet->setCellValueByColumnAndRow($headerCount+1, 1, $visibleText);
             $headerCount++;
         }
@@ -41,9 +41,9 @@ class PHPExcel
                 $sheetColumn = $headerPos + 1;
 
                 // If current header is a nested array column
-                if (count(explode('.',$headerKey)) > 1){
+                if (count(explode('.', $headerKey)) > 1) {
                     $dataEntry = '';
-                    foreach (explode('.',$headerKey) as $header){
+                    foreach (explode('.', $headerKey) as $header) {
                         $dataEntry .= "['".$header."']";
                     }
                     $dataEntry = "\$data[\$row]".$dataEntry;
@@ -67,7 +67,6 @@ class PHPExcel
         ob_start();
         $writer->save('php://output');
         $content = ob_get_clean();
-        Storage::disk('tmp')->put($fileName,$content);
+        Storage::disk('tmp')->put($fileName, $content);
     }
-
 }

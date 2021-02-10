@@ -4,7 +4,8 @@ namespace Pveltrop\DCMS\Classes;
 
 class Dropbox
 {
-    public static function getKey(){
+    public static function getKey()
+    {
         $token = isset(auth()->user()->dropbox_key) && !empty(auth()->user()->dropbox_key) ? decrypt(auth()->user()->dropbox_key) : '';
         if (empty($token)) {
             $token = (env('DROPBOX_KEY') !== null) && !empty(env('DROPBOX_KEY')) ? decrypt(env('DROPBOX_KEY')) : '';
@@ -12,10 +13,11 @@ class Dropbox
         return $token;
     }
 
-    public static function curlRequest($url,$headers=null,$postFields=null,$file=null){
+    public static function curlRequest($url, $headers=null, $postFields=null, $file=null)
+    {
         $ch = curl_init($url);
 
-        if(!$headers){
+        if (!$headers) {
             $token = self::getKey();
             $headers = [
                 'Authorization: Bearer '.$token,
@@ -28,7 +30,7 @@ class Dropbox
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
 
-        if($file){
+        if ($file) {
             $fp = fopen($file, 'rb');
             curl_setopt($ch, CURLOPT_PUT, true);
             curl_setopt($ch, CURLOPT_INFILE, fopen($file, 'rb'));
@@ -50,7 +52,7 @@ class Dropbox
         $result = (json_decode($result) !== null) ? json_decode($result) : $result;
 
         curl_close($ch);
-        if($file){
+        if ($file) {
             fclose($fp);
         }
 
@@ -65,7 +67,7 @@ class Dropbox
     {
         $url = 'https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings';
 
-        $curl = self::curlRequest($url,null,json_encode([
+        $curl = self::curlRequest($url, null, json_encode([
             'path' => $remotePath,
             'settings' => [
                 'requested_visibility' => 'public',
@@ -76,7 +78,7 @@ class Dropbox
         return $curl->response->url.'&raw=1';
     }
 
-    public static function upload($file,$remoteFolder)
+    public static function upload($file, $remoteFolder)
     {
         $url = 'https://content.dropboxapi.com/2/files/upload';
         $remoteFile = $file->hashName();
@@ -92,8 +94,8 @@ class Dropbox
             ])
         ];
 
-        $curl = self::curlRequest($url,$headers,null,$file);
-        if($curl->status == 200){
+        $curl = self::curlRequest($url, $headers, null, $file);
+        if ($curl->status == 200) {
             // Create shareable link
             return self::createLink($remoteFolder . '/' . $remoteFile);
         }
@@ -110,12 +112,12 @@ class Dropbox
             'Content-Type: application/json',
         ];
 
-        $curl = self::curlRequest($url,$headers,$postFields);
+        $curl = self::curlRequest($url, $headers, $postFields);
         
         return $curl->status;
     }
 
-    public static function move($oldPath,$newPath)
+    public static function move($oldPath, $newPath)
     {
         $url = 'https://api.dropboxapi.com/2/files/move_v2';
         $postFields = json_encode([
@@ -125,7 +127,7 @@ class Dropbox
             'allow_ownership_transfer' => false
         ]);
         
-        $curl = self::curlRequest($url,null,$postFields);
+        $curl = self::curlRequest($url, null, $postFields);
         
         return $curl;
     }
@@ -137,7 +139,7 @@ class Dropbox
             'url' => $link
         ]);
 
-        $curl = self::curlRequest($url,null,$postFields);
+        $curl = self::curlRequest($url, null, $postFields);
         
         return $curl;
     }
@@ -149,7 +151,7 @@ class Dropbox
             'path' => $path
         ]);
         
-        $curl = self::curlRequest($url,null,$postFields);
+        $curl = self::curlRequest($url, null, $postFields);
         
         return $curl;
     }

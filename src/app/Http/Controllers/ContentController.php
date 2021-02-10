@@ -19,7 +19,7 @@ class ContentController extends Controller
     */
     public function authenticate()
     {
-        return response()->json(['message' => 'Unauthenticated'],422);
+        return response()->json(['message' => 'Unauthenticated'], 422);
     }
 
     /**
@@ -45,25 +45,25 @@ class ContentController extends Controller
         $canBeEdited = false;
         $request = json_decode($request->getContent());
 
-        foreach($this->entries() as $entryKey => $entryValue){
-            if ($entryKey == $request->contentUID && $entryValue == true){
+        foreach ($this->entries() as $entryKey => $entryValue) {
+            if ($entryKey == $request->contentUID && $entryValue == true) {
                 $canBeEdited = true;
             }
         }
 
-        if(!$canBeEdited){
+        if (!$canBeEdited) {
             return response()->json([
                 'message' => __('This entry can\'t be changed.'),
-            ],422);
+            ], 422);
         }
 
         $contentValue = $request->contentValue;
         $cleanContent = Purify::clean($contentValue);
 
-        if (preg_match('/([a-z]|[A-Z])/m',$cleanContent) == 0){
+        if (preg_match('/([a-z]|[A-Z])/m', $cleanContent) == 0) {
             return response()->json([
                 'message' => __('Content is empty.'),
-            ],422);
+            ], 422);
         }
 
         $content = Content::find($request->contentUID);
@@ -82,7 +82,7 @@ class ContentController extends Controller
 
         return response()->json([
             'message' => __('Content has been updated.'),
-        ],200);
+        ], 200);
     }
 
     /**
@@ -94,16 +94,16 @@ class ContentController extends Controller
         $canBeCleared = false;
         $request = json_decode($request->getContent());
 
-        foreach($this->entries() as $entryKey => $entryValue){
-            if ($entryKey == $request->contentUID && $entryValue == true){
+        foreach ($this->entries() as $entryKey => $entryValue) {
+            if ($entryKey == $request->contentUID && $entryValue == true) {
                 $canBeCleared = true;
             }
         }
 
-        if(!$canBeCleared){
+        if (!$canBeCleared) {
             return response()->json([
                 'message' => __('This entry can\'t be deleted.'),
-            ],422);
+            ], 422);
         }
 
         $content = Content::find($request->contentUID);
@@ -112,11 +112,11 @@ class ContentController extends Controller
             $content->delete();
             return response()->json([
                 'message' => __('Content has been deleted.'),
-            ],200);
+            ], 200);
         } else {
             return response()->json([
                 'message' => __('Unable to delete content.'),
-            ],422);
+            ], 422);
         }
     }
 }

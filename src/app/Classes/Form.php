@@ -25,9 +25,9 @@ class Form extends HtmlTag
     public static function getModel($routePrefix)
     {
         $model = null;
-        if (FormMethod() == ('PUT')){
+        if (FormMethod() == ('PUT')) {
             $model = Model($routePrefix) ?? Model();
-            if(is_string($model)){
+            if (is_string($model)) {
                 $class = FindClass($routePrefix)['class'];
                 $model = (new $class())->find(request()->route()->parameters[$routePrefix]);
             }
@@ -75,10 +75,11 @@ class Form extends HtmlTag
      * @param $formRoutes
      * @param $model
      */
-    public static function createInputs($columns,$routePrefix,$form,$formFields,$formRoutes,$model){
+    public static function createInputs($columns, $routePrefix, $form, $formFields, $formRoutes, $model)
+    {
         foreach ($columns as $column) {
             // Dont create an input field if this is a request rule just for files
-            if (preg_match('/\.\*/',$column['name'])){
+            if (preg_match('/\.\*/', $column['name'])) {
                 continue;
             }
 
@@ -97,15 +98,15 @@ class Form extends HtmlTag
             if (isset($definedAttr['select'])) {
                 $makeInput = false;
                 $makeSelect = true;
-            } else if (isset($definedAttr['checkbox'])) {
+            } elseif (isset($definedAttr['checkbox'])) {
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeCheckbox = true;
-            } else if (isset($definedAttr['radio'])){
+            } elseif (isset($definedAttr['radio'])) {
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeRadio = true;
-            } else if (isset($definedAttr['textarea'])){
+            } elseif (isset($definedAttr['textarea'])) {
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeTextarea = true;
@@ -135,24 +136,24 @@ class Form extends HtmlTag
             }
 
             // Create carousel before the input element
-            if(isset($definedAttr['carousel']) && $model){
+            if (isset($definedAttr['carousel']) && $model) {
                 $carouselArr = $model->{$column['name']};
-                if (!is_array($carouselArr)){
-                    $carouselArr = explode(',',$carouselArr);
+                if (!is_array($carouselArr)) {
+                    $carouselArr = explode(',', $carouselArr);
                 }
-                if (count($carouselArr) > 0 && $carouselArr[0] !== ""){
+                if (count($carouselArr) > 0 && $carouselArr[0] !== "") {
                     $form->addElement('div')->attr([
                         'data-type' => 'dcarousel',
                         'data-dcar-src' => $model->{$column['name']},
                         'data-dcar-prefix' => $routePrefix,
                         'data-dcar-column' => $column['name'],
-                        'data-dcar-height' => $definedAttr['carousel']['height'] ?? '200px' 
-                    ]);       
+                        'data-dcar-height' => $definedAttr['carousel']['height'] ?? '200px'
+                    ]);
                 }
             }
 
             // Form group
-            if($makeFormGroup){
+            if ($makeFormGroup) {
                 $customAttr = $definedAttr['form-group'] ?? null;
                 $formGroup = $form->addElement('div')->attr([
                     'class' => 'form-group',
@@ -160,7 +161,7 @@ class Form extends HtmlTag
             }
 
             // Label
-            if ($makeLabel){
+            if ($makeLabel) {
                 $labelText = $definedAttr['label']['text'] ?? null;
                 if ($labelText) {
                     $customAttr = $definedAttr['label'] ?? null;
@@ -172,7 +173,7 @@ class Form extends HtmlTag
             }
 
             // Input group
-            if($makeInputGroup){
+            if ($makeInputGroup) {
                 $inputGrCustomAttr = $definedAttr['input-group'] ?? null;
                 $inputGroup = $formGroup->addElement('div')->attr([
                     'class' => 'input-group',
@@ -189,7 +190,7 @@ class Form extends HtmlTag
                     $inputIcon = $definedAttr['input-group-prepend']['icon'] ?? null;
                     if ($inputText && !$inputIcon) {
                         $inputPrepend->text(__($inputText));
-                    } else if ($inputIcon && !$inputText) {
+                    } elseif ($inputIcon && !$inputText) {
                         $inputPrepend->addElement('i')->attr($inputIcon);
                     }
                 }
@@ -212,10 +213,10 @@ class Form extends HtmlTag
                 $addToEl->addElement('input')->attr($defaultInputAttr)->attr($inputCustomAttr);
 
             // Select element
-            } else if ($makeSelect) {
+            } elseif ($makeSelect) {
                 $selectCustomAttr = $definedAttr['select'];
                 unset($selectCustomAttr['options']);
-                $multiple = (in_array('multiple',array_keys($selectCustomAttr))) ? true : false;
+                $multiple = (in_array('multiple', array_keys($selectCustomAttr))) ? true : false;
                 $selectElement = $formGroup->addElement('select')->attr([
                     'id' => $column['name'],
                     'class' => ($multiple) ? 'form-control ss-main-multiple' : 'form-control',
@@ -224,7 +225,7 @@ class Form extends HtmlTag
                     'data-slimselect-placeholder' => $selectCustomAttr['placeholder'] ?? null,
                 ])->attr($selectCustomAttr);
                 // Options in select element
-                if (isset($definedAttr['select']['options']['data'])){
+                if (isset($definedAttr['select']['options']['data'])) {
                     $optionAttrs = $definedAttr['select']['options'];
                     $optionOptionalAttr = $optionAttrs;
 
@@ -234,47 +235,46 @@ class Form extends HtmlTag
 
                     unset($optionOptionalAttr['data'],$optionOptionalAttr['value'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['text']);
 
-                    if (!is_array($optionAttrs['data']) && !$optionAttrs['data'] instanceof Collection){
+                    if (!is_array($optionAttrs['data']) && !$optionAttrs['data'] instanceof Collection) {
                         $optionAttrs['data'] = $model->{$optionAttrs['data']};
                     }
 
-                    foreach ($optionAttrs['data'] as $key => $data){
+                    foreach ($optionAttrs['data'] as $key => $data) {
                         $option = $selectElement->addElement('option')->attr([
                             'value' => $value ? $data->{$value} : $data,
                         ])->text(__($text ? $data->{$text} : $data));
                         $dataValue = $value ? $data->{$value} : $key;
-                        if (FormMethod() == 'POST'){
+                        if (FormMethod() == 'POST') {
                             $modelValue = $foreignKey ? $data->{$foreignKey} : $data;
                         } else {
                             $modelValue = $foreignKey ? $model->{$foreignKey} : $model->{$column['name']};
                         }
-                        if (is_array($modelValue) || $modelValue instanceof Collection){
-                            foreach($modelValue as $modelValueRow){
+                        if (is_array($modelValue) || $modelValue instanceof Collection) {
+                            foreach ($modelValue as $modelValueRow) {
                                 // Compare with property if this exists
                                 $modelValueRow = $modelValueRow->{$value} ? $modelValueRow->{$value} : $modelValueRow;
-                                if ($modelValueRow == $dataValue){
+                                if ($modelValueRow == $dataValue) {
                                     $option->attr(['selected' => 'selected']);
                                 }
                             }
-                        } 
-                        else if ((string)$modelValue == (string)$dataValue) {
+                        } elseif ((string)$modelValue == (string)$dataValue) {
                             $option->attr(['selected' => 'selected']);
                         }
                     }
                 }
 
-            // Checkbox/radio element
-            } else if ($makeCheckbox || $makeRadio) {
+                // Checkbox/radio element
+            } elseif ($makeCheckbox || $makeRadio) {
                 $properties = ($makeCheckbox) ? $definedAttr['checkbox'] : $definedAttr['radio'];
-                if (isset($properties)){
+                if (isset($properties)) {
                     $customParentElAttr = [];
-                    foreach ($properties as $propKey => $property){
-                        if (!is_array($property)){
+                    foreach ($properties as $propKey => $property) {
+                        if (!is_array($property)) {
                             $customParentElAttr[$propKey] = $property;
                         }
                     }
-                    foreach ($properties as $x => $property){
-                        if (is_array($property)){
+                    foreach ($properties as $x => $property) {
+                        if (is_array($property)) {
                             $addToEl = $formGroup->addElement('div')->attr($customParentElAttr);
                             $propertyText = $property['text'] ?? null;
                             $propertyValue = $property['value'] ?? null;
@@ -283,11 +283,11 @@ class Form extends HtmlTag
 
                             $name = (count($properties) > 1 && !$makeRadio) ? $column['name'].'[]' : $column['name'];
                             $checked = null;
-                            if($model){
+                            if ($model) {
                                 $checked = (($model->{$column['name']} && $model->{$column['name']} == $propertyValue) || old($column['name']) == $propertyValue) ? 'checked' : null;
                             }
 
-                            if ($makeCheckbox){
+                            if ($makeCheckbox) {
                                 $hiddenInput = $addToEl->addElement('input')->attr([
                                     'name' => $name,
                                     'type' => 'checkbox',
@@ -315,8 +315,8 @@ class Form extends HtmlTag
                     }
                 }
 
-            // Textarea element
-            } else if ($makeTextarea) { 
+                // Textarea element
+            } elseif ($makeTextarea) {
                 $textareaCustomAttr = $definedAttr['textarea'] ?? null;
                 $textareaType = $textareaCustomAttr['type'] ?? 'text';
                 $textareaPlaceholder = $definedAttr['placeholder'] ?? null;
@@ -356,7 +356,7 @@ class Form extends HtmlTag
     public static function create($request, $routePrefix, $formClass, $responses)
     {
         $formFields = (new $formClass())->fields();
-        $formRoutes = method_exists((new $formClass()),'routes') ? (new $formClass())->routes() : null;
+        $formRoutes = method_exists((new $formClass()), 'routes') ? (new $formClass())->routes() : null;
 
         $modelRequest = (new $request())->rules() ?? null;
         if (!isset($modelRequest)) {
@@ -375,7 +375,7 @@ class Form extends HtmlTag
         $method = ($model) ? 'PUT' : 'POST';
         $form = self::initForm($method);
 
-        $formGroup = self::createInputs($columns,$routePrefix,$form,$formFields,$formRoutes,$model);
+        $formGroup = self::createInputs($columns, $routePrefix, $form, $formFields, $formRoutes, $model);
 
         $customAttr = $definedAttr['form-group'] ?? null;
         $formGroup = $form->addElement('div')->attr([
@@ -445,12 +445,12 @@ class Form extends HtmlTag
                 'data-dcms-action' => 'destroy',
                 'data-dcms-destroy-redirect' => $responses['deleted']['url'] ?? route($routePrefix . '.index'),
                 'data-dcms-destroy-route' => $formRoutes['destroy'] ?? route($routePrefix . '.destroy', '__id__'),
-                'data-dcms-delete-confirm-title' => (isset($responses['confirmDelete']['title'])) ? ReplaceWithAttr($responses['confirmDelete']['title'],$model) : __('Delete object'),
-                'data-dcms-delete-confirm-message' => (isset($responses['confirmDelete']['message'])) ?ReplaceWithAttr($responses['confirmDelete']['message'],$model) : __('Are you sure you want to delete this object?'),
-                'data-dcms-delete-complete-title' => (isset($responses['deleted']['title'])) ?ReplaceWithAttr($responses['deleted']['title'],$model) : __('Deleted object'),
-                'data-dcms-delete-complete-message' => (isset($responses['deleted']['message'])) ?ReplaceWithAttr($responses['deleted']['message'],$model) : __('This object has been succesfully deleted.'),
-                'data-dcms-delete-failed-title' => (isset($responses['failedDelete']['title'])) ?ReplaceWithAttr($responses['failedDelete']['title'],$model) : __('Deleting failed'),
-                'data-dcms-delete-failed-message' => (isset($responses['failedDelete']['message'])) ?ReplaceWithAttr($responses['failedDelete']['message'],$model) : __('Failed to delete this object. An unknown error has occurred.'),
+                'data-dcms-delete-confirm-title' => (isset($responses['confirmDelete']['title'])) ? ReplaceWithAttr($responses['confirmDelete']['title'], $model) : __('Delete object'),
+                'data-dcms-delete-confirm-message' => (isset($responses['confirmDelete']['message'])) ?ReplaceWithAttr($responses['confirmDelete']['message'], $model) : __('Are you sure you want to delete this object?'),
+                'data-dcms-delete-complete-title' => (isset($responses['deleted']['title'])) ?ReplaceWithAttr($responses['deleted']['title'], $model) : __('Deleted object'),
+                'data-dcms-delete-complete-message' => (isset($responses['deleted']['message'])) ?ReplaceWithAttr($responses['deleted']['message'], $model) : __('This object has been succesfully deleted.'),
+                'data-dcms-delete-failed-title' => (isset($responses['failedDelete']['title'])) ?ReplaceWithAttr($responses['failedDelete']['title'], $model) : __('Deleting failed'),
+                'data-dcms-delete-failed-message' => (isset($responses['failedDelete']['message'])) ?ReplaceWithAttr($responses['failedDelete']['message'], $model) : __('Failed to delete this object. An unknown error has occurred.'),
             ])->attr($deleteBtnAttr);
             if ($deleteBtnText) {
                 $deleteBtn->text(__($deleteBtnText));

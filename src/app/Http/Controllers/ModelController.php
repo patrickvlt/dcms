@@ -9,51 +9,69 @@ use Pveltrop\DCMS\Classes\Datatable;
 
 class ModelController extends Controller
 {
-  // If you plan to use server side filtering/sorting/paging in the DCMS KTDatatables wrapper, define the base query below
-  public function fetch(): \Illuminate\Http\JsonResponse
-  {
-    // Get class to make a query for
-    $models = [];
-    foreach (GetModels() as $x => $model) {
-      $class = $model['class'];
-      $retrievedModel = (new $class());
-      $models[$x]['class'] = $model['class'];
-      $models[$x]['table'] = $retrievedModel->getTable();
-      $models[$x]['model'] = $retrievedModel;
+    // If you plan to use server side filtering/sorting/paging in the DCMS KTDatatables wrapper, define the base query below
+    public function fetch(): \Illuminate\Http\JsonResponse
+    {
+        // Get class to make a query for
+        $models = [];
+        foreach (GetModels() as $x => $model) {
+            $class = $model['class'];
+            $retrievedModel = (new $class());
+            $models[$x]['class'] = $model['class'];
+            $models[$x]['table'] = $retrievedModel->getTable();
+            $models[$x]['model'] = $retrievedModel;
+        }
+        $models = collect($models);
+        return (new Datatable($models))->render();
     }
-    $models = collect($models);
-    return (new Datatable($models))->render();
-  }
 
-  public function index()
-  {
-    return view('dcms::model.index');
-  }
+    public function index()
+    {
+        return view('dcms::model.index');
+    }
 
-  public function create()
-  {
-    return view('dcms::model.create');
-  }
+    public function create()
+    {
+        return view('dcms::model.create');
+    }
 
-  // public function store(Request $request)
-  public function store()
-  {
-    // $formatRequest = $request->all();
+    public function generateCRUD()
+    {
+        (new Crud())->generate($this->customRequest);
+    }
 
-    // $formatRequest['responses'] = json_decode($formatRequest['responses'],true);
-    // $formatRequest['views'] = json_decode($formatRequest['views'],true);
-    // $formatRequest['columns'] = json_decode($formatRequest['columns'],true);
-    // $formatRequest['ktColumns'] = json_decode($formatRequest['ktColumns'],true);
-    // $formatRequest['jExcelColumns'] = json_decode($formatRequest['jExcelColumns'],true);
-    // $formatRequest['jExcelResponses'] = json_decode($formatRequest['jExcelResponses'],true);
+    public function generateViews()
+    {
+        $views = $this->customRequest['views'];
+        foreach ($views as $x => $path) {
+            $file = resource_path().'/views/'.str_replace('.', '/', $path).'.blade.php';
+            $folder = preg_replace('/\/[^]\/[^\s]*\.blade\.php/m', '', $file);
+            if (!is_dir($folder)) {
+                mkdir($folder, 0755, true);
+            }
+            file_put_contents($file, '');
+        }
+    }
 
-    $customRequest = new \Illuminate\Http\Request();
-    $customRequest->setMethod('POST');
+    // public function store(Request $request)
+    public function store()
+    {
+        // $formatRequest = $request->all();
 
-    // $customRequest->request->add($formatRequest);
-    $customRequest->request->add([
+        // $formatRequest['responses'] = json_decode($formatRequest['responses'],true);
+        // $formatRequest['views'] = json_decode($formatRequest['views'],true);
+        // $formatRequest['columns'] = json_decode($formatRequest['columns'],true);
+        // $formatRequest['ktColumns'] = json_decode($formatRequest['ktColumns'],true);
+        // $formatRequest['jExcelColumns'] = json_decode($formatRequest['jExcelColumns'],true);
+        // $formatRequest['jExcelResponses'] = json_decode($formatRequest['jExcelResponses'],true);
+
+        $this->customRequest = new \Illuminate\Http\Request();
+        $this->customRequest->setMethod('POST');
+
+        // $this->customRequest->request->add($formatRequest);
+        $this->customRequest->request->add([
       "name" => "Foo",
-      "seed" => "0",
+      "seed" => "1",
       "amountToSeed" => "15",
       "responses" => [
         "created" => [
@@ -88,8 +106,9 @@ class ModelController extends Controller
           "onDelete" => "",
           "value" => "",
           "text" => "",
-          "inputType" => "text",
-          "inputDataType" => "",
+          "inputType" => "file",
+          "inputDataType" => "filepond",
+          "filePondMime" => "image",
           "seed" => "",
           "rules" => [
             0 => "min:5",
@@ -109,7 +128,7 @@ class ModelController extends Controller
           "onDelete" => "cascade",
           "value" => "id",
           "text" => "name",
-          "inputType" => "dropdown",
+          "inputType" => "select",
           "inputDataType" => "slimselect",
           "seed" => "",
           "rules" => [
@@ -162,12 +181,23 @@ class ModelController extends Controller
         ]
     ]);
 
-    $noCodeString = 'not_regex:/(;|")/';
+        $noCodeString = 'not_regex:/(;|")/';
 
-    $customRequest = $this->validate($customRequest, [
+        $models = [];
+        foreach (GetModels() as $key => $model) {
+            $models[] = $model['file'];
+        }
+
+        if (in_array($this->customRequest['name'], $models)) {
+            return response()->json([
+        'message' => 'The given data was invalid.',
+        'errors' => ['name' => ['This model already exists.']]], 422);
+        }
+
+        $this->customRequest = $this->validate($this->customRequest, [
       'name' => ['required', 'string', $noCodeString, 'max:255'],
       'seed' => ['nullable', 'boolean'],
-      'amountToSeed' => [($customRequest->seed) ? 'required' : 'nullable', 'integer', 'min:0'],
+      'amountToSeed' => [($this->customRequest->seed) ? 'required' : 'nullable', 'integer', 'min:0'],
 
       'responses' => ['required', 'array', 'min:3', 'max:3'],
       'responses.*' => ['required', 'array', 'min:2', 'max:2'],
@@ -188,6 +218,7 @@ class ModelController extends Controller
       'columns.*.value' => ['string', 'min:1', $noCodeString, 'max:25'],
       'columns.*.inputType' => ['required', 'string', $noCodeString, 'min:1', 'max:255'],
       'columns.*.inputDataType' => ['nullable', 'string', $noCodeString, 'max:25'],
+      'columns.*.filePondMime' => ['nullable', 'string', $noCodeString, 'max:25'],
 
       'columns.*.class' => ['string', $noCodeString, 'min:1', 'max:255'],
       'columns.*.table' => ['string', $noCodeString, 'min:1', 'max:255'],
@@ -219,37 +250,7 @@ class ModelController extends Controller
       'jExcelResponses.*.url' => ['nullable', 'string', $noCodeString, 'min:1', 'max:255'],
     ]);
 
-    $crud = [];
-    $crud['model'] = $customRequest['name'];
-    $crud['seed'] = $customRequest['seed'];
-    $crud['amountToSeed'] = $customRequest['amountToSeed'];
-    $crud['responses'] = $customRequest['responses'];
-    $crud['views'] = $customRequest['views'];
-    $crud['jExcelColumns'] = $customRequest['jExcelColumns'];
-    $crud['jExcelResponses'] = $customRequest['jExcelResponses'];
-
-    foreach ($customRequest['columns'] as $columnName => $column) {
-      $crud['columns'][$columnName] = [];
-      $crud['columns'][$columnName]['attributes']['name'] = $column['name'] ?? null;
-      $crud['columns'][$columnName]['attributes']['type'] = $column['dataType'] ?? null;
-      $crud['columns'][$columnName]['attributes']['nullable'] = $column['nullable'] ?? null;
-      $crud['columns'][$columnName]['attributes']['required'] = $column['required'] ?? null;
-      $crud['columns'][$columnName]['validation'] = $column['rules'] ?? null;
-      if ($customRequest['seed']) {
-        $crud['columns'][$columnName]['seed'] = $column['seed'] ?? null;
-      }
-      if (isset($column['foreign'])) {
-        $crud['columns'][$columnName]['foreign']['foreign_column'] = $column['name'] ?? null;
-        $crud['columns'][$columnName]['foreign']['references'] = $column['value'] ?? null;
-        $crud['columns'][$columnName]['foreign']['class'] = $column['class'] ?? null;
-        $crud['columns'][$columnName]['foreign']['table'] = $column['table'] ?? null;
-        $crud['columns'][$columnName]['foreign']['relation'] = $column['relation'] ?? null;
-        $crud['columns'][$columnName]['foreign']['relationFunction'] = $column['method'] ?? null;
-        $crud['columns'][$columnName]['foreign']['onUpdate'] = $column['onUpdate'] ?? null;
-        $crud['columns'][$columnName]['foreign']['onDelete'] = $column['onDelete'] ?? null;
-      }
+        $this->generateCRUD();
+        $this->generateViews();
     }
-
-    (new Crud())->generate($crud);
-  }
 }

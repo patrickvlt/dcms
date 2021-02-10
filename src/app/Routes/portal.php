@@ -1,6 +1,6 @@
 <?php
 
-if (config('dcms.portal') == 'true'){
+if (config('dcms.portal') == 'true') {
     /**
     * DCMS Portal
     */
@@ -22,9 +22,9 @@ if (config('dcms.portal') == 'true'){
     Route::get('/dcms/fetch/model', 'Pveltrop\DCMS\Http\Controllers\ModelController@fetch')->name('dcms.portal.model.fetch');
 
     Route::prefix('/dcms')->group(function () {
-        Route::resource('permission', 'Pveltrop\DCMS\Http\Controllers\PermissionController',['as' => 'dcms.portal']);
-        Route::resource('role', 'Pveltrop\DCMS\Http\Controllers\RoleController',['as' => 'dcms.portal']);
-        Route::resource('user', 'Pveltrop\DCMS\Http\Controllers\UserController',['as' => 'dcms.portal']);
-        Route::resource('model', 'Pveltrop\DCMS\Http\Controllers\ModelController',['as' => 'dcms.portal']);
-    });   
+        Route::resource('permission', 'Pveltrop\DCMS\Http\Controllers\PermissionController', ['as' => 'dcms.portal']);
+        Route::resource('role', 'Pveltrop\DCMS\Http\Controllers\RoleController', ['as' => 'dcms.portal']);
+        Route::resource('user', 'Pveltrop\DCMS\Http\Controllers\UserController', ['as' => 'dcms.portal']);
+        Route::resource('model', 'Pveltrop\DCMS\Http\Controllers\ModelController', ['as' => 'dcms.portal']);
+    });
 }

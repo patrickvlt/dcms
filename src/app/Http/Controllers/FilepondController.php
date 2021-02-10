@@ -11,7 +11,7 @@ class FilepondController extends Controller
 {
     public function __construct()
     {
-        if(!app()->runningInConsole()){
+        if (!app()->runningInConsole()) {
             // Route prefix
             $this->prefix = request()->route()->prefix;
             // Get class file
@@ -25,10 +25,11 @@ class FilepondController extends Controller
         }
     }
 
-    public function checkFileSizes(){
+    public function checkFileSizes()
+    {
         $this->abort = false;
         foreach (request()->file() as $key => $file) {
-            if ($file[0]->getSize() == false){
+            if ($file[0]->getSize() == false) {
                 $this->abort = true;
                 $this->key = $key;
                 break;
@@ -42,9 +43,9 @@ class FilepondController extends Controller
         $this->uploadRules = [];
 
         foreach ($allRules as $key => $ruleArr) {
-            $ruleArr = (is_string($ruleArr)) ? explode('|',$ruleArr) : $ruleArr;
+            $ruleArr = (is_string($ruleArr)) ? explode('|', $ruleArr) : $ruleArr;
             foreach ($ruleArr as $x => $rule) {
-                if (preg_match('/(mimes|mimetypes)/',$rule)){
+                if (preg_match('/(mimes|mimetypes)/', $rule)) {
                     $this->uploadRules[$key] = $ruleArr;
                     continue;
                 }
@@ -54,8 +55,8 @@ class FilepondController extends Controller
 
     public function validateFile()
     {
-        $column = str_replace('[]','',$this->column);
-        $request = Validator::make(request()->all(), $this->uploadRules,(new $this->classRequest())->messages());
+        $column = str_replace('[]', '', $this->column);
+        $request = Validator::make(request()->all(), $this->uploadRules, (new $this->classRequest())->messages());
         $response = null;
         
         if ($request->failed()) {
@@ -65,10 +66,10 @@ class FilepondController extends Controller
                     $request->errors()
                     ]
                 ], 422);
-            }
+        }
         $request = $request->validated();
         
-        if (count($request) <= 0){
+        if (count($request) <= 0) {
             $response = response()->json([
                 'message' => __('Upload failed'),
                 'errors' => [
@@ -79,7 +80,7 @@ class FilepondController extends Controller
             ], 422);
         }
 
-        if (!$response){
+        if (!$response) {
             $this->file = $request[$column][0];
             $this->path = '/tmp/files/' . $this->type.'/'.$column;
         }
@@ -89,9 +90,9 @@ class FilepondController extends Controller
 
     public function storeOnDropbox()
     {
-        $dropbox = Dropbox::upload($this->file,$this->path);
+        $dropbox = Dropbox::upload($this->file, $this->path);
         // If dropbox upload method returns a string (path to file which has been uploaded)
-        if (is_string($dropbox)){
+        if (is_string($dropbox)) {
             return $dropbox;
         } else {
             return response()->json([
@@ -105,7 +106,7 @@ class FilepondController extends Controller
         }
     }
     
-    public function ProcessFile($prefix,$type,$column,$revertKey=null)
+    public function ProcessFile($prefix, $type, $column, $revertKey=null)
     {
         $this->prefix = $prefix;
         $this->type = $type;
@@ -115,7 +116,7 @@ class FilepondController extends Controller
         // Check if request doesnt contain a file which exceeds limit in php.ini
         $this->checkFileSizes();
 
-        if ($this->abort == true){
+        if ($this->abort == true) {
             return response()->json([
                 'message' => __('Upload failed'),
                 'errors' => [
@@ -127,17 +128,17 @@ class FilepondController extends Controller
             ], 422);
         }
 
-        if ($this->abort == false){
+        if ($this->abort == false) {
             $this->makeUploadRules();
 
             // If validating file has a response (error), return this
             $validateFile = $this->validateFile();
-            if($validateFile){
+            if ($validateFile) {
                 return $validateFile;
             }
 
             // If using Dropbox for storage
-            if ($this->storageConfig == 'dropbox'){
+            if ($this->storageConfig == 'dropbox') {
                 return $this->storeOnDropbox();
             } else {
                 // If using storage on webserver
@@ -145,21 +146,20 @@ class FilepondController extends Controller
                 $link = rtrim(env('APP_URL'), "/").'/storage/tmp/files/'.$this->type.'/'.$this->column.'/'.$this->file->hashName();
                 return $link;
             }
-
         }
     }
 
-    public function DeleteFile($column,$revertKey=null)
+    public function DeleteFile($column, $revertKey=null)
     {
         $msg = 'File doesn\'t exist';
         $status = 422;
         // Get column for request and folder structure
-        $column = str_replace('[]','',$column);
+        $column = str_replace('[]', '', $column);
         
         // If using Dropbox for storage
-        if ($this->storageConfig == 'dropbox'){
+        if ($this->storageConfig == 'dropbox') {
             $dropboxPath = Dropbox::findBySharedLink(request()->getContent());
-            if ($dropboxPath->status == 200){
+            if ($dropboxPath->status == 200) {
                 $dropboxPath = $dropboxPath->response->path_lower;
                 Dropbox::remove($dropboxPath);
                 $msg = 'Deleted succesfully';
@@ -168,16 +168,16 @@ class FilepondController extends Controller
         } else {
             // Convert path to variable in database, remove APP URL and strip slashes
             // Also rename storage to public, /storage is for Front End
-            $path = str_replace('"','',stripslashes(request()->getContent()));
-            $path = str_replace(env('APP_URL'),"",$path);
-            $path = str_replace("/storage/","/public/",$path);
-            if (Storage::exists($path)){
+            $path = str_replace('"', '', stripslashes(request()->getContent()));
+            $path = str_replace(env('APP_URL'), "", $path);
+            $path = str_replace("/storage/", "/public/", $path);
+            if (Storage::exists($path)) {
                 $msg = 'Deleted succesfully';
                 $status = 200;
                 Storage::delete($path);
             }
         }
         
-        return response()->json($msg,$status);
+        return response()->json($msg, $status);
     }
 }

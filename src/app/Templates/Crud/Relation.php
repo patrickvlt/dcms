@@ -1,7 +1,7 @@
 <?php
 return '
-    public function '.$column['foreign']['relationFunction'].'()
+    public function '.$column['method'].'()
     {
-        return $this->'.$column['foreign']['relation'].'('.$column['foreign']['class'].'::class, \''.$column['foreign']['foreign_column'].'\', \''.$column['foreign']['references'].'\');
+        return $this->'.$column['relation'].'('.$column['class'].'::class, \''.$column['name'].'\', \''.$column['value'].'\');
     }
     ';

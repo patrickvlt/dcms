@@ -15,14 +15,15 @@ class Crud
      * @param string $name
      * @return void
      */
-    public function findFile($name){
+    public function findFile($name)
+    {
         $rootFolders = [];
         $excludeDirs = array('.git', 'vendor', 'node_modules');
 
         // Make array with folders to search in
         $dir = new DirectoryIterator(base_path());
         foreach ($dir as $file) {
-            if ($file->isDir() && !$file->isDot() && !in_array($file->getBasename(),$excludeDirs)) {
+            if ($file->isDir() && !$file->isDot() && !in_array($file->getBasename(), $excludeDirs)) {
                 $rootFolders[] = $file->getPathname();
             }
         }
@@ -30,8 +31,8 @@ class Crud
         // Loop through array with folders
         foreach ($rootFolders as $key => $rootFolder) {
             $it = new RecursiveDirectoryIterator($rootFolder);
-            foreach(new RecursiveIteratorIterator($it) as $file) {
-                if(preg_match('~'.$name.'~',$file)){
+            foreach (new RecursiveIteratorIterator($it) as $file) {
+                if (preg_match('~'.$name.'~', $file)) {
                     return $file;
                 }
             }
@@ -42,7 +43,7 @@ class Crud
     {
         // Model path
         $this->modelPath = '';
-        if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')){
+        if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')) {
             $this->modelPath = 'App\\Models\\'.$this->model;
         } else {
             $this->modelPath = 'App\\'.$this->model;
@@ -56,27 +57,20 @@ class Crud
      */
     public function generateFactory()
     {
-
         $fakerEntries = '';
         $tab = '            ';
 
-        if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')){
-            $modelPath = '\\App\\Models\\';
-        } else {
-            $modelPath = '\\App\\';
-        }
-
-        if ($this->mainVersion <= 7){
+        if ($this->mainVersion <= 7) {
             $factoryLine = 10;
-        } else if ($this->mainVersion >= 8){
+        } elseif ($this->mainVersion >= 8) {
             $factoryLine = 25;
         }
 
-        foreach ($this->columns as $name => $column){
-            if (array_key_exists('seed',$column) && isset($column['seed']) && !isset($column['foreign'])){
+        foreach ($this->columns as $name => $column) {
+            if (array_key_exists('seed', $column) && isset($column['seed']) && !isset($column['foreign'])) {
                 $fakerEntries .= $tab.'"'.$name.'" => '.$column['seed'].','."\n";
-            } else if (isset($column['foreign'])) {
-                $fakerEntries = '           "'.$name.'" => '.$modelPath.$column['foreign']['class'].'::inRandomOrder()->first()->'.$column['foreign']['references'].',';
+            } elseif (isset($column['foreign'])) {
+                $fakerEntries = '           "'.$name.'" => '.$this->modelPath.$column['class'].'::inRandomOrder()->first()->'.$column['value'].',';
             }
         }
 
@@ -86,9 +80,11 @@ class Crud
         $contentToAdd = $fakerEntries;
         // Modify the content
         $content = file_get_contents($factoryFile);
-        $newContent = WriteContent($content,$factoryLine,$contentToAdd);
+        $newContent = WriteContent($content, $factoryLine, $contentToAdd);
+        $newContent = str_replace($content, $newContent, file_get_contents($factoryFile));
         // Write to file
-        file_put_contents($factoryFile,str_replace($content,$newContent,file_get_contents($factoryFile)));
+        file_put_contents($factoryFile, '');
+        file_put_contents($factoryFile, $newContent);
     }
 
     /**
@@ -99,13 +95,13 @@ class Crud
     public function generateSeed()
     {
         $this->enableSeed = false;
-        foreach($this->columns as $column){
-            if (isset($column['seed'])){
+        foreach ($this->columns as $column) {
+            if (isset($column['seed'])) {
                 $this->enableSeed = true;
             }
         }
 
-        if($this->enableSeed){
+        if ($this->enableSeed) {
 
             /**
              *
@@ -117,9 +113,11 @@ class Crud
             $contentToAdd = '        $this->call(' . $this->model . 'Seeder::class);';
 
             $content = file_get_contents($file);
-            $newContent = AppendContent($content,2,$contentToAdd);
+            $newContent = AppendContent($content, 2, $contentToAdd);
+            $newContent = str_replace($content, $newContent, file_get_contents($file));
             // Write to file
-            file_put_contents($file,str_replace($content,$newContent,file_get_contents($file)));
+            file_put_contents($file, '');
+            file_put_contents($file, $newContent);
 
             /**
              *
@@ -128,16 +126,18 @@ class Crud
              */
 
             $seederFile = ($this->findFile($this->model.'Seeder.php')) ? $this->findFile($this->model.'Seeder.php')->getPathname() : null;
-            if ($this->mainVersion <= 7){
+            if ($this->mainVersion <= 7) {
                 $contentToAdd = "        factory(App\\".$this->model."::class, ".$this->amountToSeed.")->create();";
-            } else if ($this->mainVersion >= 8){
+            } elseif ($this->mainVersion >= 8) {
                 $contentToAdd = '        \App\Models\\'.$this->model.'::factory()->count('.$this->amountToSeed.')->create();';
             }
             // Modify the content
             $content = file_get_contents($seederFile);
-            $newContent = AppendContent($content,3,$contentToAdd);
+            $newContent = AppendContent($content, 3, $contentToAdd);
+            $newContent = str_replace($content, $newContent, file_get_contents($seederFile));
             // Write to file
-            file_put_contents($seederFile,str_replace($content,$newContent,file_get_contents($seederFile)));
+            file_put_contents($seederFile, '');
+            file_put_contents($seederFile, $newContent);
         }
     }
 
@@ -149,17 +149,19 @@ class Crud
     public function generateRoute()
     {
         $routeFile = ($this->findFile('web.php')) ? $this->findFile('web.php')->getPathname() : null;
-        if ($this->mainVersion <= 7){
+        if ($this->mainVersion <= 7) {
             $contentToAdd = "Route::resource('" . $this->prefix . "', '" . $this->model . "Controller');";
-        } else if ($this->mainVersion >= 8){
+        } elseif ($this->mainVersion >= 8) {
             $contentToAdd = "Route::resource('" . $this->prefix . "', \App\Http\Controllers\\".$this->model."Controller::class);";
         }
 
         // Modify the content
         $content = file_get_contents($routeFile);
-        $newContent = AppendContent($content,0,$contentToAdd);
+        $newContent = AppendContent($content, 0, $contentToAdd);
+        $newContent = str_replace($content, $newContent, file_get_contents($routeFile));
         // Write to file
-        file_put_contents($routeFile,str_replace($content,$newContent,file_get_contents($routeFile)));
+        file_put_contents($routeFile, '');
+        file_put_contents($routeFile, $newContent);
     }
 
     /**
@@ -171,7 +173,7 @@ class Crud
     {
         $controllerFile = ($this->findFile($this->model . 'Controller.php')) ? $this->findFile($this->model . 'Controller.php')->getPathname() : null;
         
-        if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')){
+        if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')) {
             $nameSpace = 'App\\Models\\';
         } else {
             $nameSpace = 'App\\';
@@ -202,17 +204,17 @@ class Crud
         $this->controllerImports = '';
         $x = 0;
         foreach ($this->jExcelColumns as $key => $jExcelColumn) {
-            if (isset($this->columns[$jExcelColumn['name']]['foreign'])){
-                $this->controllerImports .= 'Use '.$nameSpace.$this->columns[$jExcelColumn['name']]['foreign']['class'].';';
+            if (isset($this->columns[$jExcelColumn['name']]['foreign'])) {
+                $this->controllerImports .= 'Use '.$nameSpace.$this->columns[$jExcelColumn['name']]['class'].';';
                 $this->jExcelGrp = '';
                 $this->jExcelGrp .= "\n                    ".'"column" => "'.$x.'",';
-                $this->jExcelGrp .= "\n                    ".'"class" => '.$this->columns[$jExcelColumn['name']]['foreign']['class'].'::class,';
+                $this->jExcelGrp .= "\n                    ".'"class" => '.$this->columns[$jExcelColumn['name']]['class'].'::class,';
                 $this->jExcelGrp .= "\n                    ".'"searchAttributes" => [
                         "'.$jExcelColumn['text'].'"
                     ],';
-                $this->jExcelGrp .= "\n                    ".'"returnAttribute" => "'.$this->columns[$jExcelColumn['name']]['foreign']['references'].'",';
+                $this->jExcelGrp .= "\n                    ".'"returnAttribute" => "'.$this->columns[$jExcelColumn['name']]['value'].'",';
             }
-            if ($this->jExcelGrp !== ''){
+            if ($this->jExcelGrp !== '') {
                 $this->jExcelCorrectStr .= "\n                ".'"'.$jExcelColumn['name'].'" => ['.$this->jExcelGrp.'
                 ],';
             }
@@ -241,20 +243,107 @@ class Crud
         // Modify the content
         $newContent = include __DIR__ . '/../Templates/Crud/Controller.php';
         // Write to file
-        file_put_contents($controllerFile,$newContent);
+        file_put_contents($controllerFile, '');
+        file_put_contents($controllerFile, $newContent);
     }
 
     /**
-     * Generate Form class, which can be used to easily render a HTML form from a variable
+     * Generate Form class, which can be used to easily render a HTML form by using the $form variable
      *
      * @return void
      */
     public function generateForm()
     {
+        // Form fields
+        $this->formFieldsStr = "";
+        $this->formImports = "";
+        
+        foreach ($this->columns as $columnName => $column) {
+            $columnStr = "";
+
+            $carouselStr = "";
+            $labelStr = "";
+            $inputStr = "";
+            $optionsStr = "";
+            $inputGroup = "";
+            $smallStr = "";
+
+            $formInputType = "input";
+
+            /**
+             * Optional carousel properties
+             */
+
+            if ($column['inputDataType'] == 'filepond') {
+                $carouselStr .= "\n".'                "carousel" => ['."\n".'                    "height" => "200px"'."\n".'                ],';
+                $inputGroup .= $carouselStr;
+            }
+            
+            /**
+            * Label properties
+            */
+
+            $labelProps = "\n".'                    "text" => __("'.$column['title'].'")';
+            // Final label strings
+            $labelStr .= "\n".'                "label" => ['.$labelProps."\n".'                ],';
+            $inputGroup .= $labelStr;
+
+            /**
+             * Input properties
+             */
+
+            $inputProps = "\n".'                    "type" => "'.$column['inputType'].'",';
+            $inputProps = "\n".'                    "data-type" => "'.$column['inputDataType'].'",';
+            // If generating a filepond element
+            if ($column['inputDataType'] == 'filepond') {
+                $inputProps .= "\n".'                    "data-filepond-prefix" => "'.$this->prefix.'",';
+                $inputProps .= "\n".'                    "data-filepond-mime" => "'.$column['filePondMime'].'",';
+            }
+            // If generating a dropdown for relation
+            if ($column['inputType'] == 'select') {
+                $optionsStr = "\n".'                        "data" => '.$column['class'].'::all(),';
+                $optionsStr .= "\n".'                        "value" => "'.$column['value'].'",';
+                $optionsStr .= "\n".'                        "text" => "'.$column['text'].'",';
+                $optionsStr .= "\n".'                        "foreignKey" => "'.$column['name'].'",';
+                $inputProps = "\n".'                    "multiple" => false,';
+                $inputProps = "\n".'                    "options" => ['.$optionsStr."\n".'                    ],';
+            }
+
+            // Small text for extra info
+            $smallStr .= "\n".'                "small" => __("Extra information.")'.",";
+            $inputGroup .= $smallStr;
+
+            /**
+             * Final entry
+             */
+            switch ($column['inputType']) {
+                case 'select':
+                    $formInputType = 'select';
+                    break;
+                case 'checkbox':
+                    $formInputType = 'checkbox';
+                    break;
+                case 'radio':
+                    $formInputType = 'radio';
+                    break;
+                case 'textarea':
+                    $formInputType = 'textarea';
+                    break;
+            }
+
+            $inputStr .= "\n".'                "'.$formInputType.'" => ['.$inputProps."\n".'                ],';
+            $inputGroup .= $inputStr;
+
+            $columnStr .= "\n".'            "'.$columnName.'" => ['.$inputGroup."\n".'            ],';
+
+            $this->formFieldsStr .= $columnStr;
+        }
+
         // Modify the content
-        $newContent = include __DIR__ . '/../Templates/Form/Class.php';
+        $newContent = include __DIR__ . '/../Templates/Crud/Form.php';
         // Write to file
-        file_put_contents(base_path('app/Forms/' . $this->model . 'Form.php'),$newContent);
+        file_put_contents(base_path('app/Forms/' . $this->model . 'Form.php'), '');
+        file_put_contents(base_path('app/Forms/' . $this->model . 'Form.php'), $newContent);
     }
 
     /**
@@ -266,15 +355,15 @@ class Crud
     {
         $tab = '        ';
         $migEntries = '            ';
-        foreach ($this->columns as $name => $column){
-            $rowNullable = ($column['attributes']['nullable'] == 1) ? '->nullable()' : '';
-            $migEntries .= '$table->'.$column['attributes']['type'].'("'.$column['attributes']['name'].'")'.$rowNullable.';'."\n".'            ';
-            if (array_key_exists('foreign',$column)){
-                $onUpdate = $column['foreign']['onUpdate'];
+        foreach ($this->columns as $name => $column) {
+            $rowNullable = (isset($column['nullable']) && $column['nullable'] == 1) ? '->nullable()' : '';
+            $migEntries .= '$table->'.$column['dataType'].'("'.$column['name'].'")'.$rowNullable.';'."\n".'            ';
+            if (array_key_exists('foreign', $column)) {
+                $onUpdate = $column['onUpdate'];
                 $onUpdate = '->onUpdate("'.$onUpdate.'")';
-                $onDelete = $column['foreign']['onDelete'];
+                $onDelete = $column['onDelete'];
                 $onDelete = '->onDelete("'.$onDelete.'")';
-                $migEntries .= '$table->foreign("'.$column['foreign']['foreign_column'].'")->references("'.$column['foreign']['references'].'")->on("'.$column['foreign']['table'].'")'.$onUpdate.$onDelete.';'."\n".'            ';
+                $migEntries .= '$table->foreign("'.$column['name'].'")->references("'.$column['value'].'")->on("'.$column['table'].'")'.$onUpdate.$onDelete.';'."\n".'            ';
             }
         }
 
@@ -282,9 +371,11 @@ class Crud
         $migrationFile = '/database/migrations/'.$files[0];
         // Modify the content
         $content = file_get_contents(base_path($migrationFile));
-        $newContent = WriteContent($content,18,$migEntries);
+        $newContent = WriteContent($content, 18, $migEntries);
+        $newContent = str_replace($content, $newContent, file_get_contents(base_path($migrationFile)));
         // Write to file
-        file_put_contents(base_path($migrationFile),str_replace($content,$newContent,file_get_contents(base_path($migrationFile))));
+        file_put_contents(base_path($migrationFile), '');
+        file_put_contents(base_path($migrationFile), $newContent);
     }
 
     /**
@@ -295,16 +386,16 @@ class Crud
     public function generateModel()
     {
         $modelFile = ($this->findFile($this->model . '.php')) ? $this->findFile($this->model . '.php')->getPathname() : null;
-        if ($this->mainVersion <= 7){
+        if ($this->mainVersion <= 7) {
             $relLine = 9;
-        } else if ($this->mainVersion >= 8){
+        } elseif ($this->mainVersion >= 8) {
             $relLine = 11;
         }
 
         $relEntries = '';
         // Prepare relation content
-        foreach ($this->columns as $name => $column){
-            if (array_key_exists('foreign',$column)){
+        foreach ($this->columns as $name => $column) {
+            if (array_key_exists('foreign', $column)) {
                 $relEntries .= include __DIR__ . '/../Templates/Crud/Relation.php';
             }
         }
@@ -312,9 +403,11 @@ class Crud
         $contentToAdd = $relEntries;
         // Modify the content
         $content = file_get_contents($modelFile);
-        $newContent = WriteContent($content,$relLine,$contentToAdd);
+        $newContent = WriteContent($content, $relLine, $contentToAdd);
+        $newContent = str_replace($content, $newContent, file_get_contents($modelFile));
         // Write to file
-        file_put_contents($modelFile,str_replace($content,$newContent,file_get_contents($modelFile)));
+        file_put_contents($modelFile, '');
+        file_put_contents($modelFile, $newContent);
     }
 
     /**
@@ -326,15 +419,15 @@ class Crud
     {
         $requestFile = ($this->findFile($this->model.'Request.php')) ? $this->findFile($this->model.'Request.php')->getPathname() : null;
         $reqEntries = '    ';
-        foreach ($this->columns as $column){
-            if (array_key_exists('validation',$column)){
+        foreach ($this->columns as $column) {
+            if (array_key_exists('rules', $column)) {
                 $ruleRow = '';
-                $rules = ($column['attributes']['nullable'] == 1) ? '"nullable", ' : '';
-                $rules = ($column['attributes']['required'] == 1) ? '"required", ' : '';
-                foreach ($column['validation'] as $x => $rule){
+                $rules = (isset($column['nullable']) && $column['nullable'] == 1) ? '"nullable", ' : '';
+                $rules = (isset($column['required']) && $column['required'] == 1) ? '"required", ' : '';
+                foreach ($column['rules'] as $x => $rule) {
                     $rules .= '"'.$rule.'", ';
                 }
-                $ruleRow = '"'.$column["attributes"]["name"].'" => ['.$rules.']';
+                $ruleRow = '"'.$column["name"].'" => ['.$rules.']';
                 $reqEntries .= $ruleRow.',
             ';
             }
@@ -342,7 +435,8 @@ class Crud
 
         $contentToAdd = include __DIR__ . '/../Templates/Crud/Request.php';
         // Write to file
-        file_put_contents($requestFile,$contentToAdd);
+        file_put_contents($requestFile, '');
+        file_put_contents($requestFile, $contentToAdd);
     }
 
     /**
@@ -354,7 +448,7 @@ class Crud
     public function generate($data)
     {
         $this->mainVersion = app()->version()[0];
-        $this->model = $data['model'];
+        $this->model = $data['name'];
         $this->columns = $data['columns'];
         $this->responses = $data['responses'];
         $this->views = $data['views'];
@@ -364,14 +458,14 @@ class Crud
         $this->jExcelResponses = $data['jExcelResponses'];
 
         // Create the basic Laravel files (model, migration, controller, factory, seeder, request)
-        Artisan::call('make:model',[
+        Artisan::call('make:model', [
             'name' => $this->model,
             '-c' => true,
             '-m' => true,
             '-f' => true,
             '-s' => true,
         ]);
-        Artisan::call('make:request',[
+        Artisan::call('make:request', [
             'name' => $this->model.'Request'
         ]);
 

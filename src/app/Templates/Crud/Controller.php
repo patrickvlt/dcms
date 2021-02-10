@@ -7,9 +7,9 @@ namespace App\\Http\\Controllers;
 use ' . $this->modelPath . ';
 '.$this->controllerImports.'
 use App\\Forms\\' . $this->model . 'Form;
-use App\\Traits\\DCMSController;
 use App\\Http\\Requests\\' . $this->model . 'Request;
-use Pveltrop\DCMS\Classes\Datatable;
+use Pveltrop\\DCMS\\Classes\\Datatable;
+use Pveltrop\\DCMS\\Traits\\DCMSController;
 
 class ' . $this->model . 'Controller extends Controller
 {

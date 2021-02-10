@@ -75,7 +75,7 @@ class UserController extends Controller
     {
         $this->__init();
         // Auto generated Form with HTMLTag package
-        $form = (isset($this->form)) ? Form::create($this->request,$this->routePrefix,$this->form,$this->responses) : null;
+        $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         return view('dcms::user.crud')->with(['form' => $form]);
     }
 
@@ -83,7 +83,7 @@ class UserController extends Controller
     {
         $this->__init();
         // Auto generated Form with HTMLTag package
-        $form = (isset($this->form)) ? Form::create($this->request,$this->routePrefix,$this->form,$this->responses) : null;
+        $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         return view('dcms::user.crud')->with(['form' => $form]);
     }
 }

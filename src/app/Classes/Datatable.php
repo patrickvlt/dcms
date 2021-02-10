@@ -87,7 +87,7 @@ class Datatable
         if (isset($this->params['query']['generalSearch'])) {
             $this->searchValue = strtolower($this->params['query']['generalSearch']);
 
-            if ($this->queryBuilder){
+            if ($this->queryBuilder) {
                 $this->queryModel = $this->query->getModel();
                 $this->model = new $this->queryModel();
                 $this->table = $this->queryModel->getTable();
@@ -98,7 +98,7 @@ class Datatable
                 /**
                  * Make where clauses from relations
                  */
-                if($this->relations){
+                if ($this->relations) {
                     foreach ($this->relations as $x => $relationName) {
                         $this->relationName = $relationName;
                         $innerWhere = ($x > 0) ? 'orWhere' : 'where';
@@ -139,14 +139,14 @@ class Datatable
                 /**
                  * Make where clauses from query models' table
                  */
-                if($this->columns){
+                if ($this->columns) {
                     $this->query->{$outerWhere}(function ($q) {
                         foreach ($this->columns as $z => $column) {
                             // Dynamically make where clauses for generalsearch
                             // These are the models' default properties
-                            if(!is_array($column)){
+                            if (!is_array($column)) {
                                 $finalInnerWhere = ($z > 0) ? 'orWhere' : 'where';
-                                $q->{$finalInnerWhere}($column,'LIKE','%'.strtolower($this->searchValue).'%');
+                                $q->{$finalInnerWhere}($column, 'LIKE', '%'.strtolower($this->searchValue).'%');
                             }
                         }
                     });
@@ -155,13 +155,13 @@ class Datatable
                 $fetchData = $this->query;
                 $this->query = [];
                 /**
-                 * Search for the user input by encoding the rows in JSON, 
+                 * Search for the user input by encoding the rows in JSON,
                  * and matching with RegEx (this is a lot slower than working with a Builder instance, use this for smaller amounts of data)
                  */
-                foreach($fetchData as $dataKey => $dataRow){
+                foreach ($fetchData as $dataKey => $dataRow) {
                     $searchRe = '/\:(\"|)'.strtolower($this->searchValue).'.*?(\,)/m';
                     $searchIn = strtolower(json_encode($dataRow));
-                    if (preg_match($searchRe,$searchIn) > 0){
+                    if (preg_match($searchRe, $searchIn) > 0) {
                         $this->query[] = $dataRow;
                     }
                 }
@@ -171,7 +171,7 @@ class Datatable
         $this->data = [];
         if ($this->queryBuilder) {
             $this->data = collect($this->query->get());
-        } else if ($this->query) {
+        } elseif ($this->query) {
             $this->data = collect($this->query);
         }
 
