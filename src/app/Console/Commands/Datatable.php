@@ -2,6 +2,7 @@
 
 namespace Pveltrop\DCMS\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 
 class Datatable extends Command
@@ -34,33 +35,34 @@ class Datatable extends Command
      * Execute the console command.
      *
      * @return mixed
+     * @throws Exception
      */
     public function handle()
     {
         $console = $this;
-        $model = $console->option('model') ?? null;
-        if ($model == null || $model == '') {
+        $model = $console->option('model');
+        if ($model === null || $model === '') {
             $console->error('Specify an existing model for this Datatable with --model=');
             exit;
         }
         try {
             $class = FindClass($model)['class'];
             $class = new $class;
-        } catch (\Exception $e) {
-            throw new \Exception('Model not found: '.$model);
+        } catch (Exception $e) {
+            throw new \RuntimeException('Model not found: '.$model);
         }
 
         // Write content to new Datatable file
-        $content = include __DIR__ . '/Code/Datatable/Class.php';
+        $content = include __DIR__ . '../../Templates/Datatable/Class.php';
         $path = 'app/Datatables/'.$model.'Datatable.php';
         file_put_contents($path, $content);
-        
+
         $console->comment('');
         $console->comment('Implement this code to use the new Datatable:');
         $console->comment('');
 
         // Show sample code in console
-        $sampleCode = include __DIR__ . '/Code/Datatable/SampleCode.php';
+        $sampleCode = include __DIR__ . '../../Templates/Datatable/SampleCode.php';
         $console->info($sampleCode);
 
         $console->comment('');

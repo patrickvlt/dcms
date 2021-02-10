@@ -4,13 +4,22 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
+use Illuminate\Http\JsonResponse;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use Pveltrop\DCMS\Classes\PHPExcel;
 
 trait DCMSImports
 {
-    public function StoreExport($data, $headers=null)
+    /**
+     * Store the exported sheet on a filesystem.
+     * @param $data
+     * @param null $headers
+     * @return string
+     * @throws Exception
+     */
+    public function StoreExport($data, $headers=null): string
     {
-        $this->__init();
+        $this->initDCMS();
         if (!isset(config('filesystems.disks')['tmp'])) {
             throw new \RuntimeException("Please define a tmp filesystem in your config.");
         }
@@ -19,9 +28,13 @@ trait DCMSImports
         return config('filesystems.disks')['tmp']['url'].'/'.$fileName;
     }
 
-    public function ImportSheet()
+    /**
+     * Import user data from a jExcel sheet.
+     * @return JsonResponse
+     */
+    public function ImportSheet(): JsonResponse
     {
-        $this->__init();
+        $this->initDCMS();
         $importData = request()->sheetData;
         //prepare sheet validation variables
         $customRequest = new \Illuminate\Http\Request();
@@ -42,13 +55,13 @@ trait DCMSImports
             foreach ($importData as $row) {
                 foreach ($row as $y => $col) {
                     // check if required columns arent empty
-                    if ($col == null || ($col == '' && !in_array($col, $nullableColumns))) {
+                    if ($col === null || ($col === '' && !in_array($col, $nullableColumns, true))) {
                         $failed = true;
                     }
                 }
 
                 // if data is ready for validation, add to the request
-                if ($failed == false) {
+                if ($failed === false) {
                     foreach ($this->importCols as $x => $col) {
                         $validateData[$x] = $row[$col];
                     }
@@ -58,7 +71,7 @@ trait DCMSImports
                 $x++;
             }
             // if failed, return a JSON response
-            if ($failed == true) {
+            if ($failed === true) {
                 return response()->json(['response' => [
                     'title' => $this->importFailedTitle,
                     'message' => $this->importFailedMessage,
@@ -86,14 +99,19 @@ trait DCMSImports
         ], 'url' => $this->importedUrl], 200);
     }
 
-    public function FixSheet()
+    /**
+     * Try to autocorrect empty data when a user pastes into the table.
+     * This is helpful when the user tries to paste data which expects another field/column.
+     * @return bool
+     */
+    public function FixSheet(): bool
     {
-        $this->__init();
+        $this->initDCMS();
         // Get data from ajax request at jexcel table
         $data = request()->data;
 
         // Get data from controller, class and attributes to use for autocorrection
-        if ($this->autoFixColumns == null) {
+        if ($this->autoFixColumns === null) {
             return false;
         }
 
@@ -102,17 +120,17 @@ trait DCMSImports
         function searchForColumn($column, $array)
         {
             foreach ($array as $key => $val) {
-                if ($val['column'] == $column) {
+                if ($val['column'] === $column) {
                     return $key;
                 }
             }
             return null;
         }
-        
+
         // Loop through table dropdown columns
         foreach (request()->th as $y => $header) {
             $jExcelColumn = searchForColumn($header['column'], $this->autoFixColumns);
-            $jExcelColumn = isset($this->autoFixColumns[$jExcelColumn]) ? $this->autoFixColumns[$jExcelColumn] : null;
+            $jExcelColumn = $this->autoFixColumns[$jExcelColumn] ?? null;
             if ($jExcelColumn) {
                 //
                 try {
@@ -134,7 +152,7 @@ trait DCMSImports
                     }
                     $match = $query->first();
                     // If a match is found, replace the cells value by the right attribute or id from the match
-                    $returnAttr = isset($jExcelColumn['returnAttribute']) ? $jExcelColumn['returnAttribute'] : 'id';
+                    $returnAttr = $jExcelColumn['returnAttribute'] ?? 'id';
                     $data[$x][$header['column']] = !empty($match) ? $match[$returnAttr] : $data[$x][$header['column']];
                 }
             }

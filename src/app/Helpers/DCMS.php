@@ -14,7 +14,7 @@ if (!function_exists('MaxSizeServer')) {
         $upload_mb = min($max_upload, $max_post);
         switch ($type) {
             case 'bytes':
-                return $upload_mb * pow(1024, 2);
+                return $upload_mb * (1024 ** 2);
                 break;
 
             case 'kb':
@@ -32,7 +32,7 @@ if (!function_exists('MaxSizeServer')) {
  * Get route prefix for current model
  */
 if (!function_exists('GetPrefix')) {
-    function GetPrefix()
+    function GetPrefix(): string
     {
         if (!app()->runningInConsole()) {
             return explode('/', request()->route()->uri)[0];
@@ -44,7 +44,7 @@ if (!function_exists('GetPrefix')) {
  * Get all models
  */
 if (!function_exists('GetModels')) {
-    function GetModels()
+    function GetModels(): array
     {
         $classes = [];
         foreach (config('dcms.modelFolders') as $folder) {
@@ -73,7 +73,7 @@ if (!function_exists('FindClass')) {
     function FindClass($prefix)
     {
         foreach (GetModels() as $class) {
-            if (strtolower($class['file']) == strtolower($prefix)) {
+            if (strtolower($class['file']) === strtolower($prefix)) {
                 return $class;
             }
         }
@@ -99,7 +99,7 @@ if (!function_exists('Model')) {
  */
 if (!function_exists('FormMethod')) {
     // Which @method to return
-    function FormMethod()
+    function FormMethod(): ?string
     {
         $routeName = request()->route()->getName();
         $routeAction = explode(".", $routeName);
@@ -123,7 +123,7 @@ if (!function_exists('FormMethod')) {
  */
 if (!function_exists('FormRoute')) {
     // Return store or update route for form
-    function FormRoute($prefix = null)
+    function FormRoute($prefix = null): ?string
     {
         $routeName = request()->route()->getName();
         if (!$prefix) {
@@ -134,7 +134,7 @@ if (!function_exists('FormRoute')) {
         $formRoute = null;
 
         // Try to append parameters with Laravels route helper
-        function fixRoute($prefix, $action, $routeName)
+        function fixRoute($prefix, $action, $routeName): string
         {
             $addParameters = [];
             foreach (request()->route()->parameters as $key => $parameter) {
@@ -179,7 +179,7 @@ if (!function_exists('FormRoute')) {
  */
 if (!function_exists('RoutePrefix')) {
     // Return store or update route for form
-    function RoutePrefix()
+    function RoutePrefix(): ?string
     {
         $routeName = request()->route()->getName();
         try {
@@ -197,8 +197,7 @@ if (!function_exists('RoutePrefix')) {
 if (!function_exists('CurrentRoute')) {
     function CurrentRoute()
     {
-        $routeName = request()->route()->getAction()['as'] ?? null;
-        return $routeName;
+        return request()->route()->getAction()['as'] ?? null;
     }
 }
 
@@ -207,7 +206,7 @@ if (!function_exists('CurrentRoute')) {
  */
 if (!function_exists('DeleteRoute')) {
     // Return delete route for form
-    function DeleteRoute()
+    function DeleteRoute(): string
     {
         $routeName = request()->route()->getName();
         $routeModel = explode(".", $routeName)[0];
@@ -220,7 +219,7 @@ if (!function_exists('DeleteRoute')) {
  * Remove a directory
  */
 if (!function_exists('RemoveDir')) {
-    function RemoveDir($dir)
+    function RemoveDir($dir): bool
     {
         if (!file_exists($dir)) {
             return true;
@@ -229,7 +228,7 @@ if (!function_exists('RemoveDir')) {
             return unlink($dir);
         }
         foreach (scandir($dir) as $item) {
-            if ($item == '.' || $item == '..') {
+            if ($item === '.' || $item === '..') {
                 continue;
             }
 
@@ -248,9 +247,11 @@ if (!function_exists('CopyDir')) {
     function CopyDir($src, $dst)
     {
         $dir = opendir($src);
-        @mkdir($dst);
+        if (!mkdir($dst) && !is_dir($dst)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dst));
+        }
         while (false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..')) {
+            if (($file !== '.') && ($file !== '..')) {
                 if (is_dir($src . '/' . $file)) {
                     CopyDir($src . '/' . $file, $dst . '/' . $file);
                 } else {
@@ -267,7 +268,7 @@ if (!function_exists('CopyDir')) {
  * Generate a random string, useful for tokens or links
  */
 if (!function_exists('RandomString')) {
-    function RandomString($length = 30)
+    function RandomString($length = 30): string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
@@ -286,7 +287,7 @@ if (!function_exists('RandomString')) {
  * Reflect and clean code, to insert content easily and prevent whitespace problems
  */
 if (!function_exists('ReflectClass')) {
-    function ReflectClass($class)
+    function ReflectClass($class): ReflectionClass
     {
         $reflectionClass = new ReflectionClass($class);
 
@@ -342,7 +343,7 @@ if (!function_exists('ReflectCode')) {
  * Insert content starting from a defined line
  */
 if (!function_exists('WriteContent')) {
-    function WriteContent($content, $line, $addContent)
+    function WriteContent($content, $line, $addContent): string
     {
         // Convert content to array
         $content = preg_split("/\\r\\n|\\r|\\n/", $content);
@@ -365,7 +366,7 @@ if (!function_exists('WriteContent')) {
  * Append content to a file, with additional offset
  */
 if (!function_exists('AppendContent')) {
-    function AppendContent($content, $offset, $addContent)
+    function AppendContent($content, $offset, $addContent): string
     {
         // Convert content to array
         $content = preg_split("/\\r\\n|\\r|\\n/", $content);
@@ -390,7 +391,7 @@ if (!function_exists('AppendContent')) {
  * Grab a single rule from a Request
  */
 if (!function_exists('GetRule')) {
-    function GetRule($field, $ruleToGrab)
+    function GetRule($field, $ruleToGrab): string
     {
         // Convert rule to array by exploding |, or simply looping if its an array
         $explodedRule = null;

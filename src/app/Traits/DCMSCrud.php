@@ -4,12 +4,16 @@ namespace App\Traits;
 
 include __DIR__ . '/../Helpers/DCMS.php';
 
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Pveltrop\DCMS\Classes\Dropbox;
 use Illuminate\Support\Facades\Storage;
 
 trait DCMSCrud
 {
-    public function makeUploadRules()
+    public function makeUploadRules(): void
     {
         $this->uploadRules = [];
         foreach ($this->requestRules as $key => $ruleArr) {
@@ -28,10 +32,11 @@ trait DCMSCrud
      *
      * @param $createdOrUpdated
      * @param $id
+     * @return Application|JsonResponse|RedirectResponse|Redirector
      */
     public function crud($createdOrUpdated, $id=null)
     {
-        $this->__init();
+        $this->initDCMS();
         $this->requestData = request()->all();
         $this->requestRules = method_exists($this->request, 'rules') ? $this->request->rules() : false;
 
@@ -72,7 +77,7 @@ trait DCMSCrud
                             // Check if file uploads have this applications URL in it
                             // If any upload doesnt have the url in its filename, then it has been tampered with
                             // Only check this if using local webserver storage
-                            if (!preg_match('~'.rtrim(env('APP_URL'), "/").'~', $file) && preg_match('/http/', $file) && $this->storageConfig == 'laravel') {
+                            if (!preg_match('~'.rtrim(env('APP_URL'), "/").'~', $file) && preg_match('/http/', $file) && $this->storageConfig === 'laravel') {
                                 return response()->json([
                                     'message' => __('Invalid file'),
                                     'errors' => [
@@ -85,18 +90,17 @@ trait DCMSCrud
                             }
                             // Check if file exists in tmp folder
                             // Then move it to final public folder
-                            if ($this->storageConfig == 'dropbox') {
+                            if ($this->storageConfig === 'dropbox') {
                                 $storedFile = false;
                                 $findFile = Dropbox::findBySharedLink($file);
-                                if ($findFile->status == 200) {
+                                if ($findFile->status === 200) {
                                     $storedFile = true;
                                     $oldPath = $findFile->response->path_lower;
                                     $newPath = str_replace('/tmp', '', $findFile->response->path_lower);
                                 }
                             } else {
                                 // Strip APP_URL to locate this file locally on webserver
-                                $oldPath = str_replace(rtrim(env('APP_URL'), "/"), '', $file);
-                                $oldPath = str_replace('/storage/', '/public/', $oldPath);
+                                $oldPath = str_replace(array(rtrim(env('APP_URL'), "/"), '/storage/'), array('', '/public/'), $file);
                                 $newPath = str_replace('/tmp/', '/', $oldPath);
                                 $storedFile = Storage::exists($oldPath);
                                 if ($storedFile && preg_match('/tmp/', $oldPath)) {
@@ -137,7 +141,7 @@ trait DCMSCrud
                 }
             }
         }
-        
+
         // Convert upload rules to string rules, otherwise the request will try to validate a mimetype on a path string
         foreach ($this->uploadRules as $key => $ruleArr) {
             $ruleArr = (is_string($ruleArr)) ? explode('|', $ruleArr) : $ruleArr;
@@ -167,11 +171,11 @@ trait DCMSCrud
         /**
          * (re)move files, then mass assign model and execute defined afterFunctions
          */
-        
+
         // Move files from tmp to files folder
         if (count($this->filesToMove) > 0) {
             foreach ($this->filesToMove as $key => $file) {
-                if ($this->storageConfig == 'dropbox') {
+                if ($this->storageConfig === 'dropbox') {
                     $findFileDropbox = Dropbox::findByPath($file['newPath']);
                     if ($findFileDropbox->status !== 200) {
                         $move = Dropbox::move($file['oldPath'], $file['newPath']);
@@ -188,11 +192,9 @@ trait DCMSCrud
                             ], 422);
                         }
                     }
-                } else {
-                    if (!Storage::exists($file['newPath'])) {
-                        Storage::copy($file['oldPath'], $file['newPath']);
-                        Storage::delete($file['oldPath']);
-                    }
+                } else if (!Storage::exists($file['newPath'])) {
+                    Storage::copy($file['oldPath'], $file['newPath']);
+                    Storage::delete($file['oldPath']);
                 }
             }
         }
@@ -215,7 +217,7 @@ trait DCMSCrud
                 $this->afterCreateOrUpdate($this->requestData, ${$this->routePrefix});
             }
         } elseif ($createdOrUpdated === 'updated') {
-            ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
+            ${$this->routePrefix} = ((new $this->model)->find($id)) ?: (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
 
             // Remove any files which are no longer being used
             foreach ($this->uploadRules as $key => $ruleArr) {
@@ -226,18 +228,16 @@ trait DCMSCrud
                     foreach ($this->requestData[$keyToCheck] as $files) {
                         $modelFiles = ${$this->routePrefix}->{$keyToCheck};
                         $requestFiles = $this->requestData[$keyToCheck];
-                        
+
                         // If both properties are a string
-                        if (is_string($requestFiles) && is_string($modelFiles)) {
-                            if ($requestFiles !== $modelFiles) {
-                                $this->filesToRemove[] = $requestFiles;
-                            }
+                        if (is_string($requestFiles) && is_string($modelFiles) && $requestFiles !== $modelFiles) {
+                            $this->filesToRemove[] = $requestFiles;
                         }
-    
+
                         // If both properties are an array
                         if (is_array($requestFiles) && is_array($modelFiles)) {
                             foreach ($modelFiles as $fileKey => $modelFile) {
-                                if (!in_array($modelFile, $requestFiles)) {
+                                if (!in_array($modelFile, $requestFiles, true)) {
                                     $this->filesToRemove[] = $modelFile;
                                 }
                             }
@@ -258,7 +258,7 @@ trait DCMSCrud
         // Remove files from storage which havent been passed in the request
         if (count($this->filesToRemove) > 0) {
             foreach ($this->filesToRemove as $key => $file) {
-                if ($this->storageConfig == 'dropbox') {
+                if ($this->storageConfig === 'dropbox') {
                     $file = Dropbox::findBySharedLink($file);
                     if ($file->status == 200) {
                         Dropbox::remove($file->response->path_lower);
@@ -277,22 +277,20 @@ trait DCMSCrud
 
     public function DCMSJSON($object, $createdOrUpdated)
     {
-        $this->__init();
+        $this->initDCMS();
         // Url
         $url = $this->{$createdOrUpdated.'Url'};
         $url = ReplaceWithAttr($url, $object);
-        if ((isset($this->createdUrl) && $createdOrUpdated == 'created') || (isset($this->updatedUrl) && $createdOrUpdated == 'updated')) {
+        if ((isset($this->createdUrl) && $createdOrUpdated === 'created') || (isset($this->updatedUrl) && $createdOrUpdated === 'updated')) {
             if (request()->ajax()) {
                 $redirect = $url;
             } else {
                 return redirect($url);
             }
+        } else if (request()->ajax()) {
+            $redirect = '/'.$this->routePrefix;
         } else {
-            if (request()->ajax()) {
-                $redirect = '/'.$this->routePrefix;
-            } else {
-                $redirect = redirect()->route($this->routePrefix.'.index');
-            }
+            $redirect = redirect()->route($this->routePrefix.'.index');
         }
         // Title
         $title = $this->{$createdOrUpdated.'Title'};

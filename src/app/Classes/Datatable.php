@@ -8,18 +8,37 @@
 
 namespace Pveltrop\DCMS\Classes;
 
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use ReflectionClass;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Throwable;
 
 class Datatable
 {
-    public function __construct($query, $searchFields = null, $excludeSearchFields = [])
+    private $query;
+    private $params;
+    private $queryBuilder;
+    /**
+     * @var string
+     */
+    private $searchValue;
+    /**
+     * @var mixed
+     */
+    private $model;
+    private $relationName;
+    private $usedInnerWhere;
+    /**
+     * @var bool
+     */
+    private $usedOuterWhere;
+    private $columns;
+
+    public function __construct($query)
     {
         $this->query = $query;
-        $this->searchFields = $searchFields;
-        $this->excludeSearchFields = $excludeSearchFields;
-        $this->data = null;
     }
 
     /**
@@ -40,7 +59,7 @@ class Datatable
      *
      * @return void
      */
-    public function buildFilters()
+    public function buildFilters(): void
     {
         foreach ($this->params['query'] as $key => $value) {
             if ($key !== 'generalSearch') {
@@ -57,21 +76,21 @@ class Datatable
      * Build query based on parameters in user request
      * Paginate the result with array_chunk
      * Return response with data and meta
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
 
-    public function render(): \Illuminate\Http\JsonResponse
+    public function render(): JsonResponse
     {
         // Get parameters from request
         $this->params = request()->all();
 
         // Check if a query builder has been passed, or an array/collection
-        $this->queryBuilder = is_array($this->query) || $this->query instanceof Collection ? false : true;
+        $this->queryBuilder = !(is_array($this->query) || $this->query instanceof Collection);
 
         // Build filters for query
         if (isset($this->params['query'])) {
             if ($this->queryBuilder) {
-                $this->query->where(function ($q) {
+                $this->query->where(function () {
                     $this->buildFilters();
                 });
             } else {
@@ -81,25 +100,25 @@ class Datatable
 
         // Get (per) page from Datatable query
         $perPage = isset($this->params['pagination']['perpage']) && $this->params['pagination']['perpage'] !== 'NaN' ? $this->params['pagination']['perpage'] : null;
-        $page = isset($this->params['pagination']['page']) ? $this->params['pagination']['page'] : null;
+        $page = $this->params['pagination']['page'] ?? null;
 
         // General search
         if (isset($this->params['query']['generalSearch'])) {
             $this->searchValue = strtolower($this->params['query']['generalSearch']);
 
             if ($this->queryBuilder) {
-                $this->queryModel = $this->query->getModel();
-                $this->model = new $this->queryModel();
-                $this->table = $this->queryModel->getTable();
-                $this->columns = Schema::getColumnListing($this->table);
-                $this->relations = (is_countable($this->query->getEagerLoads()) && $this->query->getEagerLoads() > 0) ? array_keys($this->query->getEagerLoads()) : null;
+                $queryModel = $this->query->getModel();
+                $this->model = new $queryModel();
+                $table = $queryModel->getTable();
+                $this->columns = Schema::getColumnListing($table);
+                $relations = (is_countable($this->query->getEagerLoads()) && $this->query->getEagerLoads() > 0) ? array_keys($this->query->getEagerLoads()) : null;
                 $this->usedOuterWhere = false;
 
                 /**
                  * Make where clauses from relations
                  */
-                if ($this->relations) {
-                    foreach ($this->relations as $x => $relationName) {
+                if ($relations) {
+                    foreach ($relations as $x => $relationName) {
                         $this->relationName = $relationName;
                         $innerWhere = ($x > 0) ? 'orWhere' : 'where';
                         $this->query->{$innerWhere}(function ($q) {
@@ -108,9 +127,9 @@ class Datatable
                             // The relations' keys will be fetched with Schema
                             $q->whereHas($this->relationName, function ($q) {
                                 try {
-                                    $relationMethod = new \ReflectionClass($this->model->{$this->relationName}());
+                                    $relationMethod = new ReflectionClass($this->model->{$this->relationName}());
                                     $relationMethod = $relationMethod->getName();
-                                } catch (\Throwable $th) {
+                                } catch (Throwable $th) {
                                     $relationMethod = null;
                                 }
                                 if (preg_match('/Relation/', $relationMethod)) {
@@ -119,7 +138,7 @@ class Datatable
                                     $relationTable = $relationClass->getTable();
                                     $relationProps = Schema::getColumnListing($relationTable);
                                     $relation = array_flip($relationProps);
-        
+
                                     foreach ($relation as $relatedEntry => $relatedValue) {
                                         if (!is_array($relatedValue)) {
                                             $thisInnerWhere = ($this->usedInnerWhere) ? 'orWhere' : 'where';
@@ -135,7 +154,7 @@ class Datatable
                 }
 
                 $outerWhere = ($this->usedOuterWhere) ? 'orWhere' : 'where';
-                
+
                 /**
                  * Make where clauses from query models' table
                  */
@@ -167,24 +186,24 @@ class Datatable
                 }
             }
         }
-        
-        $this->data = [];
+
+        $data = [];
         if ($this->queryBuilder) {
-            $this->data = collect($this->query->get());
+            $data = collect($this->query->get());
         } elseif ($this->query) {
-            $this->data = collect($this->query);
+            $data = collect($this->query);
         }
 
         $total = 0;
-        if ($this->data) {
+        if ($data) {
             // Sort the collection, nested columns will work too
             if (isset($this->params['sort'])) {
-                $sortBy = ($this->params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
-                $this->data = $this->data->{$sortBy}($this->params['sort']['field'])->values();
+                $sortBy = ($this->params['sort']['sort'] === 'asc') ? 'sortBy' : 'sortByDesc';
+                $data = $data->{$sortBy}($this->params['sort']['field'])->values();
             }
-            
+
             // Paginate the collection
-            $total = count($this->data);
+            $total = count($data);
             if ($perPage) {
                 // Calculate how many pages are available by diving the total amount of data by perpage, then rounding up
                 $pages = (int)ceil($total / $perPage);
@@ -193,7 +212,7 @@ class Datatable
                 if ($page > $pages) {
                     $page = $pages;
                 }
-                $this->data = $this->data->forPage($page, $perPage);
+                $data = $data->forPage($page, $perPage);
             } else {
                 $pages = 1;
                 $page = 1;
@@ -205,7 +224,7 @@ class Datatable
 
         // Paginate the results if page and perpage parameters are present
         if (isset($page, $perPage) && $total > 0) {
-            $response->data = $this->data;
+            $response->data = $data;
             $response->meta = [
                 'page' => $page,
                 'pages' => $pages,
@@ -216,7 +235,7 @@ class Datatable
             ];
         } else {
             // Return all data if no pagination parameters are present
-            $response->data = $this->data;
+            $response->data = $data;
         }
 
         return response()->json($response);

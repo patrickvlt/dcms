@@ -4,7 +4,7 @@ namespace Pveltrop\DCMS\Forms;
 
 class UserForm
 {
-    public function fields()
+    public function fields(): array
     {
         return [
             'name' => [

@@ -31,10 +31,9 @@ class PHPExcel
         }
 
         // Loop through data array
-        for ($row = 0; $row < sizeof($data); $row++) {
-            $column = 0;
+        for ($row = 0, $rowMax = count($data); $row < $rowMax; $row++) {
             $headerPos = 0;
-            
+
             foreach ($headers as $headerKey => $headerVal) {
                 // Start from row one, since first row is for headers
                 $sheetRow = ($row + 1 + 1);
@@ -53,7 +52,6 @@ class PHPExcel
                     $dataEntry = $data[$row][$headerKey];
                 }
                 $sheet->setCellValueByColumnAndRow($sheetColumn, $sheetRow, $dataEntry);
-                $column++;
                 $headerPos++;
             }
         }

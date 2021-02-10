@@ -6,6 +6,7 @@ include __DIR__ . '/../Helpers/DCMS.php';
 
 use App\Traits\DCMSCrud;
 use App\Traits\DCMSImports;
+use Illuminate\Http\JsonResponse;
 use Pveltrop\DCMS\Classes\Form;
 use Pveltrop\DCMS\Classes\Datatable;
 
@@ -13,7 +14,10 @@ trait DCMSController
 {
     use DCMSCrud, DCMSImports;
 
-    public function __init()
+    /**
+     * Setup all dynamic properties for DCMS, required to define the correct CRUD and/or Datatable/import methods.
+     */
+    public function initDCMS(): void
     {
         if (!app()->runningInConsole()) {
             $this->hasBooted = true;
@@ -67,27 +71,43 @@ trait DCMSController
             $this->autoFixColumns = $this->jExcel['autocorrect'] ?? null;
 
             // Check if DCMS config has a separate storage config for the current model
-            $this->storageConfig = (config('dcms.storage.service.'.strtolower($this->routePrefix))) ? config('dcms.storage.service.'.strtolower($this->routePrefix)) : config('dcms.storage.service.global');
+            $this->storageConfig = (config('dcms.storage.service.' . strtolower($this->routePrefix))) ?: config('dcms.storage.service.global');
+        }
+    }
+
+    /**
+     * Fetch records from the database, and render a response which can be handled by a Datatable.
+     * @return JsonResponse
+     */
+    public function fetch()
+    {
+        $this->initDCMS();
+        return (new Datatable((new $this->model)->query()))->render();
+    }
+
+    /**
+     * Destroy multiple records in one go.
+     */
+    public function destroyMultiple()
+    {
+        $this->initDCMS();
+        $deleteIDs = request()->deleteIDs;
+        foreach ($deleteIDs as $id) {
+            $this->destroy($id);
         }
     }
 
     public function index()
     {
-        $this->__init();
+        $this->initDCMS();
         $vars = method_exists($this, 'beforeIndex') ? $this->beforeIndex() : null;
         return view($this->indexView)->with($vars);
     }
 
-    public function fetch()
-    {
-        $this->__init();
-        return (new Datatable((new $this->model)->query()))->render();
-    }
-
     public function show($id)
     {
-        $this->__init();
-        ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->{$this->routePrefix});
+        $this->initDCMS();
+        ${$this->routePrefix} = ((new $this->model)->find($id)) ?: (new $this->model)->find(request()->{$this->routePrefix});
 
         $vars = method_exists($this, 'beforeShow') ? $this->beforeShow($id) : null;
         return view($this->showView, compact(${$this->routePrefix}))->with($vars);
@@ -95,8 +115,8 @@ trait DCMSController
 
     public function edit($id)
     {
-        $this->__init();
-        ${$this->routePrefix} = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->{$this->routePrefix});
+        $this->initDCMS();
+        ${$this->routePrefix} = ((new $this->model)->find($id)) ?: (new $this->model)->find(request()->{$this->routePrefix});
         // Auto generated Form with HTMLTag package
         $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         $vars = method_exists($this, 'beforeEdit') ? $this->beforeEdit($id) : null;
@@ -105,7 +125,7 @@ trait DCMSController
 
     public function create()
     {
-        $this->__init();
+        $this->initDCMS();
         $vars = method_exists($this, 'beforeCreate') ? $this->beforeCreate() : null;
         // Auto generated Form with HTMLTag package
         $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
@@ -119,16 +139,16 @@ trait DCMSController
 
     public function update($id)
     {
-        $id = request()->route()->parameters[$this->routePrefix];
-        return $this->crud('updated', $id);
+        $modelID = request()->route()->parameters[$this->routePrefix];
+        return $this->crud('updated', $modelID);
     }
 
     public function destroy($id)
     {
         if (!isset($this->hasBooted)) {
-            $this->__init();
+            $this->initDCMS();
         }
-        $model = ((new $this->model)->find($id)) ? (new $this->model)->find($id) : (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
+        $model = ((new $this->model)->find($id)) ?: (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
         $passModel = $model;
         $model->delete();
         if (method_exists($this, 'afterDestroy')) {
@@ -136,12 +156,4 @@ trait DCMSController
         }
     }
 
-    public function destroyMultiple()
-    {
-        $this->__init();
-        $deleteIDs = request()->deleteIDs;
-        foreach ($deleteIDs as $id) {
-            $this->destroy($id);
-        }
-    }
 }

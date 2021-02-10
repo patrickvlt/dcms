@@ -1,6 +1,6 @@
 <?php
 
-if (config('dcms.portal') == 'true') {
+if (config('dcms.portal') === true) {
     /**
     * DCMS Portal
     */

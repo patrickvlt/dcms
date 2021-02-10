@@ -11,22 +11,20 @@ namespace Pveltrop\DCMS\Classes;
 use HtmlGenerator\HtmlTag;
 use Illuminate\Database\Eloquent\Collection;
 
-$a = 'a';
-
 class Form extends HtmlTag
 {
     /**
      * Try to grab current model being used
      * Or return null if a model is being created
      *
-     * @param $model
      * @param $routePrefix
+     * @return null
      */
     public static function getModel($routePrefix)
     {
         $model = null;
-        if (FormMethod() == ('PUT')) {
-            $model = Model($routePrefix) ?? Model();
+        if (FormMethod() === ('PUT')) {
+            $model = Model();
             if (is_string($model)) {
                 $class = FindClass($routePrefix)['class'];
                 $model = (new $class())->find(request()->route()->parameters[$routePrefix]);
@@ -42,7 +40,7 @@ class Form extends HtmlTag
      * @param $method
      * @return Form
      */
-    public static function initForm($method)
+    public static function initForm($method): Form
     {
         $form = self::createElement('form')->attr([
             'action' => FormRoute(),
@@ -72,10 +70,9 @@ class Form extends HtmlTag
      * @param $routePrefix
      * @param $form
      * @param $formFields
-     * @param $formRoutes
      * @param $model
      */
-    public static function createInputs($columns, $routePrefix, $form, $formFields, $formRoutes, $model)
+    public static function createInputs($columns, $routePrefix, $form, $formFields, $model): void
     {
         foreach ($columns as $column) {
             // Dont create an input field if this is a request rule just for files
@@ -216,12 +213,12 @@ class Form extends HtmlTag
             } elseif ($makeSelect) {
                 $selectCustomAttr = $definedAttr['select'];
                 unset($selectCustomAttr['options']);
-                $multiple = (in_array('multiple', array_keys($selectCustomAttr))) ? true : false;
+                $multiple = array_key_exists('multiple', $selectCustomAttr);
                 $selectElement = $formGroup->addElement('select')->attr([
                     'id' => $column['name'],
                     'class' => ($multiple) ? 'form-control ss-main-multiple' : 'form-control',
                     'name' => ($multiple) ? $column['name'].'[]' : $column['name'],
-                    'data-slimselect-addable' => isset($selectCustomAttr['addable']) && $selectCustomAttr['addable'] == true ? 'true' : 'false',
+                    'data-slimselect-addable' => isset($selectCustomAttr['addable']) && $selectCustomAttr['addable'] === true ? 'true' : 'false',
                     'data-slimselect-placeholder' => $selectCustomAttr['placeholder'] ?? null,
                 ])->attr($selectCustomAttr);
                 // Options in select element
@@ -229,9 +226,9 @@ class Form extends HtmlTag
                     $optionAttrs = $definedAttr['select']['options'];
                     $optionOptionalAttr = $optionAttrs;
 
-                    $value = isset($optionAttrs['value']) ? $optionAttrs['value'] : null;
-                    $text = isset($optionAttrs['text']) ? $optionAttrs['text'] : null;
-                    $foreignKey = isset($optionAttrs['foreignKey']) ? $optionAttrs['foreignKey'] : null;
+                    $value = $optionAttrs['value'] ?? null;
+                    $text = $optionAttrs['text'] ?? null;
+                    $foreignKey = $optionAttrs['foreignKey'] ?? null;
 
                     unset($optionOptionalAttr['data'],$optionOptionalAttr['value'],$optionOptionalAttr['foreignKey'],$optionOptionalAttr['text']);
 
@@ -244,7 +241,7 @@ class Form extends HtmlTag
                             'value' => $value ? $data->{$value} : $data,
                         ])->text(__($text ? $data->{$text} : $data));
                         $dataValue = $value ? $data->{$value} : $key;
-                        if (FormMethod() == 'POST') {
+                        if (FormMethod() === 'POST') {
                             $modelValue = $foreignKey ? $data->{$foreignKey} : $data;
                         } else {
                             $modelValue = $foreignKey ? $model->{$foreignKey} : $model->{$column['name']};
@@ -252,12 +249,12 @@ class Form extends HtmlTag
                         if (is_array($modelValue) || $modelValue instanceof Collection) {
                             foreach ($modelValue as $modelValueRow) {
                                 // Compare with property if this exists
-                                $modelValueRow = $modelValueRow->{$value} ? $modelValueRow->{$value} : $modelValueRow;
-                                if ($modelValueRow == $dataValue) {
+                                $modelValueRow = $modelValueRow->{$value} ?: $modelValueRow;
+                                if ($modelValueRow === $dataValue) {
                                     $option->attr(['selected' => 'selected']);
                                 }
                             }
-                        } elseif ((string)$modelValue == (string)$dataValue) {
+                        } elseif ((string)$modelValue === (string)$dataValue) {
                             $option->attr(['selected' => 'selected']);
                         }
                     }
@@ -284,11 +281,11 @@ class Form extends HtmlTag
                             $name = (count($properties) > 1 && !$makeRadio) ? $column['name'].'[]' : $column['name'];
                             $checked = null;
                             if ($model) {
-                                $checked = (($model->{$column['name']} && $model->{$column['name']} == $propertyValue) || old($column['name']) == $propertyValue) ? 'checked' : null;
+                                $checked = (($model->{$column['name']} && $model->{$column['name']} === $propertyValue) || old($column['name']) === $propertyValue) ? 'checked' : null;
                             }
 
                             if ($makeCheckbox) {
-                                $hiddenInput = $addToEl->addElement('input')->attr([
+                                $addToEl->addElement('input')->attr([
                                     'name' => $name,
                                     'type' => 'checkbox',
                                     'checked' => 'checked',
@@ -297,7 +294,7 @@ class Form extends HtmlTag
                                 ]);
                             }
 
-                            $boxInput = $addToEl->addElement('input')->attr([
+                            $addToEl->addElement('input')->attr([
                                 'name' => $name,
                                 'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
                                 'checked' => $checked,
@@ -307,7 +304,7 @@ class Form extends HtmlTag
                                 'style' => 'display:none'
                             ])->attr($inputCustomAttr);
 
-                            $boxLabel = $addToEl->addElement('label')->attr([
+                            $addToEl->addElement('label')->attr([
                                 'class' => 'form-check-label',
                                 'for' => $column['name'].'Box'.$x
                             ])->attr($labelCustomAttr)->text(__($propertyText));
@@ -349,16 +346,19 @@ class Form extends HtmlTag
     /**
      * Generate an HTML form based on passed in form properties from the main controller.
      * Uses columns which are defined in custom request in second parameter.
-     * @param $model
+     * @param $request
+     * @param $routePrefix
+     * @param $formClass
+     * @param $responses
      * @return Form|null
      */
 
-    public static function create($request, $routePrefix, $formClass, $responses)
+    public static function create($request, $routePrefix, $formClass, $responses): ?Form
     {
         $formFields = (new $formClass())->fields();
         $formRoutes = method_exists((new $formClass()), 'routes') ? (new $formClass())->routes() : null;
 
-        $modelRequest = (new $request())->rules() ?? null;
+        $modelRequest = (new $request())->rules();
         if (!isset($modelRequest)) {
             throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: " . $routePrefix);
         }
@@ -375,7 +375,7 @@ class Form extends HtmlTag
         $method = ($model) ? 'PUT' : 'POST';
         $form = self::initForm($method);
 
-        $formGroup = self::createInputs($columns, $routePrefix, $form, $formFields, $formRoutes, $model);
+        $formGroup = self::createInputs($columns, $routePrefix, $form, $formFields, $formRoutes);
 
         $customAttr = $definedAttr['form-group'] ?? null;
         $formGroup = $form->addElement('div')->attr([
@@ -402,7 +402,7 @@ class Form extends HtmlTag
         $x = 0;
         if ($saveBtnAttr) {
             foreach ($saveBtnAttr as $key => $attr) {
-                if ($key == 'text') {
+                if ($key === 'text') {
                     unset($saveBtnAttr[$x]);
                 }
                 $x++;
@@ -427,13 +427,13 @@ class Form extends HtmlTag
         $x = 0;
         if ($deleteBtnAttr) {
             foreach ($deleteBtnAttr as $key => $attr) {
-                if ($key == 'text') {
+                if ($key === 'text') {
                     unset($deleteBtnAttr[$x]);
                 }
                 $x++;
             }
         }
-        
+
         // Delete button
         if ($model) {
             $formGroup->addElement('br');

@@ -5,7 +5,7 @@ return '<?php
 namespace App\\Http\\Controllers;
 
 use ' . $this->modelPath . ';
-'.$this->controllerImports.'
+'.$controllerImports.'
 use App\\Forms\\' . $this->model . 'Form;
 use App\\Http\\Requests\\' . $this->model . 'Request;
 use Pveltrop\\DCMS\\Classes\\Datatable;
@@ -21,21 +21,21 @@ class ' . $this->model . 'Controller extends Controller
     {
         $this->routePrefix = "' . strtolower($this->prefix) . '";
         $this->model = ' . $this->model . '::class;
-        $this->request = ' . $this->modelRequest . ';
+        $this->request = ' . $modelRequest . ';
         $this->form = ' . $this->model . 'Form::class;
-        $this->responses = ['.$this->responseStr.'
+        $this->responses = ['.$responseStr.'
         ];
-        $this->views = ['.$this->viewStr.'
+        $this->views = ['.$viewStr.'
         ];
         $this->jExcel = [
             // Which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
-            "columns" => ['.$this->jExcelColumnsStr.'
+            "columns" => ['.$jExcelColumnsStr.'
             ],
             // How to autocorrect data?
-            "autocorrect" => ['.$this->jExcelCorrectStr.'
+            "autocorrect" => ['.$jExcelCorrectStr.'
             ],
             // Responses when attempting to import
-            "responses" => ['.$this->jExcelResponseStr.'
+            "responses" => ['.$jExcelResponseStr.'
             ]
         ];
     }
@@ -45,13 +45,13 @@ class ' . $this->model . 'Controller extends Controller
 
     public function beforeIndex(){
         return [
-            // "posts" => $posts 
+            // "posts" => $posts
         ];
     }
 
     public function beforeEdit($id){
         return [
-            // "users" => $users 
+            // "users" => $users
         ];
     }
 

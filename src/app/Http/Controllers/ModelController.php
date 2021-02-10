@@ -10,6 +10,8 @@ use Pveltrop\DCMS\Classes\Datatable;
 class ModelController extends Controller
 {
     // If you plan to use server side filtering/sorting/paging in the DCMS KTDatatables wrapper, define the base query below
+    private $customRequest;
+
     public function fetch(): \Illuminate\Http\JsonResponse
     {
         // Get class to make a query for
@@ -46,8 +48,8 @@ class ModelController extends Controller
         foreach ($views as $x => $path) {
             $file = resource_path().'/views/'.str_replace('.', '/', $path).'.blade.php';
             $folder = preg_replace('/\/[^]\/[^\s]*\.blade\.php/m', '', $file);
-            if (!is_dir($folder)) {
-                mkdir($folder, 0755, true);
+            if (!is_dir($folder) && !mkdir($folder, 0755, true) && !is_dir($folder)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $folder));
             }
             file_put_contents($file, '');
         }
