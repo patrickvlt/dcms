@@ -1,2 +1,1 @@
-src/app/Public linguist-vendored=false
-src/app/Resources/js linguist-vendored=false
+*.js linguist-vendored=false
