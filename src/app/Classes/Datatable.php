@@ -8,6 +8,7 @@
 
 namespace Pveltrop\DCMS\Classes;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use ReflectionClass;
@@ -24,9 +25,9 @@ class Datatable
         $this->params = request()->all();
 
         // Check if a query builder has been passed, or an array/collection
-        $this->queryBuilder = (is_array($this->query) || $this->query instanceof Collection);
+        $this->queryBuilder = ($this->query instanceof Builder);
 
-        if ($this->queryBuilder){
+        if ($this->queryBuilder) {
             $this->queryModel = $this->query->getModel();
             $this->model = new $this->queryModel();
             $this->table = $this->queryModel->getTable();
@@ -147,7 +148,7 @@ class Datatable
                             // These are the models' default properties
                             if (!is_array($column)) {
                                 $finalInnerWhere = ($z > 0) ? 'orWhere' : 'where';
-                                $q->{$finalInnerWhere}($column, 'LIKE', '%'.strtolower($this->searchValue).'%');
+                                $q->{$finalInnerWhere}($column, 'LIKE', '%' . strtolower($this->searchValue) . '%');
                             }
                         }
                     });
@@ -160,7 +161,7 @@ class Datatable
                  * and matching with RegEx (this is a lot slower than working with a Builder instance, use this for smaller amounts of data)
                  */
                 foreach ($fetchData as $dataKey => $dataRow) {
-                    $searchRe = '/\:[\'"][^\'"]*'.strtolower($this->searchValue).'[^\'"]*[\'"][\,\}]/m';
+                    $searchRe = '/\:[\'"][^\'"]*' . strtolower($this->searchValue) . '[^\'"]*[\'"][\,\}]/m';
                     $searchIn = strtolower(json_encode($dataRow));
                     // dd($searchRe.$searchIn);
                     if (preg_match($searchRe, $searchIn) > 0) {
@@ -171,14 +172,14 @@ class Datatable
         }
 
         $this->data = [];
-        if ($perPage && $page){
+        if ($perPage && $page) {
             // Fetch records with users' pagination preferences
-            if ($this->queryBuilder){
-                $results = collect($this->query->paginate($perPage,['*'],'page',$page));
+            if ($this->queryBuilder) {
+                $results = collect($this->query->paginate($perPage, ['*'], 'page', $page));
                 $this->data = collect($results['data']);
                 $total = $results['total'];
             } else {
-                $this->data = collect($this->query)->forPage($page,$perPage);
+                $this->data = collect($this->query)->forPage($page, $perPage);
                 $total = count($this->data);
             }
         }
