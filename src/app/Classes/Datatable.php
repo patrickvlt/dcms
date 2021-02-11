@@ -119,7 +119,7 @@ class Datatable
                                     $relationTable = $relationClass->getTable();
                                     $relationProps = Schema::getColumnListing($relationTable);
                                     $relation = array_flip($relationProps);
-        
+
                                     foreach ($relation as $relatedEntry => $relatedValue) {
                                         if (!is_array($relatedValue)) {
                                             $thisInnerWhere = ($this->usedInnerWhere) ? 'orWhere' : 'where';
@@ -135,7 +135,7 @@ class Datatable
                 }
 
                 $outerWhere = ($this->usedOuterWhere) ? 'orWhere' : 'where';
-                
+
                 /**
                  * Make where clauses from query models' table
                  */
@@ -155,7 +155,7 @@ class Datatable
                 $fetchData = $this->query;
                 $this->query = [];
                 /**
-                 * Search for the user input by encoding the rows in JSON, 
+                 * Search for the user input by encoding the rows in JSON,
                  * and matching with RegEx (this is a lot slower than working with a Builder instance, use this for smaller amounts of data)
                  */
                 foreach($fetchData as $dataKey => $dataRow){
@@ -167,37 +167,27 @@ class Datatable
                 }
             }
         }
-        
+
         $this->data = [];
-        if ($this->queryBuilder) {
-            $this->data = collect($this->query->get());
-        } else if ($this->query) {
-            $this->data = collect($this->query);
+        if ($perPage && $page){
+            // Fetch records with users' pagination preferences
+            $results = collect($this->query->paginate($perPage,['*'],'page',$page));
+            $this->data = collect($results['data']);
+            $total = $results['total'];
         }
 
-        $total = 0;
-        if ($this->data) {
-            // Sort the collection, nested columns will work too
-            if (isset($this->params['sort'])) {
-                $sortBy = ($this->params['sort']['sort'] == 'asc') ? 'sortBy' : 'sortByDesc';
-                $this->data = $this->data->{$sortBy}($this->params['sort']['field'])->values();
+        // Paginate the collection
+        if ($perPage) {
+            // Calculate how many pages are available by diving the total amount of data by perpage, then rounding up
+            $pages = (int)ceil($total / $perPage);
+            // If user is outside the pages range when changing pagination preferences
+            // Set page to max possible page
+            if ($page > $pages) {
+                $page = $pages;
             }
-            
-            // Paginate the collection
-            $total = count($this->data);
-            if ($perPage) {
-                // Calculate how many pages are available by diving the total amount of data by perpage, then rounding up
-                $pages = (int)ceil($total / $perPage);
-                // If user is outside the pages range when changing pagination preferences
-                // Set page to max possible page
-                if ($page > $pages) {
-                    $page = $pages;
-                }
-                $this->data = $this->data->forPage($page, $perPage);
-            } else {
-                $pages = 1;
-                $page = 1;
-            }
+        } else {
+            $pages = 1;
+            $page = 1;
         }
 
         // Make response object with meta
