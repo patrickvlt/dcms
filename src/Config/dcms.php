@@ -51,8 +51,8 @@ return [
 
     'storage' => [
         'service' => [
-            'global' => 'laravel'
-            // 'post' => 'dropbox',
+            'global' => 'laravel',
+            // 'image' => 'dropbox',
         ]
     ]
 ];

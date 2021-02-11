@@ -60,6 +60,22 @@ window.LoadCSS = function (plugin, pluginPath = 'cdn') {
  *
  */
 
+window.hasLoaded = function (plugins, yourMethod) {
+    plugins = (typeof plugins == 'string') ? [plugins] : plugins;
+    var success = 0;
+    var readyStateCheckInterval = setInterval(function () {
+        plugins.forEach(function (plugin) {
+            if (typeof window[plugin] !== 'undefined' || typeof $.fn[plugin] !== 'undefined') {
+                clearInterval(readyStateCheckInterval);
+                success++;
+                if (success == plugins.length) {
+                    yourMethod();
+                }
+            }
+        });
+    }, 200);
+};
+
 if (typeof axios == 'undefined' && (dcmsConfig.plugins.axios && dcmsConfig.plugins.axios.enable !== false)) {
     window.LoadJS(dcmsConfig.plugins.axios);
 }
@@ -114,13 +130,6 @@ if (typeof FilePond == 'undefined' && document.querySelectorAll('[data-type=file
     window.LoadJS(dcmsConfig.plugins.filepondValidateSize);
 }
 
-window.enableICheck = false;
-if (document.querySelectorAll('[data-type=iCheck]').length > 0 && (dcmsConfig.plugins.iCheck && dcmsConfig.plugins.iCheck.enable !== false)) {
-    window.enableICheck = true;
-    window.LoadJS(dcmsConfig.plugins.iCheck);
-    window.LoadCSS(dcmsConfig.plugins.iCheck);
-}
-
 if (typeof tinymce == 'undefined' && (document.querySelectorAll('[data-type=tinymce]').length > 0 || window.enableEditors == true) && (dcmsConfig.plugins.tinymce && dcmsConfig.plugins.tinymce.enable !== false)) {
     window.LoadJS(dcmsConfig.plugins.tinymce, 'local');
 }
@@ -130,28 +139,25 @@ if (document.querySelectorAll('.datatable').length > 0 && (dcmsConfig.plugins.KT
     window.LoadCSS(dcmsConfig.plugins.KTDatatable, 'local');
 }
 
+if (typeof window.jQuery == 'undefined' && (dcmsConfig.plugins.jquery && dcmsConfig.plugins.jquery.enable !== false)) {
+    window.LoadJS(dcmsConfig.plugins.jquery);
+}
+
+window.hasLoaded('jQuery',function(){
+    window.enableICheck = false;
+    if (document.querySelectorAll('[data-type=iCheck]').length > 0 && (dcmsConfig.plugins.iCheck && dcmsConfig.plugins.iCheck.enable !== false)) {
+        window.enableICheck = true;
+        window.LoadJS(dcmsConfig.plugins.iCheck);
+        window.LoadCSS(dcmsConfig.plugins.iCheck);
+    }
+});
+
 window.onReady = function (yourMethod) {
     var readyStateCheckInterval = setInterval(function () {
         if (document && (document.readyState == 'interactive' || document.readyState == 'complete')) {
             clearInterval(readyStateCheckInterval);
             yourMethod();
         }
-    }, 200);
-};
-
-window.hasLoaded = function (plugins, yourMethod) {
-    plugins = (typeof plugins == 'string') ? [plugins] : plugins;
-    var success = 0;
-    var readyStateCheckInterval = setInterval(function () {
-        plugins.forEach(function (plugin) {
-            if (typeof window[plugin] !== 'undefined' || typeof $.fn[plugin] !== 'undefined') {
-                clearInterval(readyStateCheckInterval);
-                success++;
-                if (success == plugins.length) {
-                    yourMethod();
-                }
-            }
-        });
     }, 200);
 };
 
@@ -193,7 +199,7 @@ window.FilePondInstantUpload = true;
 try {
     window.FilePondMaxFileSize = window.maxSizeServer+"KB";
 } catch (error) {
-    window.FilePondMaxFileSize = window.FilePondMaxFileSize;
+    //
 }
 
 // Form validation
@@ -604,7 +610,7 @@ ajaxForms.forEach(element =>
 
 /**
  *
- *  Delete from a table or form
+ *  Delete an object from a table or form
  *
  */
 
@@ -714,24 +720,26 @@ window.DeleteModel = function (args) {
  *
  */
 
-$(document).on('click', '[data-dcms-action=destroy]', function (e) {
-    e.preventDefault();
-    let element = e.currentTarget;
-    let id = element.dataset.dcmsId;
-    let route = element.dataset.dcmsDestroyRoute.replace('__id__', id);
-    let redirect = (element.dataset.dcmsDestroyRedirect) ? element.dataset.dcmsDestroyRedirect : false;
-    window.DeleteModel({
-        id: id,
-        route: route,
-        confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang('Delete object'),
-        confirmMsg: (element.dataset.dcmsDeleteConfirmMessage) ? Lang(element.dataset.dcmsDeleteConfirmMessage) : Lang('Are you sure you want to delete this object?'),
-        completeTitle: (element.dataset.dcmsDeleteCompleteTitle) ? Lang(element.dataset.dcmsDeleteCompleteTitle) : Lang('Deleted object'),
-        completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang('The object has been succesfully deleted.'),
-        failedTitle: (element.dataset.dcmsDeleteFailedTitle) ? Lang(element.dataset.dcmsDeleteFailedTitle) : Lang('Deleting failed'),
-        failedMsg: (element.dataset.dcmsDeleteFailedMessage) ? Lang(element.dataset.dcmsDeleteFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
-        redirect: redirect
+if(document.querySelector('[data-dcms-action=destroy]')){
+    document.querySelector('[data-dcms-action=destroy]').addEventListener('click',function(e){
+        e.preventDefault();
+        let element = e.currentTarget;
+        let id = element.dataset.dcmsId;
+        let route = element.dataset.dcmsDestroyRoute.replace('__id__', id);
+        let redirect = (element.dataset.dcmsDestroyRedirect) ? element.dataset.dcmsDestroyRedirect : false;
+        window.DeleteModel({
+            id: id,
+            route: route,
+            confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang('Delete object'),
+            confirmMsg: (element.dataset.dcmsDeleteConfirmMessage) ? Lang(element.dataset.dcmsDeleteConfirmMessage) : Lang('Are you sure you want to delete this object?'),
+            completeTitle: (element.dataset.dcmsDeleteCompleteTitle) ? Lang(element.dataset.dcmsDeleteCompleteTitle) : Lang('Deleted object'),
+            completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang('The object has been succesfully deleted.'),
+            failedTitle: (element.dataset.dcmsDeleteFailedTitle) ? Lang(element.dataset.dcmsDeleteFailedTitle) : Lang('Deleting failed'),
+            failedMsg: (element.dataset.dcmsDeleteFailedMessage) ? Lang(element.dataset.dcmsDeleteFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
+            redirect: redirect
+        });
     });
-});
+}
 
 /**
  *

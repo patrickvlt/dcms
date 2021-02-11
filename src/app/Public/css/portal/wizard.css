@@ -184,3 +184,13 @@
         padding: .5rem 2rem
     }
 }
+
+.swal2-container {
+    border-color: transparent !important;
+}
+
+.swal2-title {
+    font-size: 1.2em !important;
+    margin: 15px 0px !important;
+}
+
