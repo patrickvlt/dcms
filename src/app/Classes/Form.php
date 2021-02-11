@@ -74,8 +74,12 @@ class Form extends HtmlTag
      */
     public static function createInputs($columns, $routePrefix, $form, $formFields, $model): void
     {
+        if (!$model){
+            $model = self::getModel($routePrefix);
+        }
+        
         foreach ($columns as $column) {
-            // Dont create an input field if this is a request rule just for files
+            // Dont create an input field if this is a request rule for arrays
             if (preg_match('/\.\*/', $column['name'])) {
                 continue;
             }
@@ -91,38 +95,38 @@ class Form extends HtmlTag
             $makeTextarea = false;
 
             // Take different steps according to various data-types, defined for each field/input
-            $definedAttr = $formFields[$column['name']] ?? null;
-            if (isset($definedAttr['select'])) {
+            $definedElements = $formFields[$column['name']] ?? null;
+            if (isset($definedElements['select'])) {
                 $makeInput = false;
                 $makeSelect = true;
-            } elseif (isset($definedAttr['checkbox'])) {
+            } elseif (isset($definedElements['checkbox'])) {
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeCheckbox = true;
-            } elseif (isset($definedAttr['radio'])) {
+            } elseif (isset($definedElements['radio'])) {
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeRadio = true;
-            } elseif (isset($definedAttr['textarea'])) {
+            } elseif (isset($definedElements['textarea'])) {
                 $makeInputGroup = false;
                 $makeInput = false;
                 $makeTextarea = true;
             }
 
             // Set Front-End plugin data-attributes, depending on which data-type is being passed
-            if (isset($definedAttr['input']['data-type'])) {
-                switch ($definedAttr['input']['data-type']) {
+            if (isset($definedElements['input']['data-type'])) {
+                switch ($definedElements['input']['data-type']) {
                     case 'filepond':
-                        $definedAttr['input']['type'] = 'file';
-                        $definedAttr['input']['data-filepond-prefix'] = $routePrefix;
-                        $definedAttr['input']['data-filepond-column'] = $column['name'];
+                        $definedElements['input']['type'] = 'file';
+                        $definedElements['input']['data-filepond-prefix'] = $routePrefix;
+                        $definedElements['input']['data-filepond-column'] = $column['name'];
                         $minFiles = (isset($modelRequest[$column['name']])) ? GetRule($modelRequest[$column['name']], 'min') : 0;
                         $maxFiles = (isset($modelRequest[$column['name']])) ? GetRule($modelRequest[$column['name']], 'max') : 1;
                         $maxFileSize = (isset($modelRequest[$column['name'] . '.*'])) ? GetRule($modelRequest[$column['name'] . '.*'], 'max')."KB" : MaxSizeServer('kb')."KB";
-                        $definedAttr['input']['data-filepond-min-files'] = $minFiles;
-                        $definedAttr['input']['data-filepond-max-files'] = $maxFiles;
-                        $definedAttr['input']['data-filepond-max-file-size'] = $maxFileSize;
-                        $definedAttr['input']['class'] = null;
+                        $definedElements['input']['data-filepond-min-files'] = $minFiles;
+                        $definedElements['input']['data-filepond-max-files'] = $maxFiles;
+                        $definedElements['input']['data-filepond-max-file-size'] = $maxFileSize;
+                        $definedElements['input']['class'] = null;
                         $makeInputGroup = false;
                     break;
                     case 'slimselect':
@@ -133,7 +137,7 @@ class Form extends HtmlTag
             }
 
             // Create carousel before the input element
-            if (isset($definedAttr['carousel']) && $model) {
+            if (isset($definedElements['carousel']) && $model) {
                 $carouselArr = $model->{$column['name']};
                 if (!is_array($carouselArr)) {
                     $carouselArr = explode(',', $carouselArr);
@@ -144,14 +148,14 @@ class Form extends HtmlTag
                         'data-dcar-src' => $model->{$column['name']},
                         'data-dcar-prefix' => $routePrefix,
                         'data-dcar-column' => $column['name'],
-                        'data-dcar-height' => $definedAttr['carousel']['height'] ?? '200px'
+                        'data-dcar-height' => $definedElements['carousel']['height'] ?? '200px'
                     ]);
                 }
             }
 
             // Form group
             if ($makeFormGroup) {
-                $customAttr = $definedAttr['form-group'] ?? null;
+                $customAttr = $definedElements['form-group'] ?? null;
                 $formGroup = $form->addElement('div')->attr([
                     'class' => 'form-group',
                 ])->attr($customAttr);
@@ -159,9 +163,9 @@ class Form extends HtmlTag
 
             // Label
             if ($makeLabel) {
-                $labelText = $definedAttr['label']['text'] ?? null;
+                $labelText = $definedElements['label']['text'] ?? null;
                 if ($labelText) {
-                    $customAttr = $definedAttr['label'] ?? null;
+                    $customAttr = $definedElements['label'] ?? null;
                     $label = $formGroup->addElement('label')->attr([
                         'for' => $column['name'],
                     ])->attr($customAttr);
@@ -171,20 +175,20 @@ class Form extends HtmlTag
 
             // Input group
             if ($makeInputGroup) {
-                $inputGrCustomAttr = $definedAttr['input-group'] ?? null;
+                $inputGrCustomAttr = $definedElements['input-group'] ?? null;
                 $inputGroup = $formGroup->addElement('div')->attr([
                     'class' => 'input-group',
                 ])->attr($inputGrCustomAttr);
                 // Input group prepend
-                $inputPrepend = $definedAttr['input-group-prepend'] ?? null;
+                $inputPrepend = $definedElements['input-group-prepend'] ?? null;
                 if ($inputPrepend) {
                     $inputPrepend = $inputGroup->addElement('div')->attr([
                         'class' => 'input-group-prepend',
                     ])->addElement('span')->attr([
                         'class' => 'input-group-text',
                     ]);
-                    $inputText = $definedAttr['input-group-prepend']['text'] ?? null;
-                    $inputIcon = $definedAttr['input-group-prepend']['icon'] ?? null;
+                    $inputText = $definedElements['input-group-prepend']['text'] ?? null;
+                    $inputIcon = $definedElements['input-group-prepend']['icon'] ?? null;
                     if ($inputText && !$inputIcon) {
                         $inputPrepend->text(__($inputText));
                     } elseif ($inputIcon && !$inputText) {
@@ -195,9 +199,9 @@ class Form extends HtmlTag
 
             // Input element
             if ($makeInput) {
-                $inputCustomAttr = $definedAttr['input'] ?? null;
+                $inputCustomAttr = $definedElements['input'] ?? null;
                 $inputType = $inputCustomAttr['type'] ?? 'text';
-                $inputPlaceholder = $definedAttr['placeholder'] ?? null;
+                $inputPlaceholder = $definedElements['placeholder'] ?? null;
                 $defaultInputAttr = [
                     'id' => $column['name'],
                     'class' => 'form-control',
@@ -211,9 +215,9 @@ class Form extends HtmlTag
 
             // Select element
             } elseif ($makeSelect) {
-                $selectCustomAttr = $definedAttr['select'];
+                $selectCustomAttr = $definedElements['select'];
                 unset($selectCustomAttr['options']);
-                $multiple = array_key_exists('multiple', $selectCustomAttr);
+                $multiple = array_key_exists('multiple', $selectCustomAttr) && $selectCustomAttr['multiple'] == true;
                 $selectElement = $formGroup->addElement('select')->attr([
                     'id' => $column['name'],
                     'class' => ($multiple) ? 'form-control ss-main-multiple' : 'form-control',
@@ -222,8 +226,8 @@ class Form extends HtmlTag
                     'data-slimselect-placeholder' => $selectCustomAttr['placeholder'] ?? null,
                 ])->attr($selectCustomAttr);
                 // Options in select element
-                if (isset($definedAttr['select']['options']['data'])) {
-                    $optionAttrs = $definedAttr['select']['options'];
+                if (isset($definedElements['select']['options']['data'])) {
+                    $optionAttrs = $definedElements['select']['options'];
                     $optionOptionalAttr = $optionAttrs;
 
                     $value = $optionAttrs['value'] ?? null;
@@ -260,9 +264,9 @@ class Form extends HtmlTag
                     }
                 }
 
-                // Checkbox/radio element
+            // Checkbox/radio element
             } elseif ($makeCheckbox || $makeRadio) {
-                $properties = ($makeCheckbox) ? $definedAttr['checkbox'] : $definedAttr['radio'];
+                $properties = ($makeCheckbox) ? $definedElements['checkbox'] : $definedElements['radio'];
                 if (isset($properties)) {
                     $customParentElAttr = [];
                     foreach ($properties as $propKey => $property) {
@@ -270,21 +274,39 @@ class Form extends HtmlTag
                             $customParentElAttr[$propKey] = $property;
                         }
                     }
-                    foreach ($properties as $x => $property) {
-                        if (is_array($property)) {
-                            $addToEl = $formGroup->addElement('div')->attr($customParentElAttr);
-                            $propertyText = $property['text'] ?? null;
-                            $propertyValue = $property['value'] ?? null;
-                            $inputCustomAttr = $property['input'] ?? null;
-                            $labelCustomAttr = $property['label'] ?? null;
 
-                            $name = (count($properties) > 1 && !$makeRadio) ? $column['name'].'[]' : $column['name'];
-                            $checked = null;
-                            if ($model) {
-                                $checked = (($model->{$column['name']} && $model->{$column['name']} === $propertyValue) || old($column['name']) === $propertyValue) ? 'checked' : null;
+                    $madeInvisibleBox = false;
+
+                    // Add the checkboxes / radios
+                    foreach ($properties as $x => $choice) {
+                        if (is_array($choice)) {
+                            $addToEl = $formGroup->addElement('div')->attr($customParentElAttr);
+                            $choiceText = $choice['text'] ?? null;
+                            $choiceValue = $choice['value'] ?? null;
+                            $choiceChecked = $choice['checked'] ?? null;
+                            $inputCustomAttr = $choice['input'] ?? null;
+                            $labelCustomAttr = $choice['label'] ?? null;
+
+                            // Get all options, to check if [] should be appended to the columns name
+                            $boxOptions = [];
+                            foreach ($properties as $key => $value) {
+                                if (is_int($key)){
+                                    $boxOptions[] = $value;
+                                }
+                            }
+                            $name = $column['name'];
+                            if (count($boxOptions) > 1 && $makeCheckbox){
+                                $name = $column['name'].'[]';
                             }
 
-                            if ($makeCheckbox) {
+                            $checked = null;
+                            if ($model) {
+                                $checked = (($model->{$column['name']} && $model->{$column['name']} === $choiceValue) || old($column['name']) === $choiceValue) ? 'checked' : null;
+                            } else if ($choiceChecked) {
+                                $checked = true;
+                            }
+                            
+                            if ($madeInvisibleBox == false && count($boxOptions) <= 1) {
                                 $addToEl->addElement('input')->attr([
                                     'name' => $name,
                                     'type' => 'checkbox',
@@ -292,13 +314,14 @@ class Form extends HtmlTag
                                     'value' => 0,
                                     'style' => 'display:none !important'
                                 ]);
+                                $madeInvisibleBox = true;
                             }
 
                             $addToEl->addElement('input')->attr([
                                 'name' => $name,
                                 'type' => ($makeCheckbox) ? 'checkbox' : 'radio',
                                 'checked' => $checked,
-                                'value' => $propertyValue ?? '',
+                                'value' => $choiceValue ?? '',
                                 'id' => $column['name'].'Box'.$x,
                                 'data-type' => 'iCheck',
                                 'style' => 'display:none'
@@ -307,16 +330,16 @@ class Form extends HtmlTag
                             $addToEl->addElement('label')->attr([
                                 'class' => 'form-check-label',
                                 'for' => $column['name'].'Box'.$x
-                            ])->attr($labelCustomAttr)->text(__($propertyText));
+                            ])->attr($labelCustomAttr)->text(__($choiceText));
                         }
                     }
                 }
 
-                // Textarea element
+            // Textarea element
             } elseif ($makeTextarea) {
-                $textareaCustomAttr = $definedAttr['textarea'] ?? null;
+                $textareaCustomAttr = $definedElements['textarea'] ?? null;
                 $textareaType = $textareaCustomAttr['type'] ?? 'text';
-                $textareaPlaceholder = $definedAttr['placeholder'] ?? null;
+                $textareaPlaceholder = $definedElements['placeholder'] ?? null;
                 $defaultInputAttr = [
                     'id' => $column['name'],
                     'class' => 'form-control',
@@ -329,7 +352,7 @@ class Form extends HtmlTag
             }
 
             // Small text
-            $customSmall = $definedAttr['small'] ?? null;
+            $customSmall = $definedElements['small'] ?? null;
             if ($customSmall) {
                 $customText = $customSmall['text'] ?? null;
                 $inputSmall = $formGroup->addElement('small')->attr([
@@ -377,7 +400,7 @@ class Form extends HtmlTag
 
         $formGroup = self::createInputs($columns, $routePrefix, $form, $formFields, $formRoutes);
 
-        $customAttr = $definedAttr['form-group'] ?? null;
+        $customAttr = $definedElements['form-group'] ?? null;
         $formGroup = $form->addElement('div')->attr([
             'class' => 'form-group pt-3 mb-0',
         ])->attr($customAttr);

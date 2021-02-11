@@ -3,6 +3,7 @@
 namespace Pveltrop\DCMS\Classes;
 
 use DirectoryIterator;
+use Exception;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Illuminate\Support\Facades\Artisan;
@@ -63,10 +64,13 @@ class Crud
     {
         // Model path
         $this->modelPath = '';
+        $this->modelsPath = '';
         if ($this->mainVersion >= 8 && is_dir(base_path().'/app/Models')) {
-            $this->modelPath = 'App\\Models\\'.$this->model;
+            $this->modelsPath = 'App\\Models\\';
+            $this->modelPath = $this->modelsPath.$this->model;
         } else {
-            $this->modelPath = 'App\\'.$this->model;
+            $this->modelsPath = 'App\\';
+            $this->modelPath = $this->modelsPath.$this->model;
         }
     }
 
@@ -168,11 +172,21 @@ class Crud
      */
     public function generateRoute(): void
     {
+        $definedNameSpace = null;
+        try {
+            $routeProviderContent = ReflectClass(\App\Providers\RouteServiceProvider::class)->body;
+            $routeNameSpaceCode = preg_match_all('/\$namespace[^\'"]*[\'"]([^\'"]*)[\'"]/m',$routeProviderContent,$matches);
+            $definedNameSpace = rtrim($matches[1][0],'\\').'\\';
+        } catch (Exception $e){
+            // continue
+        }
+        $routeNameSpace = ($definedNameSpace) ? '' : 'App\Http\Controllers';
+
         $routeFile = ($this->findFile('web.php')) ? $this->findFile('web.php')->getPathname() : null;
         if ($this->mainVersion <= 7) {
             $contentToAdd = "Route::resource('" . $this->prefix . "', '" . $this->model . "Controller');";
         } elseif ($this->mainVersion >= 8) {
-            $contentToAdd = "Route::resource('" . $this->prefix . "', \App\Http\Controllers\\".$this->model."Controller::class);";
+            $contentToAdd = "Route::resource('" . $this->prefix . "', ".$routeNameSpace.$this->model."Controller::class);";
         }
 
         // Modify the content
@@ -283,6 +297,7 @@ class Crud
 
             $carouselStr = "";
             $labelStr = "";
+            $optionsStr = "";
             $inputStr = "";
             $inputGroup = "";
             $smallStr = "";
@@ -311,6 +326,12 @@ class Crud
              * Input properties
              */
 
+            switch ($column['inputDataType']) {
+                case 'datetimepicker':
+                    $column['type'] = 'text';
+                    break;
+            }
+
             $inputProps = "\n".'                    "type" => "'.$column['inputType'].'",';
             $inputProps .= "\n".'                    "data-type" => "'.$column['inputDataType'].'",';
             // If generating a filepond element
@@ -320,6 +341,7 @@ class Crud
             }
             // If generating a dropdown for relation
             if ($column['inputType'] === 'select') {
+                $formImports .= "use ".$this->modelsPath."".$column['class'].";\n";
                 $optionsStr = "\n".'                        "data" => '.$column['class'].'::all(),';
                 $optionsStr .= "\n".'                        "value" => "'.$column['value'].'",';
                 $optionsStr .= "\n".'                        "text" => "'.$column['text'].'",';
@@ -327,10 +349,21 @@ class Crud
                 $inputProps .= "\n".'                    "multiple" => false,';
                 $inputProps .= "\n".'                    "options" => ['.$optionsStr."\n".'                    ],';
             }
-
-            // Small text for extra info
-            $smallStr .= "\n".'                "small" => __("Extra information.")'.",";
-            $inputGroup .= $smallStr;
+            // If generating a checkbox or radio element
+            if ($column['inputType'] === 'checkbox') {
+                $optionsStr .= "\n"."                        // DCMS creates an invisible checkbox with value 0 automatically";
+                $optionsStr .= "\n".'                        "text" => __("Yes"),';
+                $optionsStr .= "\n".'                        "value" => 1,';
+                $inputProps .= "\n".'                    ['.$optionsStr."\n".'                    ],';
+            }
+            // If generating a checkbox or radio element
+            if ($column['inputType'] === 'radio') {
+                for ($i=0; $i < 3; $i++) {
+                    $optionsStr .= "\n".'                        "text" => __("Yes"),';
+                    $optionsStr .= "\n".'                        "value" => 1,';
+                    $inputProps .= "\n".'                    ['.$optionsStr."\n".'                    ],';
+                }
+            }
 
             /**
              * Final entry
@@ -348,10 +381,17 @@ class Crud
                 case 'textarea':
                     $formInputType = 'textarea';
                     break;
+                default:
+                    $formInputType = $column['inputType'];
+                    break;
             }
 
             $inputStr .= "\n".'                "'.$formInputType.'" => ['.$inputProps."\n".'                ],';
             $inputGroup .= $inputStr;
+
+            // Small text for extra info
+            $smallStr .= "\n".'                "small" => __("Extra information.")'.",";
+            $inputGroup .= $smallStr;
 
             $columnStr .= "\n".'            "'.$columnName.'" => ['.$inputGroup."\n".'            ],';
 

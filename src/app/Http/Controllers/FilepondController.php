@@ -75,7 +75,7 @@ class FilepondController extends Controller
                 'message' => __('Upload failed'),
                 'errors' => [
                     'file' => [
-                        __('File couldn\'t get validated.')
+                        __('This file has no validation rules.')
                     ]
                 ]
             ], 422);
