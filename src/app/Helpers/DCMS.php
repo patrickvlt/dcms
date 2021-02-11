@@ -134,22 +134,24 @@ if (!function_exists('FormRoute')) {
         $formRoute = null;
 
         // Try to append parameters with Laravels route helper
-        function fixRoute($prefix, $action,$routeName)
-        {
-            $addParameters = [];
-            foreach (request()->route()->parameters as $key => $parameter) {
-                if (isset(request()->route()->parameters[$prefix]) && $key == request()->route()->parameters[$prefix]) {
-                    continue;
-                } else {
-                    $addParameters[] = $parameter;
+        if (!function_exists('fixRoute')) {
+            function fixRoute($prefix, $action,$routeName)
+            {
+                $addParameters = [];
+                foreach (request()->route()->parameters as $key => $parameter) {
+                    if (isset(request()->route()->parameters[$prefix]) && $key == request()->route()->parameters[$prefix]) {
+                        continue;
+                    } else {
+                        $addParameters[] = $parameter;
+                    }
                 }
-            }
-            try {
-                return route($prefix . $action, $addParameters);
-            } catch (\Throwable $th) {
-                preg_match_all('/(\S*)(\.edit|\.create)/m',$routeName,$matches,PREG_SET_ORDER, 0);
-                $prefix = $matches[0][1];
-                return route($prefix . $action, $addParameters);
+                try {
+                    return route($prefix . $action, $addParameters);
+                } catch (\Throwable $th) {
+                    preg_match_all('/(\S*)(\.edit|\.create)/m',$routeName,$matches,PREG_SET_ORDER, 0);
+                    $prefix = $matches[0][1];
+                    return route($prefix . $action, $addParameters);
+                }
             }
         }
 
