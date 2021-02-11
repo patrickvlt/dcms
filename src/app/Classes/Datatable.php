@@ -17,28 +17,14 @@ use Throwable;
 
 class Datatable
 {
-    private $query;
-    private $params;
-    private $queryBuilder;
-    /**
-     * @var string
-     */
-    private $searchValue;
-    /**
-     * @var mixed
-     */
-    private $model;
-    private $relationName;
-    private $usedInnerWhere;
-    /**
-     * @var bool
-     */
-    private $usedOuterWhere;
-    private $columns;
-
     public function __construct($query)
     {
         $this->query = $query;
+        $this->queryModel = $this->query->getModel();
+        $this->model = new $this->queryModel();
+        $this->table = $this->queryModel->getTable();
+        $this->columns = Schema::getColumnListing($this->table);
+        $this->relations = (is_countable($this->query->getEagerLoads()) && $this->query->getEagerLoads() > 0) ? array_keys($this->query->getEagerLoads()) : null;
     }
 
     /**
@@ -76,10 +62,9 @@ class Datatable
      * Build query based on parameters in user request
      * Paginate the result with array_chunk
      * Return response with data and meta
-     * @return JsonResponse
      */
 
-    public function render(): JsonResponse
+    public function render()
     {
         // Get parameters from request
         $this->params = request()->all();
@@ -107,18 +92,13 @@ class Datatable
             $this->searchValue = strtolower($this->params['query']['generalSearch']);
 
             if ($this->queryBuilder) {
-                $queryModel = $this->query->getModel();
-                $this->model = new $queryModel();
-                $table = $queryModel->getTable();
-                $this->columns = Schema::getColumnListing($table);
-                $relations = (is_countable($this->query->getEagerLoads()) && $this->query->getEagerLoads() > 0) ? array_keys($this->query->getEagerLoads()) : null;
                 $this->usedOuterWhere = false;
 
                 /**
                  * Make where clauses from relations
                  */
-                if ($relations) {
-                    foreach ($relations as $x => $relationName) {
+                if ($this->relations) {
+                    foreach ($this->relations as $x => $relationName) {
                         $this->relationName = $relationName;
                         $innerWhere = ($x > 0) ? 'orWhere' : 'where';
                         $this->query->{$innerWhere}(function ($q) {
@@ -187,44 +167,37 @@ class Datatable
             }
         }
 
-        $data = [];
-        if ($this->queryBuilder) {
-            $data = collect($this->query->get());
-        } elseif ($this->query) {
-            $data = collect($this->query);
+        $this->data = [];
+        if ($perPage && $page){
+            // Fetch records with users' pagination preferences
+            $results = collect($this->query->paginate($perPage,['*'],'page',$page));
+            $this->data = collect($results['data']);
+            $total = $results['total'];
         }
 
-        $total = 0;
-        if ($data) {
-            // Sort the collection, nested columns will work too
-            if (isset($this->params['sort'])) {
-                $sortBy = ($this->params['sort']['sort'] === 'asc') ? 'sortBy' : 'sortByDesc';
-                $data = $data->{$sortBy}($this->params['sort']['field'])->values();
+        /**
+         * Generate pagination meta information
+         */
+        if ($perPage) {
+            // Calculate how many pages are available by diving the total amount of data by perpage, then rounding up
+            $pages = (int)ceil($total / $perPage);
+            // If user is outside the pages range when changing pagination preferences
+            // Set page to max possible page
+            if ($page > $pages) {
+                $page = $pages;
             }
-
-            // Paginate the collection
-            $total = count($data);
-            if ($perPage) {
-                // Calculate how many pages are available by diving the total amount of data by perpage, then rounding up
-                $pages = (int)ceil($total / $perPage);
-                // If user is outside the pages range when changing pagination preferences
-                // Set page to max possible page
-                if ($page > $pages) {
-                    $page = $pages;
-                }
-                $data = $data->forPage($page, $perPage);
-            } else {
-                $pages = 1;
-                $page = 1;
-            }
+        } else {
+            $pages = 1;
+            $page = 1;
         }
 
-        // Make response object with meta
+        /**
+         * Final response object
+         */
         $response = (object) 'query';
-
         // Paginate the results if page and perpage parameters are present
         if (isset($page, $perPage) && $total > 0) {
-            $response->data = $data;
+            $response->data = $this->data;
             $response->meta = [
                 'page' => $page,
                 'pages' => $pages,
@@ -235,7 +208,7 @@ class Datatable
             ];
         } else {
             // Return all data if no pagination parameters are present
-            $response->data = $data;
+            $response->data = $this->data;
         }
 
         return response()->json($response);
