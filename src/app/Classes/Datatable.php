@@ -20,11 +20,19 @@ class Datatable
     public function __construct($query)
     {
         $this->query = $query;
-        $this->queryModel = $this->query->getModel();
-        $this->model = new $this->queryModel();
-        $this->table = $this->queryModel->getTable();
-        $this->columns = Schema::getColumnListing($this->table);
-        $this->relations = (is_countable($this->query->getEagerLoads()) && $this->query->getEagerLoads() > 0) ? array_keys($this->query->getEagerLoads()) : null;
+        // Get parameters from request
+        $this->params = request()->all();
+
+        // Check if a query builder has been passed, or an array/collection
+        $this->queryBuilder = (is_array($this->query) || $this->query instanceof Collection);
+
+        if ($this->queryBuilder){
+            $this->queryModel = $this->query->getModel();
+            $this->model = new $this->queryModel();
+            $this->table = $this->queryModel->getTable();
+            $this->columns = Schema::getColumnListing($this->table);
+            $this->relations = (is_countable($this->query->getEagerLoads()) && $this->query->getEagerLoads() > 0) ? array_keys($this->query->getEagerLoads()) : null;
+        }
     }
 
     /**
@@ -66,12 +74,6 @@ class Datatable
 
     public function render()
     {
-        // Get parameters from request
-        $this->params = request()->all();
-
-        // Check if a query builder has been passed, or an array/collection
-        $this->queryBuilder = !(is_array($this->query) || $this->query instanceof Collection);
-
         // Build filters for query
         if (isset($this->params['query'])) {
             if ($this->queryBuilder) {
@@ -158,8 +160,9 @@ class Datatable
                  * and matching with RegEx (this is a lot slower than working with a Builder instance, use this for smaller amounts of data)
                  */
                 foreach ($fetchData as $dataKey => $dataRow) {
-                    $searchRe = '/\:(\"|)'.strtolower($this->searchValue).'.*?(\,)/m';
+                    $searchRe = '/\:[\'"][^\'"]*'.strtolower($this->searchValue).'[^\'"]*[\'"][\,\}]/m';
                     $searchIn = strtolower(json_encode($dataRow));
+                    // dd($searchRe.$searchIn);
                     if (preg_match($searchRe, $searchIn) > 0) {
                         $this->query[] = $dataRow;
                     }
@@ -170,9 +173,14 @@ class Datatable
         $this->data = [];
         if ($perPage && $page){
             // Fetch records with users' pagination preferences
-            $results = collect($this->query->paginate($perPage,['*'],'page',$page));
-            $this->data = collect($results['data']);
-            $total = $results['total'];
+            if ($this->queryBuilder){
+                $results = collect($this->query->paginate($perPage,['*'],'page',$page));
+                $this->data = collect($results['data']);
+                $total = $results['total'];
+            } else {
+                $this->data = collect($this->query)->forPage($page,$perPage);
+                $total = count($this->data);
+            }
         }
 
         /**
