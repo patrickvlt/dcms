@@ -163,7 +163,6 @@ class Datatable
                 foreach ($fetchData as $dataKey => $dataRow) {
                     $searchRe = '/\:[\'"][^\'"]*' . strtolower($this->searchValue) . '[^\'"]*[\'"][\,\}]/m';
                     $searchIn = strtolower(json_encode($dataRow));
-                    // dd($searchRe.$searchIn);
                     if (preg_match($searchRe, $searchIn) > 0) {
                         $this->query[] = $dataRow;
                     }
