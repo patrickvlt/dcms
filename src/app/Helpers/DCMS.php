@@ -256,6 +256,9 @@ if (!function_exists('CopyDir')) {
                 if (is_dir($src . '/' . $file)) {
                     CopyDir($src . '/' . $file, $dst . '/' . $file);
                 } else {
+                    if (!file_exists($dst)) {
+                        mkdir($dst, 0777, true);
+                    }
                     copy($src . '/' . $file, $dst . '/' . $file);
                 }
             }
