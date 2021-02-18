@@ -1,0 +1,54 @@
+// @import "metronic/fixes-datetimepicker.scss";
+
+.c-datepicker__header-day,
+.c-datepicker__header-date {
+    background-color: #1e1e2d !important;
+}
+
+.u-hover-ball-effect:hover:before, 
+.c-datepicker__day-body:hover:before, 
+.c-datepicker__clock__num:hover:before, 
+.c-datepicker__clock__am-pm-toggle label:hover:before, 
+.c-datepicker__day-body--active:not(.hide-hand):before, 
+.c-datepicker__clock__num--active:not(.hide-hand):before, 
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(1).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(1):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(2).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(2):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(3).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(3):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(4).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(4):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(5).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(5):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(6).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(6):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(7).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(7):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(8).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(8):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(9).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(9):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(10).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(10):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(11).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(11):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(12).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(12):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
+.c-datepicker__clock-hands, 
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(2).c-datepicker__clock__num--active:not(.hide-hand) ~ .c-datepicker__clock-hands .c-datepicker__hour-hand, 
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(10).c-datepicker__clock__num--active:not(.hide-hand) ~ .c-datepicker__clock-hands .c-datepicker__hour-hand {
+    background: var(--primary) !important;
+}
+
+.c-datepicker--open {
+    z-index: 999;
+}
+
+.c-datepicker__day--disabled {
+    opacity: 0.1 !important;
+}
+
+div.c-scrim.c-scrim--shown {
+    z-index: 2 !important;
+}

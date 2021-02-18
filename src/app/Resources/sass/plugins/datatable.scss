@@ -1,0 +1,34 @@
+.dcmsImg {
+    height: 13rem;
+    width: 13rem;
+    border-radius: 5px;
+    margin: 7px;
+    object-fit: cover;
+}
+
+.dcmsImgsDiv {
+    display: block !important;
+    justify-content: center;
+    max-height: 14rem;
+    overflow: scroll;
+    margin-bottom: 10px;
+    white-space: inherit;
+    text-align: center;
+}
+
+.dcmstable-image-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 0.42rem;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.spotlight:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.kt_datatable_rowcontrols {
+    display: inline-block;
+}

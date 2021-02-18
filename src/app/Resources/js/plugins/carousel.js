@@ -133,49 +133,62 @@ window.DCMS.dCarousel = function () {
             });
         }
 
-        $(document).on('click', '[data-dCar-action="destroy"]', function (element) {
-            var dCarPrefix, dCarColumn, dCarFile, dCarRevertKey, parentDiv, parentCar;
-            element = element.currentTarget;
+        let deleteCarBtns = document.querySelectorAll('[data-dCar-action="destroy"]');
+        if (deleteCarBtns) {
+            Array.from(deleteCarBtns).forEach((button) => {
+                button.addEventListener('click', function (e) {
+                    let element = e.target.closest('[data-dCar-action="destroy"]');
+                    if (element) {
+                        let dCarPrefix, dCarColumn, dCarFile, dCarRevertKey, parentDiv, parentCar;
 
-            parentCar = element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
-            dCarPrefix = parentCar.dataset.dcarPrefix;
-            dCarColumn = parentCar.dataset.dcarColumn;
-            dCarRevertKey = (parentCar.dataset.dcarRevertKey) ? '/' + parentCar.dataset.dcarRevertKey : '/' + dCarColumn;
-            dCarFile = element.dataset.dcmsFile;
+                        parentCar = element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
+                        dCarPrefix = parentCar.dataset.dcarPrefix;
+                        dCarColumn = parentCar.dataset.dcarColumn;
+                        dCarRevertKey = (parentCar.dataset.dcarRevertKey) ? '/' + parentCar.dataset.dcarRevertKey : '/' + dCarColumn;
+                        dCarFile = element.dataset.dcmsFile;
 
-            parentDiv = element.parentNode.parentNode;
+                        parentDiv = element.parentNode.parentNode;
 
-            Swal.fire({
-                title: Lang('Deleting item'),
-                text: Lang('Are you sure you want to delete this item?'),
-                icon: "warning",
-                confirmButtonColor: typeof (window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                confirmButtonText: typeof (window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                cancelButtonColor: typeof (window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                cancelButtonText: typeof (window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-            }).then(function (result) {
-                if (result.value) {
-                    try {
-                        toastr.success(Lang('Removed item.'));
-                    } catch (error) {
-                        //
+                        Swal.fire({
+                            title: Lang('Deleting item'),
+                            text: Lang('Are you sure you want to delete this item?'),
+                            icon: "warning",
+                            confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
+                            confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                            cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
+                            cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
+                        }).then(function (result) {
+                            if (result.value) {
+                                try {
+                                    toastr.warning(Lang('Removed item.'));
+                                } catch (error) {
+                                    //
+                                }
+                                if (parentCar.querySelectorAll('.dCar-div').length == 1) {
+                                    parentCar.remove();
+                                } else {
+                                    parentDiv.remove();
+                                }
+                            }
+                        });
                     }
-                    if (parentCar.querySelectorAll('.dCar-div').length == 1) {
-                        $(parentCar).remove();
-                    } else {
-                        $(parentDiv).remove();
-                    }
-                }
+                });
             });
-        });
+        }
 
-        $(document).on('mouseenter', '.dCar-div', function () {
-            $(this).find('.dCar-controls').css('visibility', 'visible');
-        });
-
-        $(document).on('mouseleave', '.dCar-div', function () {
-            $(this).find('.dCar-controls').css('visibility', 'hidden');
-        });
+        let dCarControls = document.querySelectorAll('.dCar-div');
+        if (dCarControls) {
+            Array.from(dCarControls).forEach((dCarControl) => {
+                dCarControl.addEventListener('mouseenter', function (e) {
+                    let buttons = dCarControl.querySelector('.dCar-controls');
+                    buttons.style.visibility = 'visible';
+                });
+                dCarControl.addEventListener('mouseleave', function (e) {
+                    let buttons = dCarControl.querySelector('.dCar-controls');
+                    buttons.style.visibility = 'hidden';
+                });
+            });
+        }
     }
 };
 window.DCMS.dCarousel();

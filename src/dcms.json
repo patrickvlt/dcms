@@ -1,7 +1,6 @@
 {
     "plugins": {
         "axios": {
-            "enable": true,
             "cdn": {
                 "js": "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
             },
@@ -9,26 +8,15 @@
                 "js": "/js/dcms/assets/axios.js"
             }
         },
-        "datepicker": {
+        "datetimepicker": {
             "enable": true,
-            "cdn": {
-                "css": "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css",
-                "js": "https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-            },
             "local": {
-                "css": "/css/dcms/assets/jquery-ui.css",
-                "js": "/js/dcms/assets/jquery-ui.js"
-            }
-        },
-        "clockpicker": {
-            "enable": true,
-            "cdn": {
-                "css": "https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.css",
-                "js": "https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/jquery-clockpicker.min.js"
-            },
-            "local": {
-                "css": "/css/dcms/assets/jquery-clockpicker.css",
-                "js": "/js/dcms/assets/jquery-clockpicker.js"
+                "css": [
+                    "/css/dcms/assets/datetimepicker.css",
+                    "https://fonts.googleapis.com/css?family=Roboto",
+                    "https://fonts.googleapis.com/icon?family=Material+Icons"
+                ],
+                "js": "/js/dcms/assets/datetimepicker.js"
             }
         },
         "vue": {
@@ -108,7 +96,7 @@
         "tinymce": {
             "enable": true,
             "local": {
-                "js": "/js/dcms/assets/tinymce.js"
+                "js": "https://cdn.tiny.cloud/1/k8nttdudc8s2rps9kb85aonaxxplfljz32ypzdorplis9llm/tinymce/5/tinymce.min.js"
             }
         },
         "filepond": {

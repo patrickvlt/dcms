@@ -1,0 +1,8 @@
+.jexcel {
+    table-layout: auto;
+    width: 100%;
+}
+
+.jexcel > tbody.draggable > tr > td::before {
+    min-width: 30px;
+}
