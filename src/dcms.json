@@ -96,7 +96,7 @@
         "tinymce": {
             "enable": true,
             "local": {
-                "js": "https://cdn.tiny.cloud/1/k8nttdudc8s2rps9kb85aonaxxplfljz32ypzdorplis9llm/tinymce/5/tinymce.min.js"
+                "js": "/js/dcms/assets/tinymce.js"
             }
         },
         "filepond": {
@@ -133,17 +133,6 @@
             "local": {
                 "js": "",
                 "css": "/css/dcms/assets/metronic/ktdatatable.css"
-            }
-        },
-        "iCheck": {
-            "enable": true,
-            "cdn": {
-                "css": "https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/all.min.css",
-                "js": "https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/icheck.min.js"
-            },
-            "local": {
-                "css": "/css/dcms/assets//iCheck/iCheck.css",
-                "js": "/js/dcms/assets/iCheck.js"
             }
         }
     }
