@@ -9,12 +9,10 @@
 namespace Pveltrop\DCMS\Classes;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Http\JsonResponse;
-use ReflectionClass;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use ReflectionClass;
 use Throwable;
 
 class Datatable
@@ -283,6 +281,14 @@ class Datatable
                 $this->data = collect($this->query)->forPage($page, $perPage);
                 $total = count($this->data);
             }
+        } else {
+            if ($this->queryBuilder) {
+                $results = collect($this->query->get());
+                $this->data = $results;
+            } else {
+                $this->data = collect($this->query->get());
+            }
+            $total = count($this->data);
         }
 
         /**

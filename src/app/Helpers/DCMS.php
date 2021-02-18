@@ -4,25 +4,34 @@ use Illuminate\Support\Facades\Schema;
 use Pveltrop\DCMS\Classes\Content;
 
 /**
- * Return max file size, defined in php.ini
+ * Throw exception if server max file size isnt in KB
  */
 if (!function_exists('MaxSizeServer')) {
-    function MaxSizeServer($type = 'mb')
+    function MaxSizeServer()
     {
-        $max_upload = (int) (ini_get('upload_max_filesize'));
-        $max_post = (int) (ini_get('post_max_size'));
-        $upload_mb = min($max_upload, $max_post);
+        $maxUpload = (int) (ini_get('upload_max_filesize'));
+        $maxPost = (int) (ini_get('post_max_size'));
+        $lowestSetting = min($maxUpload, $maxPost);
+
+        if (preg_match('/M/',ini_get('upload_max_filesize')) || preg_match('/M/',ini_get('post_max_size')) || ($lowestSetting - 10) < 0){
+            $type = 'mb';
+        } else if (($lowestSetting - 1000000) < 0) {
+            $type = 'kb';
+        } else {
+            $type = 'bytes';
+        }
+
         switch ($type) {
             case 'bytes':
-                return $upload_mb * pow(1024, 2);
+                throw new \RuntimeException('Change upload_max_filesize to '.($maxUpload * pow(1024, 2)).'K and post_max_size to '.($maxPost * pow(1024, 2)).'K in your php.ini.');
                 break;
 
-            case 'kb':
-                return $upload_mb * 1000;
+            case 'mb':
+                throw new \RuntimeException('Change upload_max_filesize to '.($maxUpload * 1000).' and post_max_size to '.($maxPost * 1000).'K in your php.ini.');
                 break;
 
             default:
-                return $upload_mb;
+                return $lowestSetting;
                 break;
         }
     }

@@ -27,6 +27,7 @@ class FilepondController extends Controller
 
     public function checkFileSizes(){
         $this->abort = false;
+        
         foreach (request()->file() as $key => $file) {
             if ($file[0]->getSize() == false){
                 $this->abort = true;
@@ -107,6 +108,7 @@ class FilepondController extends Controller
     
     public function ProcessFile($prefix,$type,$column,$revertKey=null)
     {
+        MaxSizeServer();
         $this->prefix = $prefix;
         $this->type = $type;
         $this->column = $column;
@@ -120,8 +122,7 @@ class FilepondController extends Controller
                 'message' => __('Upload failed'),
                 'errors' => [
                     'file' => [
-                        __('An error has occurred while trying to process the '.$this->key.' field.'),
-                        __('File size exceeds global limit of ').MaxSizeServer('mb').'MB.'
+                        __("Unable to retrieve the size of this file.")
                     ]
                 ]
             ], 422);
