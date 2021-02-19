@@ -19,6 +19,14 @@ if (typeof process.env.MIX_DCMS_ENV == 'undefined') {
  *
  */
 
+window.DCMS.loadJSFile = function (source, type = null) {
+    var script = document.createElement('script');
+    script.type = (type) ? type : 'text/javascript';
+    script.src = source;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(script, s);
+};
+
 window.DCMS.loadJS = function (plugin, pluginPath = 'cdn') {
     var scriptSources = (process.env.MIX_DCMS_ENV == 'local' || pluginPath !== 'cdn') ? plugin['local']['js'] : plugin[pluginPath]['js'];
     function loadJSSource(source) {
