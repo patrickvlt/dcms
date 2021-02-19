@@ -1,0 +1,18 @@
+.swal2-popup .swal2-title {
+    font-size: 1.4rem;
+}
+
+.swal2-content {
+    padding: 0 1.3em;
+}
+
+.swal2-icon.swal2-warning::before {
+    content: "" !important;
+}
+
+.swal2-popup {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+    padding: 10px;
+    min-width: 25em;
+    width: auto;
+}

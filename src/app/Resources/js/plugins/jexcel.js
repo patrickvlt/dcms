@@ -1,11 +1,20 @@
 "use strict";
 
-window.DCMS.jExcel = function(){
-    window.hasLoaded(['jexcel'], function () {
-        var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table;
-    
-        window.jExcelTables = [];
-    
+if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (window.DCMS.config.plugins.jexcel && window.DCMS.config.plugins.jexcel.enable !== false)) {
+    window.DCMS.loadCSS(window.DCMS.config.plugins.jexcel);
+    window.DCMS.loadJS(window.DCMS.config.plugins.jexcel);
+}
+if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexcel]').length > 0 && (window.DCMS.config.plugins.jsuites && window.DCMS.config.plugins.jsuites.enable !== false)) {
+    window.DCMS.loadCSS(window.DCMS.config.plugins.jsuites);
+    window.DCMS.loadJS(window.DCMS.config.plugins.jsuites);
+}
+
+window.DCMS.jExcel = function () {
+    window.DCMS.hasLoaded(['jexcel'], function () {
+        var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table, alertMsg;
+
+        window.DCMS.jExcelTables = [];
+
         if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
             jExcelTrans = {
                 // noRecordsFound:"Nenhum registro encontrado",
@@ -36,67 +45,81 @@ window.DCMS.jExcel = function(){
                 // cellAlreadyMerged:"Cell já mesclado",
                 // noCellsSelected:"Nenhuma célula selecionada",
             };
-    
+
             document.querySelectorAll('[data-type=jexcel]').forEach(function (htmlTable) {
                 sheetData = '';
                 sheetDynColumns = [];
                 currentForm = document.querySelector(htmlTable.dataset.jexcelFormSelector);
-    
+
                 // fetch information from htmlTable headers
                 Array.from(htmlTable.getElementsByTagName('th')).forEach(function (header) {
                     function ColumnPush(ajax = null) {
-                        sheetDynColumns.push({
-                            type: header.dataset.jexcelType,
-                            source: (ajax !== null) ? ajax : '',
-                            title: header.textContent,
-                            width: header.dataset.jexcelWidth,
-                            tableOverflow: true,
-                            autocomplete: (header.dataset.jexcelAutocomplete == 'true') ? 'true' : 'false',
-                            options: {
+                        let dynColumn = {};
+
+                        dynColumn.type = header.dataset.jexcelType;
+                        if (ajax) {
+                            dynColumn.source = ajax;
+                        }
+                        dynColumn.title = header.textContent;
+                        dynColumn.width = header.dataset.jexcelWidth;
+                        dynColumn.tableoverflow = true;
+                        dynColumn.autocomplete = (header.dataset.jexcelAutocomplete == 'true') ? 'true' : 'false';
+                        if (header.dataset.jExcelType == 'calendar') {
+                            dynColumn.options = {
                                 format: (header.dataset.jexcelDateFormat) ? header.dataset.jexcelDateFormat : window.AppDateFormat
-                            }
-                        });
+                            };
+                        }
+
+                        sheetDynColumns.push(dynColumn);
                         header.hidden = true;
                     }
                     if (header.dataset.jexcelFetchUrl !== null && typeof header.dataset.jexcelFetchUrl !== 'undefined') {
-                        $.ajax({
-                            type: "GET",
+                        window.axios({
+                            method: 'GET',
                             url: header.dataset.jexcelFetchUrl,
-                            async: false,
+                            responseType: 'json',
                             headers: {
-                                'X-CSRF-TOKEN': window.csrf
-                            },
-                            success: function (response) {
-                                ColumnPush(response);
+                                'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                                "Content-type": "application/x-www-form-urlencoded",
+                                'X-Requested-With': 'XMLHttpRequest',
+                            }
+                        }).then(function (response) {
+                            ColumnPush(response.data);
+                            if (sheetDynColumns.length == htmlTable.getElementsByTagName('th').length) {
+                                MakeTable(htmlTable);
                             }
                         });
                     } else {
                         ColumnPush();
+                        if (sheetDynColumns.length == htmlTable.getElementsByTagName('th').length) {
+                            MakeTable(htmlTable);
+                        }
                     }
                 });
-    
-                function MakeTable(data = null) {
+
+                function MakeTable(tableToMake) {
                     // construct table
                     let rows = parseInt(htmlTable.dataset.jexcelEmptyrows);
                     let dataFill = [];
                     for (let index = 0; index < rows; index++) {
                         dataFill.push("");
                     }
-                    table = jexcel(htmlTable, {
-                        data: (data !== null) ? data : dataFill,
+                    table = jexcel(tableToMake, {
+                        columns: sheetDynColumns,
+                        data: dataFill,
                         columnDrag: true,
                         colWidths: sheetDynColumns.map(function (el) { return (el.width) ? el.width : 100; }),
-                        columns: sheetDynColumns,
                         allowInsertColumn: false,
                         allowManualInsertColumn: false,
                         text: jExcelTrans
                     });
+
                     if (currentForm) {
                         currentForm.style.display = 'block';
                     }
-    
-                    window.jExcelTables.push(table);
-    
+
+                    window.DCMS.jExcelTables.push(table);
+
                     function ClearInvalid(e) {
                         function CleanElement(element) {
                             if (element.classList.contains('invalid')) {
@@ -109,130 +132,123 @@ window.DCMS.jExcel = function(){
                             Array.from(element.getElementsByTagName('td')).forEach(element => CleanElement(element));
                         });
                     }
-    
+
                     if (currentForm) {
                         currentForm.addEventListener("submit", function (e) {
                             e.preventDefault();
                             ClearInvalid(e, true);
                             sheetData = table.getData();
-                            $.ajax({
-                                type: "POST",
+
+                            window.axios({
+                                method: 'POST',
                                 url: e.target.action,
+                                data: sheetData,
+                                responseType: 'json',
                                 headers: {
-                                    'X-CSRF-TOKEN': window.csrf
-                                },
-                                data: {
-                                    sheetData
-                                },
-                                complete: function (response) {
-                                    let reply = response.responseJSON;
-                                    if (typeof reply !== 'undefined') {
-                                        var alertMsg = '';
-                                        switch (response.status) {
-                                            case 422:
-                                                if (reply.message == 'The given data was invalid.') {
-                                                    $.each(reply.errors, function (key, error) {
-                                                        alertMsg += error[0] + "<br>";
-                                                        Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function (cell) {
-                                                            if (String(error).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== "") {
-                                                                cell.classList.add('invalid');
-                                                            }
-                                                        });
-                                                    });
-                                                    Swal.fire({
-                                                        title: Lang('Import failed'),
-                                                        html: alertMsg,
-                                                        icon: "error",
-                                                        confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                                                        confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                                                        cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                                                        cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                                                    });
-                                                } else {
-                                                    Array.from(reply.errors).forEach(function (error) {
-                                                        formRows.forEach(function (row) {
-                                                            if (error.line == row.rowIndex) {
-                                                                row.classList.add('invalid');
-                                                            }
-                                                        });
-                                                    });
-                                                    Swal.fire({
-                                                        title: reply.response.title,
-                                                        html: reply.response.message,
-                                                        icon: "error",
-                                                        confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                                                        confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                                                        cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                                                        cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                                                    });
+                                    'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                                    "Content-type": "application/x-www-form-urlencoded",
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                }
+                            }).then(function (response) {
+                                window.toastr.success(response.data.response.message);
+                                if (response.data.url) {
+                                    setTimeout(function () {
+                                        window.location.href = response.data.url;
+                                    }, 2500);
+                                }
+                            }).catch(function (error) {
+                                if (error.response.data.message == 'The given data was invalid.') {
+                                    try {
+                                        alertMsg = '';
+                                        for (const z in error.response.data.errors) {
+                                            alertMsg += error.response.data.errors[z][0] + "<br>";
+                                            Array.from(document.querySelectorAll('tbody tr td:not(.jexcel_row)')).forEach(function (cell) {
+                                                if (String(error[z]).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== "") {
+                                                    cell.classList.add('invalid');
                                                 }
-                                                break;
-    
-                                            case 200:
-                                                toastr.success(reply.response.message);
-                                                if (reply.url) {
-                                                    setTimeout(function(){
-                                                        window.location.href = reply.url;
-                                                    },2500);
-                                                }
-                                                break;
+                                            });
                                         }
+                                        Swal.fire({
+                                            title: Lang('Import failed'),
+                                            html: alertMsg,
+                                            icon: "error",
+                                            confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
+                                            confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                                            cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
+                                            cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
+                                        });
+                                    } catch (error) {
                                     }
+                                } else {
+                                    Swal.fire({
+                                        title: error.response.data.response.title,
+                                        html: error.response.data.response.message,
+                                        icon: "error",
+                                        confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
+                                        confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                                        cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
+                                        cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
+                                    });
                                 }
                             });
                         });
                     }
                 }
-    
-                MakeTable();
-    
-                $(currentForm).on('click', '#fixSheet', function () {
+
+                currentForm.querySelector('#fixSheet').addEventListener('click', function (e) {
                     var dropdownHeaders = [];
-                    $.each($(htmlTable).find('th'), function (x, th) {
-                        if ($(th).data('jexcel-type') == 'dropdown') {
+                    Array.from(htmlTable.getElementsByTagName('th')).forEach((th) => {
+                        if (th.dataset.jexcelType == 'dropdown') {
                             dropdownHeaders.push({
                                 column: th.cellIndex,
                                 text: th.textContent,
                             });
                         }
                     });
-                    $.ajax({
-                        type: "POST",
-                        headers: {
-                            'X-CSRF-TOKEN': window.csrf
-                        },
-                        url: $(this).data('jexcel-fix-route'),
+                    window.axios({
+                        method: 'POST',
+                        url: e.target.dataset.jexcelFixRoute,
                         data: {
                             data: table.getData(),
                             th: dropdownHeaders,
                         },
-                        success: function (file) {
-                            Swal.fire({
-                                title: Lang('Are you sure?'),
-                                html: Lang('This will try to fix empty dropdown columns.') + "<br>" + Lang('Do you want to continue?'),
-                                icon: "warning",
-                                confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                                confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                                cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                                cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                            }).then(function (result) {
-                                if (result.value) {
-                                    $(currentForm).find('table').jexcel('setData', file, false);
-                                    toastr.success(Lang('Sheet has been updated.'));
+                        responseType: 'json',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                            "Content-type": "application/x-www-form-urlencoded",
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    }).then(function (response) {
+                        Swal.fire({
+                            title: Lang('Are you sure?'),
+                            html: Lang('This will try to fix empty dropdown columns.') + "<br>" + Lang('Do you want to continue?'),
+                            icon: "warning",
+                            confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
+                            confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                            cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
+                            cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
+                        }).then(function (result) {
+                            if (result.value) {
+                                for (const t in window.DCMS.jExcelTables) {
+                                    let currentTable = currentForm.querySelector('table');
+                                    let jExcelTable = window.DCMS.jExcelTables[t];
+                                    if (jExcelTable.el == currentTable) {
+                                        jExcelTable.setData(response.data, false);
+                                        toastr.success(Lang('Sheet has been updated.'));
+                                    }
                                 }
-                            });
-                        },
-                        error: function () {
-                            Swal.fire({
-                                title: Lang('Data correction failed'),
-                                text: Lang('The provided data couldn\'t be fixed.'),
-                                icon: "error",
-                                confirmButtonColor: typeof(window.SwalConfirmButtonColor !== 'undefined') ? window.SwalConfirmButtonColor : "var(--primary)",
-                                confirmButtonText: typeof(window.SwalConfirmButtonText !== 'undefined') ? window.SwalConfirmButtonText : Lang("OK"),
-                                cancelButtonColor: typeof(window.SwalCancelButtonColor !== 'undefined') ? window.SwalCancelButtonColor : "var(--dark)",
-                                cancelButtonText: typeof(window.SwalCancelButtonText !== 'undefined') ? window.SwalCancelButtonText : Lang("Cancel"),
-                            });
-                        },
+                            }
+                        });
+                    }).catch(function () {
+                        Swal.fire({
+                            title: Lang('Data correction failed'),
+                            text: Lang('The provided data couldn\'t be fixed.'),
+                            icon: "error",
+                            confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
+                            confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                            cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
+                            cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
+                        });
                     });
                 });
             });

@@ -8,7 +8,7 @@ use Pveltrop\DCMS\Classes\Content;
 use App\Http\Controllers\Controller;
 use Stevebauman\Purify\Facades\Purify;
 
-include __DIR__ . '../../Helpers/DCMS.php';
+include __DIR__ . '/../../Helpers/DCMS.php';
 
 /**
  * Override authenticate and entries method below to correctly use this Controller

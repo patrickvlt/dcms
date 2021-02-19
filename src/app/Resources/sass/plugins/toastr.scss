@@ -1,0 +1,10 @@
+.toast-top-right {
+    position: fixed;
+    // Offset from the top
+    // top: 100px;
+}
+
+#toast-container > div {
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}

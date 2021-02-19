@@ -1,5 +1,5 @@
 # DCMS
-DCMS is a package made to boost productivity, and speed up the usual workflow when developing CRUD applications.
+DCMS is a Laravel package with various Front-End plugins, and Back-End traits to dynamically bootstrap CRUD code.
 
 # JS plugins
 DCMS has a lot of JS plugins, ready to use (based on the data attributes you specify in HTML elements).

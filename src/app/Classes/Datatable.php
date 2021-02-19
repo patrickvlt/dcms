@@ -9,11 +9,10 @@
 namespace Pveltrop\DCMS\Classes;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\JsonResponse;
-use ReflectionClass;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use ReflectionClass;
 use Throwable;
 
 class Datatable
@@ -65,6 +64,94 @@ class Datatable
                 }
             }
         }
+    }
+
+    /**
+     * Dynamically build orderBy method
+     * This is default behaviour in DCMS, which you can customize by overriding the orderBy method
+     *
+     * @param $sortField
+     * @return void
+     */
+    public function dynamicOrderBy($sortField){
+        $explodeSortField = explode('.', $sortField);
+
+        // Check if first key is a relation, which it should be
+        if (is_countable($explodeSortField) && count($explodeSortField) > 1) {
+            $relationKey = $explodeSortField[0];
+
+            $keyIsRelation = in_array($relationKey, $this->relations);
+
+            // If key is a relation, (left)join this key so it can be sorted with
+            if ($keyIsRelation) {
+                // The field from the relationship the user wishes to sort by
+                $relationField = $explodeSortField[1];
+
+                // Get foreign key from relation 
+                $relation = $this->query->getRelation($relationKey);
+
+                // Get table from relation
+                $relationClass = FindClass($relationKey)['class'];
+                $relationTable = (new $relationClass())->getTable();
+
+                // Get the right foreignkey and localkey
+                // This depends on the fact if the relation is inverse or not
+                if (!$relation instanceof BelongsTo){
+                    $foreignKey = $relation->getForeignKeyName();
+                    $localKey = $relation->getLocalKeyName();
+                } else {
+                    $foreignKey = $relation->getOwnerKeyName();
+                    $localKey = $relation->getForeignKeyName();
+                }
+
+                // Remove any dots from the column so the query builder wont break
+                $cleanForeignColumn = str_replace('.', '_', $sortField);
+
+                // Join the relations table by using the foreign and local key
+                $this->query->join($relationTable, $relationTable . '.' . $foreignKey, '=', $localKey);
+                // Only select the column the user wishes to sort with
+                $this->query->addSelect($relationTable . '.' . $relationField . ' AS ' . $cleanForeignColumn);
+
+                $this->query->reorder();
+                $this->query->orderBy($cleanForeignColumn, $this->params['sort']['sort']);
+            }
+        } else {
+            $this->query->reorder();
+            $this->query->orderBy($this->params['sort']['field'], $this->params['sort']['sort']);
+        }
+    }
+
+    /**
+     * Optional advanced ordering in the query
+     * Override this method to order by more advanced fields
+     * @param $sortField
+     */
+
+    public function orderBy($sortField)
+    {
+        // Replace dots to prevent exceptions
+        $cleanSortField = str_replace('.','_',$sortField);
+        // Reorder the query so orderBy will work
+
+        // Add your logic here to order your datatables' fields
+        switch ($sortField) {
+            // Left join to orderBy example
+            case 'post.title':
+                $this->query->reorder();
+                $this->query->join('posts', 'posts.id', '=', 'post_id');
+                $this->query->addSelect('posts.title AS ' . $cleanSortField);
+                // Order by the joined field which is now present in the local table, in asc or desc direction
+                $this->query->orderBy($cleanSortField, $this->params['sort']['sort']);
+                break;
+            case 'created_at':
+                $this->query->reorder();
+                // Order by a field in the local table, in asc or desc direction
+                $this->query->orderBy($cleanSortField, $this->params['sort']['sort']);
+                break;
+            default:
+                $this->dynamicOrderBy($sortField);
+                break;
+        } 
     }
 
     /**
@@ -148,7 +235,7 @@ class Datatable
                             // These are the models' default properties
                             if (!is_array($column)) {
                                 $finalInnerWhere = ($z > 0) ? 'orWhere' : 'where';
-                                $q->{$finalInnerWhere}($column, 'LIKE', '%' . strtolower($this->searchValue) . '%');
+                                $q->{$finalInnerWhere}($this->table.'.'.$column, 'LIKE', '%' . strtolower($this->searchValue) . '%');
                             }
                         }
                     });
@@ -170,6 +257,19 @@ class Datatable
             }
         }
 
+        /**
+         * Dynamically prepare orderBy method, leftJoin by using the relations' keys if key contains dots
+         */
+        if (isset($this->params['sort'])) {
+            $sortField = $this->params['sort']['field'];
+            // Check if current query has selected columns
+            // If not, select all columns
+            if (!$this->query->getQuery()->columns) {
+                $this->query->select('*');
+            }
+            $this->orderBy($sortField);
+        }
+
         $this->data = [];
         if ($perPage && $page) {
             // Fetch records with users' pagination preferences
@@ -181,6 +281,14 @@ class Datatable
                 $this->data = collect($this->query)->forPage($page, $perPage);
                 $total = count($this->data);
             }
+        } else {
+            if ($this->queryBuilder) {
+                $results = collect($this->query->get());
+                $this->data = $results;
+            } else {
+                $this->data = collect($this->query->get());
+            }
+            $total = count($this->data);
         }
 
         /**

@@ -1,5 +1,38 @@
 "use strict";
 
+window.DCMS.KTDatatable = {};
+
+/**
+ *
+ *  Reload datatables
+ *
+ */
+
+window.DCMS.reloadKTDatatables = function () {
+    Array.from(document.querySelectorAll('.datatable')).forEach(table => {
+        $(table).KTDatatable('reload');
+    });
+};
+
+/**
+ *
+ *  Merge table columns
+ *
+ */
+
+
+window.DCMS.KTMergeColumns = function (row, column) {
+    var value = '';
+    if (column.split(',').length > 1) {
+        Array.from(column.split(',')).forEach(function (element) {
+            value = value + row[element] + ' ';
+        });
+    } else {
+        value = row[column];
+    }
+    return value;
+};
+
 /**
 *
 *  Global function to dynamically generate datatable(s)
@@ -7,7 +40,7 @@
 */
 
 window.DCMS.datatable = function (parameters) {
-    $(document).ready(function(){
+    $(document).ready(function () {
         window.KTDebug = false;
 
         // Check if table has additional parameters
@@ -16,7 +49,7 @@ window.DCMS.datatable = function (parameters) {
             let columns = [];
 
             // Display client-side errors
-            if (table.dataset.ktDebug){
+            if (table.dataset.ktDebug) {
                 window.KTDebug = true;
             }
 
@@ -47,17 +80,17 @@ window.DCMS.datatable = function (parameters) {
 
                 let textColor, value, spotlightClass, prepend, append, target, useRow, sortable, columnField, splitColumns, eagerColumns;
 
-                if (column.dataset.ktSortable == 'false'){
+                if (column.dataset.ktSortable == 'false') {
                     sortable = false;
-                } else if (typeof column.dataset.ktSortable == 'undefined' || column.dataset.ktSortable == null){
+                } else if (typeof column.dataset.ktSortable == 'undefined' || column.dataset.ktSortable == null) {
                     sortable = true;
                 }
                 else {
                     sortable = true;
                 }
 
-                if (column.dataset.ktType == 'object' && column.dataset.ktObject){
-                    columnField = column.dataset.ktObject+"."+column.dataset.ktColum;
+                if (column.dataset.ktType == 'object' && column.dataset.ktObject) {
+                    columnField = column.dataset.ktObject + "." + column.dataset.ktColum;
                 } else if (column.dataset.ktField) {
                     columnField = column.dataset.ktField;
                 } else {
@@ -66,7 +99,7 @@ window.DCMS.datatable = function (parameters) {
 
                 let newColumn = {
                     // Default column properties
-                    field: (column.dataset.ktType == 'object' && column.dataset.ktObject) ? column.dataset.ktObject+"."+column.dataset.ktColumn : column.dataset.ktColumn,
+                    field: (column.dataset.ktType == 'object' && column.dataset.ktObject) ? column.dataset.ktObject + "." + column.dataset.ktColumn : column.dataset.ktColumn,
                     title: column.dataset.ktTitle,
                     order: column.dataset.ktOrder,
                     width: column.dataset.ktWidth,
@@ -77,17 +110,17 @@ window.DCMS.datatable = function (parameters) {
                     template: function (row) {
                         // Check if a nested column should be the row instead
                         useRow = row;
-                        if (typeof column.dataset.ktObject !== 'undefined' && row[column.dataset.ktObject] !== null){
+                        if (typeof column.dataset.ktObject !== 'undefined' && row[column.dataset.ktObject] !== null) {
                             useRow = row[column.dataset.ktObject];
                         }
 
-                        if (column.dataset.ktColumn.split('.').length > 1){
+                        if (column.dataset.ktColumn.split('.').length > 1) {
                             eagerColumns = '';
                             splitColumns = column.dataset.ktColumn.split('.');
                             splitColumns.map((column) => {
-                                eagerColumns += "['"+column+"']";
+                                eagerColumns += "['" + column + "']";
                             });
-                            value = eval('row'+eagerColumns);
+                            value = eval('row' + eagerColumns);
                         } else {
                             value = useRow[column.dataset.ktColumn];
                         }
@@ -98,20 +131,20 @@ window.DCMS.datatable = function (parameters) {
                         append = (typeof column.dataset.ktAppend !== 'undefined' && column.dataset.ktAppend !== null) ? column.dataset.ktAppend : '';
 
                         // Check if a link has to be generated
-                        if (column.dataset.ktHref){
-                            let link,columnMatch,linkFromMatch;
+                        if (column.dataset.ktHref) {
+                            let link, columnMatch, linkFromMatch;
                             link = column.dataset.ktHref;
                             target = (column.dataset.ktTarget) ? column.dataset.ktTarget : '';
-                            if (link.match(/__.*__/gm)){
+                            if (link.match(/__.*__/gm)) {
                                 columnMatch = link.match(/__.*__/gm);
                                 linkFromMatch = columnMatch[0].replace(/__/g, '');
                                 link = link.replace(/__/g, '');
-                                if (useRow[linkFromMatch]){
-                                    link = link.replace(linkFromMatch,'');
+                                if (useRow[linkFromMatch]) {
+                                    link = link.replace(linkFromMatch, '');
                                     link = link + useRow[linkFromMatch];
                                 }
                             }
-                            value = (value !== '') ? `<a data-kt-target='`+target+`' data-kt-action="link" href='`+link+`'>`+value+`</a>` : '';
+                            value = (value !== '') ? `<a data-kt-target='` + target + `' data-kt-action="link" href='` + link + `'>` + value + `</a>` : '';
                         }
 
                         // Check if the default text color has to be changed
@@ -152,10 +185,10 @@ window.DCMS.datatable = function (parameters) {
 
                                 return `<div data-id='` + row.id + `'><span style="width: 250px;"><div class="d-flex align-items-center">
 									<div class="symbol symbol-40 symbol-`+ cardColor + ` flex-shrink-0">
-										<div class="symbol-label text-` + cardTextColor + `" style="background-image:url('`+ cardImg + `')">` + cardImgText + `</div>
+										<div class="symbol-label text-` + cardTextColor + `" style="background-image:url('` + cardImg + `')">` + cardImgText + `</div>
 									</div>
 									<div class="ml-2">
-										<div class="text-` + titleColor + ` font-weight-bold line-height-sm">`+ cardTitle + `</div> <a class="font-size-sm text-` + textColor + ` text-hover-primary">`+ cardInfo + `</a>
+										<div class="text-` + titleColor + ` font-weight-bold line-height-sm">` + cardTitle + `</div> <a class="font-size-sm text-` + textColor + ` text-hover-primary">` + cardInfo + `</a>
 									</div>
 									</div>
 								</div>
@@ -163,7 +196,7 @@ window.DCMS.datatable = function (parameters) {
                             // Generate a simple checkbox column, works best with boolean fields
                             case 'boolean':
                                 if (useRow[column.dataset.ktColumn] !== null && useRow[column.dataset.ktColumn] !== 0 && typeof useRow[column.dataset.ktColumn] !== 'undefined') {
-                                    return `<i data-id='`+row.id+`' class="fas fa-check text-` + textColor + `" style="max-height:`+column.dataset.ktMaxHeight+`"></i>`;
+                                    return `<i data-id='` + row.id + `' class="fas fa-check text-` + textColor + `" style="max-height:` + column.dataset.ktMaxHeight + `"></i>`;
                                 }
                                 else {
                                     return '';
@@ -171,19 +204,19 @@ window.DCMS.datatable = function (parameters) {
                                 break;
                             // Simple text column
                             case 'text':
-                                return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
+                                return `<div data-id='` + row.id + `' style="max-height:` + column.dataset.ktMaxHeight + `" class="text-` + textColor + `">` + prepend + value + append + `</div>`;
                             // Prepend an icon to the visible value
                             case 'icon':
                                 let icon = '';
-                                if (column.dataset.ktIconClass && value !== ''){
-                                    icon = `<i class="d-inline `+column.dataset.ktIconClass+` text-muted"></i>`;
+                                if (column.dataset.ktIconClass && value !== '') {
+                                    icon = `<i class="d-inline ` + column.dataset.ktIconClass + ` text-muted"></i>`;
                                 }
-                                return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+icon+prepend+value+append+`</div>`;
+                                return `<div data-id='` + row.id + `' style="max-height:` + column.dataset.ktMaxHeight + `" class="text-` + textColor + `">` + icon + prepend + value + append + `</div>`;
                             // Simple price column
                             case 'price':
                                 let currency = (column.dataset.ktCurrency) ? column.dataset.ktCurrency : '€';
                                 value = (value == '') ? 0 : value;
-                                return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+currency+prepend+value+append+`,-`+`</div>`;
+                                return `<div data-id='` + row.id + `' style="max-height:` + column.dataset.ktMaxHeight + `" class="text-` + textColor + `">` + currency + prepend + value + append + `,-` + `</div>`;
                             // Image column which can be made fullscreen if spotlight is also included
                             case 'image':
                                 var changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
@@ -194,24 +227,24 @@ window.DCMS.datatable = function (parameters) {
                                 var deleteControl = `<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="remove" data-toggle="tooltip" title="" data-original-title="Remove avatar">
 								<i class="ki ki-bold-close icon-xs text-muted"></i>
 							</span>`;
-                                if (column.dataset.ktAllowControls !== 'true'){
+                                if (column.dataset.ktAllowControls !== 'true') {
                                     changeControl = '';
                                     deleteControl = '';
                                 }
                                 spotlightClass = (value !== null) ? 'spotlight' : '';
 
-                                if (value instanceof Array && value.length > 1){
+                                if (value instanceof Array && value.length > 1) {
                                     value = value[0];
                                 }
 
-                                return `<div class="dcmstable-image" data-id='`+row.id+`'>
-								<div class="dcmstable-image-wrapper `+spotlightClass+`" data-src='`+prepend+value+append+`' style="background-image: url(`+prepend+value+append+`); max-height:`+column.dataset.ktMaxHeight+`"></div>
-								`+changeControl+`
-								`+deleteControl+`
+                                return `<div class="dcmstable-image" data-id='` + row.id + `'>
+								<div class="dcmstable-image-wrapper `+ spotlightClass + `" data-src='` + prepend + value + append + `' style="background-image: url(` + prepend + value + append + `); max-height:` + column.dataset.ktMaxHeight + `"></div>
+								`+ changeControl + `
+								`+ deleteControl + `
 							</div>`;
                             default:
                                 // return prepend+value+append;
-                                return `<div data-id='`+row.id+`' style="max-height:`+column.dataset.ktMaxHeight+`" class="text-`+textColor+`">`+prepend+value+append+`</div>`;
+                                return `<div data-id='` + row.id + `' style="max-height:` + column.dataset.ktMaxHeight + `" class="text-` + textColor + `">` + prepend + value + append + `</div>`;
                         }
                     },
                 };
@@ -345,16 +378,16 @@ window.DCMS.datatable = function (parameters) {
             };
 
             // Get default, global and custom datatable properties
-            let defaultWithGlobalProperties = (typeof window.KTDatatableGlobalSettings !== 'undefined') ? Object.assign(defaultProperties,window.KTDatatableGlobalSettings) : defaultProperties;
-            let customProperties = (typeof parameters.properties !== 'undefined') ? Object.assign(defaultWithGlobalProperties,parameters.properties) : defaultWithGlobalProperties;
+            let defaultWithGlobalProperties = (typeof window.DCMS.KTDatatable.config !== 'undefined') ? Object.assign(defaultProperties, window.DCMS.KTDatatable.config) : defaultProperties;
+            let customProperties = (typeof parameters.properties !== 'undefined') ? Object.assign(defaultWithGlobalProperties, parameters.properties) : defaultWithGlobalProperties;
             let datatable = $(table).KTDatatable(customProperties);
 
             // Reload datatable
-	    $($(table).data('kt-parent')).find('[data-kt-action="reload"]').on('click', function () {
-                if (window.KTBeforeRefresh){
-                    window.KTBeforeRefresh();
+            $($(table).data('kt-parent')).find('[data-kt-action="reload"]').on('click', function () {
+                if (window.DCMS.KTDatatable.BeforeRefresh) {
+                    window.DCMS.KTDatatable.BeforeRefresh();
                 }
-                $(table).KTDatatable().setDataSourceParam('query','');
+                $(table).KTDatatable().setDataSourceParam('query', '');
                 $(table).KTDatatable('reload');
             });
 
@@ -369,12 +402,12 @@ window.DCMS.datatable = function (parameters) {
             });
 
             // Sort a certain column ascending
-            $($(table).data('kt-parent')).find('[data-kt-action="sort-asc"]').on('click', function() {
+            $($(table).data('kt-parent')).find('[data-kt-action="sort-asc"]').on('click', function () {
                 datatable.sort('name', 'asc');
             });
 
             // Sort a certain column descending
-            $($(table).data('kt-parent')).find('[data-kt-action="sort-desc"]').on('click', function() {
+            $($(table).data('kt-parent')).find('[data-kt-action="sort-desc"]').on('click', function () {
                 datatable.sort('name', 'desc');
             });
 
@@ -390,7 +423,7 @@ window.DCMS.datatable = function (parameters) {
                     }
                 });
 
-                window.DeleteModel({
+                window.DCMS.deleteModel({
                     id: activeIds,
                     route: $(table).data('kt-destroy-multiple-route'),
                     confirmTitle: (table.dataset.ktDeleteRowsConfirmTitle) ? Lang(table.dataset.ktDeleteRowsConfirmTitle) : Lang('Delete rows'),
@@ -403,9 +436,9 @@ window.DCMS.datatable = function (parameters) {
             });
 
             // Client-side datatable filters
-            window.KTAllowMoreOn = [];
-            window.KTAllowLessOn = [];
-            window.KTForceExactOn = [];
+            window.DCMS.KTDatatable.AllowMoreOn = [];
+            window.DCMS.KTDatatable.AllowLessOn = [];
+            window.DCMS.KTDatatable.ForceExactOn = [];
 
             $.each($($(table).data('kt-parent')).find('[data-kt-filter]'), function (key, filter) {
                 $(filter).on('change', function (filter) {
@@ -415,19 +448,19 @@ window.DCMS.datatable = function (parameters) {
                     if (!filter.currentTarget.dataset.ktFilterCustom) {
                         // Search datatable based on defined properties, such as AllowMoreOn, or ForceExactOn
                         if (filter.currentTarget.type !== 'checkbox') {
-                            if (filter.currentTarget.dataset.ktAllowMore == 'true' && !window.KTAllowMoreOn.includes(filter.currentTarget.dataset.ktFilter))
-                                window.KTAllowMoreOn.push(filter.currentTarget.dataset.ktFilter);
-                            if (filter.currentTarget.dataset.ktAllowLess == 'true' && !window.KTAllowLessOn.includes(filter.currentTarget.dataset.ktFilter))
-                                window.KTAllowLessOn.push(filter.currentTarget.dataset.ktFilter);
-                            if (filter.currentTarget.dataset.ktForceExact == 'true' && !window.KTForceExactOn.includes(filter.currentTarget.dataset.ktFilter))
-                                window.KTForceExactOn.push(filter.currentTarget.dataset.ktFilter);
+                            if (filter.currentTarget.dataset.ktAllowMore == 'true' && !window.DCMS.KTDatatable.AllowMoreOn.includes(filter.currentTarget.dataset.ktFilter))
+                                window.DCMS.KTDatatable.AllowMoreOn.push(filter.currentTarget.dataset.ktFilter);
+                            if (filter.currentTarget.dataset.ktAllowLess == 'true' && !window.DCMS.KTDatatable.AllowLessOn.includes(filter.currentTarget.dataset.ktFilter))
+                                window.DCMS.KTDatatable.AllowLessOn.push(filter.currentTarget.dataset.ktFilter);
+                            if (filter.currentTarget.dataset.ktForceExact == 'true' && !window.DCMS.KTDatatable.ForceExactOn.includes(filter.currentTarget.dataset.ktFilter))
+                                window.DCMS.KTDatatable.ForceExactOn.push(filter.currentTarget.dataset.ktFilter);
                             if (!filter.currentTarget.dataset.ktFilterCustom)
                                 datatable.search(filter.currentTarget.value, filter.currentTarget.dataset.ktFilter);
                         } else {
                             // Search datatable based by checkbox state
                             let filterValue;
                             if (this.checked == true) {
-                                if (this.value && this.value !== 'on'){
+                                if (this.value && this.value !== 'on') {
                                     filterValue = this.value;
                                 } else {
                                     filterValue = '1';
@@ -436,12 +469,12 @@ window.DCMS.datatable = function (parameters) {
                                 // Remove unchecked elements from the datatable query;
                                 currentQuery = datatable.getDataSourceParam('query');
                                 $.each(datatable.getDataSourceParam('query'), function (key) {
-                                    if (key == filter.currentTarget.dataset.ktFilter){
+                                    if (key == filter.currentTarget.dataset.ktFilter) {
                                         currentQuery[key] = '';
                                     }
                                 });
                                 // Query adjustment for server side request
-                                datatable.setDataSourceParam('query',currentQuery);
+                                datatable.setDataSourceParam('query', currentQuery);
                                 filterValue = '';
                             }
                             datatable.search(filterValue, this.dataset.ktFilter);
@@ -457,7 +490,7 @@ window.DCMS.datatable = function (parameters) {
                     type: "POST",
                     url: route,
                     headers: {
-                        'X-CSRF-TOKEN': window.csrf
+                        'X-CSRF-TOKEN': window.DCMS.csrf
                     },
                     data: {
                         data: datatable.dataSet
@@ -472,9 +505,9 @@ window.DCMS.datatable = function (parameters) {
             $(document).on('click', '[data-kt-action=create]', function (e) {
                 e.preventDefault();
                 let route = $(table).data('kt-create-route');
-                if (window.AllowNewTab == false){
-                    if ($(this).data('kt-load-in-modal')){
-                        window.LoadInModal(route,$(this).data('kt-load-in-modal'));
+                if (window.DCMS.AllowNewTab == false) {
+                    if ($(this).data('kt-load-in-modal')) {
+                        window.DCMS.loadInModal(route, $(this).data('kt-load-in-modal'));
                     } else {
                         window.location.href = route;
                     }
@@ -488,9 +521,9 @@ window.DCMS.datatable = function (parameters) {
                 e.preventDefault();
                 let id = e.currentTarget.dataset.id;
                 let route = $(table).data('kt-edit-route').replace('__id__', id);
-                if (window.AllowNewTab == false){
-                    if ($(this).data('kt-load-in-modal')){
-                        window.LoadInModal(route,$(this).data('kt-load-in-modal'));
+                if (window.DCMS.AllowNewTab == false) {
+                    if ($(this).data('kt-load-in-modal')) {
+                        window.DCMS.loadInModal(route, $(this).data('kt-load-in-modal'));
                     } else {
                         window.location.href = route;
                     }
@@ -504,7 +537,7 @@ window.DCMS.datatable = function (parameters) {
                 e.preventDefault();
                 let link = e.currentTarget.href;
                 let target = e.currentTarget.dataset.ktTarget;
-                if (target == '_blank'){
+                if (target == '_blank') {
                     window.open(link, '_blank');
                 } else {
                     window.location.href = link;
@@ -516,7 +549,7 @@ window.DCMS.datatable = function (parameters) {
                 e.preventDefault();
                 let id = e.currentTarget.dataset.id;
                 let route = $(table).data('kt-destroy-route').replace('__id__', id);
-                window.DeleteModel({
+                window.DCMS.deleteModel({
                     id: id,
                     route: route,
                     confirmTitle: (table.dataset.ktDeleteSingleConfirmTitle) ? Lang(table.dataset.ktDeleteSingleConfirmTitle) : Lang('Delete object'),
