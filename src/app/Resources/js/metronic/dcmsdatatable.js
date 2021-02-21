@@ -22,7 +22,7 @@ window.DCMS.reloadKTDatatables = function () {
 
 
 window.DCMS.KTMergeColumns = function (row, column) {
-    var value = '';
+    let value = '';
     if (column.split(',').length > 1) {
         Array.from(column.split(',')).forEach(function (element) {
             value = value + row[element] + ' ';
@@ -43,10 +43,8 @@ window.DCMS.datatable = function (parameters) {
     $(document).ready(function () {
         window.KTDebug = false;
 
-        // Check if table has additional parameters
-        // These can vary from icons to columns
-        $.each(parameters.table, function (key, table) {
-            let columns = [];
+        let table = parameters.table;
+        let columns = [];
 
             // Display client-side errors
             if (table.dataset.ktDebug) {
@@ -152,10 +150,10 @@ window.DCMS.datatable = function (parameters) {
                         switch (column.dataset.ktType) {
                             // Generate a simple card in the column
                             case 'card':
-                                var cardTitle = (useRow[column.dataset.ktCardTitle]) ? useRow[column.dataset.ktCardTitle] : '';
-                                var cardInfo = (useRow[column.dataset.ktCardInfo]) ? useRow[column.dataset.ktCardInfo] : '';
-                                var cardImgText = '';
-                                var cardImg;
+                                let cardTitle = (useRow[column.dataset.ktCardTitle]) ? useRow[column.dataset.ktCardTitle] : '';
+                                let cardInfo = (useRow[column.dataset.ktCardInfo]) ? useRow[column.dataset.ktCardInfo] : '';
+                                let cardImgText = '';
+                                let cardImg;
                                 // if data-card-image is set and the column has a filled URL
                                 if (typeof useRow[column.dataset.ktCardImage] !== 'undefined' && column.dataset.ktCardImage.length > 1 && (useRow[column.dataset.ktCardImage] !== column.dataset.ktCardImage && useRow[column.dataset.ktCardImage] !== null)) {
                                     jQuery.ajax({
@@ -179,9 +177,9 @@ window.DCMS.datatable = function (parameters) {
                                 }
 
                                 // Card properties
-                                var cardColor = (column.dataset.ktCardColor) ? column.dataset.ktCardColor : '';
-                                var cardTextColor = (column.dataset.ktCardTextColor) ? column.dataset.ktCardTextColor : 'white';
-                                var titleColor = (column.dataset.ktTitleColor) ? column.dataset.ktTitleColor : 'primary';
+                                let cardColor = (column.dataset.ktCardColor) ? column.dataset.ktCardColor : '';
+                                let cardTextColor = (column.dataset.ktCardTextColor) ? column.dataset.ktCardTextColor : 'white';
+                                let titleColor = (column.dataset.ktTitleColor) ? column.dataset.ktTitleColor : 'primary';
 
                                 return `<div data-id='` + row.id + `'><span style="width: 250px;"><div class="d-flex align-items-center">
 									<div class="symbol symbol-40 symbol-`+ cardColor + ` flex-shrink-0">
@@ -219,12 +217,12 @@ window.DCMS.datatable = function (parameters) {
                                 return `<div data-id='` + row.id + `' style="max-height:` + column.dataset.ktMaxHeight + `" class="text-` + textColor + `">` + currency + prepend + value + append + `,-` + `</div>`;
                             // Image column which can be made fullscreen if spotlight is also included
                             case 'image':
-                                var changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
+                                let changeControl = `<label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
 								<i class="fa fa-pen icon-sm text-muted"></i>
 								<input type="file" name="profile_avatar" accept=".png, .jpg, .jpeg">
 								<input type="hidden" name="profile_avatar_remove">
 							</label>`;
-                                var deleteControl = `<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="remove" data-toggle="tooltip" title="" data-original-title="Remove avatar">
+                                let deleteControl = `<span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary " data-kt-action="remove" data-toggle="tooltip" title="" data-original-title="Remove avatar">
 								<i class="ki ki-bold-close icon-xs text-muted"></i>
 							</span>`;
                                 if (column.dataset.ktAllowControls !== 'true') {
@@ -401,165 +399,139 @@ window.DCMS.datatable = function (parameters) {
                 $(table).KTDatatable('setActiveAll', false);
             });
 
-            // Sort a certain column ascending
-            $($(table).data('kt-parent')).find('[data-kt-action="sort-asc"]').on('click', function () {
-                datatable.sort('name', 'asc');
-            });
+            // Remove row(s)
+            document.addEventListener('click',function(e){
+                let clickedElement = (e.target.tagName == 'button') ? e.target : e.target.closest('button');
+                let thisTable = (clickedElement) ? clickedElement.closest('.datatable') : null;
 
-            // Sort a certain column descending
-            $($(table).data('kt-parent')).find('[data-kt-action="sort-desc"]').on('click', function () {
-                datatable.sort('name', 'desc');
-            });
+                if (clickedElement && clickedElement.dataset.ktAction == 'remove-rows'){
+                    e.preventDefault();
+                
+                    let activeIds = [];
+                    let cells = thisTable.querySelectorAll('.datatable-row-active:visible').querySelector('[data-id]');
 
-            // Remove selected row(s)
-            $($(table).data('kt-parent')).find('[data-kt-action="remove-rows"]').on('click', function () {
-                let activeIds = [];
-                let cells = $($(table).data('kt-parent')).find('.datatable-row-active:visible').find('[data-id');
-
-                $.each(cells, function (x, cell) {
-                    let cellId = $(cell).data('id');
-                    if (!activeIds.includes(cellId)) {
-                        activeIds.push(cellId);
-                    }
-                });
-
-                window.DCMS.deleteModel({
-                    id: activeIds,
-                    route: $(table).data('kt-destroy-multiple-route'),
-                    confirmTitle: (table.dataset.ktDeleteRowsConfirmTitle) ? Lang(table.dataset.ktDeleteRowsConfirmTitle) : Lang('Delete rows'),
-                    confirmMsg: (table.dataset.ktDeleteRowsConfirmMessage) ? Lang(table.dataset.ktDeleteRowsConfirmMessage) : Lang('Are you sure you want to delete these rows?'),
-                    completeTitle: (table.dataset.ktDeleteRowsCompleteTitle) ? Lang(table.dataset.ktDeleteRowsCompleteTitle) : Lang('Deleted rows'),
-                    completeMsg: (table.dataset.ktDeleteRowsCompleteMessage) ? Lang(table.dataset.ktDeleteRowsCompleteMessage) : Lang('The rows have been succesfully deleted.'),
-                    failedTitle: (table.dataset.ktDeleteRowsFailedTitle) ? Lang(table.dataset.ktDeleteRowsFailedTitle) : Lang('Deleting failed'),
-                    failedMsg: (table.dataset.ktDeleteRowsFailedMessage) ? Lang(table.dataset.ktDeleteRowsFailedMessage) : Lang('The rows can\'t be deleted. They might still be required somewhere.'),
-                });
-            });
-
-            // Client-side datatable filters
-            window.DCMS.KTDatatable.AllowMoreOn = [];
-            window.DCMS.KTDatatable.AllowLessOn = [];
-            window.DCMS.KTDatatable.ForceExactOn = [];
-
-            $.each($($(table).data('kt-parent')).find('[data-kt-filter]'), function (key, filter) {
-                $(filter).on('change', function (filter) {
-                    var currentQuery;
-
-                    // If filter has custom code, dont run this
-                    if (!filter.currentTarget.dataset.ktFilterCustom) {
-                        // Search datatable based on defined properties, such as AllowMoreOn, or ForceExactOn
-                        if (filter.currentTarget.type !== 'checkbox') {
-                            if (filter.currentTarget.dataset.ktAllowMore == 'true' && !window.DCMS.KTDatatable.AllowMoreOn.includes(filter.currentTarget.dataset.ktFilter))
-                                window.DCMS.KTDatatable.AllowMoreOn.push(filter.currentTarget.dataset.ktFilter);
-                            if (filter.currentTarget.dataset.ktAllowLess == 'true' && !window.DCMS.KTDatatable.AllowLessOn.includes(filter.currentTarget.dataset.ktFilter))
-                                window.DCMS.KTDatatable.AllowLessOn.push(filter.currentTarget.dataset.ktFilter);
-                            if (filter.currentTarget.dataset.ktForceExact == 'true' && !window.DCMS.KTDatatable.ForceExactOn.includes(filter.currentTarget.dataset.ktFilter))
-                                window.DCMS.KTDatatable.ForceExactOn.push(filter.currentTarget.dataset.ktFilter);
-                            if (!filter.currentTarget.dataset.ktFilterCustom)
-                                datatable.search(filter.currentTarget.value, filter.currentTarget.dataset.ktFilter);
-                        } else {
-                            // Search datatable based by checkbox state
-                            let filterValue;
-                            if (this.checked == true) {
-                                if (this.value && this.value !== 'on') {
-                                    filterValue = this.value;
-                                } else {
-                                    filterValue = '1';
-                                }
-                            } else {
-                                // Remove unchecked elements from the datatable query;
-                                currentQuery = datatable.getDataSourceParam('query');
-                                $.each(datatable.getDataSourceParam('query'), function (key) {
-                                    if (key == filter.currentTarget.dataset.ktFilter) {
-                                        currentQuery[key] = '';
-                                    }
-                                });
-                                // Query adjustment for server side request
-                                datatable.setDataSourceParam('query', currentQuery);
-                                filterValue = '';
-                            }
-                            datatable.search(filterValue, this.dataset.ktFilter);
+                    for (const c in cells) {
+                        let cellId = cells[c].dataset.id;
+                        if (!activeIds.includes(cellId)) {
+                            activeIds.push(cellId);
                         }
                     }
-                });
+
+                    window.DCMS.deleteModel({
+                        id: activeIds,
+                        route: thisTable.dataset.ktDestroyMultipleRoute,
+                        confirmTitle: (thisTable.dataset.ktDeleteRowsConfirmTitle) ? Lang(thisTable.dataset.ktDeleteRowsConfirmTitle) : Lang('Delete rows'),
+                        confirmMsg: (thisTable.dataset.ktDeleteRowsConfirmMessage) ? Lang(thisTable.dataset.ktDeleteRowsConfirmMessage) : Lang('Are you sure you want to delete these rows?'),
+                        completeTitle: (thisTable.dataset.ktDeleteRowsCompleteTitle) ? Lang(thisTable.dataset.ktDeleteRowsCompleteTitle) : Lang('Deleted rows'),
+                        completeMsg: (thisTable.dataset.ktDeleteRowsCompleteMessage) ? Lang(thisTable.dataset.ktDeleteRowsCompleteMessage) : Lang('The rows have been succesfully deleted.'),
+                        failedTitle: (thisTable.dataset.ktDeleteRowsFailedTitle) ? Lang(thisTable.dataset.ktDeleteRowsFailedTitle) : Lang('Deleting failed'),
+                        failedMsg: (thisTable.dataset.ktDeleteRowsFailedMessage) ? Lang(thisTable.dataset.ktDeleteRowsFailedMessage) : Lang('The rows can\'t be deleted. They might still be required somewhere.'),
+                    });
+                }
             });
 
             // Export all data to an excel sheet
-            $($(table).data('kt-parent')).find('[data-kt-action="export"]').on('click', function () {
-                let route = $(table).data('kt-export-route');
-                $.ajax({
-                    type: "POST",
-                    url: route,
-                    headers: {
-                        'X-CSRF-TOKEN': window.DCMS.csrf
-                    },
-                    data: {
-                        data: datatable.dataSet
-                    },
-                    success: function (response) {
+            document.addEventListener('click',function(e){
+                let clickedElement = (e.target.tagName == 'button') ? e.target : e.target.closest('button');
+                let thisTable = (clickedElement) ? clickedElement.closest('.datatable') : null;
+
+                if (clickedElement && clickedElement.dataset.ktAction == 'export'){
+                    e.preventDefault();
+                
+                    let data = datatable.dataSet;
+                    let route = thisTable.dataset.ktExportRoute;
+
+                    window.axios({
+                        method: 'POST',
+                        url: route,
+                        data: datatable.dataSet,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                            "Content-type": "application/x-www-form-urlencoded",
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    }).then(function (response) {
                         window.open(response, '_blank');
-                    }
-                });
+                    });
+                }
             });
 
             // Create a new object, route has to be defined
-            $(document).on('click', '[data-kt-action=create]', function (e) {
-                e.preventDefault();
-                let route = $(table).data('kt-create-route');
-                if (window.DCMS.AllowNewTab == false) {
-                    if ($(this).data('kt-load-in-modal')) {
-                        window.DCMS.loadInModal(route, $(this).data('kt-load-in-modal'));
-                    } else {
+            document.addEventListener('click',function(e){
+                let clickedElement = (e.target.tagName == 'button' || e.target.tagName == 'a') ? e.target : e.target.closest('button');
+                let thisTable = (clickedElement) ? clickedElement.closest('.datatable') : null;
+
+                if (clickedElement && clickedElement.dataset.ktAction == 'create'){
+                    e.preventDefault();
+                
+                    let id = clickedElement.dataset.id;
+                    let route = thisTable.dataset.ktCreateRoute;
+
+                    if (window.DCMS.AllowNewTab == false) {
                         window.location.href = route;
+                    } else {
+                        window.open(route, '_blank');
                     }
-                } else {
-                    window.open(route, '_blank');
                 }
             });
 
             // Edit an object, route has to be defined
-            $(document).on('click', 'table [data-kt-action=edit]', function (e) {
-                e.preventDefault();
-                let id = e.currentTarget.dataset.id;
-                let route = $(table).data('kt-edit-route').replace('__id__', id);
-                if (window.DCMS.AllowNewTab == false) {
-                    if ($(this).data('kt-load-in-modal')) {
-                        window.DCMS.loadInModal(route, $(this).data('kt-load-in-modal'));
-                    } else {
+            document.addEventListener('click',function(e){
+                let clickedElement = (e.target.tagName == 'button') ? e.target : e.target.closest('button');
+                let thisTable = (clickedElement) ? clickedElement.closest('.datatable') : null;
+
+                if (clickedElement && clickedElement.dataset.ktAction == 'edit'){
+                    e.preventDefault();
+                
+                    let id = clickedElement.dataset.id;
+                    let route = thisTable.dataset.ktEditRoute.replace('__id__', id);
+
+                    if (window.DCMS.AllowNewTab == false) {
                         window.location.href = route;
+                    } else {
+                        window.open(route, '_blank');
                     }
-                } else {
-                    window.open(route, '_blank');
                 }
             });
 
             // Open a link generated in the datatable
-            $(document).on('click', 'table [data-kt-action=link]', function (e) {
-                e.preventDefault();
-                let link = e.currentTarget.href;
-                let target = e.currentTarget.dataset.ktTarget;
-                if (target == '_blank') {
-                    window.open(link, '_blank');
-                } else {
-                    window.location.href = link;
+            document.addEventListener('click',function(e){
+                let clickedElement = (e.target.tagName == 'button') ? e.target : e.target.closest('button');
+
+                if (clickedElement && clickedElement.dataset.ktAction == 'link'){
+                    e.preventDefault();
+                
+                    let link = clickedElement.href;
+                    let target = clickedElement.dataset.ktTarget;
+                    if (target == '_blank') {
+                        window.open(link, '_blank');
+                    } else {
+                        window.location.href = link;
+                    }
                 }
             });
 
             // Dynamically delete row(s)
-            $(document).on('click', 'table [data-kt-action=destroy]', function (e) {
-                e.preventDefault();
-                let id = e.currentTarget.dataset.id;
-                let route = $(table).data('kt-destroy-route').replace('__id__', id);
-                window.DCMS.deleteModel({
-                    id: id,
-                    route: route,
-                    confirmTitle: (table.dataset.ktDeleteSingleConfirmTitle) ? Lang(table.dataset.ktDeleteSingleConfirmTitle) : Lang('Delete object'),
-                    confirmMsg: (table.dataset.ktDeleteSingleConfirmMessage) ? Lang(table.dataset.ktDeleteSingleConfirmMessage) : Lang('Are you sure you want to delete this object?'),
-                    completeTitle: (table.dataset.ktDeleteSingleCompleteTitle) ? Lang(table.dataset.ktDeleteSingleCompleteTitle) : Lang('Deleted object'),
-                    completeMsg: (table.dataset.ktDeleteSingleCompleteMessage) ? Lang(table.dataset.ktDeleteSingleCompleteMessage) : Lang('The object has been succesfully deleted.'),
-                    failedTitle: (table.dataset.ktDeleteSingleFailedTitle) ? Lang(table.dataset.ktDeleteSingleFailedTitle) : Lang('Deleting failed'),
-                    failedMsg: (table.dataset.ktDeleteSingleFailedMessage) ? Lang(table.dataset.ktDeleteSingleFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
-                });
+            document.addEventListener('click',function(e){
+                let clickedElement = (e.target.tagName == 'button') ? e.target : e.target.closest('button');
+                let thisTable = (clickedElement) ? clickedElement.closest('.datatable') : null;
+
+                if (clickedElement && clickedElement.dataset.ktAction == 'destroy'){
+                    e.preventDefault();
+                
+                    let id = clickedElement.dataset.id;
+                    let route = thisTable.dataset.ktDestroyRoute.replace('__id__', id);
+                    window.DCMS.deleteModel({
+                        id: id,
+                        route: route,
+                        confirmTitle: (thisTable.dataset.ktDeleteSingleConfirmTitle) ? Lang(thisTable.dataset.ktDeleteSingleConfirmTitle) : Lang('Delete object'),
+                        confirmMsg: (thisTable.dataset.ktDeleteSingleConfirmMessage) ? Lang(thisTable.dataset.ktDeleteSingleConfirmMessage) : Lang('Are you sure you want to delete this object?'),
+                        completeTitle: (thisTable.dataset.ktDeleteSingleCompleteTitle) ? Lang(thisTable.dataset.ktDeleteSingleCompleteTitle) : Lang('Deleted object'),
+                        completeMsg: (thisTable.dataset.ktDeleteSingleCompleteMessage) ? Lang(thisTable.dataset.ktDeleteSingleCompleteMessage) : Lang('The object has been succesfully deleted.'),
+                        failedTitle: (thisTable.dataset.ktDeleteSingleFailedTitle) ? Lang(thisTable.dataset.ktDeleteSingleFailedTitle) : Lang('Deleting failed'),
+                        failedMsg: (thisTable.dataset.ktDeleteSingleFailedMessage) ? Lang(thisTable.dataset.ktDeleteSingleFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
+                    });
+                }
             });
-        });
     });
 };
