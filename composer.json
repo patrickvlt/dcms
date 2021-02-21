@@ -1,7 +1,7 @@
 {
     "name": "pveltrop/dcms",
     "type": "library",
-    "description": "Dynamic Content Management Sysystem",
+    "description": "Dynamic Content Management System",
     "keywords": [
         "laravel",
         "dynamic",
@@ -11,14 +11,15 @@
         "airmanbzh/php-html-generator": "1.0.*",
         "phpoffice/phpspreadsheet": "1.14.*",
         "doctrine/dbal": "2.*",
-        "stevebauman/purify": "3.0.*"
+        "stevebauman/purify": "3.0.*",
+        "spatie/laravel-permission": "^4.0"
     },
     "homepage": "https://pv-media.nl",
     "license": "MIT",
     "authors": [{
         "name": "Patrick Veltrop",
-        "email": "patrickveltrop@live.nl",
-        "homepage": "http://pv-media.nl/",
+        "email": "patrickveltrop@outlook.com",
+        "homepage": "https://pv-media.nl/",
         "role": "Developer"
     }],
     "autoload": {

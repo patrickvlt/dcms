@@ -38,25 +38,21 @@ class Form extends Command
     public function handle()
     {
         $console = $this;
-        $model = $console->option('model') ?? null;
-        if ($model == null || $model == '') {
+        $this->model = $console->option('model') ?? null;
+        if ($this->model == null || $this->model == '') {
             $console->error('Specify an existing model for this Form with --model=');
             exit;
         }
-        try {
-            $class = FindClass($model)['class'];
-            $class = new $class;
-        } catch (\Exception $e) {
-            throw new \Exception('Model not found: '.$model);
-        }
 
-        $content = include __DIR__ . '/Code/Form/Class.php';
+        $formImports = '';
+        $formFieldsStr = '';
+        $content = include __DIR__ . './../../Templates/Crud/Form.php';
 
-        $path = 'app/Forms/'.$model.'Form.php';
+        $path = 'app/Forms/'.$this->model.'Form.php';
         file_put_contents($path, $content);
 
         $console->comment('');
-        $console->comment('Generated '.$model.' Form in: '.$path);
+        $console->comment('Generated '.$this->model.' Form in: '.$path);
         $console->comment('');
     }
 }

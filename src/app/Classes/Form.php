@@ -23,7 +23,7 @@ class Form extends HtmlTag
     public static function getModel($routePrefix)
     {
         $model = null;
-        if (FormMethod() === ('PUT')) {
+        if (FormMethod() === 'PUT') {
             $model = Model();
             if (is_string($model)) {
                 $class = FindClass($routePrefix)['class'];
@@ -72,11 +72,9 @@ class Form extends HtmlTag
      * @param $formFields
      * @param $model
      */
-    public static function createInputs($columns, $routePrefix, $form, $formFields, $model): void
+    public static function createInputs($columns, $routePrefix, $form, $formFields): void
     {
-        if (!$model){
-            $model = self::getModel($routePrefix);
-        }
+        $model = self::getModel($routePrefix);
         
         foreach ($columns as $column) {
             // Dont create an input field if this is a request rule for arrays
@@ -466,7 +464,6 @@ class Form extends HtmlTag
                 'class' => 'btn btn-danger mt-2',
                 'data-dcms-id' => $model->id,
                 'data-dcms-action' => 'destroy',
-                'data-dcms-destroy-redirect' => $responses['deleted']['url'] ?? route($routePrefix . '.index'),
                 'data-dcms-destroy-route' => $formRoutes['destroy'] ?? route($routePrefix . '.destroy', '__id__'),
                 'data-dcms-delete-confirm-title' => (isset($responses['confirmDelete']['title'])) ? ReplaceWithAttr($responses['confirmDelete']['title'], $model) : __('Delete object'),
                 'data-dcms-delete-confirm-message' => (isset($responses['confirmDelete']['message'])) ?ReplaceWithAttr($responses['confirmDelete']['message'], $model) : __('Are you sure you want to delete this object?'),
