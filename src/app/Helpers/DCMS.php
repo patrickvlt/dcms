@@ -468,9 +468,13 @@ if (!function_exists('SelectFields')) {
 if (!function_exists('DCMSContent')) {
     function DCMSContent($UID)
     {
-        $content = Content::where('UID', $UID)->get()->first()->value ?? null;
-        if ($content !== '') {
-            return $content;
+        try {
+            $content = Content::where('UID', $UID)->get()->first()->value ?? null;
+            if ($content !== '') {
+                return $content;
+            }
+        } catch (\Throwable $th) {
+            logger($th);
         }
         return null;
     }
