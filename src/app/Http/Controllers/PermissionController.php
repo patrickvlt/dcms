@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Pveltrop\DCMS\Classes\Datatable;
 use Pveltrop\DCMS\Traits\DCMSController;
 use Spatie\Permission\Models\Permission;
+use Pveltrop\DCMS\Http\Requests\PermissionRequest;
 
 class PermissionController extends Controller
 {
@@ -16,17 +17,14 @@ class PermissionController extends Controller
         $this->routePrefix = 'permission';
         $this->model = Permission::class;
         $this->request = PermissionRequest::class;
-        $this->form = PermissionForm::class;
         $this->responses = [
             "created" => [
                 "title" => __("Permission created"),
                 "message" => __("Permission created on __created_at__"),
-                "url" => route('dcms.portal.permission.index')
             ],
             "updated" => [
                 "title" => __("Permission updated"),
                 "message" => __("Permission updated on __created_at__"),
-                "url" => route('dcms.portal.permission.index')
             ],
             "confirmDelete" => [
                 "title" => __("Delete permission?"),
@@ -49,10 +47,35 @@ class PermissionController extends Controller
         ];
     }
 
+    public function getRoutes()
+    {
+        $namedRoutes = [];
+        foreach (app()->routes->getRoutes() as $key => $route) {
+            if (isset($route->action['as']) && !preg_match('/ignition/m',$route->action['as'])){
+                $routeObj = (object) $route->action['as'];
+                $routeObj->name = $route->action['as'];
+                $namedRoutes[] = $routeObj;
+            }
+        }
+        return collect($namedRoutes);
+    }
+
     public function fetch(): \Illuminate\Http\JsonResponse
     {
         // Get class to make a query for
         $query = Permission::query();
         return (new Datatable($query))->render();
+    }
+
+    public function create()
+    {
+        $this->initDCMS();
+        return view('dcms::permission.crud')->with(['namedRoutes' => $this->getRoutes()]);
+    }
+
+    public function edit(Permission $permission)
+    {
+        $this->initDCMS();
+        return view('dcms::permission.crud')->with(['namedRoutes' => $this->getRoutes()]);
     }
 }

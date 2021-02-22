@@ -28,7 +28,7 @@
 @section('content')
 <!--begin::Users-->
 <!--begin::Row-->
-<div class="row">
+<div class="row" data-kt-parent>
     <div class="col-12">
         <!--begin::Mixed Widget 10-->
         <div class="card card-custom card-stretch gutter-b">
@@ -64,13 +64,19 @@
                         </div>
                     </div>
                 </div>
-                <div class='datatable datatable-bordered datatable-head-custom' data-kt-parent="#kt_body"
+                <div class='datatable datatable-bordered datatable-head-custom' 
+                    data-users-table 
+                    data-kt-parent="[data-kt-parent]"
                     data-kt-route={{ route('dcms.portal.user.fetch') }}
                     data-kt-edit-route={{ route('dcms.portal.user.edit','__id__') }}
                     data-kt-destroy-route={{ route('dcms.portal.user.destroy','__id__') }}
-                    data-kt-destroy-multiple-route={{ route('dcms.portal.user.destroy.multiple') }} data-kt-page-size=10
-                    data-kt-pagination=true data-kt-scrolling=false data-kt-include-actions=true
-                    data-kt-include-selector=true data-kt-delete-rows-confirm-title="{{ __('Delete users') }}"
+                    data-kt-destroy-multiple-route={{ route('dcms.portal.user.destroy.multiple') }} 
+                    data-kt-page-size=10
+                    data-kt-pagination=true 
+                    data-kt-scrolling=false 
+                    data-kt-include-actions=true
+                    data-kt-include-selector=true 
+                    data-kt-delete-rows-confirm-title="{{ __('Delete users') }}"
                     data-kt-delete-rows-confirm-message="{{ __('Are you sure you want to delete these users?') }}"
                     data-kt-delete-rows-complete-title="{{ __('Posts deleted') }}"
                     data-kt-delete-rows-complete-message="{{ __('The users have been deleted.') }}"
@@ -105,7 +111,7 @@
 @push('footer-scripts')
 <script>
     DCMS.datatable({
-        table: $(".datatable")
+        table: document.querySelector("[data-users-table]")
     });
 </script>
 @endpush

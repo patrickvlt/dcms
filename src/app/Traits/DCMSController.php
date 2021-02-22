@@ -42,19 +42,17 @@ trait DCMSController
             $this->createView = $this->views['create'] ?? 'create';
 
             // JSON CRUD responses
-            $this->createdUrl = $this->responses['created']['url'] ?? '/'.$this->routePrefix;
+            $this->createdUrl = $this->responses['created']['url'] ?? null;
             $this->createdTitle = $this->responses['created']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('created');
             $this->createdMessage = $this->responses['created']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully created');
-            $this->updatedUrl = $this->responses['updated']['url'] ?? '/'.$this->routePrefix;
+            $this->updatedUrl = $this->responses['updated']['url'] ?? null;
             $this->updatedTitle = $this->responses['updated']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('updated');
             $this->updatedMessage = $this->responses['updated']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully updated');
-            $this->deletedUrl = $this->responses['deleted']['url'] ?? '/'.$this->routePrefix;
+            $this->deletedUrl = $this->responses['deleted']['url'] ?? null;
             $this->deletedTitle = $this->responses['deleted']['title'] ?? __(ucfirst($this->routePrefix)).__(' ').__('deleted');
             $this->deletedMessage = $this->responses['deleted']['message'] ?? __(ucfirst($this->routePrefix)).__(' ').__('has been successfully deleted');
-            $this->confirmDeleteUrl = $this->responses['confirmDelete']['url'] ?? '/'.$this->routePrefix;
             $this->confirmDeleteTitle = $this->responses['confirmDelete']['title'] ?? __('Confirm deletion');
             $this->confirmDeleteMessage = $this->responses['confirmDelete']['message'] ?? __('Do you want to delete this object?');
-            $this->failedDeleteUrl = $this->responses['failedDelete']['url'] ?? '/'.$this->routePrefix;
             $this->failedDeleteTitle = $this->responses['failedDelete']['title'] ?? __('Deletion failed');
             $this->failedDeleteMessage = $this->responses['failedDelete']['message'] ?? __('Failed to delete this object. An unknown error has occurred.');
 

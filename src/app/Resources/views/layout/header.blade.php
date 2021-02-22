@@ -1018,7 +1018,7 @@
                         </li>
                         <li class="menu-item menu-item-submenu menu-item-rel @if(preg_match('~dcms.portal.user~',CurrentRoute())) menu-item-active @endif" data-menu-toggle="click"
                             aria-haspopup="true">
-                            <a href="javascript:;" class="menu-link menu-toggle">
+                            <a  class="menu-link menu-toggle">
                                 <span class="menu-text">Users</span>
                                 <span class="menu-desc"></span>
                                 <i class="fas fa-caret-down ml-3 mt-2 icon-sm"></i>
@@ -1042,7 +1042,7 @@
                         </li>
                         <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click"
                             aria-haspopup="true">
-                            <a href="javascript:;" class="menu-link menu-toggle">
+                            <a  class="menu-link menu-toggle">
                                 <span class="menu-text">{{ __('Models') }}</span>
                                 <span class="menu-desc"></span>
                                 <i class="fas fa-caret-down ml-3 mt-2 icon-sm"></i>
@@ -1066,7 +1066,7 @@
                         </li>
                         <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click"
                             aria-haspopup="true">
-                            <a href="javascript:;" class="menu-link menu-toggle">
+                            <a  class="menu-link menu-toggle">
                                 <span class="menu-text">{{ __('Application') }}</span>
                                 <span class="menu-desc"></span>
                                 <i class="fas fa-caret-down ml-3 mt-2 icon-sm"></i>
@@ -1074,7 +1074,7 @@
                             <div class="menu-submenu menu-submenu-classic menu-submenu-left">
                                 <ul class="menu-subnav">
                                     <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                        <a href="javascript:;" class="menu-link menu-toggle">
+                                        <a  class="menu-link menu-toggle">
                                             <span class="menu-text">Authorization</span>
                                             <div class="menu-item-div">
                                                 <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>
@@ -1088,7 +1088,7 @@
                                                     </a>
                                                 </li>
                                                 <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                                    <a href="javascript:;" class="menu-link menu-toggle">
+                                                    <a  class="menu-link menu-toggle">
                                                         <span class="menu-text">Roles</span>
                                                         <div class="menu-item-div">
                                                             <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>
@@ -1110,7 +1110,7 @@
                                                     </div>
                                                 </li>
                                                 <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                                    <a href="javascript:;" class="menu-link menu-toggle">
+                                                    <a  class="menu-link menu-toggle">
                                                         <span class="menu-text">Permissions</span>
                                                         <div class="menu-item-div">
                                                             <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>

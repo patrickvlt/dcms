@@ -10,6 +10,7 @@ use Pveltrop\DCMS\Classes\Datatable;
 use Illuminate\Auth\Events\Registered;
 use Pveltrop\DCMS\Traits\DCMSController;
 use Pveltrop\DCMS\Http\Requests\UserRequest;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -85,5 +86,21 @@ class UserController extends Controller
         // Auto generated Form with HTMLTag package
         $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         return view('dcms::user.crud')->with(['form' => $form]);
+    }
+
+    /**
+     * 
+     * DCMS: Execute code after a new model has been created/updated/deleted
+     * 
+     */
+
+    public function afterCreateOrUpdate($request, $model)
+    {
+        foreach ($request['roles'] as $x => $id) {
+            $role = Role::find($id);
+            if ($role && !in_array($id,($model->roles ? $model->roles->toArray() : []))){
+                $model->syncRoles($role->name);
+            }
+        }
     }
 }

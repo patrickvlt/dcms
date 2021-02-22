@@ -183,7 +183,7 @@ var changedColumns = false;
 // When the user is at step 2, generate the column inputs
 $(document).on('click', '[data-wizard-type="action-next"], [data-wizard-type="action-prev"]', function () {
     if (document.querySelector('[data-wizard-step="2"][data-wizard-state="current"]')) {
-        if (document.querySelector('#seedBox0').checked){
+        if (document.querySelector('#seedBox0').checked) {
             $('[data-seed-div]').show();
         } else {
             $('[data-seed-div]').hide();
@@ -306,7 +306,7 @@ $(document).on('change', '[name="inputDataType"]', function (e) {
             inputType.dispatchEvent(new Event("change"));
             $(filepondDiv).show();
             break;
-            
+
         default:
             $(filepondDiv).hide();
             break;
@@ -335,11 +335,11 @@ $(document).on('click', '[data-delete-rule]', function (e) {
 });
 
 // Check if theres empty columns
-function existingColumns(){
+function existingColumns() {
     var existingColumns = true;
     // If on step 3
-    $.each($("[data-column-name]"), function (x, column) { 
-        if (column.innerHTML == ""){
+    $.each($("[data-column-name]"), function (x, column) {
+        if (column.innerHTML == "") {
             existingColumns = false;
         }
     });
@@ -359,7 +359,7 @@ function InsertKTColumns() {
         ktColumnProperties = emptyKtColumnDiv.replace(/ktColumn/gm, columnName);
         if ($(columnEl).parent().find('[data-foreign-checkbox]')[0].checked) {
             ktColumnProperties = ktColumnProperties.replace(/<!--optional::Key-->/gm,
-            `<!--begin::Input-->
+                `<!--begin::Input-->
             <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
                 <label>Value</label>
                 <input type="text" class="form-control form-control-solid form-control-lg"
@@ -385,7 +385,7 @@ function InsertjExcelColumns() {
         jExcelProperties = emptyjExcelColumnDiv.replace(/jExcel/gm, columnName);
         if ($(columnEl).parent().find('[data-foreign-checkbox]')[0].checked) {
             jExcelProperties = jExcelProperties.replace(/<!--optional::Key-->/gm,
-            `<!--begin::Input-->
+                `<!--begin::Input-->
             <div class="form-group fv-plugins-icon-container" data-jexcel-key-div style="display:none">
                 <label>Value</label>
                 <input type="text" class="form-control form-control-solid form-control-lg"
@@ -406,7 +406,7 @@ function InsertjExcelColumns() {
         }
         document.querySelector('[data-jexcel-columns]').insertAdjacentHTML('beforeend', jExcelProperties);
     });
-    if ($("#jExcel_enableImportsBox0").prop('checked')){
+    if ($("#jExcel_enableImportsBox0").prop('checked')) {
         $('[data-jexcel-columns]').show();
     } else {
         $('[data-jexcel-columns]').hide();
@@ -502,17 +502,17 @@ function GenerateData() {
     formData.append('amountToSeed', $('[name="amountToSeed"]').val());
 
     // Add responses as array
-    var responseGroups = ['created','updated','deleted'];
+    var responseGroups = ['created', 'updated', 'deleted'];
     var responses = {};
     var thisResponse = {};
-    $.each(responseGroups, function (y, thisResponseGroup) { 
-        $.each($('[data-wizard-step="1"] [data-response-'+thisResponseGroup+']'), function (x, response) {
+    $.each(responseGroups, function (y, thisResponseGroup) {
+        $.each($('[data-wizard-step="1"] [data-response-' + thisResponseGroup + ']'), function (x, response) {
             thisResponse = {};
             $.each($(response).find('[name]'), function (y, responseProperty) {
                 thisResponse[responseProperty.name] = responseProperty.value;
             });
             responses[thisResponseGroup] = thisResponse;
-        });  
+        });
     });
     formData.append('responses', JSON.stringify(responses));
 
@@ -530,15 +530,15 @@ function GenerateData() {
         var rules = {};
         thisColumn = {};
         $.each($(column).find('[name]'), function (y, columnElement) {
-            if (columnElement.type == 'checkbox'){
-                if (columnElement.checked && columnElement.style.display !== 'none'){
+            if (columnElement.type == 'checkbox') {
+                if (columnElement.checked && columnElement.style.display !== 'none') {
                     thisColumn[columnElement.name] = columnElement.value;
                 }
             } else if (columnElement.name !== 'rule') {
                 thisColumn[columnElement.name] = columnElement.value;
             }
         });
-        $.each($(column).find('[name="rule"]'), function (x, columnElement) { 
+        $.each($(column).find('[name="rule"]'), function (x, columnElement) {
             rules[x] = columnElement.value;
         });
         thisColumn['rules'] = rules;
@@ -598,7 +598,7 @@ document.querySelector('[data-wizard-type="action-submit"]').addEventListener('c
     let formAction = event.target.form.action,
         formMethod = 'POST',
         formData = GenerateData();
-    window.HttpReq(formMethod, formAction, formData, {
+    window.DCMS.request(formMethod, formAction, formData, {
         customBefore: () => {
             window.DisableSubmit('button[data-wizard-type="action-submit"]');
         },

@@ -16,12 +16,12 @@
 <!--begin::Row-->
 <div class="row">
     <!--begin::Roles-->
-    <div class="col-6" id="rolesDiv">
+    <div class="col-lg-6 col-12" id="rolesDiv">
         <!--begin::Mixed Widget 10-->
         <div class="card card-custom card-stretch gutter-b">
             <!--begin::Body-->
             <div class="card-body d-flex flex-column" id="roleParentDiv">
-                <div class="flex-grow-1 pb-5">
+                <div class="pb-5">
                     <!--begin::Link-->
                     <a href="{{ route('dcms.portal.role.index') }}"
                         class="text-dark font-weight-bolder text-hover-primary font-size-h4">Roles</a>
@@ -34,11 +34,18 @@
                     <div class='row align-items-center d-flex'>
                         <div class='col-lg-2 col-md-4'>
                             <!--begin::Actions-->
+                            <div class="d-lg-flex">
+                                <a href="{{ route('dcms.portal.role.create') }}"
+                                    class="btn btn-primary btn-icon mr-3 my-2 my-lg-0"
+                                    style="min-width: 120px;">
+                                    <span class="menu-text">Create</span>
+                                </a>
                                 <button data-kt-action="reload"
-                                class="btn btn-primary btn-icon mr-3 my-2 my-lg-0"
-                                style="min-width: 120px;">
-                                <span class="menu-text">Refresh table</span>
-                            </button>
+                                    class="btn btn-secondary btn-icon mr-3 my-2 my-lg-0"
+                                    style="min-width: 120px;">
+                                    <span class="menu-text">Refresh table</span>
+                                </button>
+                            </div>
                             <!--end::Actions-->
                         </div>
                     </div>
@@ -75,7 +82,7 @@
                     data-kt-delete-single-failed-title='{{ __('Deleting failed') }}'
                     data-kt-delete-single-failed-message='{{ __('This role couldn\'t be deleted.') }}'>
                     <div data-kt-type="columns">
-                        <div data-kt-title="{{ __('Name') }}" data-kt-column="name" data-kt-width="100"></div>
+                        <div data-kt-title="{{ __('Name') }}" data-kt-column="name"></div>
                     </div>
                 </div>
             </div>
@@ -90,12 +97,12 @@
     </div>
     <!--end::Roles-->
     <!--begin::Permissions-->
-    <div class="col-6" id="permissionsDiv">
+    <div class="col-lg-6 col-12" id="permissionsDiv">
         <!--begin::Mixed Widget 10-->
         <div class="card card-custom card-stretch gutter-b">
             <!--begin::Body-->
             <div class="card-body d-flex flex-column">
-                <div class="flex-grow-1 pb-5">
+                <div class="pb-5">
                     <!--begin::Link-->
                     <a href="{{ route('dcms.portal.permission.index') }}"
                         class="text-dark font-weight-bolder text-hover-primary font-size-h4">Permissions</a>
@@ -108,11 +115,18 @@
                     <div class='row align-items-center d-flex'>
                         <div class='col-lg-2 col-md-4'>
                             <!--begin::Actions-->
-                            <button data-kt-action="reload"
-                                class="btn btn-primary btn-icon mr-3 my-2 my-lg-0"
-                                style="min-width: 120px;">
-                                <span class="menu-text">Refresh table</span>
-                            </button>
+                            <div class="d-lg-flex">
+                                <a href="{{ route('dcms.portal.permission.create') }}"
+                                    class="btn btn-primary btn-icon mr-3 my-2 my-lg-0"
+                                    style="min-width: 120px;">
+                                    <span class="menu-text">Create</span>
+                                </a>
+                                <button data-kt-action="reload"
+                                    class="btn btn-secondary btn-icon mr-3 my-2 my-lg-0"
+                                    style="min-width: 120px;">
+                                    <span class="menu-text">Refresh table</span>
+                                </button>
+                            </div>
                             <!--end::Actions-->
                         </div>
                     </div>
@@ -130,13 +144,19 @@
                         </div>
                     </div>
                 </div>
-                <div class='datatable datatable-bordered datatable-head-custom' data-permissions-table data-kt-parent="#permissionsDiv"
+                <div class='datatable datatable-bordered datatable-head-custom' 
+                    data-permissions-table 
+                    data-kt-parent="#permissionsDiv"
                     data-kt-route={{ route('dcms.portal.permission.fetch') }}
                     data-kt-edit-route={{ route('dcms.portal.permission.edit','__id__') }}
                     data-kt-destroy-route={{ route('dcms.portal.permission.destroy','__id__') }}
-                    data-kt-destroy-multiple-route={{ route('dcms.portal.permission.destroy.multiple') }} data-kt-page-size=10
-                    data-kt-pagination=true data-kt-scrolling=false data-kt-include-actions=true
-                    data-kt-include-selector=true data-kt-delete-rows-confirm-title="{{ __('Delete permissions') }}"
+                    data-kt-destroy-multiple-route={{ route('dcms.portal.permission.destroy.multiple') }} 
+                    data-kt-page-size=10
+                    data-kt-pagination=true 
+                    data-kt-scrolling=false 
+                    data-kt-include-actions=true
+                    data-kt-include-selector=true 
+                    data-kt-delete-rows-confirm-title="{{ __('Delete permissions') }}"
                     data-kt-delete-rows-confirm-message="{{ __('Are you sure you want to delete these permissions?') }}"
                     data-kt-delete-rows-complete-title="{{ __('Permissions deleted') }}"
                     data-kt-delete-rows-complete-message="{{ __('The permissions have been deleted.') }}"
@@ -149,7 +169,8 @@
                     data-kt-delete-single-failed-title='{{ __('Deleting failed') }}'
                     data-kt-delete-single-failed-message='{{ __('This permission couldn\'t be deleted.') }}'>
                     <div data-kt-type="columns">
-                        <div data-kt-title="{{ __('Name') }}" data-kt-column="name" data-kt-width="100"></div>
+                        <div data-kt-title="{{ __('Name') }}" data-kt-column="name"></div>
+                        <div data-kt-title="{{ __('Route') }}" data-kt-column="route"></div>
                     </div>
                 </div>
                 @push('footer-scripts')

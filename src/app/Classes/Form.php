@@ -9,7 +9,7 @@
 namespace Pveltrop\DCMS\Classes;
 
 use HtmlGenerator\HtmlTag;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class Form extends HtmlTag
 {
@@ -256,7 +256,7 @@ class Form extends HtmlTag
                                     $option->attr(['selected' => 'selected']);
                                 }
                             }
-                        } elseif ((string)$modelValue === (string)$dataValue) {
+                        } elseif (json_encode($modelValue) === json_encode($dataValue)) {
                             $option->attr(['selected' => 'selected']);
                         }
                     }
@@ -405,7 +405,7 @@ class Form extends HtmlTag
 
         // Save button: If creating a model
         if (!$model) {
-            $saveRedirect = $responses['created']['url'] ?? route($routePrefix . '.index');
+            $saveRedirect = $responses['created']['url'] ?? null;
             $saveRoute = $formRoutes['store'] ?? route($routePrefix . '.store');
             $saveID = null;
             $saveText = $formFields['formButtons']['create']['text'] ?? __('Create');
@@ -413,7 +413,7 @@ class Form extends HtmlTag
         }
         // Save button: If updating a model
         else {
-            $saveRedirect = $responses['updated']['url'] ?? route($routePrefix . '.index');
+            $saveRedirect = $responses['updated']['url'] ?? null;
             $saveRoute = $formRoutes['update'] ?? route($routePrefix . '.update', $model->id);
             $saveID = $model->id;
             $saveText = $formFields['formButtons']['update']['text'] ?? __('Update');

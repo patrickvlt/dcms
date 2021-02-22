@@ -279,18 +279,22 @@ trait DCMSCrud
     {
         $this->initDCMS();
         // Url
-        $url = $this->{$createdOrUpdated.'Url'};
-        $url = ReplaceWithAttr($url, $object);
-        if ((isset($this->createdUrl) && $createdOrUpdated === 'created') || (isset($this->updatedUrl) && $createdOrUpdated === 'updated')) {
-            if (request()->ajax()) {
-                $redirect = $url;
+        if ($this->{$createdOrUpdated.'Url'}){
+            $url = $this->{$createdOrUpdated.'Url'};
+            $url = ReplaceWithAttr($url, $object);
+            if ((isset($this->createdUrl) && $createdOrUpdated === 'created') || (isset($this->updatedUrl) && $createdOrUpdated === 'updated')) {
+                if (request()->ajax()) {
+                    $redirect = $url;
+                } else {
+                    return redirect($url);
+                }
+            } else if (request()->ajax()) {
+                $redirect = '/'.$this->routePrefix;
             } else {
-                return redirect($url);
+                $redirect = redirect()->route($this->routePrefix.'.index');
             }
-        } else if (request()->ajax()) {
-            $redirect = '/'.$this->routePrefix;
         } else {
-            $redirect = redirect()->route($this->routePrefix.'.index');
+            $url = null;
         }
         // Title
         $title = $this->{$createdOrUpdated.'Title'};
@@ -298,10 +302,18 @@ trait DCMSCrud
         // Message
         $message = $this->{$createdOrUpdated.'Message'};
         $message = ReplaceWithAttr($message, $object);
-        return response()->json([
-            'title' => $title,
-            'message' => $message,
-            'url' => $redirect
-        ], 200);
+
+        if ($url){
+            return response()->json([
+                'title' => $title,
+                'message' => $message,
+                'url' => $redirect
+            ], 200);
+        } else {
+            return response()->json([
+                'title' => $title,
+                'message' => $message,
+            ], 200);
+        }
     }
 }

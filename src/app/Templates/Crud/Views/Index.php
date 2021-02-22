@@ -58,7 +58,7 @@ return '
 </div>
 <script>
     DCMS.datatable({
-        table: $(".datatable"),
+        table: document.querySelector('.datatable')
     });
 </script>
 ';

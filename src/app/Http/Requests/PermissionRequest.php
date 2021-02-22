@@ -4,7 +4,7 @@ namespace Pveltrop\DCMS\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RoleRequest extends FormRequest
+class PermissionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,9 +31,8 @@ class RoleRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => ["required", "string", "min:3", "max:100",],
-            "permissions.*" => ["int", "exists:permissions,id"],
-            "permissions" => ["array", "min:1", "max:5"]
+            "name" => ["required", "unique:permissions,name", "string", "min:3", "max:100",],
+            "route" => ["required", "string", "min:3", "max:100",],
         ];
     }
 

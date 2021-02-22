@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Pveltrop\DCMS\Classes\Datatable;
 use Pveltrop\DCMS\Traits\DCMSController;
+use Spatie\Permission\Models\Permission;
 use Pveltrop\DCMS\Http\Requests\RoleRequest;
 
 class RoleController extends Controller
@@ -24,12 +25,10 @@ class RoleController extends Controller
             "created" => [
                 "title" => __("Role created"),
                 "message" => __("Role created on __created_at__"),
-                "url" => route('dcms.portal.authorization.index')
             ],
             "updated" => [
                 "title" => __("Role updated"),
                 "message" => __("Role updated on __created_at__"),
-                "url" => route('dcms.portal.authorization.index')
             ],
             "confirmDelete" => [
                 "title" => __("Delete role?"),
@@ -73,5 +72,21 @@ class RoleController extends Controller
         // Auto generated Form with HTMLTag package
         $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         return view('dcms::role.crud')->with(['form' => $form]);
+    }
+
+    /**
+     * 
+     * DCMS: Execute code after a new model has been created/updated/deleted
+     * 
+     */
+
+    public function afterCreateOrUpdate($request, $model)
+    {
+        foreach ($request['permissions'] as $x => $id) {
+            $permission = Permission::find($id);
+            if ($permission && !in_array($id,$model->permissions->toArray())){
+                $model->givePermissionTo($permission->name);
+            }
+        }
     }
 }
