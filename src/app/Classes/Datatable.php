@@ -73,7 +73,8 @@ class Datatable
      * @param $sortField
      * @return void
      */
-    public function dynamicOrderBy($sortField){
+    public function dynamicOrderBy($sortField)
+    {
         $explodeSortField = explode('.', $sortField);
 
         // Check if first key is a relation, which it should be
@@ -87,7 +88,7 @@ class Datatable
                 // The field from the relationship the user wishes to sort by
                 $relationField = $explodeSortField[1];
 
-                // Get foreign key from relation 
+                // Get foreign key from relation
                 $relation = $this->query->getRelation($relationKey);
 
                 // Get table from relation
@@ -96,7 +97,7 @@ class Datatable
 
                 // Get the right foreignkey and localkey
                 // This depends on the fact if the relation is inverse or not
-                if (!$relation instanceof BelongsTo){
+                if (!$relation instanceof BelongsTo) {
                     $foreignKey = $relation->getForeignKeyName();
                     $localKey = $relation->getLocalKeyName();
                 } else {
@@ -130,7 +131,7 @@ class Datatable
     public function orderBy($sortField)
     {
         // Replace dots to prevent exceptions
-        $cleanSortField = str_replace('.','_',$sortField);
+        $cleanSortField = str_replace('.', '_', $sortField);
         // Reorder the query so orderBy will work
 
         // Add your logic here to order your datatables' fields
@@ -151,7 +152,7 @@ class Datatable
             default:
                 $this->dynamicOrderBy($sortField);
                 break;
-        } 
+        }
     }
 
     /**

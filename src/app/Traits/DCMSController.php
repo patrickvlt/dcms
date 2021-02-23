@@ -153,5 +153,4 @@ trait DCMSController
             $this->afterDestroy($id, $passModel);
         }
     }
-
 }

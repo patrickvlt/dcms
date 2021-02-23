@@ -175,9 +175,9 @@ class Crud
         $definedNameSpace = null;
         try {
             $routeProviderContent = ReflectClass(\App\Providers\RouteServiceProvider::class)->body;
-            $routeNameSpaceCode = preg_match_all('/\$namespace[^\'"]*[\'"]([^\'"]*)[\'"]/m',$routeProviderContent,$matches);
-            $definedNameSpace = rtrim($matches[1][0],'\\').'\\';
-        } catch (Exception $e){
+            $routeNameSpaceCode = preg_match_all('/\$namespace[^\'"]*[\'"]([^\'"]*)[\'"]/m', $routeProviderContent, $matches);
+            $definedNameSpace = rtrim($matches[1][0], '\\').'\\';
+        } catch (Exception $e) {
             // continue
         }
         $routeNameSpace = ($definedNameSpace) ? '' : 'App\Http\Controllers';

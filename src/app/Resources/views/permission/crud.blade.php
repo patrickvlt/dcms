@@ -10,9 +10,8 @@
         <!--begin::Toolbar-->
         <div class="d-flex align-items-center flex-wrap">
             <!--begin::Actions-->
-            <a href="{{ route('dcms.portal.authorization.index') }}" class="btn btn-primary btn-icon"
-                style="min-width: 150px">
-                <span class="menu-text">Return to overview</span>
+            <a href="{{ route('dcms.portal.authorization.index') }}" class="btn btn-primary btn-icon" style="min-width: 180px">
+                <span class="menu-text">Authorization overview</span>
             </a>
             <!--end::Actions-->
         </div>
@@ -22,10 +21,10 @@
 <!--end::Subheader-->
 @endsection
 @section('content')
-<!--begin::Role-->
 <!--begin::Row-->
 <div class="row">
-    <div class="col-12">
+    <!--begin::Permission CRUD-->
+    <div class="col-6">
         <!--begin::Mixed Widget 10-->
         <div class="card card-custom card-stretch gutter-b">
             <!--begin::Body-->
@@ -34,30 +33,33 @@
                     enctype="multipart/form-data">
                     <input type="hidden" name="_method" value="POST">
                     <input type="hidden" name="_token">
-                    <div class="form-group" id="selectRoute">
+                    <div class="form-group">
+                        <label for="route" text="Name">{{ __('Name') }}</label>
+                        <input class="form-control" type="text" name="name" @if(Model() && Model()->name) value="{{ Model()->name }}" @endif>
+                    </div>
+                    <div class="form-group" id="selectRoute" @if(isset($useSelect) && $useSelect == false) style="display:none" @endif>
                         <label for="route" text="Route">{{ __('Route') }}</label>
                         <select class="form-control" name="route" data-slimselect-addable="false"
                             data-type="slimselect" data-slimselect-auto-close="true">
+                            <option></option>
                             @foreach($namedRoutes as $route)
                             <option value="{{ $route->name }}" @if(Model() && Model()->route == $route->name) selected @endif>{{ $route->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group" id="typeRoute" style="display:none">
+                    <div class="form-group" id="typeRoute" @if(isset($useSelect) && $useSelect == true) style="display:none" @endif>
                         <label for="route" text="Route">{{ __('Route') }}</label>
-                        <input class="form-control" type="text" name="route" @if(Model() && Model()->route) value="{{ Model()->route }}" @endif>
+                        <input class="form-control" type="text" name="route" @if(Model() && Model()->route) 
+                        value="{{ (isset($useSelect) && $useSelect == false) ? Model()->route : null }}" @endif>
                     </div>
                     <div class="form-group fv-plugins-icon-container">
                         <div>
                             <input name="typeRoute" type="checkbox" checked="checked" value="0" style="display:none !important">
-                            <input name="typeRoute" type="checkbox" value="1" id="routeBox0" data-type="iCheck" style="display:none">
+                            <input name="typeRoute" type="checkbox" value="1" @if(isset($useSelect) && $useSelect == false) checked @endif 
+                            id="routeBox0" data-type="iCheck" style="display:none">
                             <label class="form-check-label" for="routeBox0">Do you want to manually enter the route name?</label>
                         </div>
                         <div class="fv-plugins-message-container"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="route" text="Name">{{ __('Name') }}</label>
-                        <input class="form-control" type="text" name="name" @if(Model() && Model()->name) value="{{ Model()->name }}" @endif>
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
@@ -79,6 +81,10 @@
         </div>
         <!--end::Mixed Widget 10-->
     </div>
+    <!--end::Permission CRUD-->
+    <!--begin::Permissions-->
+    @include('dcms::authorization.datatables.permissions')
+    <!--end::Permissions-->
 </div>
 <script>
     document.addEventListener('click',function(e){
@@ -99,5 +105,4 @@
     });
 </script>
 <!--end::Row-->
-<!--end::Role-->
 @endsection

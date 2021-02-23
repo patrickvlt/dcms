@@ -10,7 +10,6 @@ use Pveltrop\DCMS\Classes\Datatable;
 use Illuminate\Auth\Events\Registered;
 use Pveltrop\DCMS\Traits\DCMSController;
 use Pveltrop\DCMS\Http\Requests\UserRequest;
-use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -58,7 +57,7 @@ class UserController extends Controller
     public function fetch(): \Illuminate\Http\JsonResponse
     {
         // Get class to make a query for
-        $query = User::query();
+        $query = User::with('roles');
         return (new Datatable($query))->render();
     }
 
@@ -67,9 +66,15 @@ class UserController extends Controller
         return view('dcms::user.index');
     }
 
-    public function afterCreate($request, $model)
+    public function afterCreate($request, $model): void
     {
-        event(new Registered($model));
+        if (initSMTP()) {
+            try {
+                event(new Registered($model));
+            } catch (\Throwable $th) {
+                logger("Couldn't send e-mail to user."."\n".$th->getMessage().$th->getTraceAsString());
+            }
+        }
     }
 
     public function create()
@@ -89,18 +94,15 @@ class UserController extends Controller
     }
 
     /**
-     * 
+     *
      * DCMS: Execute code after a new model has been created/updated/deleted
-     * 
+     *
      */
 
-    public function afterCreateOrUpdate($request, $model)
+    public function afterCreateOrUpdate($request, User $user): void
     {
-        foreach ($request['roles'] as $x => $id) {
-            $role = Role::find($id);
-            if ($role && !in_array($id,($model->roles ? $model->roles->toArray() : []))){
-                $model->syncRoles($role->name);
-            }
+        if (isset($request['roles'])) {
+            $user->syncRoles($request['roles']);
         }
     }
 }

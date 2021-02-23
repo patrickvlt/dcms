@@ -270,9 +270,9 @@ class ModelController extends Controller
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $folder));
             }
             // Modify the content
-            if ($x == 'create' || $x == 'edit' || $x == 'show'){
+            if ($x == 'create' || $x == 'edit' || $x == 'show') {
                 $newContent = include __DIR__ . '/../../Templates/Crud/Views/Crud.php';
-            } else if ($x == 'index') {
+            } elseif ($x == 'index') {
                 $newContent = include __DIR__ . '/../../Templates/Crud/Views/Index.php';
             }
             // Write to file

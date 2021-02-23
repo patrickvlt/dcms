@@ -10,8 +10,8 @@
         <!--begin::Toolbar-->
         <div class="d-flex align-items-center flex-wrap">
             <!--begin::Actions-->
-            <a href="{{ route('dcms.portal.authorization.index') }}" class="btn btn-primary btn-icon" style="min-width: 150px">
-                <span class="menu-text">Return to overview</span>
+            <a href="{{ route('dcms.portal.authorization.index') }}" class="btn btn-primary btn-icon" style="min-width: 180px">
+                <span class="menu-text">Authorization overview</span>
             </a>
             <!--end::Actions-->
         </div>
@@ -21,10 +21,13 @@
 <!--end::Subheader-->
 @endsection
 @section('content')
-<!--begin::Role-->
 <!--begin::Row-->
 <div class="row">
-    <div class="col-12">
+    <!--begin::Roles-->
+    @include('dcms::authorization.datatables.roles')
+    <!--end::Roles-->
+    <!--begin::Role CRUD-->
+    <div class="col-6">
         <!--begin::Mixed Widget 10-->
         <div class="card card-custom card-stretch gutter-b">
             <!--begin::Body-->
@@ -35,7 +38,7 @@
         </div>
         <!--end::Mixed Widget 10-->
     </div>
+    <!--end::Role CRUD-->
 </div>
 <!--end::Row-->
-<!--end::Role-->
 @endsection

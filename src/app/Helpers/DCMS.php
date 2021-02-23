@@ -13,9 +13,9 @@ if (!function_exists('MaxSizeServer')) {
         $maxPost = (int) (ini_get('post_max_size'));
         $lowestSetting = min($maxUpload, $maxPost);
 
-        if (preg_match('/M/',ini_get('upload_max_filesize')) || preg_match('/M/',ini_get('post_max_size')) || ($lowestSetting - 10) < 0){
+        if (preg_match('/M/', ini_get('upload_max_filesize')) || preg_match('/M/', ini_get('post_max_size')) || ($lowestSetting - 10) < 0) {
             $type = 'mb';
-        } else if (($lowestSetting - 1000000) < 0) {
+        } elseif (($lowestSetting - 1000000) < 0) {
             $type = 'kb';
         } else {
             $type = 'bytes';
@@ -144,7 +144,7 @@ if (!function_exists('FormRoute')) {
 
         // Try to append parameters with Laravels route helper
         if (!function_exists('fixRoute')) {
-            function fixRoute($prefix, $action,$routeName)
+            function fixRoute($prefix, $action, $routeName)
             {
                 $addParameters = [];
                 foreach (request()->route()->parameters as $key => $parameter) {
@@ -157,7 +157,7 @@ if (!function_exists('FormRoute')) {
                 try {
                     return route($prefix . $action, $addParameters);
                 } catch (\Throwable $th) {
-                    preg_match_all('/(\S*)(\.edit|\.create)/m',$routeName,$matches,PREG_SET_ORDER, 0);
+                    preg_match_all('/(\S*)(\.edit|\.create)/m', $routeName, $matches, PREG_SET_ORDER, 0);
                     $prefix = $matches[0][1];
                     return route($prefix . $action, $addParameters);
                 }
@@ -489,5 +489,31 @@ if (!function_exists('ReplaceWithAttr')) {
             $message = str_replace($match, $object->$prop, $message);
         }
         return $message;
+    }
+}
+
+/**
+ * Test SMTP connection, useful to prevent exceptions when mailing to new users
+ */
+if (!function_exists('initSMTP')) {
+    function initSMTP()
+    {
+        if (!env('MAIL_FROM_ADDRESS')) {
+            logger("Couldn't send e-mail to user: env('MAIL_FROM_ADDRESS') hasn't been set.");
+            return false;
+        }
+        try {
+            $transport = new \Swift_SmtpTransport(env('MAIL_HOST'), env('MAIL_PORT'), env('MAIL_ENCRYPTION'));
+            $transport->setUsername(env('MAIL_USERNAME'));
+            $transport->setPassword(env('MAIL_PASSWORD'));
+            $mailer = new \Swift_Mailer($transport);
+            $mailer->getTransport()->start();
+        } catch (\Throwable $th) {
+            logger("Couldn't send e-mail to user.");
+            $exception = $th->getMessage();
+            logger($exception);
+            return false;
+        }
+        return true;
     }
 }

@@ -35,7 +35,7 @@ trait DCMSImports
     public function ImportSheet(): JsonResponse
     {
         $this->__init();
-        $importData = json_decode(request()->getContent(),true);
+        $importData = json_decode(request()->getContent(), true);
         //prepare sheet validation variables
         $customRequest = new \Illuminate\Http\Request();
         $customRequest->setMethod('POST');
@@ -108,7 +108,7 @@ trait DCMSImports
     {
         $this->initDCMS();
         // Get data from ajax request at jexcel table
-        $request = json_decode(request()->getContent(),true);
+        $request = json_decode(request()->getContent(), true);
         $data = $request['data'];
         $th = $request['th'];
 
@@ -130,11 +130,11 @@ trait DCMSImports
         }
 
         // Loop through table dropdown columns
-        foreach ($th as $y => $header){
-            $jExcelColumn = searchForColumn($header['column'],$this->autoFixColumns);
+        foreach ($th as $y => $header) {
+            $jExcelColumn = searchForColumn($header['column'], $this->autoFixColumns);
             $jExcelColumn = isset($this->autoFixColumns[$jExcelColumn]) ? $this->autoFixColumns[$jExcelColumn] : null;
-            if ($jExcelColumn){
-                // 
+            if ($jExcelColumn) {
+                //
                 try {
                     $class = $jExcelColumn['class'];
                     $class = new $class;

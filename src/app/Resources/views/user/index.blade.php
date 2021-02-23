@@ -10,12 +10,15 @@
         <!--begin::Toolbar-->
         <div class="d-flex align-items-center flex-wrap">
             <!--begin::Actions-->
+            <a href="{{ route('dcms.portal.authorization.index') }}" class="btn btn-bg-white btn-icon-info btn-hover-primary btn-icon mr-3 my-2 my-lg-0" style="min-width: 180px">
+                <span class="menu-text">Authorization overview</span>
+            </a>
             <button data-kt-action="reload"
                 class="btn btn-bg-white btn-icon-info btn-hover-primary btn-icon mr-3 my-2 my-lg-0"
                 style="min-width: 120px;">
                 <span class="menu-text">Refresh table</span>
             </button>
-            <a href="{{ route('dcms.portal.user.create') }}" class="btn btn-primary btn-icon" style="min-width: 100px">
+            <a href="{{ route('dcms.portal.user.create') }}" class="btn btn-primary btn-icon" style="min-width: 125px">
                 <span class="menu-text">Create user</span>
             </a>
             <!--end::Actions-->
@@ -36,8 +39,7 @@
             <div class="card-body d-flex flex-column" id="userParentDiv">
                 <div class="flex-grow-1 pb-5">
                     <!--begin::Link-->
-                    <a href="{{ route('dcms.portal.user.index') }}"
-                        class="text-dark font-weight-bolder text-hover-primary font-size-h4">Users</a>
+                    <label class="text-dark font-weight-bolder font-size-h4">Users</label>
                     <!--end::Link-->
                     <!--begin::Desc-->
                     <p class="text-dark-50 font-weight-normal font-size-lg mt-6"></p>
@@ -89,14 +91,14 @@
                     data-kt-delete-single-failed-title='{{ __('Deleting failed') }}'
                     data-kt-delete-single-failed-message='{{ __('This user couldn\'t be deleted.') }}'>
                     <div data-kt-type="columns">
-                        <div data-kt-title="{{ __('Name') }}" data-kt-column="name" data-kt-width="100"></div>
-                        <div data-kt-title="{{ __('E-mail') }}" data-kt-column="email" data-kt-width="225"></div>
-                        <div data-kt-title="{{ __('E-mail verified') }}" data-kt-column="email_verified_at"
+                        <div data-kt-title="{{ __('Name') }}" data-kt-order="1" data-kt-column="name" data-kt-width="100"></div>
+                        <div data-kt-title="{{ __('E-mail') }}" data-kt-order="3" data-kt-column="email" data-kt-width="225"></div>
+                        <div data-kt-title="{{ __('E-mail verified') }}" data-kt-order="4" data-kt-column="email_verified_at"
                             data-kt-type="boolean" data-kt-text-color='success' data-kt-width="100"></div>
-                        <div data-kt-title="{{ __('Account verified') }}" data-kt-column="verified"
+                        <div data-kt-title="{{ __('Account verified') }}" data-kt-order="5" data-kt-column="verified"
                             data-kt-type="boolean" data-kt-text-color='success' data-kt-width="100"></div>
-                        <div data-kt-title="{{ __('Updated at') }}" data-kt-column="updated_at"></div>
-                        <div data-kt-title="{{ __('Registered at') }}" data-kt-column="created_at"></div>
+                        <div data-kt-title="{{ __('Updated at') }}" data-kt-order="6" data-kt-column="updated_at"></div>
+                        <div data-kt-title="{{ __('Registered at') }}" data-kt-order="7" data-kt-column="created_at"></div>
                     </div>
                 </div>
             </div>
@@ -111,7 +113,25 @@
 @push('footer-scripts')
 <script>
     DCMS.datatable({
-        table: document.querySelector("[data-users-table]")
+        table: document.querySelector(".datatable"),
+        columns: [
+            {
+                field: 'roles',
+                order: 2,
+                title: Lang('Roles'),
+                textAlign: 'center',
+                sortable: false,
+                template: function (row) {
+                    if (row.roles){
+                        let roleStr = '';
+                        for (const r in row.roles) {
+                            roleStr = roleStr + `<span class="label label-lg label-primary label-pill label-inline mt-1">${Lang(row.roles[r].name)}</span>` + "\n";
+                        }
+                        return roleStr;
+                    }
+                }
+            },
+        ]
     });
 </script>
 @endpush

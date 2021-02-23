@@ -54,7 +54,7 @@ class RoleController extends Controller
     public function fetch(): \Illuminate\Http\JsonResponse
     {
         // Get class to make a query for
-        $query = Role::query();
+        $query = Role::with('permissions');
         return (new Datatable($query))->render();
     }
 
@@ -74,18 +74,14 @@ class RoleController extends Controller
         return view('dcms::role.crud')->with(['form' => $form]);
     }
 
-    /**
-     * 
-     * DCMS: Execute code after a new model has been created/updated/deleted
-     * 
-     */
-
-    public function afterCreateOrUpdate($request, $model)
+    public function afterCreateOrUpdate($request, Role $role)
     {
-        foreach ($request['permissions'] as $x => $id) {
-            $permission = Permission::find($id);
-            if ($permission && !in_array($id,$model->permissions->toArray())){
-                $model->givePermissionTo($permission->name);
+        if (isset($request['permissions'])) {
+            foreach ($request['permissions'] as $x => $id) {
+                $permission = Permission::find($id);
+                if ($permission && !in_array($id, $role->permissions->toArray())) {
+                    $role->givePermissionTo($permission->name);
+                }
             }
         }
     }

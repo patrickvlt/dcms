@@ -6,7 +6,8 @@ use Spatie\Permission\Models\Permission;
 
 class RoleForm
 {
-    public function fields(){
+    public function fields()
+    {
         return [
             'name' => [
                 'label' => [
@@ -39,8 +40,8 @@ class RoleForm
         return [
             'index' => route('dcms.portal.authorization.index'),
             'store' => route('dcms.portal.role.store'),
-            'update' => (isset(request()->route()->parameters['role'])) ? route('dcms.portal.role.update',request()->route()->parameters['role']) : null,
-            'destroy' => (isset(request()->route()->parameters['role'])) ? route('dcms.portal.role.destroy',request()->route()->parameters['role']) : null,
+            'update' => (isset(request()->route()->parameters['role'])) ? route('dcms.portal.role.update', request()->route()->parameters['role']) : null,
+            'destroy' => (isset(request()->route()->parameters['role'])) ? route('dcms.portal.role.destroy', request()->route()->parameters['role']) : null,
         ];
     }
 }

@@ -51,7 +51,7 @@ class PermissionController extends Controller
     {
         $namedRoutes = [];
         foreach (app()->routes->getRoutes() as $key => $route) {
-            if (isset($route->action['as']) && !preg_match('/ignition/m',$route->action['as'])){
+            if (isset($route->action['as']) && !preg_match('/ignition/m', $route->action['as'])) {
                 $routeObj = (object) $route->action['as'];
                 $routeObj->name = $route->action['as'];
                 $namedRoutes[] = $routeObj;
@@ -70,12 +70,29 @@ class PermissionController extends Controller
     public function create()
     {
         $this->initDCMS();
-        return view('dcms::permission.crud')->with(['namedRoutes' => $this->getRoutes()]);
+
+        $namedRoutes = $this->getRoutes();
+        $useSelect = true;
+
+        return view('dcms::permission.crud')->with([
+            'namedRoutes' => $namedRoutes,
+            'useSelect' => $useSelect
+        ]);
     }
 
     public function edit(Permission $permission)
     {
         $this->initDCMS();
-        return view('dcms::permission.crud')->with(['namedRoutes' => $this->getRoutes()]);
+        $useSelect = false;
+
+        $namedRoutes = $this->getRoutes();
+        if ($namedRoutes->contains($permission->route)) {
+            $useSelect = true;
+        }
+
+        return view('dcms::permission.crud')->with([
+            'namedRoutes' => $namedRoutes,
+            'useSelect' => $useSelect
+        ]);
     }
 }

@@ -36,8 +36,7 @@
             <div class="card-body d-flex flex-column" id="modelParentDiv">
                 <div class="flex-grow-1 pb-5">
                     <!--begin::Link-->
-                    <a href="{{ route('dcms.portal.model.index') }}"
-                        class="text-dark font-weight-bolder text-hover-primary font-size-h4">Models</a>
+                    <label class="text-dark font-weight-bolder font-size-h4">Models</label>
                     <!--end::Link-->
                     <!--begin::Desc-->
                     <p class="text-dark-50 font-weight-normal font-size-lg mt-6"></p>
@@ -97,7 +96,7 @@
 @push('footer-scripts')
 <script>
     DCMS.datatable({
-        table: $(".datatable")
+        table: document.querySelector(".datatable")
     });
 </script>
 @endpush

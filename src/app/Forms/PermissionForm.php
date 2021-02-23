@@ -6,9 +6,8 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionForm
 {
-    public function fields(){
-        
-        
+    public function fields()
+    {
         return [
             'name' => [
                 'select' => [
@@ -30,8 +29,8 @@ class PermissionForm
         return [
             'index' => route('dcms.portal.authorization.index'),
             'store' => route('dcms.portal.permission.store'),
-            'update' => (isset(request()->route()->parameters['permission'])) ? route('dcms.portal.permission.update',request()->route()->parameters['permission']) : null,
-            'destroy' => (isset(request()->route()->parameters['permission'])) ? route('dcms.portal.permission.destroy',request()->route()->parameters['permission']) : null,
+            'update' => (isset(request()->route()->parameters['permission'])) ? route('dcms.portal.permission.update', request()->route()->parameters['permission']) : null,
+            'destroy' => (isset(request()->route()->parameters['permission'])) ? route('dcms.portal.permission.destroy', request()->route()->parameters['permission']) : null,
         ];
     }
 }

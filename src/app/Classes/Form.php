@@ -262,7 +262,7 @@ class Form extends HtmlTag
                     }
                 }
 
-            // Checkbox/radio element
+                // Checkbox/radio element
             } elseif ($makeCheckbox || $makeRadio) {
                 $properties = ($makeCheckbox) ? $definedElements['checkbox'] : $definedElements['radio'];
                 if (isset($properties)) {
@@ -288,19 +288,19 @@ class Form extends HtmlTag
                             // Get all options, to check if [] should be appended to the columns name
                             $boxOptions = [];
                             foreach ($properties as $key => $value) {
-                                if (is_int($key)){
+                                if (is_int($key)) {
                                     $boxOptions[] = $value;
                                 }
                             }
                             $name = $column['name'];
-                            if (count($boxOptions) > 1 && $makeCheckbox){
+                            if (count($boxOptions) > 1 && $makeCheckbox) {
                                 $name = $column['name'].'[]';
                             }
 
                             $checked = null;
                             if ($model) {
                                 $checked = (($model->{$column['name']} && $model->{$column['name']} === $choiceValue) || old($column['name']) === $choiceValue) ? 'checked' : null;
-                            } else if ($choiceChecked) {
+                            } elseif ($choiceChecked) {
                                 $checked = true;
                             }
                             
@@ -333,7 +333,7 @@ class Form extends HtmlTag
                     }
                 }
 
-            // Textarea element
+                // Textarea element
             } elseif ($makeTextarea) {
                 $textareaCustomAttr = $definedElements['textarea'] ?? null;
                 $textareaType = $textareaCustomAttr['type'] ?? 'text';

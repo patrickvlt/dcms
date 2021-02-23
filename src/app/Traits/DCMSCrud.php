@@ -192,7 +192,7 @@ trait DCMSCrud
                             ], 422);
                         }
                     }
-                } else if (!Storage::exists($file['newPath'])) {
+                } elseif (!Storage::exists($file['newPath'])) {
                     Storage::copy($file['oldPath'], $file['newPath']);
                     Storage::delete($file['oldPath']);
                 }
@@ -279,7 +279,7 @@ trait DCMSCrud
     {
         $this->initDCMS();
         // Url
-        if ($this->{$createdOrUpdated.'Url'}){
+        if ($this->{$createdOrUpdated.'Url'}) {
             $url = $this->{$createdOrUpdated.'Url'};
             $url = ReplaceWithAttr($url, $object);
             if ((isset($this->createdUrl) && $createdOrUpdated === 'created') || (isset($this->updatedUrl) && $createdOrUpdated === 'updated')) {
@@ -288,7 +288,7 @@ trait DCMSCrud
                 } else {
                     return redirect($url);
                 }
-            } else if (request()->ajax()) {
+            } elseif (request()->ajax()) {
                 $redirect = '/'.$this->routePrefix;
             } else {
                 $redirect = redirect()->route($this->routePrefix.'.index');
@@ -303,7 +303,7 @@ trait DCMSCrud
         $message = $this->{$createdOrUpdated.'Message'};
         $message = ReplaceWithAttr($message, $object);
 
-        if ($url){
+        if ($url) {
             return response()->json([
                 'title' => $title,
                 'message' => $message,
