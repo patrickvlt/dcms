@@ -27,7 +27,7 @@ class Form extends HtmlTag
             $model = Model();
             if (is_string($model)) {
                 $class = FindClass($routePrefix)['class'];
-                $model = (new $class())->find(request()->route()->parameters[$routePrefix]);
+                $model = (new $class())->first(request()->route()->parameters[$routePrefix]);
             }
         }
         return $model;
@@ -194,7 +194,7 @@ class Form extends HtmlTag
                     }
                 }
             }
-
+            
             // Input element
             if ($makeInput) {
                 $inputCustomAttr = $definedElements['input'] ?? null;
