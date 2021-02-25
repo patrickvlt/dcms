@@ -77,7 +77,7 @@ window.DCMS.request = function (formMethod, formAction, formData, customSettings
         data: formData,
         responseType: 'json',
         headers: {
-            'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+            'X-CSRF-TOKEN': window.DCMS.csrf,
             "Content-type": "application/x-www-form-urlencoded",
             'X-Requested-With': 'XMLHttpRequest',
         }
@@ -222,7 +222,6 @@ window.DCMS.request = function (formMethod, formAction, formData, customSettings
     });
 };
 
-let ajaxForms = document.querySelectorAll('[data-dcms-action=ajax]');
 function submitAjax(e) {
     if (typeof tinymce !== 'undefined') {
         window.tinyMCE.triggerSave();
@@ -230,32 +229,16 @@ function submitAjax(e) {
     let formAction = e.target.action;
     let formMethod = e.target.method;
     let formData = new FormData(e.target);
-    if (document.querySelectorAll('.filepond--file').length > 0) {
-        let loopedNames = [];
-        let namesToLoop = [];
-        Array.from(window.DCMS.fileArray).forEach(function (fileWindow) {
-            namesToLoop.push(fileWindow.input);
-        });
-        namesToLoop.forEach(function (name) {
-            if (!loopedNames.includes(name)) {
-                loopedNames.push(name);
-            }
-        });
-        loopedNames.forEach(function (name) {
-            let curInputs = document.getElementsByName(name);
-            formData.delete(name);
-            curInputs.forEach(function (input) {
-                formData.append(name, input.value);
-            });
-        });
-    }
+
     window.DCMS.request(formMethod, formAction, formData);
 }
-ajaxForms.forEach(element =>
+
+document.querySelectorAll('[data-dcms-action=ajax]').forEach((element) => {
     element.addEventListener('submit', function (e) {
         e.preventDefault();
         submitAjax(e);
-    }));
+    });
+});
 
 /**
  *
@@ -294,12 +277,14 @@ window.DCMS.deleteModel = function (args) {
                         },
                         responseType: 'json',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                            'X-CSRF-TOKEN': window.DCMS.csrf,
                             "Content-type": "application/x-www-form-urlencoded",
                             'X-Requested-With': 'XMLHttpRequest',
                         }
                     }).then(function (response) {
-                        window.DCMS.reloadKTDatatables();
+                        if (typeof window.DCMS.reloadTables !== 'undefined'){
+                            window.DCMS.reloadTables();
+                        }
                         window.toastr.success(completeMsg);
                         if (redirect) {
                             setTimeout(function () {
@@ -323,12 +308,14 @@ window.DCMS.deleteModel = function (args) {
                         url: route,
                         responseType: 'json',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                            'X-CSRF-TOKEN': window.DCMS.csrf,
                             "Content-type": "application/x-www-form-urlencoded",
                             'X-Requested-With': 'XMLHttpRequest',
                         }
                     }).then(function (response) {
-                        window.DCMS.reloadKTDatatables();
+                        if (typeof window.DCMS.reloadTables !== 'undefined'){
+                            window.DCMS.reloadTables();
+                        }
                         window.toastr.success(completeMsg);
                         if (redirect) {
                             setTimeout(function () {

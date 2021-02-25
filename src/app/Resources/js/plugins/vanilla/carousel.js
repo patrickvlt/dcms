@@ -1,10 +1,10 @@
 "use strict";
 
 window.DCMS.dCarousel = function () {
-    var dcars = 0;
+    let dcars = 0;
     if (document.querySelectorAll('[data-type=dcarousel]').length > 0) {
         document.querySelectorAll('[data-type=dcarousel]').forEach(function (element) {
-            var carousel, dcarSrc, imgElement, dcarHeight, dcarPrefix, dcarColumn;
+            let carousel, dcarSrc, imgElement, dcarHeight, dcarPrefix, dcarColumn;
 
             try {
                 dcarSrc = element.dataset.dcarSrc.split(' ');
@@ -54,6 +54,8 @@ window.DCMS.dCarousel = function () {
                 return imgElement;
             }
 
+            // Run Regex match method to determine how to handle the src
+            // This component "expects" an array, so incase (by mistake) a single string is passed, this component will convert the src to an array
             if (typeof dcarSrc === 'string' || dcarSrc instanceof String) {
                 if (dcarSrc.match(/\[/g) && dcarSrc.match(/\]/g)) {
                     dcarSrc = JSON.parse(dcarSrc);
@@ -159,16 +161,12 @@ window.DCMS.dCarousel = function () {
                             cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                         }).then(function (result) {
                             if (result.value) {
-                                try {
-                                    toastr.warning(Lang('Removed item.'));
-                                } catch (error) {
-                                    //
-                                }
                                 if (parentCar.querySelectorAll('.dCar-div').length == 1) {
                                     parentCar.remove();
                                 } else {
                                     parentDiv.remove();
                                 }
+                                window.toastr.warning(Lang('Removed item.'));
                             }
                         });
                     }

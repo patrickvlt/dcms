@@ -1,12 +1,7 @@
-/**
- *
- *  Import plugins
- *
- */
-
 window.DCMS = {};
 window.DCMS.config = require('../../../dcms.json');
-window.DCMS.AllowNewTab = false;
+window.DCMS.csrf = document.querySelectorAll('meta[name=csrf-token]')[0].content;
+window.DCMS.allowNewTab = false;
 window.DCMS.language = (typeof dcmsLanguage !== 'undefined') ? dcmsLanguage : 'en';
 
 if (typeof process.env.MIX_DCMS_ENV == 'undefined') {
@@ -69,10 +64,6 @@ if (typeof axios == 'undefined') {
     window.DCMS.loadJS(window.DCMS.config.plugins.axios);
 }
 
-if (typeof Vue == 'undefined' && (window.DCMS.config.plugins.vue && window.DCMS.config.plugins.vue.enable !== false)) {
-    window.DCMS.loadJS(window.DCMS.config.plugins.vue);
-}
-
 if (typeof toastr == 'undefined' && (window.DCMS.config.plugins.toastr && window.DCMS.config.plugins.toastr.enable !== false)) {
     window.DCMS.loadCSS(window.DCMS.config.plugins.toastr);
     window.DCMS.loadJS(window.DCMS.config.plugins.toastr);
@@ -97,7 +88,7 @@ require('./_settings.js');
 
 /**
  *
- *  Translations
+ *  Translations method
  *
  */
 
@@ -139,14 +130,4 @@ require('./helpers.js');
 *
 */
 
-require('./plugins/sweetalert2.js');
-require('./plugins/requests.js');
-require('./plugins/carousel.js');
-require('./plugins/slimselect.js');
-require('./plugins/tinymce.js');
-require('./plugins/editor.js');
-require('./plugins/datetimepicker.js');
-require('./plugins/jexcel.js');
-require('./plugins/filepond.js');
-require('./metronic/dcmsdatatable.js');
-require('../../../public/js/dcms/assets/spotlight.js');
+require('./plugins/init.js');

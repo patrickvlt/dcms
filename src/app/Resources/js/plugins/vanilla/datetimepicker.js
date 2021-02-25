@@ -1,11 +1,11 @@
 /**
 *
-* To easily define custom settings for a datetimepicker on your page, define a datetimePickers array.
+* To easily define custom settings for a datetimepicker on your page, define a dateTimePickers array.
 * You can change the name of this variable if you wish, if you do, don't forget to change it in this code aswell.
 * You can define this in your separate JavaScript before this code runs, example below:
 
-var datetimePickers = [];
-datetimePickers['yourInputElementName'] = {
+var dateTimePickers = [];
+dateTimePickers['yourInputElementName'] = {
     format: 'DD-MM-YYYY',
     // Disable saturday
     dateValidator: function (d) {
@@ -53,15 +53,16 @@ window.DCMS.hasLoaded('rome', function () {
         window.DCMS.loadJS(window.DCMS.config.plugins.datetimepicker, 'local');
     }
 
-    window.DCMS.datetimePickers = [];
+    window.DCMS.dateTimePickers = [];
     window.DCMS.datetimePicker = function () {
         if (document.querySelectorAll('[data-type*=picker]').length > 0) {
             window.DCMS.hasLoaded(['MaterialDatetimePicker', 'moment', 'rome'], function () {
                 let datepickers = document.querySelectorAll('[data-type*=picker]');
                 if (datepickers) {
                     Array.from(datepickers).forEach((datepicker) => {
-                        const input = datepicker;
-                        const picker = new MaterialDatetimePicker(typeof datetimePickers !== 'undefined' && datetimePickers[input.name] ? datetimePickers[input.name] : {}).on('open', () => {
+                        let input = datepicker;
+                        let pickerSettings = typeof dateTimePickers !== 'undefined' && input.name ? dateTimePickers[input.name] : {};
+                        let picker = new MaterialDatetimePicker(pickerSettings).on('open', () => {
                             document.querySelector('.rd-month-label').innerHTML = window.DCMS.moment(document.querySelector('.rd-month-label').innerHTML).locale(window.DCMS.language).format('MMMM YYYY').toString();
                             document.querySelectorAll('.c-datepicker__day-head').forEach((day) => {
                                 day.innerHTML = Lang(day.innerHTML);
@@ -89,16 +90,16 @@ window.DCMS.hasLoaded('rome', function () {
                             }
                         }).on('submit', (val) => {
                             let thisFormat;
-                            if (typeof datetimePickers !== 'undefined' && datetimePickers[input.name].format){
-                                thisFormat = datetimePickers[input.name].format;
-                            } else if (input.dataset.datetimepickerFormat){
+                            if (typeof dateTimePickers !== 'undefined' && dateTimePickers[input.name].format) {
+                                thisFormat = dateTimePickers[input.name].format;
+                            } else if (input.dataset.datetimepickerFormat) {
                                 thisFormat = input.dataset.datetimepickerFormat;
                             }
                             input.value = val.format(thisFormat);
                         });
 
                         input.addEventListener('focus', () => picker.open());
-                        window.DCMS.datetimePickers[input.name] = picker;
+                        window.DCMS.dateTimePickers[input.name] = picker;
                     });
                 }
             });

@@ -9,44 +9,15 @@ if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type=jexce
     window.DCMS.loadJS(window.DCMS.config.plugins.jsuites);
 }
 
-window.DCMS.jExcel = function () {
+window.DCMS.jExcelInit = function () {
     window.DCMS.hasLoaded(['jexcel'], function () {
-        var jExcelTrans, sheetData, sheetDynColumns, currentForm, formRows, table, alertMsg;
+        var sheetData, sheetDynColumns, currentForm, formRows, table, alertMsg;
 
         window.DCMS.jExcelTables = [];
-
         if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
-            jExcelTrans = {
-                // noRecordsFound:"Nenhum registro encontrado",
-                // entries:"entradas",
-                // insertANewColumnBefore:"Inserir uma nova coluna antes de",
-                // insertANewColumnAfter:"Inserir uma nova coluna depois de",
-                // deleteSelectedColumns:"Excluir colunas selecionadas",
-                // renameThisColumn:"Renomear esta coluna",
-                // orderAscending:"ordem ascendente",
-                // orderDescending:"Order decrescente",
-                // insertANewRowBefore:"Inserir uma nova linha antes de",
-                // insertANewRowAfter:"Inserir uma nova linha depois de",
-                // deleteSelectedRows:"Excluir linhas selecionadas",
-                // editComments:"Editar comentários",
-                // addComments:"Adicionar comentários",
-                // comments:"Comentarios",
-                // clearComments:"Limpar comentários",
-                // copy:"Copiar ...",
-                // paste:"Colar ...",
-                // saveAs: "Salvar como ...",
-                // about: "about",
-                // areYouSureToDeleteTheSelectedRows:"Tem certeza de excluir as linhas selecionadas?",
-                // areYouSureToDeleteTheSelectedColumns:"Tem certeza de excluir as colunas selecionadas?",
-                // thisActionWillDestroyAnyExistingMergedCellsAreYouSure:"Esta ação irá destruir todas as células mescladas existentes. Você tem certeza?",
-                // thisActionWillClearYourSearchResultsAreYouSure:"Esta ação limpará seus resultados de pesquisa. Você tem certeza?",
-                // thereIsAConflictWithAnotherMergedCell:"Há um conflito com outra célula mesclada",
-                // invalidMergeProperties:"Propriedades mescladas inválidas",
-                // cellAlreadyMerged:"Cell já mesclado",
-                // noCellsSelected:"Nenhuma célula selecionada",
-            };
-
+            require('./../translations/_jexcel.js');
             document.querySelectorAll('[data-type=jexcel]').forEach(function (htmlTable) {
+
                 sheetData = '';
                 sheetDynColumns = [];
                 currentForm = document.querySelector(htmlTable.dataset.jexcelFormSelector);
@@ -79,7 +50,7 @@ window.DCMS.jExcel = function () {
                             url: header.dataset.jexcelFetchUrl,
                             responseType: 'json',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                                'X-CSRF-TOKEN': window.DCMS.csrf,
                                 "Content-type": "application/x-www-form-urlencoded",
                                 'X-Requested-With': 'XMLHttpRequest',
                             }
@@ -96,7 +67,6 @@ window.DCMS.jExcel = function () {
                         }
                     }
                 });
-
                 function MakeTable(tableToMake) {
                     // construct table
                     let rows = parseInt(htmlTable.dataset.jexcelEmptyrows);
@@ -111,7 +81,7 @@ window.DCMS.jExcel = function () {
                         colWidths: sheetDynColumns.map(function (el) { return (el.width) ? el.width : 100; }),
                         allowInsertColumn: false,
                         allowManualInsertColumn: false,
-                        text: jExcelTrans
+                        text: window.DCMS.jExcel.translations
                     });
 
                     if (currentForm) {
@@ -145,7 +115,7 @@ window.DCMS.jExcel = function () {
                                 data: sheetData,
                                 responseType: 'json',
                                 headers: {
-                                    'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                                    'X-CSRF-TOKEN': window.DCMS.csrf,
                                     "Content-type": "application/x-www-form-urlencoded",
                                     'X-Requested-With': 'XMLHttpRequest',
                                 }
@@ -194,7 +164,6 @@ window.DCMS.jExcel = function () {
                         });
                     }
                 }
-
                 currentForm.querySelector('#fixSheet').addEventListener('click', function (e) {
                     var dropdownHeaders = [];
                     Array.from(htmlTable.getElementsByTagName('th')).forEach((th) => {
@@ -214,7 +183,7 @@ window.DCMS.jExcel = function () {
                         },
                         responseType: 'json',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                            'X-CSRF-TOKEN': window.DCMS.csrf,
                             "Content-type": "application/x-www-form-urlencoded",
                             'X-Requested-With': 'XMLHttpRequest',
                         }
@@ -234,7 +203,7 @@ window.DCMS.jExcel = function () {
                                     let jExcelTable = window.DCMS.jExcelTables[t];
                                     if (jExcelTable.el == currentTable) {
                                         jExcelTable.setData(response.data, false);
-                                        toastr.success(Lang('Sheet has been updated.'));
+                                        window.toastr.success(Lang('Sheet has been updated.'));
                                     }
                                 }
                             }
@@ -255,4 +224,6 @@ window.DCMS.jExcel = function () {
         }
     });
 };
-window.DCMS.jExcel();
+window.DCMS.onComplete(function () {
+    window.DCMS.jExcelInit();
+});

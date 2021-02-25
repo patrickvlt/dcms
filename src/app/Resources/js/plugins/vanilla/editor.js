@@ -2,7 +2,7 @@ if (typeof tinymce == 'undefined' && window.DCMS.enableEditors == true && window
     window.DCMS.loadJS(window.DCMS.config.plugins.tinymce, 'local');
 }
 
-if (window.DCMS.enableEditors == true) {
+if (window.enableDCMSEditors == true) {
     window.DCMS.editors = function () {
         window.DCMS.hasLoaded('axios', function () {
             window.axios({
@@ -10,7 +10,7 @@ if (window.DCMS.enableEditors == true) {
                 url: '/dcms/content/authenticate',
                 responseType: 'json',
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelectorAll('meta[name=csrf-token]')[0].content,
+                    'X-CSRF-TOKEN': window.DCMS.csrf,
                     "Content-type": "application/x-www-form-urlencoded",
                     'X-Requested-With': 'XMLHttpRequest',
                 }
@@ -19,7 +19,7 @@ if (window.DCMS.enableEditors == true) {
                     var dcmsCount = 0, elementContent, elementUID, elementDisplay, elForm, elEditor, elBtnsDiv, elCancelButton, elClearButton,
                         elSaveButton, btn, editorValue, elRightBtnsDiv, elLeftBtnsDiv;
                     function AssignEditors() {
-                        document.querySelectorAll('dcms').forEach(function (element) {
+                        document.querySelectorAll('Editor').forEach(function (element) {
                             element.addEventListener('click', function (event) {
                                 event.preventDefault();
                                 // Only one editor can be active at the same time
@@ -62,6 +62,7 @@ if (window.DCMS.enableEditors == true) {
                                 elLeftBtnsDiv.classList.add('w-25');
                                 // Clear Button
                                 elClearButton = document.createElement('button');
+                                elCancelButton.dataset.dcmsEditorAction = 'clear';
                                 elClearButton.classList.add('btn');
                                 elClearButton.classList.add('btn-danger');
                                 elClearButton.textContent = Lang('Clear');
@@ -69,6 +70,7 @@ if (window.DCMS.enableEditors == true) {
                                 elLeftBtnsDiv.appendChild(elClearButton, elForm.nextSibling);
                                 // Cancel Button
                                 elCancelButton = document.createElement('button');
+                                elCancelButton.dataset.dcmsEditorAction = 'cancel';
                                 elCancelButton.classList.add('btn');
                                 elCancelButton.classList.add('btn-warning');
                                 elCancelButton.classList.add('mr-2');
@@ -76,6 +78,7 @@ if (window.DCMS.enableEditors == true) {
                                 elRightBtnsDiv.appendChild(elCancelButton, elForm.nextSibling);
                                 // Save Button
                                 elSaveButton = document.createElement('button');
+                                elCancelButton.dataset.dcmsEditorAction = 'save';
                                 elSaveButton.classList.add('btn');
                                 elSaveButton.classList.add('btn-primary');
                                 elSaveButton.textContent = Lang('Save');
@@ -136,18 +139,30 @@ if (window.DCMS.enableEditors == true) {
                                     event.preventDefault();
                                     btn = event.target;
 
-                                    window.axios.post('/dcms/content/clear', {
-                                        contentUID: elementUID
-                                    }, Object.assign(window.DCMS.axios.config, {})).then(function (response) {
-                                        if (response.status == 200) {
-                                            window.location.reload();
-                                        } else {
-                                            Swal.fire({
-                                                title: Lang('Unknown error'),
-                                                html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
-                                                icon: "error"
-                                            });
+                                    window.axios({
+                                        method: 'POST',
+                                        url: '/dcms/content/clear',
+                                        data: {
+                                            contentUID: elementUID
+                                        },
+                                        responseType: 'json',
+                                        headers: {
+                                            'X-CSRF-TOKEN': window.DCMS.csrf,
+                                            "Content-type": "application/x-www-form-urlencoded",
+                                            'X-Requested-With': 'XMLHttpRequest',
                                         }
+                                    }).then(function (response) {
+                                        window.location.reload();
+                                    }).catch(function (error) {
+                                        Swal.fire({
+                                            title: Lang('Unknown error'),
+                                            html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                                            icon: "error",
+                                            confirmButtonColor: (typeof window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
+                                            confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                                            cancelButtonColor: (typeof window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
+                                            cancelButtonText: (typeof window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
+                                        });
                                     });
                                 });
 

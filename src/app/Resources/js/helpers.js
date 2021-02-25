@@ -112,6 +112,30 @@ window.DCMS.loadInModal = function (url) {
 
 /**
  *
+ *  Copy file from FilePond or Carousel
+ */
+
+
+window.DCMS.copyControls = function () {
+    let copyControls = document.querySelectorAll('[data-dcms-action="copy"]');
+    if (copyControls) {
+        Array.from(copyControls).forEach((copyControl) => {
+            try {
+                copyControl.removeEventListener('click');
+            } catch (error) {
+                //
+            }
+            copyControl.addEventListener('click', function (e) {
+                let img = e.currentTarget.dataset.dcmsFile;
+                window.DCMS.textToClipBoard(img);
+                window.toastr.success(Lang('Image copied to clipboard.'));
+            });
+        });
+    }
+};
+
+/**
+ *
  *  Copy text to clipboard
  */
 
