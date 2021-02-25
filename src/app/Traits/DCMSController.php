@@ -139,7 +139,8 @@ trait DCMSController
     public function destroyMultiple()
     {
         $this->__init();
-        $deleteIDs = request()->deleteIDs;
+        $request = json_decode(request()->getContent(),true);
+        $deleteIDs = isset($request['deleteIDs']) ? $request['deleteIDs'] : null;
         foreach ($deleteIDs as $id) {
             $this->destroy($id);
         }
