@@ -23,6 +23,7 @@ class DCMSProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Crud::class,
+                TestCrudForm::class,
                 Datatable::class,
                 Update::class,
                 Publish::class,

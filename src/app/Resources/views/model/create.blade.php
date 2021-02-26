@@ -473,7 +473,7 @@
                                                 </div>
                                                 <!--end::Input-->
                                                 <!--begin::Input-->
-                                                <div class="form-group fv-plugins-icon-container" data-filepond-div>
+                                                <div class="form-group fv-plugins-icon-container" data-filepond-div style="display:none">
                                                     <label>Mime</label>
                                                     <input type="filePondMime" class="form-control form-control-solid form-control-lg"
                                                     name="filePondMime" placeholder="image">
@@ -640,7 +640,7 @@
                                             <div class="form-group fv-plugins-icon-container" data-jexcel-title-div style="display:none">
                                                 <label>Title</label>
                                                 <input type="text" class="form-control form-control-solid form-control-lg"
-                                                    name="title" placeholder="jExcel">                                                
+                                                    name="title" placeholder="jExcel">
                                                     <span class="form-text text-muted">Enter the title of the table header for this column.</span>
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
