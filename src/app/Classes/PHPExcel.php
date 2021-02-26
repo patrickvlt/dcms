@@ -25,25 +25,24 @@ class PHPExcel
 
         // Loop through headers array
         $headerCount = 0;
-        foreach ($headers as $header => $visibleText){
+        foreach ($headers as $header => $visibleText) {
             $sheet->setCellValueByColumnAndRow($headerCount+1, 1, $visibleText);
             $headerCount++;
         }
 
         // Loop through data array
-        for ($row = 0; $row < sizeof($data); $row++) {
-            $column = 0;
+        for ($row = 0, $rowMax = count($data); $row < $rowMax; $row++) {
             $headerPos = 0;
-            
+
             foreach ($headers as $headerKey => $headerVal) {
                 // Start from row one, since first row is for headers
                 $sheetRow = ($row + 1 + 1);
                 $sheetColumn = $headerPos + 1;
 
                 // If current header is a nested array column
-                if (count(explode('.',$headerKey)) > 1){
+                if (count(explode('.', $headerKey)) > 1) {
                     $dataEntry = '';
-                    foreach (explode('.',$headerKey) as $header){
+                    foreach (explode('.', $headerKey) as $header) {
                         $dataEntry .= "['".$header."']";
                     }
                     $dataEntry = "\$data[\$row]".$dataEntry;
@@ -53,7 +52,6 @@ class PHPExcel
                     $dataEntry = $data[$row][$headerKey];
                 }
                 $sheet->setCellValueByColumnAndRow($sheetColumn, $sheetRow, $dataEntry);
-                $column++;
                 $headerPos++;
             }
         }
@@ -67,7 +65,6 @@ class PHPExcel
         ob_start();
         $writer->save('php://output');
         $content = ob_get_clean();
-        Storage::disk('tmp')->put($fileName,$content);
+        Storage::disk('tmp')->put($fileName, $content);
     }
-
 }

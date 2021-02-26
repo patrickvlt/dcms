@@ -20,6 +20,9 @@
 </div>
 <!--end::Subheader-->
 @endsection
+@push('extra-styles')
+<link href="/css/dcms/wizard.css" rel="stylesheet" type="text/css" />
+@endpush
 @section('content')
 <!--begin::Users-->
 <!--begin::Row-->
@@ -63,17 +66,6 @@
                         </div>
                     </div>
                     <!--end::Wizard Step 3 Nav-->
-                    <!--begin::Wizard Step 4 Nav-->
-                    <div class="wizard-step" data-wizard-type="step" data-wizard-state="pending">
-                        <div class="wizard-wrapper">
-                            <div class="wizard-number">4</div>
-                            <div class="wizard-label">
-                                <div class="wizard-title">Summary</div>
-                                <div class="wizard-desc"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--end::Wizard Step 4 Nav-->
                 </div>
             </div>
             <!--end: Wizard Nav-->
@@ -95,13 +87,32 @@
                                         <div class="fv-plugins-message-container"></div>
                                     </div>
                                     <!--end::Input-->
+                                     <!--begin::Input-->
+                                     <div class="form-group fv-plugins-icon-container col-12">
+                                        <div>
+                                            <input name="seed" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                            <input name="seed" type="checkbox" value="1" id="seedBox0" data-type="iCheck" style="display:none">
+                                            <label class="form-check-label" for="seedBox0">Do you want to seed this model?</label>
+                                        </div>
+                                        <div class="fv-plugins-message-container"></div>
+                                    </div>
+                                    <!--end::Input-->
+                                    <!--begin::Input-->
+                                    <div class="form-group fv-plugins-icon-container col-12" data-seed-amount style="display:none">
+                                        <label>Amount to seed</label>
+                                        <input type="number" class="form-control form-control-solid form-control-lg"
+                                            name="amountToSeed" placeholder="20">
+                                        <span class="form-text text-muted">How many objects do you want to seed?</span>
+                                        <div class="fv-plugins-message-container"></div>
+                                    </div>
+                                    <!--end::Input-->
                                     <div class="mb-10 font-weight-bold text-dark col-12">Responses</div>
-                                    <div class="d-sm-flex">
+                                    <div class="d-sm-flex" data-response-created>
                                         <!--begin::Input-->
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Message for new entry</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_created" placeholder="Created user">
+                                                name="message" placeholder="Created user">
                                             <span class="form-text text-muted">Which message to show when user creates a new entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -110,19 +121,19 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_created_url" placeholder="Created user">
-                                            <span class="form-text text-muted">Enter a path to redirect the user after
+                                                name="url" placeholder="/user/index">
+                                            <span class="form-text text-muted">Enter a relative path to redirect the user after
                                                 creating a new entry.</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
                                         <!--end::Input-->
                                     </div>
-                                    <div class="d-sm-flex">
+                                    <div class="d-sm-flex" data-response-updated>
                                         <!--begin::Input-->
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Message for updated entry</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_updated" placeholder="Updated user">
+                                                name="message" placeholder="Updated user">
                                             <span class="form-text text-muted">Which message to show when user has edited an entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -131,19 +142,19 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_updated_url" placeholder="Updated user">
-                                            <span class="form-text text-muted">Enter a path to redirect the user after
+                                                name="url" placeholder="/user/index">
+                                            <span class="form-text text-muted">Enter a relative path to redirect the user after
                                                 editing an entry.</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
                                         <!--end::Input-->
                                     </div>
-                                    <div class="d-sm-flex">
+                                    <div class="d-sm-flex" data-response-deleted>
                                         <!--begin::Input-->
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Message for deleted entry</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_deleted" placeholder="Deleted user">
+                                                name="message" placeholder="Deleted user">
                                             <span class="form-text text-muted">Which message to show when user has deleted an entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -152,7 +163,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Redirect</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="response_deleted_url" placeholder="Deleted user">
+                                                name="url" placeholder="/user/index">
                                             <span class="form-text text-muted">Enter a path to redirect the user after
                                                 deleting an entry.</span>
                                             <div class="fv-plugins-message-container"></div>
@@ -165,7 +176,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Create</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="view_create" placeholder="user.create">
+                                                name="create" data-view placeholder="user.create">
                                             <span class="form-text text-muted">Which view to return when creating a new entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -174,7 +185,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Index</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="view_index" placeholder="user.index">
+                                                name="index" data-view placeholder="user.index">
                                             <span class="form-text text-muted">Which view to return for the index route?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -185,7 +196,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Show</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="view_show" placeholder="user.show">
+                                                name="show" data-view placeholder="user.show">
                                             <span class="form-text text-muted">Which view to return when viewing an entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -194,7 +205,7 @@
                                         <div class="form-group fv-plugins-icon-container col-sm-6">
                                             <label>Edit</label>
                                             <input type="text" class="form-control form-control-solid form-control-lg"
-                                                name="view_edit" placeholder="user.edit">
+                                                name="edit" data-view placeholder="user.edit">
                                             <span class="form-text text-muted">Which view to return when editing an entry?</span>
                                             <div class="fv-plugins-message-container"></div>
                                         </div>
@@ -207,7 +218,7 @@
                                     <div data-column>
                                         <i class="fas fa-caret-down" data-column-control></i>
                                         <h4 class="mb-10 font-weight-bold text-dark d-inline ml-2" data-column-name></h4>
-                                        <div class="mt-5" data-column-properties>
+                                        <div class="mt-5 pt-5" data-column-properties>
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container">
                                                 <label>Column</label>
@@ -221,7 +232,7 @@
                                             <div class="form-group fv-plugins-icon-container">
                                                 <label>Title</label>
                                                 <input type="text" class="form-control form-control-solid form-control-lg"
-                                                    name="title" placeholder="E-mail Address">
+                                                    name="title" placeholder="E-mail address">
                                                 <span class="form-text text-muted">The title of the column, to show above it's input in a form.</span>
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
@@ -229,7 +240,7 @@
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container">
                                                 <label>Data Type</label>
-                                                <select name="datatype" data-type="slimselect" id="datatype" class="form-control form-control-solid form-control-lg">
+                                                <select name="dataType" data-type="slimselect" id="dataType" class="form-control form-control-solid form-control-lg">
                                                     <option value="">..</option>
                                                     <option value="bigIncrements">bigIncrements</option>
                                                     <option value="bigInteger">bigInteger</option>
@@ -318,24 +329,120 @@
                                             </div>
                                             <!--begin::Input-->
                                             <div class="form-group fv-plugins-icon-container">
-                                                <label>Foreign</label>
-                                                <select name="foreign" data-type="slimselect" id="foreign" class="form-control form-control-solid form-control-lg">
-                                                    <option value="">..</option>
-                                                    <option value="No">No</option>
-                                                    <option value="Yes">Yes</option>
-                                                </select>
-                                                <span class="form-text text-muted">Does this column contain a foreign key?</span>
+                                                <div>
+                                                    <input name="foreign" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                                    <input name="foreign" type="checkbox" value="1" id="foreignBox0" data-type="iCheck" data-foreign-checkbox style="display:none">
+                                                    <label class="form-check-label" for="foreignBox0">Is this a foreign key?</label>
+                                                </div>
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
                                             <!--end::Input-->
-                                            <div data-input-div style="display:none">
+                                            <!--begin::Relation-->
+                                            <div data-relation-div style="display:none">
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Class</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="class" placeholder="Post">
+                                                    <span class="form-text text-muted">Which class does the foreign key point to?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Table</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="table" placeholder="posts">
+                                                    <span class="form-text text-muted">Which database table contains the records of this class?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Relation</label>
+                                                    <select name="relation" data-type="slimselect" class="form-control form-control-solid form-control-lg">
+                                                        <option value="">..</option>
+                                                        <option value="hasOne">hasOne</option>
+                                                        <option value="belongsTo">belongsTo</option>
+                                                        <option value="hasMany">hasMany</option>
+                                                        <option value="belongsToMany">belongsToMany</option>
+                                                        <option value="hasOneThrough">hasOneThrough</option>
+                                                        <option value="hasManyThrough">hasManyThrough</option>
+                                                        <option value="morphTo">morphTo</option>
+                                                        <option value="morphMany">morphMany</option>
+                                                        <option value="morphToMany">morphToMany</option>
+                                                        <option value="morphedByMany">morphedByMany</option>
+                                                        <option value="getMorphedModel">getMorphedModel</option>
+                                                    </select>
+                                                    <span class="form-text text-muted">What kind of a relation is this? Click <a href="https://laravel.com/docs/8.x/eloquent-relationships" target="_blank">here</a> to view all available relation types.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Relation method</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="method" placeholder="post">
+                                                    <span class="form-text text-muted">Define the name of the method to call this relation.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>On Update?</label>
+                                                    <select name="onUpdate" data-type="slimselect" class="form-control form-control-solid form-control-lg">
+                                                        <option value="">..</option>
+                                                        <option value="cascade">cascade</option>
+                                                        <option value="restrict">restrict</option>
+                                                        <option value="set null">set null</option>
+                                                        <option value="no action">no action</option>
+                                                    </select>
+                                                    <span class="form-text text-muted">What should this column do when it's related object changes?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>On Delete?</label>
+                                                    <select name="onDelete" data-type="slimselect" class="form-control form-control-solid form-control-lg">
+                                                        <option value="">..</option>
+                                                        <option value="cascade">cascade</option>
+                                                        <option value="restrict">restrict</option>
+                                                        <option value="set null">set null</option>
+                                                        <option value="no action">no action</option>
+                                                    </select>
+                                                    <span class="form-text text-muted">What should this column do when it's related object is deleted?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Value</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="value" placeholder="id">
+                                                    <span class="form-text text-muted">A dropdown element will be generated in the form with all related objects. Which field should be used as the value in the option element?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container">
+                                                    <label>Text</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="text" placeholder="name">
+                                                    <span class="form-text text-muted">Which field should be shown to the user in the option element?</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                            </div>
+                                            <!--end::Relation-->
+                                            <div data-input-div>
                                                 <!--begin::Input-->
                                                 <div class="form-group fv-plugins-icon-container">
                                                     <label>Input Type</label>
                                                     <select name="inputType" data-type="slimselect" id="inputType" class="form-control form-control-solid form-control-lg">
                                                         <option value="text">Text</option>
                                                         <option value="checkbox">Checkbox</option>
-                                                        <option value="dropdown">Dropdown</option>
+                                                        <option value="select">Dropdown</option>
                                                         <option value="textarea">Textarea</option>
                                                         <option value="color">Color</option>
                                                         <option value="date">Date</option>
@@ -365,22 +472,75 @@
                                                     <div class="fv-plugins-message-container"></div>
                                                 </div>
                                                 <!--end::Input-->
-                                            </div>
-                                            <!--begin::relatedKey-->
-                                            <div data-key-div style="display:none">
                                                 <!--begin::Input-->
-                                                <div class="form-group fv-plugins-icon-container" data-kt-key-div style="display:none">
-                                                    <label>Related key</label>
-                                                    <input type="text" class="form-control form-control-solid form-control-lg"
-                                                        name="jExcel_column_key" placeholder="id">
-                                                    <span class="form-text text-muted">Which field to use from the related class?</span>
+                                                <div class="form-group fv-plugins-icon-container" data-filepond-div>
+                                                    <label>Mime</label>
+                                                    <input type="filePondMime" class="form-control form-control-solid form-control-lg"
+                                                    name="filePondMime" placeholder="image">
+                                                    <span class="form-text text-muted">What kind of file will be uploaded to the FilePond element? This is important for the folder structure where files get stored.</span>
                                                     <div class="fv-plugins-message-container"></div>
                                                 </div>
                                                 <!--end::Input-->
                                             </div>
-                                            <!--end::relatedKey-->
                                             <!--begin::Input-->
-                                            <div class="form-group fv-plugins-icon-container" data-input-datatype-div>
+                                            <div data-seed-div style="display:none">
+                                                <div class="form-group fv-plugins-icon-container" data-seed-input style="display:none">
+                                                    <label>Seed</label>
+                                                    <input type="text" class="form-control form-control-solid form-control-lg"
+                                                        name="seed" placeholder="Random string">
+                                                    <span class="form-text text-muted">Enter the data to seed this column.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <div class="form-group fv-plugins-icon-container" data-seed-auto style="display:none">
+                                                    <div class="alert alert-custom alert-light-primary fade show mb-5" role="alert">
+                                                        <div class="alert-icon">
+                                                            <i class="fas fa-exclamation-triangle"></i>
+                                                        </div>
+                                                        <div class="alert-text">Since this is a foreign key, DCMS will seed this column with a random related object.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <hr>
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container mt-5 pt-5">
+                                                <div>
+                                                    <input name="validation" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                                    <input name="validation" type="checkbox" value="1" id="validationBox0" data-type="iCheck" data-validation-checkbox style="display:none">
+                                                    <label class="form-check-label" for="validationBox0">Do you want to write the validation rules for this column?</label>
+                                                </div>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <div data-validation-div style="display:none">
+                                                <!--begin::Input-->
+                                                <div class="form-group fv-plugins-icon-container" data-validation-rule>
+                                                    <label>Rule</label>
+                                                    <div class="d-flex">
+                                                        <input type="text" class="form-control form-control-solid form-control-lg w-75"
+                                                        name="rule" placeholder="min:5">
+                                                        <button class="btn btn-danger btn-icon ml-5 mt-1" style="min-width: 90px" data-delete-rule type="button">
+                                                        <span class="menu-text">Delete</span>
+                                                    </div>
+                                                    </button>
+                                                    <span class="form-text text-muted">Click <a href="https://laravel.com/docs/8.x/validation#available-validation-rules" target="_blank">here</a> to view all available rules.</span>
+                                                    <div class="fv-plugins-message-container"></div>
+                                                </div>
+                                                <!--end::Input-->
+                                            </div>
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container mb-5 pb-5" data-add-rule-div style="display:none">
+                                                <label>Add another rule?</label>
+                                                <br>
+                                                <button class="btn btn-primary btn-icon" style="min-width: 90px" data-add-rule type="button">
+                                                    <span class="menu-text">Yes</span>
+                                                </button>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <hr>
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container mt-5 pt-5" data-input-datatype-div>
                                                 <label>Add another column?</label>
                                                 <br>
                                                 <button class="btn btn-primary btn-icon" style="min-width: 90px" data-add-column type="button">
@@ -408,16 +568,16 @@
                                     <h4 class="mb-10 font-weight-bold text-dark">Datatable</h4>
                                     <div class="mb-10 font-weight-bold text-dark">Select which columns you want to show in the main datatable for this model.</div>
                                     <!--begin::KT columns-->
-                                    <div data-kt-columns class="mb-5 pt-5">
-                                        <div data-kt-column>
+                                    <div data-kt-columns class="mb-5 pt-5 col-12">
+                                        <div data-kt-column data-kt-column-name="ktColumn">
                                             <div class="row">
                                                 <div class="col-12">
                                                     <!--begin::Enable column-->
                                                     <div class="form-group fv-plugins-icon-container">
                                                         <div>
-                                                            <input name="ktColumn_enable" type="checkbox" checked="checked" value="0" data-kt-checkbox style="display:none !important">
-                                                            <input name="ktColumn_enable" type="checkbox" value="1" data-kt-column-name id="ktColumn_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
-                                                            <label class="form-check-label" for="ktColumn_enableBox0">ktColumn</label>
+                                                            <input name="enable" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                                            <input name="enable" type="checkbox" value="1" id="ktColumn_enableKtBox0" data-type="iCheck" data-kt-checkbox style="display:none">
+                                                            <label class="form-check-label" for="ktColumn_enableKtBox0">ktColumn</label>
                                                         </div>
                                                     </div>
                                                     <!--end::Enable column-->
@@ -425,7 +585,7 @@
                                                     <div class="form-group fv-plugins-icon-container" data-kt-title-div style="display:none">
                                                         <label>Title</label>
                                                         <input type="text" class="form-control form-control-solid form-control-lg"
-                                                            name="ktColumn_column_title" placeholder="ktColumn">
+                                                            name="title" placeholder="ktColumn">
                                                         <span class="form-text text-muted">Enter the title of the table header for this column.</span>
                                                         <div class="fv-plugins-message-container"></div>
                                                     </div>
@@ -434,7 +594,7 @@
                                                     <!--begin::Type-->
                                                     <div class="form-group fv-plugins-icon-container" data-kt-type-div style="display:none">
                                                         <label class="form-check-label">Column type</label>
-                                                        <select name="ktColumn_column_type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
+                                                        <select name="type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
                                                             <option value="">..</option>
                                                             <option value="text">Text</option>
                                                             <option value="boolean">Boolean</option>
@@ -456,40 +616,40 @@
                                     <!--begin::jExcel imports-->
                                     <h4 class="mb-10 font-weight-bold text-dark mt-5 pt-5">Imports</h4>
                                     <!--begin::enable jExcel-->
-                                    <div class="form-group fv-plugins-icon-container pb-5">
+                                    <div class="form-group fv-plugins-icon-container pb-5 col-12">
                                         <div>
                                             <input name="enableImports" type="checkbox" checked="checked" value="0" style="display:none !important">
-                                            <input name="enableImports" type="checkbox" value="1" id="enableImportsBox0" data-type="iCheck" style="display:none">
-                                            <label class="form-check-label" for="enableImportsBox0">Do you want to enable jExcel imports?</label>
+                                            <input name="enableImports" type="checkbox" value="1" id="jExcel_enableImportsBox0" data-type="iCheck" style="display:none">
+                                            <label class="form-check-label" for="jExcel_enableImportsBox0">Do you want to enable jExcel imports?</label>
                                         </div>
                                         <div class="fv-plugins-message-container"></div>
                                     </div>
                                     <!--end::enable jExcel-->
-                                    <div data-jexcel-columns class="mb-5 pt-5">
-                                        <div data-jexcel-column>
+                                    <div data-jexcel-columns class="mb-5 pt-5 pb-5 col-12" style="display:none">
+                                        <div data-jexcel-column data-jexcel-column-name="jExcel">
                                             <!--begin::Enable column-->
                                             <div class="form-group fv-plugins-icon-container">
                                                 <div>
-                                                    <input name="jExcel_enable" type="checkbox" checked="checked" value="0" data-kt-checkbox style="display:none !important">
-                                                    <input name="jExcel_enable" type="checkbox" value="1" id="jExcel_enableBox0" data-type="iCheck" data-kt-checkbox style="display:none">
-                                                    <label class="form-check-label" for="jExcel_enableBox0">jExcel</label>
+                                                    <input name="enable" type="checkbox" checked="checked" value="0" style="display:none !important">
+                                                    <input name="enable" type="checkbox" value="1" id="jExcel_enableImportBox0" data-type="iCheck" data-jexcel-checkbox style="display:none">
+                                                    <label class="form-check-label" for="jExcel_enableImportBox0">jExcel</label>
                                                 </div>
                                             </div>
                                             <!--end::Enable column-->
                                             <!--begin::Title-->
-                                            <div class="form-group fv-plugins-icon-container" data-kt-title-div style="display:none">
+                                            <div class="form-group fv-plugins-icon-container" data-jexcel-title-div style="display:none">
                                                 <label>Title</label>
                                                 <input type="text" class="form-control form-control-solid form-control-lg"
-                                                    name="jExcel_column_title" placeholder="jExcel">                                                
+                                                    name="title" placeholder="jExcel">                                                
                                                     <span class="form-text text-muted">Enter the title of the table header for this column.</span>
                                                 <div class="fv-plugins-message-container"></div>
                                             </div>
                                             <!--end::Title-->
                                             <!--optional::Key-->
                                             <!--begin::Title-->
-                                            <div class="form-group fv-plugins-icon-container" data-kt-type-div style="display:none">
+                                            <div class="form-group fv-plugins-icon-container" data-jexcel-type-div style="display:none">
                                                 <label class="form-check-label">Column type</label>
-                                                <select name="jExcel_column_type" data-type="slimselect" data-kt-column-type class="form-control form-control-solid form-control-lg mt-2">
+                                                <select name="type" data-type="slimselect" data-jexcel-column-type class="form-control form-control-solid form-control-lg mt-2">
                                                     <option value="">..</option>
                                                     <option value="text">Text</option>
                                                     <option value="numeric">Numeric</option>
@@ -509,48 +669,53 @@
                                         </div>
                                     </div>
                                     <!--end::jExcel imports-->
+                                    <!--begin::jExcel responses-->
+                                    <div data-jexcel-responses style="display:none">
+                                        <div class="d-sm-flex" data-jexcel-response="success">
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container col-sm-6">
+                                                <label>Message for successful import</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="message" placeholder="All data has been imported.">
+                                                <span class="form-text text-muted">Which message to show when importing has succeeded?</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container col-sm-6">
+                                                <label>Redirect</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="url" placeholder="/user/index">
+                                                <span class="form-text text-muted">Enter a relative path to redirect the user after
+                                                    successfully importing data.</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                        </div>
+                                        <div class="d-sm-flex pt-5" data-jexcel-response="failed">
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container col-sm-6">
+                                                <label>Title for failed import</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="title" placeholder="Unknown error">
+                                                <span class="form-text text-muted">Which title to show in the alert when importing has failed?</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                            <!--begin::Input-->
+                                            <div class="form-group fv-plugins-icon-container col-sm-6">
+                                                <label>Message for failed import</label>
+                                                <input type="text" class="form-control form-control-solid form-control-lg"
+                                                    name="message" placeholder="The table contains invalid data.">
+                                                <span class="form-text text-muted">Which message to show in the alert when importing has failed?</span>
+                                                <div class="fv-plugins-message-container"></div>
+                                            </div>
+                                            <!--end::Input-->
+                                        </div>
+                                    </div>
+                                    <!--end::jExcel responses-->
                                 </div>
                                 <!--end: Wizard Step 3-->
-                                <!--begin: Wizard Step 4-->
-                                <div class="pb-5" data-wizard-step="4" data-wizard-type="step-content">
-                                    <!--begin::Section-->
-                                    <h4 class="mb-10 font-weight-bold text-dark">Review your Details and Submit</h4>
-                                    <h6 class="font-weight-bolder mb-3">Current Address:</h6>
-                                    <div class="text-dark-50 line-height-lg">
-                                        <div>Address Line 1</div>
-                                        <div>Address Line 2</div>
-                                        <div>Melbourne 3000, VIC, Australia</div>
-                                    </div>
-                                    <div class="separator separator-dashed my-5"></div>
-                                    <!--end::Section-->
-                                    <!--begin::Section-->
-                                    <h6 class="font-weight-bolder mb-3">Delivery Details:</h6>
-                                    <div class="text-dark-50 line-height-lg">
-                                        <div>Package: Complete Workstation (Monitor, Computer, Keyboard &amp; Mouse)
-                                        </div>
-                                        <div>Weight: 25kg</div>
-                                        <div>Dimensions: 110cm (w) x 90cm (h) x 150cm (L)</div>
-                                    </div>
-                                    <div class="separator separator-dashed my-5"></div>
-                                    <!--end::Section-->
-                                    <!--begin::Section-->
-                                    <h6 class="font-weight-bolder mb-3">Delivery Service Type:</h6>
-                                    <div class="text-dark-50 line-height-lg">
-                                        <div>Overnight Delivery with Regular Packaging</div>
-                                        <div>Preferred Morning (8:00AM - 11:00AM) Delivery</div>
-                                    </div>
-                                    <div class="separator separator-dashed my-5"></div>
-                                    <!--end::Section-->
-                                    <!--begin::Section-->
-                                    <h6 class="font-weight-bolder mb-3">Delivery Address:</h6>
-                                    <div class="text-dark-50 line-height-lg">
-                                        <div>Address Line 1</div>
-                                        <div>Address Line 2</div>
-                                        <div>Preston 3072, VIC, Australia</div>
-                                    </div>
-                                    <!--end::Section-->
-                                </div>
-                                <!--end: Wizard Step 4-->
                                 <!--begin: Wizard Actions-->
                                 <div class="d-flex justify-content-between border-top mt-5 pt-10">
                                     <div class="mr-2">

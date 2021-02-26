@@ -17,7 +17,7 @@ label#titleLabel {
     display:block;
 }
 
-.ss-main .ss-single-selected {
+.wizard .ss-main, .wizard .ss-single-selected {
     background-color: #f3f6f9 !important;
 }
 

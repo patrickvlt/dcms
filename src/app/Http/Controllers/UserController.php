@@ -57,7 +57,7 @@ class UserController extends Controller
     public function fetch(): \Illuminate\Http\JsonResponse
     {
         // Get class to make a query for
-        $query = User::query();
+        $query = User::with('roles');
         return (new Datatable($query))->render();
     }
 
@@ -66,24 +66,43 @@ class UserController extends Controller
         return view('dcms::user.index');
     }
 
-    public function afterCreate($request, $model)
+    public function afterCreate($request, $model): void
     {
-        event(new Registered($model));
+        if (initSMTP()) {
+            try {
+                event(new Registered($model));
+            } catch (\Throwable $th) {
+                logger("Couldn't send e-mail to user."."\n".$th->getMessage().$th->getTraceAsString());
+            }
+        }
     }
 
     public function create()
     {
-        $this->__init();
+        $this->initDCMS();
         // Auto generated Form with HTMLTag package
-        $form = (isset($this->form)) ? Form::create($this->request,$this->routePrefix,$this->form,$this->responses) : null;
+        $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         return view('dcms::user.crud')->with(['form' => $form]);
     }
 
     public function edit(User $user)
     {
-        $this->__init();
+        $this->initDCMS();
         // Auto generated Form with HTMLTag package
-        $form = (isset($this->form)) ? Form::create($this->request,$this->routePrefix,$this->form,$this->responses) : null;
+        $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         return view('dcms::user.crud')->with(['form' => $form]);
+    }
+
+    /**
+     *
+     * DCMS: Execute code after a new model has been created/updated/deleted
+     *
+     */
+
+    public function afterCreateOrUpdate($request, User $user): void
+    {
+        if (isset($request['roles'])) {
+            $user->syncRoles($request['roles']);
+        }
     }
 }

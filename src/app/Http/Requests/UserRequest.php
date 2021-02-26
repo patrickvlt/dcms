@@ -33,7 +33,7 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        if (preg_match('/user.edit/',CurrentRoute()) || preg_match('/user.update/',CurrentRoute())){
+        if (preg_match('/user.edit/', CurrentRoute()) || preg_match('/user.update/', CurrentRoute())) {
             return [
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255'],

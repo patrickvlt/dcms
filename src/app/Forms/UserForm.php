@@ -2,9 +2,11 @@
 
 namespace Pveltrop\DCMS\Forms;
 
+use Spatie\Permission\Models\Role;
+
 class UserForm
 {
-    public function fields()
+    public function fields(): array
     {
         return [
             'name' => [
@@ -28,8 +30,24 @@ class UserForm
                     'text' => __('Click here to verify this user.')
                 ]
             ],
+            'roles' => [
+                'label' => [
+                    'text' => __('Roles')
+                ],
+                'select' => [
+                    'data-type' => 'slimselect',
+                    'data-slimselect-auto-close' => 'false',
+                    'multiple' => true,
+                    'options' => [
+                        'data' => Role::all(),
+                        'value' => 'id',
+                        'text' => 'name',
+                    ]
+                ],
+                'small' => [
+                    'text' => __('Which roles does this user have?')
+                ]
+            ],
         ];
     }
-
-
 }

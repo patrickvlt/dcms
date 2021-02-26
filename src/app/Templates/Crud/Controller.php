@@ -4,74 +4,38 @@ return '<?php
 
 namespace App\\Http\\Controllers;
 
-use ' . $this->modelImport . ';
+use ' . $this->modelPath . ';
+'.$controllerImports.'
 use App\\Forms\\' . $this->model . 'Form;
-use App\\Traits\\DCMSController;
 use App\\Http\\Requests\\' . $this->model . 'Request;
-use Pveltrop\DCMS\Classes\Datatable;
+use Pveltrop\\DCMS\\Classes\\Datatable;
+use Pveltrop\\DCMS\\Traits\\DCMSController;
 
 class ' . $this->model . 'Controller extends Controller
 {
     use DCMSController;
 
-    // This function defines all the settings for DCMS for the current model which belongs to this controller.
-    // This will help automatically pointing this controller to the right route, class, use the right messages in alerts, etc.
+    // These properties setup the DCMSController trait.
+    // This will initialise basic CRUD methods, Front-End columns for KTDatatable and jExcel, responses and request rules e.d.
     function __construct()
     {
         $this->routePrefix = "' . strtolower($this->prefix) . '";
         $this->model = ' . $this->model . '::class;
-        $this->request = ' . $this->modelRequestPath . ';
+        $this->request = ' . $modelRequest . ';
         $this->form = ' . $this->model . 'Form::class;
-        $this->responses = [
-            "created" => [
-                "title" => __("' . ucfirst($this->model) . ' created"),
-                "message" => __("' . ucfirst($this->model) . ' created on __created_at__"),
-            ],
-            "updated" => [
-                "title" => __("' . ucfirst($this->model) . ' updated"),
-                "message" => __("' . ucfirst($this->model) . ' updated on __created_at__"),
-            ]
+        $this->responses = ['.$responseStr.'
         ];
-        $this->views = [
-            "index" => "index",
-            "show" => "show",
-            "create" => "create",
-            "edit" => "edit"
+        $this->views = ['.$viewStr.'
         ];
         $this->jExcel = [
-            // which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
-            "columns" => [
-                // "name" => 0,
-                // "title" => 1,
-                // "email" => 2
+            // Which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
+            "columns" => ['.$jExcelColumnsStr.'
             ],
-            // which class to use when trying to autocorrect/compare?
-            // which classes/route prefixes to use when trying to autocorrect?
-            "autocorrect" => [
-                "user" => [
-                    // which column/cell in jExcel
-                    "column" => 1,
-                    // class which belongs to this column
-                    "class" => User::class,
-                    // which attribute to use when searching to autocorrect
-                    "searchAttributes" => [
-                        "name"
-                    ],
-                    // which attribute to return back to jExcel
-                    "returnAttribute" => "id",
-                ]
+            // How to autocorrect data?
+            "autocorrect" => ['.$jExcelCorrectStr.'
             ],
-            // finished or failed custom messages
-            "responses" => [
-                "finished" => [
-                    "title" => __("Import succeeded"),
-                    "message" => __("All data has been imported."),
-                    "url" => route("'.$this->prefix.'.index")
-                ],
-                "failed" => [
-                    "title" => __("Import failed"),
-                    "message" => __("Some fields contain invalid data."),
-                ]
+            // Responses when attempting to import
+            "responses" => ['.$jExcelResponseStr.'
             ]
         ];
     }
@@ -81,13 +45,13 @@ class ' . $this->model . 'Controller extends Controller
 
     public function beforeIndex(){
         return [
-            // "options" => $options 
+            // "posts" => $posts
         ];
     }
 
     public function beforeEdit($id){
         return [
-            // "users" => $users 
+            // "users" => $users
         ];
     }
 
@@ -108,7 +72,7 @@ class ' . $this->model . 'Controller extends Controller
         //
     }
 
-    // If you want to use server side filtering/sorting/paging in the DCMS KTDatatables wrapper, define the base query below
+    // Define the query for the index page
     public function fetch(): \Illuminate\Http\JsonResponse
     {
         // Get class to make a query for

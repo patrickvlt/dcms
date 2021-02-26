@@ -14,5 +14,4 @@ class Content extends Model
     protected $primaryKey = 'UID';
 
     protected $guarded = ['id'];
-
 }

@@ -8,7 +8,6 @@
             <div class="mr-3">
                 <!--begin::Logo-->
                 <a href="{{ route('dcms.portal.dashboard') }}" class="mr-10" id="titleLogo">
-                    {{-- <img alt="Logo" src="assets/media/logos/logo-letter-5.png" class="max-h-35px" /> --}}
                     DCMS
                 </a>
                 <label id="titleLabel">Dynamic Content Management System</label>
@@ -1019,7 +1018,7 @@
                         </li>
                         <li class="menu-item menu-item-submenu menu-item-rel @if(preg_match('~dcms.portal.user~',CurrentRoute())) menu-item-active @endif" data-menu-toggle="click"
                             aria-haspopup="true">
-                            <a href="javascript:;" class="menu-link menu-toggle">
+                            <a  class="menu-link menu-toggle">
                                 <span class="menu-text">Users</span>
                                 <span class="menu-desc"></span>
                                 <i class="fas fa-caret-down ml-3 mt-2 icon-sm"></i>
@@ -1043,7 +1042,7 @@
                         </li>
                         <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click"
                             aria-haspopup="true">
-                            <a href="javascript:;" class="menu-link menu-toggle">
+                            <a  class="menu-link menu-toggle">
                                 <span class="menu-text">{{ __('Models') }}</span>
                                 <span class="menu-desc"></span>
                                 <i class="fas fa-caret-down ml-3 mt-2 icon-sm"></i>
@@ -1067,7 +1066,7 @@
                         </li>
                         <li class="menu-item menu-item-submenu menu-item-rel" data-menu-toggle="click"
                             aria-haspopup="true">
-                            <a href="javascript:;" class="menu-link menu-toggle">
+                            <a  class="menu-link menu-toggle">
                                 <span class="menu-text">{{ __('Application') }}</span>
                                 <span class="menu-desc"></span>
                                 <i class="fas fa-caret-down ml-3 mt-2 icon-sm"></i>
@@ -1075,8 +1074,8 @@
                             <div class="menu-submenu menu-submenu-classic menu-submenu-left">
                                 <ul class="menu-subnav">
                                     <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                        <a href="javascript:;" class="menu-link menu-toggle">
-                                            <span class="menu-text">Roles</span>
+                                        <a  class="menu-link menu-toggle">
+                                            <span class="menu-text">Authorization</span>
                                             <div class="menu-item-div">
                                                 <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>
                                             </div>
@@ -1084,36 +1083,53 @@
                                         <div class="menu-submenu menu-submenu-classic menu-submenu-right" data-hor-direction="menu-submenu-right">
                                             <ul class="menu-subnav">
                                                 <li class="menu-item" aria-haspopup="true">
-                                                    <a href="{{ route('dcms.portal.role.index') }}" class="menu-link">
+                                                    <a href="{{ route('dcms.portal.authorization.index') }}" class="menu-link">
                                                         <span class="menu-text">Overview</span>
                                                     </a>
                                                 </li>
-                                                <li class="menu-item" aria-haspopup="true">
-                                                    <a href="{{ route('dcms.portal.role.create') }}" class="menu-link">
-                                                        <span class="menu-text">Create</span>
+                                                <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                    <a  class="menu-link menu-toggle">
+                                                        <span class="menu-text">Roles</span>
+                                                        <div class="menu-item-div">
+                                                            <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>
+                                                        </div>
                                                     </a>
+                                                    <div class="menu-submenu menu-submenu-classic menu-submenu-right" data-hor-direction="menu-submenu-right">
+                                                        <ul class="menu-subnav">
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="{{ route('dcms.portal.role.index') }}" class="menu-link">
+                                                                    <span class="menu-text">Overview</span>
+                                                                </a>
+                                                            </li>
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="{{ route('dcms.portal.role.create') }}" class="menu-link">
+                                                                    <span class="menu-text">Create</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
                                                 </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                    <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                        <a href="javascript:;" class="menu-link menu-toggle">
-                                            <span class="menu-text">Permissions</span>
-                                            <div class="menu-item-div">
-                                                <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>
-                                            </div>
-                                        </a>
-                                        <div class="menu-submenu menu-submenu-classic menu-submenu-right" data-hor-direction="menu-submenu-right">
-                                            <ul class="menu-subnav">
-                                                <li class="menu-item" aria-haspopup="true">
-                                                    <a href="{{ route('dcms.portal.permission.index') }}" class="menu-link">
-                                                        <span class="menu-text">Overview</span>
+                                                <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
+                                                    <a  class="menu-link menu-toggle">
+                                                        <span class="menu-text">Permissions</span>
+                                                        <div class="menu-item-div">
+                                                            <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>
+                                                        </div>
                                                     </a>
-                                                </li>
-                                                <li class="menu-item" aria-haspopup="true">
-                                                    <a href="{{ route('dcms.portal.permission.create') }}" class="menu-link">
-                                                        <span class="menu-text">Create</span>
-                                                    </a>
+                                                    <div class="menu-submenu menu-submenu-classic menu-submenu-right" data-hor-direction="menu-submenu-right">
+                                                        <ul class="menu-subnav">
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="{{ route('dcms.portal.permission.index') }}" class="menu-link">
+                                                                    <span class="menu-text">Overview</span>
+                                                                </a>
+                                                            </li>
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="{{ route('dcms.portal.permission.create') }}" class="menu-link">
+                                                                    <span class="menu-text">Create</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
                                                 </li>
                                             </ul>
                                         </div>
@@ -1126,9 +1142,7 @@
                                                 <span class="label label-danger label-inline">new</span>
                                             </span>
                                         </a>
-                                    </li>
-                                    
-                                    
+                                    </li>  
                                 </ul>
                             </div>
                         </li>
