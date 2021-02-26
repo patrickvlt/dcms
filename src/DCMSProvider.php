@@ -8,6 +8,7 @@ use Pveltrop\DCMS\Console\Commands\Update;
 use Pveltrop\DCMS\Console\Commands\Datatable;
 use Pveltrop\DCMS\Console\Commands\Publish;
 use Pveltrop\DCMS\Console\Commands\Form;
+use Pveltrop\DCMS\Console\Commands\TestCrudForm;
 
 class DCMSProvider extends ServiceProvider
 {
