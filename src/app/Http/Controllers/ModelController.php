@@ -34,153 +34,21 @@ class ModelController extends Controller
         return view('dcms::model.create');
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        // $formatRequest = $request->all();
+         $formatRequest = $request->all();
 
-        // $formatRequest['responses'] = json_decode($formatRequest['responses'],true);
-        // $formatRequest['views'] = json_decode($formatRequest['views'],true);
-        // $formatRequest['columns'] = json_decode($formatRequest['columns'],true);
-        // $formatRequest['ktColumns'] = json_decode($formatRequest['ktColumns'],true);
-        // $formatRequest['jExcelColumns'] = json_decode($formatRequest['jExcelColumns'],true);
-        // $formatRequest['jExcelResponses'] = json_decode($formatRequest['jExcelResponses'],true);
+         $formatRequest['responses'] = json_decode($formatRequest['responses'],true);
+         $formatRequest['views'] = json_decode($formatRequest['views'],true);
+         $formatRequest['columns'] = json_decode($formatRequest['columns'],true);
+         $formatRequest['ktColumns'] = json_decode($formatRequest['ktColumns'],true);
+         $formatRequest['jExcelColumns'] = json_decode($formatRequest['jExcelColumns'],true);
+         $formatRequest['jExcelResponses'] = json_decode($formatRequest['jExcelResponses'],true);
 
         $this->customRequest = new \Illuminate\Http\Request();
         $this->customRequest->setMethod('POST');
 
-        // $this->customRequest->request->add($formatRequest);
-        $this->customRequest->request->add([
-            "name" => "Foo",
-            "seed" => "1",
-            "amountToSeed" => "15",
-            "responses" => [
-                "created" => [
-                    "message" => "created foo",
-                    "url" => "/foo/index",
-                ],
-                "updated" => [
-                    "message" => "updated foo",
-                    "url" => "/foo/index",
-                ],
-                "deleted" => [
-                    "message" => "deleted foo",
-                    "url" => "/foo/index",
-                ],
-            ],
-            "views" => [
-                "create" => "foo.create",
-                "index" => "foo.index",
-                "show" => "foo.show",
-                "edit" => "foo.edit",
-            ],
-            "columns" => [
-                "title" => [
-                    "name" => "title",
-                    "title" => "Title",
-                    "dataType" => "string",
-                    "class" => "",
-                    "table" => "",
-                    "relation" => "",
-                    "method" => "",
-                    "onUpdate" => "",
-                    "onDelete" => "",
-                    "value" => "",
-                    "text" => "",
-                    "inputType" => "file",
-                    "inputDataType" => "filepond",
-                    "filePondMime" => "image",
-                    "seed" => "",
-                    "rules" => [
-                        0 => "min:5",
-                        1 => "max:25",
-                    ]
-                ],
-                "user_id" => [
-                    "name" => "user_id",
-                    "title" => "User",
-                    "dataType" => "bigInteger",
-                    "foreign" => 1,
-                    "class" => "User",
-                    "table" => "users",
-                    "relation" => "belongsTo",
-                    "method" => "user",
-                    "onUpdate" => "cascade",
-                    "onDelete" => "cascade",
-                    "value" => "id",
-                    "text" => "name",
-                    "inputType" => "select",
-                    "inputDataType" => "slimselect",
-                    "seed" => "",
-                    "rules" => [
-                        0 => "exists:users,id",
-                    ]
-                ],
-                "verified" => [
-                    "name" => "verified",
-                    "title" => "Verified?",
-                    "dataType" => "boolean",
-                    "class" => "",
-                    "table" => "",
-                    "relation" => "",
-                    "method" => "",
-                    "onUpdate" => "",
-                    "onDelete" => "",
-                    "value" => "",
-                    "text" => "",
-                    "inputType" => "checkbox",
-                    "inputDataType" => "icheck",
-                    "filePondMime" => "",
-                    "seed" => "",
-                    "rules" => [
-                        0 => "required",
-                        1 => "boolean",
-                    ]
-                ],
-            ],
-            "ktColumns" => [
-                "title" => [
-                    "name" => "title",
-                    "enable" => "1",
-                    "title" => "Title",
-                    "type" => "text",
-                ],
-                "user_id" => [
-                    "name" => "user_id",
-                    "enable" => "1",
-                    "title" => "User",
-                    "value" => "id",
-                    "type" => "price",
-                ]
-            ],
-            "jExcelColumns" => [
-                "title" => [
-                    "name" => "title",
-                    "enable" => "1",
-                    "title" => "Title",
-                    "type" => "text",
-                ],
-                "user_id" => [
-                    "name" => "user_id",
-                    "enable" => "1",
-                    "title" => "User",
-                    "value" => "id",
-                    "text" => "name",
-                    "type" => "text",
-                ]
-            ],
-            "jExcelResponses" => [
-                "success" => [
-                    "name" => "success",
-                    "message" => "1",
-                    "url" => "2",
-                ],
-                "failed" => [
-                    "name" => "failed",
-                    "title" => "3",
-                    "message" => "4",
-                ]
-            ]
-        ]);
+         $this->customRequest->request->add($formatRequest);
 
         $noCodeString = 'not_regex:/(;|")/';
 
