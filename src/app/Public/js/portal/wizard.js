@@ -1,6 +1,6 @@
 "use strict";
-var KTWizard4 = function () {
-    var t, e, i, o = [];
+let KTWizard4 = function () {
+    let t, e, i, o = [];
     return {
         init: function () {
             t = KTUtil.getById("kt_wizard"), e = KTUtil.getById("kt_form"), (i = new KTWizard(t, {
@@ -8,19 +8,9 @@ var KTWizard4 = function () {
                 clickableSteps: !1
             })).on("change", (function (t) {
                 if (!(t.getStep() > t.getNewStep())) {
-                    var e = o[t.getStep() - 1];
+                    let e = o[t.getStep() - 1];
                     return e && e.validate().then((function (e) {
-                        "Valid" == e ? (t.goTo(t.getNewStep()), KTUtil.scrollTop()) : Swal.fire({
-                            text: "Sorry, looks like there are some errors detected, please try again.",
-                            icon: "error",
-                            buttonsStyling: !1,
-                            confirmButtonText: "Ok, got it!",
-                            customClass: {
-                                confirmButton: "btn font-weight-bold btn-light"
-                            }
-                        }).then((function () {
-                            KTUtil.scrollTop()
-                        }))
+                        "Valid" == e ? (t.goTo(t.getNewStep()), KTUtil.scrollTop()) : KTUtil.scrollTop()
                     })), !1
                 }
             })), i.on("changed", (function (t) {
@@ -29,37 +19,7 @@ var KTWizard4 = function () {
 
             })), o.push(FormValidation.formValidation(e, {
                 fields: {
-                    fname: {
-                        validators: {
-                            notEmpty: {
-                                message: "First name is required"
-                            }
-                        }
-                    },
-                    lname: {
-                        validators: {
-                            notEmpty: {
-                                message: "Last Name is required"
-                            }
-                        }
-                    },
-                    phone: {
-                        validators: {
-                            notEmpty: {
-                                message: "Phone is required"
-                            }
-                        }
-                    },
-                    email: {
-                        validators: {
-                            notEmpty: {
-                                message: "Email is required"
-                            },
-                            emailAddress: {
-                                message: "The value is not a valid email address"
-                            }
-                        }
-                    }
+
                 },
                 plugins: {
                     trigger: new FormValidation.plugins.Trigger,
@@ -69,91 +29,7 @@ var KTWizard4 = function () {
                 }
             })), o.push(FormValidation.formValidation(e, {
                 fields: {
-                    address1: {
-                        validators: {
-                            notEmpty: {
-                                message: "Address is required"
-                            }
-                        }
-                    },
-                    postcode: {
-                        validators: {
-                            notEmpty: {
-                                message: "Postcode is required"
-                            }
-                        }
-                    },
-                    city: {
-                        validators: {
-                            notEmpty: {
-                                message: "City is required"
-                            }
-                        }
-                    },
-                    state: {
-                        validators: {
-                            notEmpty: {
-                                message: "State is required"
-                            }
-                        }
-                    },
-                    country: {
-                        validators: {
-                            notEmpty: {
-                                message: "Country is required"
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    trigger: new FormValidation.plugins.Trigger,
-                    bootstrap: new FormValidation.plugins.Bootstrap({
-                        eleValidClass: ""
-                    })
-                }
-            })), o.push(FormValidation.formValidation(e, {
-                fields: {
-                    ccname: {
-                        validators: {
-                            notEmpty: {
-                                message: "Credit card name is required"
-                            }
-                        }
-                    },
-                    ccnumber: {
-                        validators: {
-                            notEmpty: {
-                                message: "Credit card number is required"
-                            },
-                            creditCard: {
-                                message: "The credit card number is not valid"
-                            }
-                        }
-                    },
-                    ccmonth: {
-                        validators: {
-                            notEmpty: {
-                                message: "Credit card month is required"
-                            }
-                        }
-                    },
-                    ccyear: {
-                        validators: {
-                            notEmpty: {
-                                message: "Credit card year is required"
-                            }
-                        }
-                    },
-                    cccvv: {
-                        validators: {
-                            notEmpty: {
-                                message: "Credit card CVV is required"
-                            },
-                            digits: {
-                                message: "The CVV value is not valid. Only numbers is allowed"
-                            }
-                        }
-                    }
+
                 },
                 plugins: {
                     trigger: new FormValidation.plugins.Trigger,
@@ -170,14 +46,16 @@ jQuery(document).ready((function () {
     KTWizard4.init();
 }));
 
-var emptyColumnDiv = document.querySelector('[data-column]').outerHTML;
-var emptyRuleDiv = document.querySelector('[data-validation-rule]').outerHTML;
+let boxCount = 10;
 
-var emptyKtColumnDiv = document.querySelector('[data-kt-column]').outerHTML;
+let emptyColumnDiv = document.querySelector('[data-column]').outerHTML;
+let emptyRuleDiv = document.querySelector('[data-validation-rule]').outerHTML;
+let emptyKtColumnDiv = document.querySelector('[data-kt-column]').outerHTML;
+let emptyjExcelColumnDiv = document.querySelector('[data-jExcel-column]').outerHTML;
+
 $('[data-kt-column]').remove();
-var emptyjExcelColumnDiv = document.querySelector('[data-jExcel-column]').outerHTML;
 $('[data-jExcel-column]').remove();
-var changedColumns = false;
+let changedColumns = false;
 
 // DCMS Model Form
 // When the user is at step 2, generate the column inputs
@@ -192,7 +70,7 @@ $(document).on('click', '[data-wizard-type="action-next"], [data-wizard-type="ac
 });
 
 $(document).on('click', '[data-column-control]', function (e) {
-    var currentClasses = e.currentTarget.classList.value;
+    let currentClasses = e.currentTarget.classList.value;
     if (new RegExp(/fa-caret-down/gm).test(currentClasses)) {
         $(e.currentTarget).removeClass('fa-caret-down');
         $(e.currentTarget).addClass('fa-caret-right');
@@ -206,7 +84,8 @@ $(document).on('click', '[data-column-control]', function (e) {
 
 $(document).on('click', '[data-add-column]', function (e) {
     changedColumns = true;
-    document.querySelector('[data-column]').parentNode.insertAdjacentHTML('beforeend', emptyColumnDiv);
+    boxCount++;
+    document.querySelector('[data-column]').parentNode.insertAdjacentHTML('beforeend', emptyColumnDiv.replace(/Box[0-9]/g,"Box"+boxCount));
     $(e.currentTarget.parentNode.parentNode).hide();
     window.DCMS.slimSelect();
 });
@@ -218,10 +97,10 @@ $(document).on('click', '[data-delete-column]', function (e) {
 });
 
 $(document).on('keyup', '[name="name"]', function (e) {
-    var columnDiv = e.currentTarget.parentNode.parentNode.parentNode;
-    var columnName = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm, '');
+    let columnDiv = e.currentTarget.parentNode.parentNode.parentNode;
+    let columnName = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm, '');
     e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z\_]/gm, '');
-    var columnNameEl = columnDiv.querySelector('[data-column-name]');
+    let columnNameEl = columnDiv.querySelector('[data-column-name]');
     columnNameEl.innerHTML = columnName;
     columnNameEl.dataset.columnName = columnName;
 
@@ -229,14 +108,14 @@ $(document).on('keyup', '[name="name"]', function (e) {
 });
 
 $(document).on('change', '[name="foreign"]', function (e) {
-    var inputDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-input-div]');
-    var relationDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-relation-div]');
-    var inputType = inputDiv.querySelector('[name=inputType]');
-    var inputDataType = inputDiv.querySelector('[name=inputDataType]');
+    let inputDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-input-div]');
+    let relationDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-relation-div]');
+    let inputType = inputDiv.querySelector('[name=inputType]');
+    let inputDataType = inputDiv.querySelector('[name=inputDataType]');
 
-    var seedDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-seed-div]');
-    var seedDataDiv = seedDiv.querySelector('[data-seed-input]');
-    var seedAutoDiv = seedDiv.querySelector('[data-seed-auto]');
+    let seedDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-seed-div]');
+    let seedDataDiv = seedDiv.querySelector('[data-seed-input]');
+    let seedAutoDiv = seedDiv.querySelector('[data-seed-auto]');
 
     if (e.currentTarget.checked) {
         $(inputDiv).hide();
@@ -261,9 +140,9 @@ $(document).on('change', '[name="foreign"]', function (e) {
 });
 
 $(document).on('change', '[name="inputType"]', function (e) {
-    var inputDiv = e.currentTarget.parentNode.parentNode;
-    var inputDataType = inputDiv.querySelector('[name=inputDataType]');
-    var inputDataTypeDiv = inputDiv.querySelector('[data-input-datatype-div]');
+    let inputDiv = e.currentTarget.parentNode.parentNode;
+    let inputDataType = inputDiv.querySelector('[name=inputDataType]');
+    let inputDataTypeDiv = inputDiv.querySelector('[data-input-datatype-div]');
 
     $(inputDataTypeDiv).show();
     switch (e.currentTarget.value) {
@@ -294,9 +173,9 @@ $(document).on('change', '[name="inputType"]', function (e) {
 });
 
 $(document).on('change', '[name="inputDataType"]', function (e) {
-    var inputDiv = e.currentTarget.parentNode.parentNode;
-    var inputType = inputDiv.querySelector('[name=inputType]');
-    var filepondDiv = inputDiv.querySelector('[data-filepond-div]');
+    let inputDiv = e.currentTarget.parentNode.parentNode;
+    let inputType = inputDiv.querySelector('[name=inputType]');
+    let filepondDiv = inputDiv.querySelector('[data-filepond-div]');
 
     switch (e.currentTarget.value) {
         case 'filepond':
@@ -312,8 +191,8 @@ $(document).on('change', '[name="inputDataType"]', function (e) {
 });
 
 $(document).on('change', '[name="validation"]', function (e) {
-    var validationDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-validation-div]');
-    var addRuleDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-add-rule-div]');
+    let validationDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-validation-div]');
+    let addRuleDiv = e.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('[data-add-rule-div]');
     if (e.currentTarget.checked) {
         $(validationDiv).show();
         $(addRuleDiv).show();
@@ -324,8 +203,9 @@ $(document).on('change', '[name="validation"]', function (e) {
 });
 
 $(document).on('click', '[data-add-rule]', function (e) {
-    var validationDiv = e.currentTarget.parentNode.parentNode.querySelector('[data-validation-div]');
-    validationDiv.insertAdjacentHTML('beforeend', emptyRuleDiv);
+    let validationDiv = e.currentTarget.parentNode.parentNode.querySelector('[data-validation-div]');
+    boxCount++;
+    validationDiv.insertAdjacentHTML('beforeend', emptyRuleDiv.replace(/Box[0-9]/g,"Box"+boxCount));
 });
 
 $(document).on('click', '[data-delete-rule]', function (e) {
@@ -334,7 +214,7 @@ $(document).on('click', '[data-delete-rule]', function (e) {
 
 // Check if theres empty columns
 function existingColumns() {
-    var existingColumns = true;
+    let existingColumns = true;
     // If on step 3
     $.each($("[data-column-name]"), function (x, column) {
         if (column.innerHTML == "") {
@@ -345,7 +225,7 @@ function existingColumns() {
 }
 
 // Inserting kt column divs function
-var ktColumnProperties;
+let ktColumnProperties;
 function InsertKTColumns() {
     if (document.querySelector('[data-kt-column]')) {
         $.each(document.querySelector('[data-kt-column]').parentNode.querySelectorAll('[data-kt-column]'), function (x, ktColumn) {
@@ -353,7 +233,7 @@ function InsertKTColumns() {
         });
     }
     $.each($("[data-column-name]"), function (x, columnEl) {
-        var columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
+        let columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
         ktColumnProperties = emptyKtColumnDiv.replace(/ktColumn/gm, columnName);
         if ($(columnEl).parent().find('[data-foreign-checkbox]')[0].checked) {
             ktColumnProperties = ktColumnProperties.replace(/<!--optional::Key-->/gm,
@@ -367,19 +247,21 @@ function InsertKTColumns() {
             </div>
             <!--end::Input-->`);
         }
-        document.querySelector('[data-kt-columns]').insertAdjacentHTML('beforeend', ktColumnProperties);
+        boxCount++;
+        document.querySelector('[data-kt-columns]').insertAdjacentHTML('beforeend', ktColumnProperties.replace(/Box[0-9]/g,"Box"+boxCount));
     });
     window.DCMS.slimSelect();
 }
 
 function InsertjExcelColumns() {
-    var jExcelProperties;
+    let jExcelProperties;
     $.each($("[data-jexcel-column]"), function (x, jExcelColumn) {
         $(jExcelColumn).remove();
     });
     $.each($("[data-column-name]"), function (x, columnEl) {
-        var columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
-        jExcelProperties = emptyjExcelColumnDiv.replace(/jExcel/gm, columnName);
+        let columnName = columnEl.innerHTML.replace(/[^a-zA-Z\_]/gm, '');
+        boxCount++;
+        jExcelProperties = emptyjExcelColumnDiv.replace(/jExcel/gm, columnName).replace(/Box[0-9]/g,"Box"+boxCount);
         if ($(columnEl).parent().find('[data-foreign-checkbox]')[0].checked) {
             jExcelProperties = jExcelProperties.replace(/<!--optional::Key-->/gm,
                 `<!--begin::Input-->
@@ -401,7 +283,8 @@ function InsertjExcelColumns() {
             </div>
             <!--end::Input-->`);
         }
-        document.querySelector('[data-jexcel-columns]').insertAdjacentHTML('beforeend', jExcelProperties);
+        boxCount++;
+        document.querySelector('[data-jexcel-columns]').insertAdjacentHTML('beforeend', jExcelProperties.replace(/Box[0-9]/g,"Box"+boxCount));
     });
     if ($("#jExcel_enableImportsBox0").prop('checked')) {
         $('[data-jexcel-columns]').show();
@@ -421,9 +304,9 @@ $(document).on('click', '[data-wizard-type="action-next"], [data-wizard-type="ac
 
 // When the user wants to include a column in the datatable, show the related inputs
 $(document).on('change', '[data-kt-checkbox]', function (e) {
-    var ktTypeDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-type-div]');
-    var ktTitleDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-title-div]');
-    var ktKeyDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-key-div]');
+    let ktTypeDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-type-div]');
+    let ktTitleDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-title-div]');
+    let ktKeyDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-kt-key-div]');
     if (e.currentTarget.checked) {
         $(ktTypeDiv).show();
         $(ktTitleDiv).show();
@@ -441,10 +324,11 @@ $(document).on('change', '[data-kt-checkbox]', function (e) {
 
 // When the user enables a column for jExcel, generate the related inputs
 $(document).on('change', '[data-jexcel-checkbox]', function (e) {
-    var jExcelTypeDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-type-div]');
-    var jExcelTitleDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-title-div]');
-    var jExcelKeyDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-key-div]');
-    var jExcelTextDiv = $(e.currentTarget).parent().parent().parent().parent().find('[data-jexcel-text-div]');
+    let jExcelTypeDiv = $(e.currentTarget).parent().parent().parent().find('[data-jexcel-type-div]');
+    let jExcelTitleDiv = $(e.currentTarget).parent().parent().parent().find('[data-jexcel-title-div]');
+    let jExcelKeyDiv = $(e.currentTarget).parent().parent().parent().find('[data-jexcel-key-div]');
+    let jExcelTextDiv = $(e.currentTarget).parent().parent().parent().find('[data-jexcel-text-div]');
+
     if (e.currentTarget.checked) {
         $(jExcelTypeDiv).show();
         $(jExcelTitleDiv).show();
@@ -478,7 +362,7 @@ $(document).on('change', '[name="enableImports"]', function (e) {
 
 // Show seeding column if the user enables them
 $(document).on('change', '[name="seed"]', function (e) {
-    var amountToSeed = $('[data-seed-amount]');
+    let amountToSeed = $('[data-seed-amount]');
     if (e.currentTarget.checked) {
         console.log(1);
         $(amountToSeed).show();
@@ -491,16 +375,16 @@ $(document).on('change', '[name="seed"]', function (e) {
 // Generate the form data, merge some properties into arrays etc.
 // This provides more readabilty server-side
 function GenerateData() {
-    var formData = new FormData();
+    let formData = new FormData();
 
     formData.append('name', $('[name="model"]').val());
     formData.append('seed', $('[name="seed"]').val());
     formData.append('amountToSeed', $('[name="amountToSeed"]').val());
 
     // Add responses as array
-    var responseGroups = ['created', 'updated', 'deleted'];
-    var responses = {};
-    var thisResponse = {};
+    let responseGroups = ['created', 'updated', 'deleted'];
+    let responses = {};
+    let thisResponse = {};
     $.each(responseGroups, function (y, thisResponseGroup) {
         $.each($('[data-wizard-step="1"] [data-response-' + thisResponseGroup + ']'), function (x, response) {
             thisResponse = {};
@@ -513,17 +397,17 @@ function GenerateData() {
     formData.append('responses', JSON.stringify(responses));
 
     // Add views as array
-    var views = {};
+    let views = {};
     $.each($('[data-wizard-step="1"] [data-view]'), function (x, viewProperty) {
         views[viewProperty.name] = viewProperty.value;
     });
     formData.append('views', JSON.stringify(views));
 
     // Add columns with defined options/properties
-    var columns = {};
-    var thisColumn = {};
+    let columns = {};
+    let thisColumn = {};
     $.each($('[data-wizard-step="2"] [data-column]'), function (x, column) {
-        var rules = {};
+        let rules = {};
         thisColumn = {};
         $.each($(column).find('[name]'), function (y, columnElement) {
             if (columnElement.type == 'checkbox') {
@@ -543,10 +427,10 @@ function GenerateData() {
     formData.append('columns', JSON.stringify(columns));
 
     // Add kt columns
-    var ktColumns = {};
-    var thisKtColumn = {};
+    let ktColumns = {};
+    let thisKtColumn = {};
     $.each($('[data-wizard-step="3"] [data-kt-column]'), function (x, column) {
-        var isEnabled = $(column).find('[data-kt-checkbox]')[0].checked;
+        let isEnabled = $(column).find('[data-kt-checkbox]')[0].checked;
         if (isEnabled) {
             thisKtColumn = {};
             thisKtColumn['name'] = $(column).data('kt-column-name');
@@ -559,10 +443,10 @@ function GenerateData() {
     formData.append('ktColumns', JSON.stringify(ktColumns));
 
     // Add jExcel columns
-    var jExcelColumns = {};
-    var thisjExcelColumn = {};
+    let jExcelColumns = {};
+    let thisjExcelColumn = {};
     $.each($('[data-wizard-step="3"] [data-jexcel-column]'), function (x, column) {
-        var isEnabled = $(column).find('[data-jexcel-checkbox]')[0].checked;
+        let isEnabled = $(column).find('[data-jexcel-checkbox]')[0].checked;
         if (isEnabled) {
             thisjExcelColumn = {};
             thisjExcelColumn['name'] = $(column).data('jexcel-column-name');
@@ -575,8 +459,8 @@ function GenerateData() {
     formData.append('jExcelColumns', JSON.stringify(jExcelColumns));
 
     // Add jExcel responses
-    var jExcelResponses = {};
-    var thisjExcelResponse = {};
+    let jExcelResponses = {};
+    let thisjExcelResponse = {};
     $.each($('[data-wizard-step="3"] [data-jexcel-response]'), function (x, response) {
         thisjExcelResponse = {};
         $.each($(response).find('[name]'), function (y, responseElement) {
