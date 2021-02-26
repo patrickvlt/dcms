@@ -13,9 +13,13 @@ class AddRouteToPermissionsTable extends Migration
      */
     public function up()
     {
-        Schema::table('permissions', function (Blueprint $table) {
-            $table->string('route')->after('name')->nullable();
-        });
+        try {
+            Schema::table('permissions', function (Blueprint $table) {
+                $table->string('route')->after('name')->nullable();
+            });
+        } catch (Throwable $th){
+            throw new \RuntimeException("Unable to add route column to permissions table. Did you run the migrations from Spaties' permissions/role package?");
+        }
     }
 
     /**
