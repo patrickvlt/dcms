@@ -27,7 +27,7 @@ class Form extends HtmlTag
             $model = Model();
             if (is_string($model)) {
                 $class = FindClass($routePrefix)['class'];
-                $model = (new $class())->first(request()->route()->parameters[$routePrefix]);
+                $model = (new $class())->find(request()->route()->parameters[$routePrefix]);
             }
         }
         return $model;
@@ -379,7 +379,7 @@ class Form extends HtmlTag
         $formFields = (new $formClass())->fields();
         $formRoutes = method_exists((new $formClass()), 'routes') ? (new $formClass())->routes() : null;
 
-        $modelRequest = (new $request())->rules();
+        $modelRequest = (new $request())->rules() ?? null;
         if (!isset($modelRequest)) {
             throw new \RuntimeException("No custom request defined and/or assigned to DCMS for: " . $routePrefix);
         }

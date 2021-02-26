@@ -99,7 +99,7 @@ if (!function_exists('Model')) {
         $model = request()->route()->controller->model;
         $routePrefix = request()->route()->controller->routePrefix;
         $id = (request()->route()->parameters()) ? request()->route()->parameters()[$routePrefix] : null;
-        return $model::find($id)->first();
+        return $model::find($id);
     }
 }
 

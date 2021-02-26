@@ -209,7 +209,7 @@ class Crud extends Command
                         $console->line('Press enter to finish adding rules.');
                         $newRule = $console->ask('Type the new rule');
 
-                        array_push($validationRules, $newRule);
+                        $validationRules[] = $newRule;
 
                         if ($console->confirm('Add another rule?')) {
                             goto NewRule;
