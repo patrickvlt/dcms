@@ -267,7 +267,7 @@ if (!function_exists('CopyDir')) {
                     CopyDir($src . '/' . $file, $dst . '/' . $file);
                 } else {
                     if (!file_exists($dst)) {
-                        mkdir($dst, 0777, true);
+                        mkdir($dst, 0755, true);
                     }
                     copy($src . '/' . $file, $dst . '/' . $file);
                 }
@@ -277,6 +277,17 @@ if (!function_exists('CopyDir')) {
     }
 }
 
+/**
+ * Make a directory
+ */
+if (!function_exists('MakeDir')) {
+    function MakeDir($dst)
+    {
+        if (!is_dir($dst) && !mkdir($dst, 0755, true)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dst));
+        }
+    }
+}
 
 /**
  * Generate a random string, useful for tokens or links

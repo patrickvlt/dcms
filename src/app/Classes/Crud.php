@@ -184,9 +184,13 @@ class Crud
 
         $routeFile = ($this->findFile('web.php')) ? $this->findFile('web.php')->getPathname() : null;
         if ($this->mainVersion <= 7) {
-            $contentToAdd = "Route::resource('" . $this->prefix . "', '" . $this->model . "Controller');";
+            $contentToAdd = "\nRoute::get('/{$this->prefix}/fetch', '{$this->model}Controller@fetch')->name('{$this->prefix}.fetch');";
+            $contentToAdd .= "\nRoute::delete('/{$this->prefix}/multiple', '{$this->model}Controller@destroyMultiple')->name('{$this->prefix}.destroy.multiple');";
+            $contentToAdd .= "\nRoute::resource('{$this->prefix}}', '{$this->model}Controller');";
         } elseif ($this->mainVersion >= 8) {
-            $contentToAdd = "Route::resource('" . $this->prefix . "', ".$routeNameSpace.$this->model."Controller::class);";
+            $contentToAdd = "Route::get('/{$this->prefix}/fetch', [{$routeNameSpace}{$this->model}Controller::class, 'fetch'])->name('{$this->prefix}.fetch');";
+            $contentToAdd .= "\nRoute::delete('/{$this->prefix}/multiple', [{$routeNameSpace}{$this->model}Controller::class, 'destroyMultiple'])->name('{$this->prefix}.destroy.multiple');";
+            $contentToAdd .= "\nRoute::resource('{$this->prefix }', ".$routeNameSpace.$this->model."Controller::class);";
         }
 
         // Modify the content
@@ -227,9 +231,11 @@ class Crud
         // jExcel columns
         $jExcelColumnsStr = '';
         $x = 0;
-        foreach ($this->jExcelColumns as $key => $column) {
-            $jExcelColumnsStr .= "\n                ".'"'.$key.'" => '.$x.',';
-            $x++;
+        if (is_countable($this->jExcelColumns) && count($this->jExcelColumns) > 0){
+            foreach ($this->jExcelColumns as $key => $column) {
+                $jExcelColumnsStr .= "\n                ".'"'.$key.'" => '.$x.',';
+                $x++;
+            }
         }
 
         // jExcel autocorrect
@@ -237,34 +243,40 @@ class Crud
         $jExcelGrp = '';
         $controllerImports = '';
         $x = 0;
-        foreach ($this->jExcelColumns as $key => $jExcelColumn) {
-            if (isset($this->columns[$jExcelColumn['name']]['foreign'])) {
-                $controllerImports .= 'Use '.$nameSpace.$this->columns[$jExcelColumn['name']]['class'].';';
-                $jExcelGrp = '';
-                $jExcelGrp .= "\n                    ".'"column" => "'.$x.'",';
-                $jExcelGrp .= "\n                    ".'"class" => '.$this->columns[$jExcelColumn['name']]['class'].'::class,';
-                $jExcelGrp .= "\n                    ".'"searchAttributes" => [
+        if (is_countable($this->jExcelColumns) && count($this->jExcelColumns) > 0) {
+            foreach ($this->jExcelColumns as $key => $jExcelColumn) {
+                if (isset($this->columns[$jExcelColumn['name']]['foreign'])) {
+                    $controllerImports .= 'Use '.$nameSpace.$this->columns[$jExcelColumn['name']]['class'].';';
+                    $jExcelGrp = '';
+                    $jExcelGrp .= "\n                    ".'"column" => "'.$x.'",';
+                    $jExcelGrp .= "\n                    ".'"class" => '.$this->columns[$jExcelColumn['name']]['class'].'::class,';
+                    $jExcelGrp .= "\n                    ".'"searchAttributes" => [
                         "'.$jExcelColumn['text'].'"
                     ],';
-                $jExcelGrp .= "\n                    ".'"returnAttribute" => "'.$this->columns[$jExcelColumn['name']]['value'].'",';
-            }
-            if ($jExcelGrp !== '') {
-                $jExcelCorrectStr .= "\n                ".'"'.$jExcelColumn['name'].'" => ['. $jExcelGrp .'
+                    $jExcelGrp .= "\n                    ".'"returnAttribute" => "'.$this->columns[$jExcelColumn['name']]['value'].'",';
+                }
+                if ($jExcelGrp !== '') {
+                    $jExcelCorrectStr .= "\n                ".'"'.$jExcelColumn['name'].'" => ['. $jExcelGrp .'
                 ],';
+                }
+                $x++;
             }
-            $x++;
         }
 
         // jExcel responses
         $jExcelResponseStr = '';
-        foreach ($this->jExcelResponses as $groupName => $jExcelResponseGroup) {
-            $jExcelResponseGrp = '';
-            foreach ($jExcelResponseGroup as $key => $value) {
-                $jExcelResponseGrp .= "\n                    ".'"'.$key.'" => '.($key === 'message' || $key === 'title' ? '__("'.$value.'")' : '"'.$value.'"').',';
-            }
-            $jExcelResponseStr .= "\n                ".'"'.$groupName.'" => ['. $jExcelResponseGrp .'
+        if (is_countable($this->jExcelResponses) && count($this->jExcelResponses) > 0) {
+            foreach ($this->jExcelResponses as $groupName => $jExcelResponseGroup) {
+                $jExcelResponseGrp = '';
+                foreach ($jExcelResponseGroup as $key => $value) {
+                    $jExcelResponseGrp .= "\n                    ".'"'.$key.'" => '.($key === 'message' || $key === 'title' ? '__("'.$value.'")' : '"'.$value.'"').',';
+                }
+                $jExcelResponseStr .= "\n                ".'"'.$groupName.'" => ['. $jExcelResponseGrp .'
                 ],';
+            }
         }
+
+        $jExcelEntries = ($this->jExcelColumns) ? include __DIR__ . '/../Templates/Crud/Controller/jExcel.php' : '';
 
         // Views
         $viewStr = '';
@@ -275,7 +287,7 @@ class Crud
         $modelRequest = $this->model.'Request::class';
 
         // Modify the content
-        $newContent = include __DIR__ . '/../Templates/Crud/Controller.php';
+        $newContent = include __DIR__ . '/../Templates/Crud/Controller/Controller.php';
         // Write to file
         file_put_contents($controllerFile, '');
         file_put_contents($controllerFile, $newContent);
@@ -401,6 +413,7 @@ class Crud
         // Modify the content
         $newContent = include __DIR__ . '/../Templates/Crud/Form.php';
         // Write to file
+        MakeDir(base_path().'/app/Forms');
         file_put_contents(base_path('app/Forms/' . $this->model . 'Form.php'), '');
         file_put_contents(base_path('app/Forms/' . $this->model . 'Form.php'), $newContent);
     }
@@ -512,8 +525,8 @@ class Crud
         $this->views = $data['views'];
         $this->prefix = strtolower($this->model);
         $this->amountToSeed = $data['amountToSeed'];
-        $this->jExcelColumns = $data['jExcelColumns'];
-        $this->jExcelResponses = $data['jExcelResponses'];
+        $this->jExcelColumns = $data['jExcelColumns'] ?? null;
+        $this->jExcelResponses = $data['jExcelResponses'] ?? null;
 
         // Create the basic Laravel files (model, migration, controller, factory, seeder, request)
         Artisan::call('make:model', [

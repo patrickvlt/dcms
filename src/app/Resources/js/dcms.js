@@ -1,6 +1,6 @@
 window.DCMS = {};
 window.DCMS.config = require('../../../dcms.json');
-window.DCMS.csrf = document.querySelectorAll('meta[name=csrf-token]')[0].content;
+window.DCMS.csrf = (document.querySelector('meta[name=csrf-token]')) ? document.querySelector('meta[name=csrf-token]').content : null;
 window.DCMS.allowNewTab = false;
 window.DCMS.language = (typeof dcmsLanguage !== 'undefined') ? dcmsLanguage : 'en';
 

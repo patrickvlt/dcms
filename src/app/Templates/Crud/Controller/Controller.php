@@ -27,25 +27,22 @@ class ' . $this->model . 'Controller extends Controller
         ];
         $this->views = ['.$viewStr.'
         ];
-        $this->jExcel = [
-            // Which request attribute belongs to which jExcel column? e.g. "name" => 0, "created_at" => 3
-            "columns" => ['.$jExcelColumnsStr.'
-            ],
-            // How to autocorrect data?
-            "autocorrect" => ['.$jExcelCorrectStr.'
-            ],
-            // Responses when attempting to import
-            "responses" => ['.$jExcelResponseStr.'
-            ]
-        ];
+        '.$jExcelEntries.'
+
     }
 
-    // if you want to pass variables to the default Laravel functions, but still use DCMS functions, you can do it like below:
+    // if you want to pass variables to the default Laravel functions, but still use DCMS functions, you can do it as shown in the example below.
     // NOTE: remember to define the same default parameters for these functions.
 
     public function beforeIndex(){
         return [
             // "posts" => $posts
+        ];
+    }
+
+    public function beforeCreate(){
+        return [
+            // "users" => $users
         ];
     }
 
@@ -75,7 +72,6 @@ class ' . $this->model . 'Controller extends Controller
     // Define the query for the index page
     public function fetch(): \Illuminate\Http\JsonResponse
     {
-        // Get class to make a query for
         $query = ' . $this->model . '::query();
 
         return (new Datatable($query))->render();

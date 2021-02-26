@@ -208,14 +208,12 @@ $(document).on('click', '[data-add-column]', function (e) {
     changedColumns = true;
     document.querySelector('[data-column]').parentNode.insertAdjacentHTML('beforeend', emptyColumnDiv);
     $(e.currentTarget.parentNode.parentNode).hide();
-    window.DCMS.iCheck();
     window.DCMS.slimSelect();
 });
 
 $(document).on('click', '[data-delete-column]', function (e) {
     changedColumns = true;
     e.currentTarget.parentNode.parentNode.parentNode.remove();
-    window.DCMS.iCheck();
     window.DCMS.slimSelect();
 });
 
@@ -371,7 +369,6 @@ function InsertKTColumns() {
         }
         document.querySelector('[data-kt-columns]').insertAdjacentHTML('beforeend', ktColumnProperties);
     });
-    window.DCMS.iCheck();
     window.DCMS.slimSelect();
 }
 
@@ -469,7 +466,6 @@ $(document).on('change', '[data-jexcel-checkbox]', function (e) {
 $(document).on('change', '[name="enableImports"]', function (e) {
     if (e.currentTarget.checked && existingColumns()) {
         InsertjExcelColumns();
-        window.DCMS.iCheck();
         window.DCMS.slimSelect();
         $("[data-jexcel-responses]").show();
     } else {
@@ -600,13 +596,13 @@ document.querySelector('[data-wizard-type="action-submit"]').addEventListener('c
         formData = GenerateData();
     window.DCMS.request(formMethod, formAction, formData, {
         customBefore: () => {
-            window.DisableSubmit('button[data-wizard-type="action-submit"]');
+            window.DCMS.disableSubmit('button[data-wizard-type="action-submit"]');
         },
         customBeforeError: () => {
-            window.EnableSubmit('button[data-wizard-type="action-submit"]');
+            window.DCMS.enableSubmit('button[data-wizard-type="action-submit"]');
         },
         customBeforeSuccess: () => {
-            window.EnableSubmit('button[data-wizard-type="action-submit"]');
+            window.DCMS.enableSubmit('button[data-wizard-type="action-submit"]');
         },
     });
 });
