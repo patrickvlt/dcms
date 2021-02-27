@@ -9,7 +9,7 @@ class Content extends Model
 {
     use HasFactory;
 
-    protected $table = 'dcms_content';
+    protected $table = 'content';
 
     protected $primaryKey = 'UID';
 

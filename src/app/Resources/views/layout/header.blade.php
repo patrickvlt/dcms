@@ -24,7 +24,7 @@
                             <span class="svg-icon svg-icon-xl">
                                 <!--begin::Svg Icon | path:assets/media/svg/icons/General/Search.svg-->
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                    width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                     width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                         <rect x="0" y="0" width="24" height="24" />
                                         <path
@@ -51,8 +51,8 @@
                                             <span class="svg-icon svg-icon-lg">
                                                 <!--begin::Svg Icon | path:assets/media/svg/icons/General/Search.svg-->
                                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                                    xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                                                    height="24px" viewBox="0 0 24 24" version="1.1">
+                                                     xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                                     height="24px" viewBox="0 0 24 24" version="1.1">
                                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                         <rect x="0" y="0" width="24" height="24" />
                                                         <path
@@ -78,7 +78,7 @@
                             <!--end::Form-->
                             <!--begin::Scroll-->
                             <div class="quick-search-wrapper scroll" data-scroll="true" data-height="325"
-                                data-mobile-height="200"></div>
+                                 data-mobile-height="200"></div>
                             <!--end::Scroll-->
                         </div>
                     </div>
@@ -93,7 +93,7 @@
                             <span class="svg-icon svg-icon-xl svg-icon-primary">
                                 <!--begin::Svg Icon | path:assets/media/svg/icons/Code/Compiling.svg-->
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                    width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                     width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                         <rect x="0" y="0" width="24" height="24" />
                                         <path
@@ -127,11 +127,11 @@
                                     role="tablist">
                                     <li class="nav-item">
                                         <a class="nav-link active show" data-toggle="tab"
-                                            href="#topbar_notifications_notifications">Alerts</a>
+                                           href="#topbar_notifications_notifications">Alerts</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" data-toggle="tab"
-                                            href="#topbar_notifications_events">Events</a>
+                                           href="#topbar_notifications_events">Events</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" data-toggle="tab" href="#topbar_notifications_logs">Logs</a>
@@ -144,10 +144,10 @@
                             <div class="tab-content">
                                 <!--begin::Tabpane-->
                                 <div class="tab-pane active show p-8" id="topbar_notifications_notifications"
-                                    role="tabpanel">
+                                     role="tabpanel">
                                     <!--begin::Scroll-->
                                     <div class="scroll pr-7 mr-n7" data-scroll="true" data-height="300"
-                                        data-mobile-height="200">
+                                         data-mobile-height="200">
                                         <!--begin::Item-->
                                         <div class="d-flex align-items-center mb-6">
                                             <!--begin::Symbol-->
@@ -156,18 +156,18 @@
                                                     <span class="svg-icon svg-icon-lg svg-icon-primary">
                                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Home/Library.svg-->
                                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                                                            height="24px" viewBox="0 0 24 24" version="1.1">
+                                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                                             height="24px" viewBox="0 0 24 24" version="1.1">
                                                             <g stroke="none" stroke-width="1" fill="none"
-                                                                fill-rule="evenodd">
+                                                               fill-rule="evenodd">
                                                                 <rect x="0" y="0" width="24" height="24" />
                                                                 <path
                                                                     d="M5,3 L6,3 C6.55228475,3 7,3.44771525 7,4 L7,20 C7,20.5522847 6.55228475,21 6,21 L5,21 C4.44771525,21 4,20.5522847 4,20 L4,4 C4,3.44771525 4.44771525,3 5,3 Z M10,3 L11,3 C11.5522847,3 12,3.44771525 12,4 L12,20 C12,20.5522847 11.5522847,21 11,21 L10,21 C9.44771525,21 9,20.5522847 9,20 L9,4 C9,3.44771525 9.44771525,3 10,3 Z"
                                                                     fill="#000000" />
                                                                 <rect fill="#000000" opacity="0.3"
-                                                                    transform="translate(17.825568, 11.945519) rotate(-19.000000) translate(-17.825568, -11.945519)"
-                                                                    x="16.3255682" y="2.94551858" width="3" height="18"
-                                                                    rx="1" />
+                                                                      transform="translate(17.825568, 11.945519) rotate(-19.000000) translate(-17.825568, -11.945519)"
+                                                                      x="16.3255682" y="2.94551858" width="3" height="18"
+                                                                      rx="1" />
                                                             </g>
                                                         </svg>
                                                         <!--end::Svg Icon-->
@@ -192,10 +192,10 @@
                                                     <span class="svg-icon svg-icon-lg svg-icon-warning">
                                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Write.svg-->
                                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                                                            height="24px" viewBox="0 0 24 24" version="1.1">
+                                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                                             height="24px" viewBox="0 0 24 24" version="1.1">
                                                             <g stroke="none" stroke-width="1" fill="none"
-                                                                fill-rule="evenodd">
+                                                               fill-rule="evenodd">
                                                                 <rect x="0" y="0" width="24" height="24" />
                                                                 <path
                                                                     d="M12.2674799,18.2323597 L12.0084872,5.45852451 C12.0004303,5.06114792 12.1504154,4.6768183 12.4255037,4.38993949 L15.0030167,1.70195304 L17.5910752,4.40093695 C17.8599071,4.6812911 18.0095067,5.05499603 18.0083938,5.44341307 L17.9718262,18.2062508 C17.9694575,19.0329966 17.2985816,19.701953 16.4718324,19.701953 L13.7671717,19.701953 C12.9505952,19.701953 12.2840328,19.0487684 12.2674799,18.2323597 Z"
@@ -214,7 +214,7 @@
                                             <!--begin::Text-->
                                             <div class="d-flex flex-column font-weight-bold">
                                                 <a href="#"
-                                                    class="text-dark-75 text-hover-primary mb-1 font-size-lg">Awesome
+                                                   class="text-dark-75 text-hover-primary mb-1 font-size-lg">Awesome
                                                     SAAS</a>
                                                 <span class="text-muted">Project status update meeting</span>
                                             </div>
@@ -229,10 +229,10 @@
                                                     <span class="svg-icon svg-icon-lg svg-icon-success">
                                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Group-chat.svg-->
                                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                                                            height="24px" viewBox="0 0 24 24" version="1.1">
+                                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                                             height="24px" viewBox="0 0 24 24" version="1.1">
                                                             <g stroke="none" stroke-width="1" fill="none"
-                                                                fill-rule="evenodd">
+                                                               fill-rule="evenodd">
                                                                 <rect x="0" y="0" width="24" height="24" />
                                                                 <path
                                                                     d="M16,15.6315789 L16,12 C16,10.3431458 14.6568542,9 13,9 L6.16183229,9 L6.16183229,5.52631579 C6.16183229,4.13107011 7.29290239,3 8.68814808,3 L20.4776218,3 C21.8728674,3 23.0039375,4.13107011 23.0039375,5.52631579 L23.0039375,13.1052632 L23.0206157,17.786793 C23.0215995,18.0629336 22.7985408,18.2875874 22.5224001,18.2885711 C22.3891754,18.2890457 22.2612702,18.2363324 22.1670655,18.1421277 L19.6565168,15.6315789 L16,15.6315789 Z"
@@ -250,7 +250,7 @@
                                             <!--begin::Text-->
                                             <div class="d-flex flex-column font-weight-bold">
                                                 <a href="#"
-                                                    class="text-dark text-hover-primary mb-1 font-size-lg">Claudy
+                                                   class="text-dark text-hover-primary mb-1 font-size-lg">Claudy
                                                     Sys</a>
                                                 <span class="text-muted">Project Deployment &amp; Launch</span>
                                             </div>
@@ -265,10 +265,10 @@
                                                     <span class="svg-icon svg-icon-lg svg-icon-danger">
                                                         <!--begin::Svg Icon | path:assets/media/svg/icons/General/Attachment2.svg-->
                                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                                                            height="24px" viewBox="0 0 24 24" version="1.1">
+                                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                                             height="24px" viewBox="0 0 24 24" version="1.1">
                                                             <g stroke="none" stroke-width="1" fill="none"
-                                                                fill-rule="evenodd">
+                                                               fill-rule="evenodd">
                                                                 <rect x="0" y="0" width="24" height="24" />
                                                                 <path
                                                                     d="M11.7573593,15.2426407 L8.75735931,15.2426407 C8.20507456,15.2426407 7.75735931,15.6903559 7.75735931,16.2426407 C7.75735931,16.7949254 8.20507456,17.2426407 8.75735931,17.2426407 L11.7573593,17.2426407 L11.7573593,18.2426407 C11.7573593,19.3472102 10.8619288,20.2426407 9.75735931,20.2426407 L5.75735931,20.2426407 C4.65278981,20.2426407 3.75735931,19.3472102 3.75735931,18.2426407 L3.75735931,14.2426407 C3.75735931,13.1380712 4.65278981,12.2426407 5.75735931,12.2426407 L9.75735931,12.2426407 C10.8619288,12.2426407 11.7573593,13.1380712 11.7573593,14.2426407 L11.7573593,15.2426407 Z"
@@ -310,10 +310,10 @@
                                                     <span class="svg-icon svg-icon-lg svg-icon-info">
                                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Shield-user.svg-->
                                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                                                            height="24px" viewBox="0 0 24 24" version="1.1">
+                                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                                             height="24px" viewBox="0 0 24 24" version="1.1">
                                                             <g stroke="none" stroke-width="1" fill="none"
-                                                                fill-rule="evenodd">
+                                                               fill-rule="evenodd">
                                                                 <rect x="0" y="0" width="24" height="24" />
                                                                 <path
                                                                     d="M4,4 L11.6314229,2.5691082 C11.8750185,2.52343403 12.1249815,2.52343403 12.3685771,2.5691082 L20,4 L20,13.2830094 C20,16.2173861 18.4883464,18.9447835 16,20.5 L12.5299989,22.6687507 C12.2057287,22.8714196 11.7942713,22.8714196 11.4700011,22.6687507 L8,20.5 C5.51165358,18.9447835 4,16.2173861 4,13.2830094 L4,4 Z"
@@ -334,7 +334,7 @@
                                             <!--begin::Text-->
                                             <div class="d-flex flex-column font-weight-bold">
                                                 <a href="#"
-                                                    class="text-dark text-hover-primary mb-1 font-size-lg">Bravia
+                                                   class="text-dark text-hover-primary mb-1 font-size-lg">Bravia
                                                     SAAS</a>
                                                 <span class="text-muted">Reporting Application</span>
                                             </div>
@@ -349,16 +349,16 @@
                                                     <span class="svg-icon svg-icon-lg svg-icon-danger">
                                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Mail-notification.svg-->
                                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                                                            height="24px" viewBox="0 0 24 24" version="1.1">
+                                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                                             height="24px" viewBox="0 0 24 24" version="1.1">
                                                             <g stroke="none" stroke-width="1" fill="none"
-                                                                fill-rule="evenodd">
+                                                               fill-rule="evenodd">
                                                                 <rect x="0" y="0" width="24" height="24" />
                                                                 <path
                                                                     d="M21,12.0829584 C20.6747915,12.0283988 20.3407122,12 20,12 C16.6862915,12 14,14.6862915 14,18 C14,18.3407122 14.0283988,18.6747915 14.0829584,19 L5,19 C3.8954305,19 3,18.1045695 3,17 L3,8 C3,6.8954305 3.8954305,6 5,6 L19,6 C20.1045695,6 21,6.8954305 21,8 L21,12.0829584 Z M18.1444251,7.83964668 L12,11.1481833 L5.85557487,7.83964668 C5.4908718,7.6432681 5.03602525,7.77972206 4.83964668,8.14442513 C4.6432681,8.5091282 4.77972206,8.96397475 5.14442513,9.16035332 L11.6444251,12.6603533 C11.8664074,12.7798822 12.1335926,12.7798822 12.3555749,12.6603533 L18.8555749,9.16035332 C19.2202779,8.96397475 19.3567319,8.5091282 19.1603533,8.14442513 C18.9639747,7.77972206 18.5091282,7.6432681 18.1444251,7.83964668 Z"
                                                                     fill="#000000" />
                                                                 <circle fill="#000000" opacity="0.3" cx="19.5" cy="17.5"
-                                                                    r="2.5" />
+                                                                        r="2.5" />
                                                             </g>
                                                         </svg>
                                                         <!--end::Svg Icon-->
@@ -369,7 +369,7 @@
                                             <!--begin::Text-->
                                             <div class="d-flex flex-column font-weight-bold">
                                                 <a href="#"
-                                                    class="text-dark text-hover-primary mb-1 font-size-lg">Express
+                                                   class="text-dark text-hover-primary mb-1 font-size-lg">Express
                                                     Wind</a>
                                                 <span class="text-muted">Software Analytics &amp; Design</span>
                                             </div>
@@ -384,10 +384,10 @@
                                                     <span class="svg-icon svg-icon-lg svg-icon-success">
                                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Design/Bucket.svg-->
                                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
-                                                            height="24px" viewBox="0 0 24 24" version="1.1">
+                                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                                             height="24px" viewBox="0 0 24 24" version="1.1">
                                                             <g stroke="none" stroke-width="1" fill="none"
-                                                                fill-rule="evenodd">
+                                                               fill-rule="evenodd">
                                                                 <rect x="0" y="0" width="24" height="24" />
                                                                 <path
                                                                     d="M5,5 L5,15 C5,15.5948613 5.25970314,16.1290656 5.6719139,16.4954176 C5.71978107,16.5379595 5.76682388,16.5788906 5.81365532,16.6178662 C5.82524933,16.6294602 15,7.45470952 15,7.45470952 C15,6.9962515 15,6.17801499 15,5 L5,5 Z M5,3 L15,3 C16.1045695,3 17,3.8954305 17,5 L17,15 C17,17.209139 15.209139,19 13,19 L7,19 C4.790861,19 3,17.209139 3,15 L3,5 C3,3.8954305 3.8954305,3 5,3 Z"
@@ -426,7 +426,7 @@
                                 <div class="tab-pane" id="topbar_notifications_events" role="tabpanel">
                                     <!--begin::Nav-->
                                     <div class="navi navi-hover scroll my-4" data-scroll="true" data-height="300"
-                                        data-mobile-height="200">
+                                         data-mobile-height="200">
                                         <!--begin::Item-->
                                         <a href="#" class="navi-item">
                                             <div class="navi-link">
@@ -639,11 +639,11 @@
                             <span class="svg-icon svg-icon-xl svg-icon-warning">
                                 <!--begin::Svg Icon | path:assets/media/svg/icons/Media/Equalizer.svg-->
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                    width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                     width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                         <rect x="0" y="0" width="24" height="24" />
                                         <rect fill="#000000" opacity="0.3" x="13" y="4" width="3" height="16"
-                                            rx="1.5" />
+                                              rx="1.5" />
                                         <rect fill="#000000" x="8" y="9" width="3" height="11" rx="1.5" />
                                         <rect fill="#000000" x="18" y="11" width="3" height="9" rx="1.5" />
                                         <rect fill="#000000" x="3" y="13" width="3" height="7" rx="1.5" />
@@ -668,12 +668,12 @@
                             <!--begin:Item-->
                             <div class="col-6">
                                 <a href="#"
-                                    class="d-block py-10 px-5 text-center bg-hover-light border-right border-bottom">
+                                   class="d-block py-10 px-5 text-center bg-hover-light border-right border-bottom">
                                     <span class="svg-icon svg-icon-3x svg-icon-success">
                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Shopping/Euro.svg-->
                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
-                                            viewBox="0 0 24 24" version="1.1">
+                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
+                                             viewBox="0 0 24 24" version="1.1">
                                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                 <rect x="0" y="0" width="24" height="24" />
                                                 <path
@@ -698,8 +698,8 @@
                                     <span class="svg-icon svg-icon-3x svg-icon-success">
                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Mail-attachment.svg-->
                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
-                                            viewBox="0 0 24 24" version="1.1">
+                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
+                                             viewBox="0 0 24 24" version="1.1">
                                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                 <rect x="0" y="0" width="24" height="24" />
                                                 <path
@@ -724,8 +724,8 @@
                                     <span class="svg-icon svg-icon-3x svg-icon-success">
                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Shopping/Box2.svg-->
                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
-                                            viewBox="0 0 24 24" version="1.1">
+                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
+                                             viewBox="0 0 24 24" version="1.1">
                                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                 <rect x="0" y="0" width="24" height="24" />
                                                 <path
@@ -750,8 +750,8 @@
                                     <span class="svg-icon svg-icon-3x svg-icon-success">
                                         <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Group.svg-->
                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
-                                            viewBox="0 0 24 24" version="1.1">
+                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
+                                             viewBox="0 0 24 24" version="1.1">
                                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                 <polygon points="0 0 24 0 24 24 0 24" />
                                                 <path
@@ -784,7 +784,7 @@
                             <span class="svg-icon svg-icon-xl svg-icon-success">
                                 <!--begin::Svg Icon | path:assets/media/svg/icons/Shopping/Cart3.svg-->
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                    width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                     width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                         <rect x="0" y="0" width="24" height="24" />
                                         <path
@@ -805,7 +805,7 @@
                         <form>
                             <!--begin::Header-->
                             <div class="d-flex align-items-center py-10 px-8 bgi-size-cover bgi-no-repeat rounded-top"
-                                style="background-image: url(assets/media/misc/bg-1.jpg)">
+                                 style="background-image: url(assets/media/misc/bg-1.jpg)">
                                 <span class="btn btn-md btn-icon bg-white-o-15 mr-4">
                                     <i class="flaticon2-shopping-cart-1 text-success"></i>
                                 </span>
@@ -815,12 +815,12 @@
                             <!--end::Header-->
                             <!--begin::Scroll-->
                             <div class="scroll scroll-push" data-scroll="true" data-height="250"
-                                data-mobile-height="200">
+                                 data-mobile-height="200">
                                 <!--begin::Item-->
                                 <div class="d-flex align-items-center justify-content-between p-8">
                                     <div class="d-flex flex-column mr-2">
                                         <a href="#"
-                                            class="font-weight-bold text-dark-75 font-size-lg text-hover-primary">iBlender</a>
+                                           class="font-weight-bold text-dark-75 font-size-lg text-hover-primary">iBlender</a>
                                         <span class="text-muted">Best kichen gadget in 2020</span>
                                         <div class="d-flex align-items-center mt-2">
                                             <span class="font-weight-bold mr-1 text-dark-75 font-size-lg">$ 350</span>
@@ -846,7 +846,7 @@
                                 <div class="d-flex align-items-center justify-content-between p-8">
                                     <div class="d-flex flex-column mr-2">
                                         <a href="#"
-                                            class="font-weight-bold text-dark-75 font-size-lg text-hover-primary">SmartCleaner</a>
+                                           class="font-weight-bold text-dark-75 font-size-lg text-hover-primary">SmartCleaner</a>
                                         <span class="text-muted">Smart tool for cooking</span>
                                         <div class="d-flex align-items-center mt-2">
                                             <span class="font-weight-bold mr-1 text-dark-75 font-size-lg">$ 650</span>
@@ -872,7 +872,7 @@
                                 <div class="d-flex align-items-center justify-content-between p-8">
                                     <div class="d-flex flex-column mr-2">
                                         <a href="#"
-                                            class="font-weight-bold text-dark-75 font-size-lg text-hover-primary">CameraMax</a>
+                                           class="font-weight-bold text-dark-75 font-size-lg text-hover-primary">CameraMax</a>
                                         <span class="text-muted">Professional camera for edge cutting shots</span>
                                         <div class="d-flex align-items-center mt-2">
                                             <span class="font-weight-bold mr-1 text-dark-75 font-size-lg">$ 150</span>
@@ -944,7 +944,7 @@
                         <span class="svg-icon svg-icon-xl svg-icon-danger">
                             <!--begin::Svg Icon | path:assets/media/svg/icons/Layout/Layout-4-blocks.svg-->
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                 width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                     <rect x="0" y="0" width="24" height="24" />
                                     <rect fill="#000000" x="4" y="4" width="7" height="7" rx="1.5" />
@@ -964,7 +964,7 @@
                         <span class="svg-icon svg-icon-xl svg-icon-info">
                             <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Group-chat.svg-->
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                 width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                     <rect x="0" y="0" width="24" height="24" />
                                     <path
@@ -1008,7 +1008,7 @@
             <div class="header-menu-wrapper header-menu-wrapper-left" id="kt_header_menu_wrapper">
                 <!--begin::Header Menu-->
                 <div id="kt_header_menu"
-                    class="header-menu header-menu-left header-menu-mobile header-menu-layout-default">
+                     class="header-menu header-menu-left header-menu-mobile header-menu-layout-default">
                     <!--begin::Header Nav-->
                     <ul class="menu-nav">
                         <li class="menu-item @if(preg_match('~dcms.portal.dashboard~',CurrentRoute())) menu-item-active @endif" aria-haspopup="true">
@@ -1027,13 +1027,13 @@
                                 <ul class="menu-subnav">
                                     <li class="menu-item" aria-haspopup="true">
                                         <a href="{{ route('dcms.portal.user.index') }}"
-                                            class="menu-link">
+                                           class="menu-link">
                                             <span class="menu-text">Overview</span>
                                         </a>
                                     </li>
                                     <li class="menu-item" aria-haspopup="true">
                                         <a href="{{ route('dcms.portal.user.create') }}"
-                                            class="menu-link">
+                                           class="menu-link">
                                             <span class="menu-text">Create user</span>
                                         </a>
                                     </li>
@@ -1051,13 +1051,13 @@
                                 <ul class="menu-subnav">
                                     <li class="menu-item" aria-haspopup="true">
                                         <a href="{{ route('dcms.portal.model.index') }}"
-                                            class="menu-link">
+                                           class="menu-link">
                                             <span class="menu-text">Overview</span>
                                         </a>
                                     </li>
                                     <li class="menu-item" aria-haspopup="true">
                                         <a href="{{ route('dcms.portal.model.create') }}"
-                                            class="menu-link">
+                                           class="menu-link">
                                             <span class="menu-text">Create model</span>
                                         </a>
                                     </li>
@@ -1084,69 +1084,39 @@
                                             <ul class="menu-subnav">
                                                 <li class="menu-item" aria-haspopup="true">
                                                     <a href="{{ route('dcms.portal.authorization.index') }}" class="menu-link">
-                                                        <span class="menu-text">Overview</span>
+                                                        <span class="menu-text">Roles and permissions</span>
                                                     </a>
                                                 </li>
                                                 <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                                    <a  class="menu-link menu-toggle">
-                                                        <span class="menu-text">Roles</span>
-                                                        <div class="menu-item-div">
-                                                            <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>
-                                                        </div>
+                                                <li class="menu-item" aria-haspopup="true">
+                                                    <a href="{{ route('dcms.portal.role.create') }}" class="menu-link">
+                                                        <span class="menu-text">Create role</span>
                                                     </a>
-                                                    <div class="menu-submenu menu-submenu-classic menu-submenu-right" data-hor-direction="menu-submenu-right">
-                                                        <ul class="menu-subnav">
-                                                            <li class="menu-item" aria-haspopup="true">
-                                                                <a href="{{ route('dcms.portal.role.index') }}" class="menu-link">
-                                                                    <span class="menu-text">Overview</span>
-                                                                </a>
-                                                            </li>
-                                                            <li class="menu-item" aria-haspopup="true">
-                                                                <a href="{{ route('dcms.portal.role.create') }}" class="menu-link">
-                                                                    <span class="menu-text">Create</span>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
+                                                </li>
                                                 </li>
                                                 <li class="menu-item menu-item-submenu" data-menu-toggle="hover" aria-haspopup="true">
-                                                    <a  class="menu-link menu-toggle">
-                                                        <span class="menu-text">Permissions</span>
-                                                        <div class="menu-item-div">
-                                                            <i class="fas fa-caret-right menu-dropdown-icon icon-sm"></i>
-                                                        </div>
+                                                <li class="menu-item" aria-haspopup="true">
+                                                    <a href="{{ route('dcms.portal.permission.create') }}" class="menu-link">
+                                                        <span class="menu-text">Create permission</span>
                                                     </a>
-                                                    <div class="menu-submenu menu-submenu-classic menu-submenu-right" data-hor-direction="menu-submenu-right">
-                                                        <ul class="menu-subnav">
-                                                            <li class="menu-item" aria-haspopup="true">
-                                                                <a href="{{ route('dcms.portal.permission.index') }}" class="menu-link">
-                                                                    <span class="menu-text">Overview</span>
-                                                                </a>
-                                                            </li>
-                                                            <li class="menu-item" aria-haspopup="true">
-                                                                <a href="{{ route('dcms.portal.permission.create') }}" class="menu-link">
-                                                                    <span class="menu-text">Create</span>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
+                                                </li>
                                                 </li>
                                             </ul>
                                         </div>
                                     </li>
                                     <li class="menu-item" aria-haspopup="true">
                                         <a href="{{ route('dcms.portal.activity') }}"
-                                            class="menu-link">
+                                           class="menu-link">
                                             <span class="menu-text">Activity</span>
                                             <span class="menu-label">
                                                 <span class="label label-danger label-inline">new</span>
                                             </span>
                                         </a>
-                                    </li>  
+                                    </li>
                                 </ul>
                             </div>
                         </li>
-                        
+
                     </ul>
                     <!--end::Header Nav-->
                 </div>
@@ -1164,8 +1134,8 @@
                                     <span class="svg-icon svg-icon-lg">
                                         <!--begin::Svg Icon | path:assets/media/svg/icons/General/Search.svg-->
                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
-                                            viewBox="0 0 24 24" version="1.1">
+                                             xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
+                                             viewBox="0 0 24 24" version="1.1">
                                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                 <rect x="0" y="0" width="24" height="24" />
                                                 <path
@@ -1195,7 +1165,7 @@
                     <!--begin::Dropdown-->
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg dropdown-menu-anim-up">
                         <div class="quick-search-wrapper scroll" data-scroll="true" data-height="350"
-                            data-mobile-height="200"></div>
+                             data-mobile-height="200"></div>
                     </div>
                     <!--end::Dropdown-->
                 </div>

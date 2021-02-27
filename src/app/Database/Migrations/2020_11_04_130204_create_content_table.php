@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDcmsContentTable extends Migration
+class CreateContentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateDcmsContentTable extends Migration
      */
     public function up()
     {
-        Schema::create('dcms_content', function (Blueprint $table) {
+        Schema::create('content', function (Blueprint $table) {
             $table->id();
             $table->string('UID');
             $table->text('value');
