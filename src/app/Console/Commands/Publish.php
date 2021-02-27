@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Schema;
 class Publish extends Command
 {
     /**
+     * @var string
+     */
+    private $vendorPath;
+
+    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -23,7 +28,7 @@ class Publish extends Command
 
     public function publishPermissionMigration()
     {
-        copy(base_path() . '/vendor/pveltrop/dcms/src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
+        copy(base_path() . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
     }
 
     /**
@@ -34,21 +39,23 @@ class Publish extends Command
     public function handle()
     {
         $console = $this;
+        $this->vendorPath = '/vendor/pveltrop/dcms/';
+
         $rootjs = base_path() . '/resources/js/dcms/';
         $rootjsassets = base_path() . '/public/js/dcms/assets';
         $rootjsportal = base_path() . '/public/js/dcms/portal';
         $rootscss = base_path() . '/resources/sass/dcms/';
         $rootcssassets = base_path() . '/public/css/dcms/assets';
         $rootcssportal = base_path() . '/public/css/dcms/portal';
-        $vendorjs = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/js';
-        $vendorjsassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/js/assets';
-        $vendorjsportal = base_path() . '/vendor/pveltrop/dcms/src/app/Public/js/portal';
-        $vendorscss = base_path() . '/vendor/pveltrop/dcms/src/app/Resources/sass';
-        $vendorcssassets = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/assets';
-        $vendorcssportal = base_path() . '/vendor/pveltrop/dcms/src/app/Public/css/portal';
+        $vendorjs = $this->vendorPath.'/src/app/Resources/js';
+        $vendorjsassets = $this->vendorPath.'/src/app/Public/js/assets';
+        $vendorjsportal = $this->vendorPath.'/src/app/Public/js/portal';
+        $vendorscss = $this->vendorPath.'/src/app/Resources/sass';
+        $vendorcssassets = $this->vendorPath.'/src/app/Public/css/assets';
+        $vendorcssportal = $this->vendorPath.'/src/app/Public/css/portal';
 
         if ($console->confirm('Do you want to publish the migrations?')) {
-            // Migrations
+            // Permission migration
             if ((!preg_match('/create_permissions_table/', json_encode(scandir(base_path() . '/database/migrations')))) > 0){
                 echo "\nDCMS has a migration which adds a column to Spaties Laravel Permissions table.";
                 echo "\nYour database doesn't have this table yet, so you need to publish their migrations first with this cmd: \n";
@@ -62,6 +69,8 @@ class Publish extends Command
             } else {
                 $this->publishPermissionMigration();
             }
+            // Other migrations
+            copy(base_path() . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
         }
 
         if ($console->confirm('Do you want to update the JavaScript files?')) {
