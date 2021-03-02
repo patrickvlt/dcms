@@ -12,6 +12,7 @@
           :maxfiles="maxfiles"
           :instantupload="instantupload"
           :processroute="processroute"
+          :allowcopy="allowcopy"
           :allowrevert="allowrevert"
           :revertroute="revertroute"
           :passtotable="passtotable"
@@ -31,6 +32,7 @@ export default {
         "allowrevert",
         "revertroute",
         "passtotable",
+        "allowcopy"
     ],
 
     data() {
@@ -105,21 +107,23 @@ export default {
                                 file: file.serverId,
                             });
 
-                            // Insert copy button if file has been uploaded
-                            let buttonToInsert = `<button class="filepond--file-action-button filepond--action-copy-item-processing" type="button" data-filepond-copy-button="${pond.name.replace(
-                                "[]",
-                                ""
-                            )}-copy" data-dcms-action="copy" data-dcms-file="${file.serverId
-                                }" data-align="right" style="transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1); opacity: 1;top: 2.35em">
-                        <i class="fas fa-copy" style="color: white;font-size: 10px;margin-bottom: 4px;"></i>
-                        </button>`;
-                            let insertAfter = ".filepond--root.filepond--hopper";
-                            insertAfter = self.filePondWrapper.querySelector(insertAfter);
-                            if (insertAfter) {
-                                insertAfter = insertAfter.querySelector(
-                                    ".filepond--action-revert-item-processing"
-                                );
-                                insertAfter.insertAdjacentHTML("afterend", buttonToInsert);
+                            if (self.allowcopy){
+                                // Insert copy button if file has been uploaded
+                                let buttonToInsert = `<button class="filepond--file-action-button filepond--action-copy-item-processing" type="button" data-filepond-copy-button="${pond.name.replace(
+                                    "[]",
+                                    ""
+                                )}-copy" data-dcms-action="copy" data-dcms-file="${file.serverId
+                                    }" data-align="right" style="transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1); opacity: 1;top: 2.35em">
+                            <i class="fas fa-copy" style="color: white;font-size: 10px;margin-bottom: 4px;"></i>
+                            </button>`;
+                                let insertAfter = ".filepond--root.filepond--hopper";
+                                insertAfter = self.filePondWrapper.querySelector(insertAfter);
+                                if (insertAfter) {
+                                    insertAfter = insertAfter.querySelector(
+                                        ".filepond--action-revert-item-processing"
+                                    );
+                                    insertAfter.insertAdjacentHTML("afterend", buttonToInsert);
+                                }
                             }
 
                             if (document.querySelectorAll("[data-type=jexcel]").length > 0) {
@@ -221,9 +225,7 @@ export default {
                     };
                     window.DCMS.filePonds.push(pond);
 
-                    self.filePondWrapper
-                        .querySelector(".filepond--drop-label")
-                        .classList.add("input-group-text");
+                    self.filePondWrapper.querySelector(".filepond--drop-label").classList.add("input-group-text");
                     self.inputElement.style.visibility = "visible";
                     self.inputElement.style.display = "inherit";
                 }
