@@ -13,27 +13,11 @@ if (!function_exists('MaxSizeServer')) {
         $maxPost = (int) (ini_get('post_max_size'));
         $lowestSetting = min($maxUpload, $maxPost);
 
-        if (preg_match('/M/', ini_get('upload_max_filesize')) || preg_match('/M/', ini_get('post_max_size')) || ($lowestSetting - 10) < 0) {
-            $type = 'mb';
-        } elseif (($lowestSetting - 1000000) < 0) {
-            $type = 'kb';
-        } else {
-            $type = 'bytes';
+        if (!preg_match('/K/', ini_get('upload_max_filesize')) || !preg_match('/K/', ini_get('post_max_size'))) {
+            throw new \RuntimeException('Set your upload_max_filesize and post_max_size in KB');
         }
 
-        switch ($type) {
-            case 'bytes':
-                throw new \RuntimeException('Change upload_max_filesize to '.($maxUpload * pow(1024, 2)).'K and post_max_size to '.($maxPost * pow(1024, 2)).'K in your php.ini.');
-                break;
-
-            case 'mb':
-                throw new \RuntimeException('Change upload_max_filesize to '.($maxUpload * 1000).' and post_max_size to '.($maxPost * 1000).'K in your php.ini.');
-                break;
-
-            default:
-                return $lowestSetting;
-                break;
-        }
+        return $lowestSetting;
     }
 }
 
