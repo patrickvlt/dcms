@@ -15,7 +15,6 @@ window.DCMS.jExcelInit = function () {
 
         window.DCMS.jExcelTables = [];
         if (document.querySelectorAll('[data-type=jexcel]').length > 0) {
-            require('./../translations/_jexcel.js');
             document.querySelectorAll('[data-type=jexcel]').forEach(function (htmlTable) {
 
                 sheetData = '';
@@ -142,10 +141,7 @@ window.DCMS.jExcelInit = function () {
                                             title: Lang('Import failed'),
                                             html: alertMsg,
                                             icon: "error",
-                                            confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                                             confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                                            cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                                            cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                                         });
                                     } catch (error) {
                                     }
@@ -154,10 +150,7 @@ window.DCMS.jExcelInit = function () {
                                         title: error.response.data.response.title,
                                         html: error.response.data.response.message,
                                         icon: "error",
-                                        confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                                         confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                                        cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                                        cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                                     });
                                 }
                             });
@@ -192,10 +185,9 @@ window.DCMS.jExcelInit = function () {
                             title: Lang('Are you sure?'),
                             html: Lang('This will try to fix empty dropdown columns.') + "<br>" + Lang('Do you want to continue?'),
                             icon: "warning",
-                            confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                             confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                            cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
                             cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
+                            showCancelButton: true
                         }).then(function (result) {
                             if (result.value) {
                                 for (const t in window.DCMS.jExcelTables) {
@@ -213,10 +205,7 @@ window.DCMS.jExcelInit = function () {
                             title: Lang('Data correction failed'),
                             text: Lang('The provided data couldn\'t be fixed.'),
                             icon: "error",
-                            confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                             confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                            cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                            cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                         });
                     });
                 });

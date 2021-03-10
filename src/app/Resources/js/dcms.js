@@ -19,7 +19,7 @@ window.DCMS.loadJSFile = function (source, type = null) {
     script.type = (type) ? type : 'text/javascript';
     script.src = source;
     var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(script, s);
+    s.parentNode.append(script, s);
 };
 
 window.DCMS.loadJS = function (plugin, pluginPath = 'cdn') {
@@ -29,7 +29,7 @@ window.DCMS.loadJS = function (plugin, pluginPath = 'cdn') {
         script.type = 'text/javascript';
         script.src = source;
         var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(script, s);
+        s.parentNode.append(script, s);
     }
     if (typeof scriptSources == 'string') {
         loadJSSource(scriptSources);
@@ -49,7 +49,7 @@ window.DCMS.loadCSS = function (plugin, pluginPath = 'cdn') {
         cssLink.type = 'text/css';
         cssLink.href = source;
         cssTag = document.getElementsByTagName('head')[0];
-        cssTag.append(cssLink);
+        cssTag.prepend(cssLink);
     }
     if (typeof cssSources == 'string') {
         loadCSSSource(cssSources);
@@ -71,11 +71,6 @@ if (typeof toastr == 'undefined' && (window.DCMS.config.plugins.toastr && window
 
 if (typeof Papa == 'undefined' && (window.DCMS.config.plugins.papa && window.DCMS.config.plugins.papa.enable !== false)) {
     window.DCMS.loadJS(window.DCMS.config.plugins.papa, 'local');
-}
-
-if (document.querySelectorAll('.datatable').length > 0 && (window.DCMS.config.plugins.KTDatatable && window.DCMS.config.plugins.KTDatatable.enable !== false)) {
-    window.DCMS.loadJS(window.DCMS.config.plugins.KTDatatable, 'local');
-    window.DCMS.loadCSS(window.DCMS.config.plugins.KTDatatable, 'local');
 }
 
 /**

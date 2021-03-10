@@ -1,34 +1,456 @@
-.dcmsImg {
-    height: 13rem;
-    width: 13rem;
-    border-radius: 5px;
-    margin: 7px;
-    object-fit: cover;
+$transitionSpeed: 0.3s;
+$unevenRowTextColor: black;
+$unevenRowBackgroundColor: #f5f5f5;
+$cellBorderColor: #00000012;
+
+/*
+* Assign colors
+*/
+
+.dcmstable-wrapper {
+    color: $textColor;
 }
 
-.dcmsImgsDiv {
-    display: block !important;
-    justify-content: center;
-    max-height: 14rem;
-    overflow: scroll;
-    margin-bottom: 10px;
-    white-space: inherit;
+.dcmstable i {
+    color: $textColor;
+}
+
+.dcmstable-primary i {
+    color: $primaryTextColor;
+}
+
+.dcmstable-hover tbody tr:hover {
+    color: $textColor;
+    background-color: rgba(0, 0, 0, 0.035);
+}
+
+.dcmstable-primary thead th {
+    color: $primaryTextColor;
+    background-color: $primary;
+    border-color: $primary;
+}
+
+.dcmstable-striped tbody tr:nth-of-type(odd) {
+    background-color: $unevenRowBackgroundColor;
+    color: $unevenRowTextColor;
+}
+
+
+.dcmstable-page-link {
+    color: $textColor;
+    background-color: $textBackgroundColor;
+    border: 1px solid $borderColor;
+}
+
+.dcmstable-page-link:hover {
+    color: $hoverTextColor;
+    background-color: $hoverBackgroundColor;
+    border-color: $hoverBorderColor;
+}
+
+.dcmstable-page-item.active .dcmstable-page-link {
+    color: $activeTextColor;
+    background-color: $activeBackgroundColor;
+    border-color: $activeBorderColor;
+}
+.dcmstable-page-item.disabled .dcmstable-page-link {
+    color: $textDisabledColor;
+    background-color: $disabledBackgroundColor;
+    border-color: $borderColor;
+}
+
+.dcmstable-md tr {
+    border-bottom: 2px solid $cellBorderColor;
+}
+.dcmstable-md td {
+    border-bottom: 1px dotted $cellBorderColor;
+}
+
+.dcmstable-expand i::before{
+    color: $primary !important;
+}
+.dcmstable-error-button {
+    color: $activeTextColor;
+    background-color: $primary;
+    border-color: $primary;
+}
+
+// Spinner
+
+.dcmstable-spinner {
+    display: block;
+    position: relative;
+    top: 80px;
+    left: 50%;
+    height: 50px;
+    width: 50px;
+    margin: -25px 0 0 -25px;
+    opacity: 0;
+    transition: $transitionSpeed;
+    z-index: 3;
+}
+
+.dcmstable-spinner span {
+    position: absolute;
+    display: block;
+    bottom: 10px;
+    width: 9px;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.25);
+    -webkit-animation: bars1 1.5s  infinite ease-in-out;
+    animation: bars1 1.5s  infinite ease-in-out;
+}
+
+.dcmstable-spinner span:nth-child(2) {
+    left: 11px;
+    -webkit-animation-delay: 0.2s;
+    animation-delay: 0.2s;
+}
+
+.dcmstable-spinner span:nth-child(3) {
+    left: 22px;
+    -webkit-animation-delay: 0.4s;
+    animation-delay: 0.4s;
+}
+
+.dcmstable-spinner span:nth-child(4) {
+    left: 33px;
+    -webkit-animation-delay: 0.6s;
+    animation-delay: 0.6s;
+}
+
+.dcmstable-spinner span:nth-child(5) {
+    left: 44px;
+    -webkit-animation-delay: 0.8s;
+    animation-delay: 0.8s;
+}
+
+@keyframes bars1 {
+    0% {
+        height: 5px;
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        background: rgba(0, 0, 0, 0.25);
+    }
+    25% {
+        height: 30px;
+        -webkit-transform: translateY(15px);
+        transform: translateY(15px);
+        -webkit-transform: translateY(15px);
+        transform: translateY(15px);
+        background: #000000;
+    }
+    50% {
+        height: 5px;
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        background: rgba(0, 0, 0, 0.25);
+    }
+    100% {
+        height: 5px;
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        background: rgba(0, 0, 0, 0.25);
+    }
+}
+@-webkit-keyframes bars1 {
+    0% {
+        height: 5px;
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        background: rgba(0, 0, 0, 0.25);
+    }
+    25% {
+        height: 30px;
+        -webkit-transform: translateY(15px);
+        transform: translateY(15px);
+        background: #000000;
+    }
+    50% {
+        height: 5px;
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        background: rgba(0, 0, 0, 0.25);
+    }
+    100% {
+        height: 5px;
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
+        background: rgba(0, 0, 0, 0.25);
+    }
+}
+
+.dcmstable-wrapper {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-size: 13px;
+}
+
+.dcmstable {
+    width: 100%;
+    margin:0;
+    padding:0;
+}
+
+.dcmstable, .dcmstable th, .dcmstable td {
+    border: none;
+    border-collapse: collapse;
+    outline: none;
+    border-spacing: 0;
+}
+
+.dcmstable th,
+.dcmstable tr, {
+    border-bottom: 1px solid $cellBorderColor;
+    height: 30px;
+}
+
+.dcmstable td,
+.dcmstable th {
     text-align: center;
 }
 
-.dcmstable-image-wrapper {
-    width: 120px;
-    height: 120px;
-    border-radius: 0.42rem;
-    background-repeat: no-repeat;
-    background-size: cover;
+.dcmstable td label {
+    display:inline;
 }
 
-.spotlight:hover {
-    opacity: 0.8;
+.dcmstable tbody {
+    opacity: 0;
+    transition: $transitionSpeed;
+}
+
+.dcmstable th {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+// Controls - Navigation
+
+.dcmstable-page-item span, .dcmstable-page-item a {
+    padding: 11px 10px 10px;
+}
+
+.dcmstable-nav {
+    float: left;
+}
+
+.dcmstable-nav ul, .dcmstable-perpage {
+    margin: 1rem 0;
+}
+
+.dcmstable-pagination {
+    display: -ms-flexbox;
+    display: flex;
+    padding-left: 0;
+    padding-right: 15px;
+    list-style: none;
+    border-radius: 0.25rem;
+}
+
+.dcmstable-page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+}
+
+.dcmstable-page-link:hover {
+    z-index: 2;
+    text-decoration: none;
+}
+
+.dcmstable-page-link:focus {
+    z-index: 2;
+    outline: 0;
+}
+
+.dcmstable-page-item:first-child .dcmstable-page-link {
+    margin-left: 0;
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.dcmstable-page-item:last-child .dcmstable-page-link {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+
+.dcmstable-page-item.active .dcmstable-page-link {
+    z-index: 1;
+}
+
+.dcmstable-page-item.disabled .dcmstable-page-link {
+    pointer-events: none;
+    cursor: auto;
+}
+
+.dcmstable-expand {
+    min-width: 25px;
+}
+
+.dcmstable-expand label {
+    position: relative;
+    top: 3px;
+    left: 5px;
+}
+
+.dcmstable-nav:hover,
+.dcmstable-expand:hover,
+.dcmstable-expand i:hover,
+.dcmstable-error-button:hover {
+    cursor:pointer;
+}
+
+.dcmstable-page-link:hover, .dcmstable-page-link:visited, .dcmstable-page-link:link, .dcmstable-page-link:active
+{
+    text-decoration: none;
+}
+
+// Controls - Per page
+
+.dcmstable-perpage-select {
+    display: inline-block;
+    float:right;
+    padding: .375rem .75rem;
+    font-weight: 400;
+    line-height: 1.5;
+    background-clip: padding-box;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    margin-bottom:10px;
+}
+
+.dcmstable-perpage {
+    float:right;
+}
+
+.dcmstable-perpage-flex {
+    display:flex;
+}
+
+.dcmstable-perpage-label {
+    margin-bottom: 10px;
+    padding-right: 35px;
+    width: 100%;
+}
+
+// Controls
+
+.dcmstable-controls {
+    width: 100%
+}
+
+// Responsiveness
+
+.dcmstable-md {
+    border: 0;
+}
+
+.dcmstable-md thead {
+    display: none;
+}
+
+.dcmstable td {
+    overflow: hidden;
+}
+
+.dcmstable-md td, .dcmstable-sm td {
+    overflow: auto;
+    max-width: inherit !important;
+}
+
+.dcmstable-md tr {
+    margin-bottom: 10px;
+    display: block;
+}
+
+.dcmstable-md td {
+    display: block;
+    text-align: right;
+}
+
+.dcmstable-md td:last-child {
+    border-bottom: 0;
+}
+
+.dcmstable-md td:before {
+    content: attr(data-label);
+    float: left;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.dcmstable-perpage-md{
+    float:left;
+}
+
+.dcmstable-sm td:before {
+    display:block;
+    width: 100%;
+}
+.dcmstable-sm td {
+    text-align:left;
+}
+.dcmstable-nav-sm {
+    width: 100%;
+}
+
+// Expanding rows
+
+[data-dcms-expanded-row] {
+    display: table-row;
+}
+
+[data-dcms-expanded-header] {
+    font-weight: bold;
+}
+
+[data-dcms-expanded-header],
+[data-dcms-expanded-value], {
+    text-align: left !important;
+}
+
+.dcmstable-md .dcmstable-expand,
+.dcmstable-sm .dcmstable-expand {
+    display: none !important;
+}
+
+[data-dcms-expanded-row] td {
+    padding: 10px 10px 10px 20px;
+}
+
+// Sorting
+
+.dcmstable th:hover {
     cursor: pointer;
 }
 
-.kt_datatable_rowcontrols {
-    display: inline-block;
+.dcmstable-sort {
+    margin-left: 5px;
+}
+
+// No results // error
+.dcmstable-noresults,
+.dcmstable-error, {
+    display: block;
+    margin-top: 15px;
+}
+
+.dcmstable-error-label,
+.dcmstable-error-button {
+    display:block;
+}
+
+.dcmstable-error-button {
+    min-width: 110px;
+    margin-top: 35px;
+    padding: 5px;
+    border-radius: 5px;
 }

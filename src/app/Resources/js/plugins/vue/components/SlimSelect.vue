@@ -1,29 +1,28 @@
 <template>
-    <select ref="inputElement" class="form-control" data-type="slimselect" 
-        :id="id"
-        :name="name"
-        :aria-describedby="name"
-        :autoclose="autoclose"
-        :placeholder="placeholder"
-        :data="data"
-        :optiontextattr="optiontextattr"
-        :optionvalueattr="optionvalueattr"
-        :value="value"
-        >
-        <option disabled></option>
+    <select ref="inputElement" class="form-control" data-type="slimselect"
+        :name="name">
+        <slot></slot>
     </select>
 </template>
 <script>
 export default {
-    props: ['autoClose','placeholder', 'data', 'value'],
+    props: ['autoclose'],
+    name: "slimselect",
 
     data() {
         return Object.assign({
             inputElement: {},
+            noresultstext: Lang("No results found."),
+            placeholder: " ",
         },this.$attrs);
     },
 
     mounted() {
+        if (typeof SlimSelect == 'undefined' && (window.DCMS.config.plugins.slimselect && window.DCMS.config.plugins.slimselect.enable !== false)) {
+            window.DCMS.loadCSS(window.DCMS.config.plugins.slimselect);
+            window.DCMS.loadJS(window.DCMS.config.plugins.slimselect);
+        }
+
         this.makeSelect();
     },
 
@@ -33,22 +32,13 @@ export default {
             let self = this;
 
             window.DCMS.hasLoaded('SlimSelect', function () {
-                if(self.data){
-                    let thisData = JSON.parse(self.data);
-                    
-                    for (const d in thisData) {
-                        let thisOption = document.createElement('option');
-                        thisOption.text = thisData[d][self.optiontextattr];
-                        thisOption.value = thisData[d][self.optionvalueattr];
-                        thisOption.selected = (thisData[d][self.optionvalueattr] == self.value) ? 'selected' : '';
-                        self.inputElement.add(thisOption);
-                    }
-                }
+                self.inputElement.style.visibility = 'inherit';
+                self.inputElement.style.display = 'inherit';
                 let Slim = new SlimSelect({
                     select: self.inputElement,
-                    closeOnSelect: self.autoClose == 'false' ? false : true,
-                    searchPlaceholder: " ",
-                    searchText: Lang("No results found."),
+                    closeOnSelect: self.autoclose == 'false' ? false : true,
+                    searchPlaceholder: self.placeholder,
+                    searchText: self.noresultstext,
                     placeholder: (self.placeholder) ? self.placeholder : ' ',
                 });
                 window.DCMS.slimSelects[self.inputElement.name] = {
@@ -61,5 +51,5 @@ export default {
 }
 </script>
 <style lang="">
-    
+
 </style>

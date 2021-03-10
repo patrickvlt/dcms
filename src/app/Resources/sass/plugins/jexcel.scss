@@ -1,3 +1,44 @@
+$columnBorderColor: $borderColor;
+$columnBackgroundColor: $primary;
+$columnTextColor: white;
+
+$selectedCellBackgroundColor: white;
+$selectedCellTextColor: black;
+
+$cellBackgroundColor: white;
+$cellTextColor: black;
+
+/*
+Assign colors
+*/
+
+.jexcel>tbody>tr>td {
+    border-top: 1px solid $columnBorderColor;
+    border-left: 1px solid $columnBorderColor;
+    background-color: $cellBackgroundColor;
+    color: $cellTextColor;
+}
+
+.jexcel .highlight-selected {
+    background-color: $selectedCellBackgroundColor;
+    color: $selectedCellTextColor;
+}
+
+.jexcel>thead>tr>td.selected,
+.jexcel>tbody>tr.selected>td:first-child {
+    background-color: $columnBackgroundColor;
+    color: $columnTextColor;
+}
+
+.jexcel>thead>tr>td,
+.jexcel>tbody>tr>td:first-child{
+    border-top: 1px solid $columnBorderColor;
+    border-left: 1px solid $columnBorderColor;
+    background-color: $columnBackgroundColor;
+    color: $columnTextColor;
+    z-index: 1;
+}
+
 .jexcel {
     table-layout: auto;
     width: 100%;

@@ -1,14 +1,14 @@
 input[data-type*="picker"]:focus{
-    outline: none !important;
-    border-color: transparent !important;
+    outline: none;
+    border-color: transparent;
 }
 
 .c-datepicker__clock {
-    height: 383px !important;
+    height: 383px;
 }
 
 .c-datepicker {
-    min-height: 500px !important;
+    min-height: 500px;
 }
 
 .c-datepicker--open {
@@ -16,26 +16,21 @@ input[data-type*="picker"]:focus{
 }
 
 .c-datepicker__day--disabled {
-    opacity: 0.5 !important;
+    opacity: 0.5;
 }
 
 .input-group>.form-control:focus, .input-group>.custom-select:focus, .input-group>.custom-file .custom-file-input:focus~.custom-file-label {
-    z-index: 0 !important;
+    z-index: 0;
 }
 
 #kt_body > div.c-scrim.c-scrim--shown {
-    z-index: 2 !important;
+    z-index: 2;
 }
 
 .c-datepicker__header-date-tighten {
-    height: 65px !important;
+    height: 65px;
 }
 
 .c-datepicker__header-date-expand {
-    height: 200px !important;
-}
-
-.c-datepicker__header-day,
-.c-datepicker__header-date {
-    background-color: #1e1e2d !important;
+    height: 200px;
 }

@@ -1,10 +1,6 @@
 <template>
     <textarea ref="inputElement" data-type="tinymce"
-        class="form-control" 
-        :name="name"
-        :id="id"
-        :aria-describedby="name"
-        :height="height">
+        class="form-control">
         {{ content }}
     </textarea>
 </template>
@@ -15,10 +11,15 @@ export default {
     data() {
         return Object.assign({
             inputElement: {},
+            darkmode: false,
         },this.$attrs);
     },
 
     mounted() {
+        if (typeof tinymce == 'undefined' && document.querySelectorAll('[data-type="tinymce"]').length > 0 && window.DCMS.config.plugins.tinymce && window.DCMS.config.plugins.tinymce.enable !== false) {
+            window.DCMS.loadJS(window.DCMS.config.plugins.tinymce, 'local');
+        }
+
         this.makeTinyMCE();
     },
 
@@ -27,7 +28,7 @@ export default {
             this.inputElement = this.$refs.inputElement;
             let self = this;
             window.DCMS.hasLoaded('tinymce', function () {
-                tinymce.init({
+                let defaultOptions = {
                     selector: 'textarea[name="'+self.inputElement.name+'"]',
                     language_url: window.DCMS.tinyMCE.langFiles,
                     language: window.DCMS.language,
@@ -41,12 +42,18 @@ export default {
                     init_instance_callback: function (editor) {
                         editor.getContainer().querySelector('button.tox-statusbar__wordcount').click();
                     }
-                });
+                };
+                let darkSkinOptions = {
+                    skin: "oxide-dark",
+                    content_css: "dark",
+                }
+                let definedOptions = (self.darkmode == 'true') ? Object.assign(defaultOptions,darkSkinOptions) : defaultOptions;
+                tinymce.init(definedOptions);
             });
         }
     }
 }
 </script>
 <style lang="">
-    
+
 </style>

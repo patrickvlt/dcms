@@ -1,0 +1,22 @@
+$defaultBackgroundColor: white;
+
+/*
+Assign colors
+*/
+
+.tox .tox-menubar,
+.tox .tox-toolbar, .tox .tox-toolbar__overflow, .tox .tox-toolbar__primary {
+    background: url("data:image/svg+xml;charset=utf8,%3Csvg height='39px' viewBox='0 0 40 39px' width='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='38px' width='100' height='1' fill='%23000000'/%3E%3C/svg%3E") left 0 top 0 $defaultBackgroundColor !important;
+    background-color: $defaultBackgroundColor !important;
+}
+
+.tox .tox-statusbar,
+.mceBlackBody {
+    background-color: $defaultBackgroundColor !important;
+}
+
+// TinyMCE
+
+.tox-tinymce {
+    margin: 15px 0px;
+}

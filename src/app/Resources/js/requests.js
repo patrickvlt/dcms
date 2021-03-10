@@ -153,10 +153,7 @@ window.DCMS.request = function (formMethod, formAction, formData, customSettings
                     Swal.fire({
                         title: Lang(error.response.data.message),
                         html: errorString,
-                        confirmButtonColor: (typeof window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                         confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                        cancelButtonColor: (typeof window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                        cancelButtonText: (typeof window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                         icon: "error"
                     });
                 }
@@ -185,10 +182,7 @@ window.DCMS.request = function (formMethod, formAction, formData, customSettings
                         title: swalTitle,
                         html: swalMessage,
                         icon: "error",
-                        confirmButtonColor: (typeof window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                         confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                        cancelButtonColor: (typeof window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                        cancelButtonText: (typeof window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                     });
                 } else if (window.DCMS.form.alerts == false || window.DCMS.form.errorBag == true) {
                     window.DCMS.fillErrorBag({
@@ -261,9 +255,7 @@ window.DCMS.deleteModel = function (args) {
         title: confirmTitle,
         html: confirmMsg,
         icon: "warning",
-        confirmButtonColor: (typeof window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
         confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-        cancelButtonColor: (typeof window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
         cancelButtonText: (typeof window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
     }).then(function (result) {
         if (result.value) {
@@ -296,10 +288,7 @@ window.DCMS.deleteModel = function (args) {
                             title: failedTitle,
                             text: failedMsg,
                             icon: "error",
-                            confirmButtonColor: (typeof window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                             confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                            cancelButtonColor: (typeof window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                            cancelButtonText: (typeof window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                         });
                     });
                 } else {
@@ -327,10 +316,7 @@ window.DCMS.deleteModel = function (args) {
                             title: failedTitle,
                             text: failedMsg,
                             icon: "error",
-                            confirmButtonColor: (typeof window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                             confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                            cancelButtonColor: (typeof window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                            cancelButtonText: (typeof window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                         });
                     });
                 }
@@ -339,10 +325,7 @@ window.DCMS.deleteModel = function (args) {
                     title: Lang('Unknown error'),
                     html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                     icon: "error",
-                    confirmButtonColor: (typeof window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                     confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                    cancelButtonColor: (typeof window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                    cancelButtonText: (typeof window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                 });
             }
         }

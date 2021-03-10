@@ -1,0 +1,59 @@
+$filepondTextColor: $textColor;
+$filepondFileTextColor: white;
+$filepondFileButtonTextColor: white;
+$filepondFileButtonBackgroundColor: rgba(0,0,0,.5);
+
+$filepondBackgroundColor: $textBackgroundColor;
+$filepondFilesBackgroundColor: #efefef;
+$filepondFilesErrorBackgroundColor: $danger;
+$filepondFilesSuccessBackgroundColor: #369763;
+
+$filepondInputBorderColor: $primary;
+
+/*
+Assign colors
+*/
+
+[data-filepond-item-state=processing-complete] .filepond--item-panel {
+    background-color: $filepondFilesSuccessBackgroundColor;
+}
+
+[data-filepond-item-state*=error] .filepond--item-panel, [data-filepond-item-state*=invalid] .filepond--item-panel {
+    background-color: $filepondFilesErrorBackgroundColor;
+}
+
+.filepond--file-action-button {
+    color: $filepondFileButtonTextColor;
+    background-color: $filepondFileButtonBackgroundColor;
+}
+
+.filepond--file {
+    color: $filepondFileTextColor;
+}
+
+.filepond--drop-label {
+    color: $filepondTextColor;
+    background-color: $filepondBackgroundColor;
+    border: 1px dashed $filepondInputBorderColor;
+}
+
+.filepond--drip {
+    background-color: $filepondFilesBackgroundColor;
+}
+
+// Filepond
+
+[data-type=filepond] {
+    display:none;
+}
+
+.filepond--drip {
+    opacity: 1;
+}
+
+.filepond--drop-label {
+    border-radius: .42rem;
+}
+.filepond--drop-label label {
+    font-weight: 500;
+}

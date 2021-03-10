@@ -26,13 +26,13 @@ window.DCMS.dCarousel = function () {
             function defaultImgString(img, dcars) {
                 return `<div class="dCar-div">
                             <div class="dCar-controls">
-                                <a class="dCar-btn spotlight" href="`+ img + `" data-dcar="` + dcars + `" data-dcms-action="copy" data-dcms-file="` + img + `"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                                <a class="dCar-btn dCar-btn-view spotlight" href="`+ img + `" data-dcar="` + dcars + `" data-dcms-action="view" data-dcms-file="` + img + `"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
                                     <i class="fas fa-eye"></i>
                                 </span></a>
-                                <a class="dCar-btn" data-dcar="`+ dcars + `" data-dcms-action="copy" data-dcms-file="` + img + `"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                                <a class="dCar-btn dCar-btn-copy" data-dcar="`+ dcars + `" data-dcms-action="copy" data-dcms-file="` + img + `"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
                                     <i class="fas fa-copy"></i>
                                 </span></a>
-                                <a class="dCar-btn" data-dcar="`+ dcars + `" data-dCar-action="destroy" data-dcar-prefix="` + dcarPrefix + `" data-dcar-column="` + dcarColumn + `" data-dcms-file="` + img + `"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
+                                <a class="dCar-btn dCar-btn-destroy" data-dcar="`+ dcars + `" data-dCar-action="destroy" data-dcar-prefix="` + dcarPrefix + `" data-dcar-column="` + dcarColumn + `" data-dcms-file="` + img + `"><span class="dCar-btn dCar-btn-xs dCar-btn-icon dCar-btn-circle dCar-btn-white dCar-btn-hover-text-primary ">
                                     <i class="fas fa-trash"></i>
                                 </span></a>
                             </div>
@@ -81,16 +81,10 @@ window.DCMS.dCarousel = function () {
                     </div>
                 </div>
                 <button type="button" id="dCar-prev">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path fill="none" d="M0 0h24v24H0V0z"></path>
-                        <path d="M15.61 7.41L14.2 6l-6 6 6 6 1.41-1.41L11.03 12l4.58-4.59z"></path>
-                    </svg>
+                    <i class="fas fa-angle-left"></i>
                 </button>
                 <button type="button" id="dCar-next">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path fill="none" d="M0 0h24v24H0V0z"></path>
-                        <path d="M10.02 6L8.61 7.41 13.19 12l-4.58 4.59L10.02 18l6-6-6-6z"></path>
-                    </svg>
+                    <i class="fas fa-angle-right"></i>
                 </button>
             </div>
             `);
@@ -155,9 +149,7 @@ window.DCMS.dCarousel = function () {
                             title: Lang('Deleting item'),
                             text: Lang('Are you sure you want to delete this item?'),
                             icon: "warning",
-                            confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                             confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                            cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
                             cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                         }).then(function (result) {
                             if (result.value) {
@@ -170,20 +162,6 @@ window.DCMS.dCarousel = function () {
                             }
                         });
                     }
-                });
-            });
-        }
-
-        let dCarControls = document.querySelectorAll('.dCar-div');
-        if (dCarControls) {
-            Array.from(dCarControls).forEach((dCarControl) => {
-                dCarControl.addEventListener('mouseenter', function (e) {
-                    let buttons = dCarControl.querySelector('.dCar-controls');
-                    buttons.style.visibility = 'visible';
-                });
-                dCarControl.addEventListener('mouseleave', function (e) {
-                    let buttons = dCarControl.querySelector('.dCar-controls');
-                    buttons.style.visibility = 'hidden';
                 });
             });
         }

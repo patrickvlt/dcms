@@ -1,3 +1,41 @@
+/*
+Assign Colors
+*/
+
+.ss-main input[type="search"]:focus {
+    box-shadow: 0 0 5px $primary !important;
+}
+
+.ss-main .ss-option.ss-disabled {
+    color: $textDisabledColor;
+    background-color: $disabledBackgroundColor;
+}
+
+.ss-main .ss-content .ss-list .ss-option.ss-option-selected {
+    color: $activeTextColor;
+    background-color: $activeBackgroundColor;
+}
+
+.ss-main .ss-single-selected{
+    background-color: $textBackgroundColor !important;
+}
+
+.ss-main input[type="search"],
+.ss-main .ss-content{
+    color: $textColor;
+    background-color: $textBackgroundColor;
+    border: 1px solid $borderColor !important;
+}
+
+.ss-main .placeholder {
+    color: $textColor;
+}
+
+.ss-main .ss-option:hover{
+    color: $hoverTextColor !important;
+    background-color: $hoverBackgroundColor !important;
+}
+
 .ss-main .ss-single-selected .ss-arrow span {
     padding: 2px !important;
 }

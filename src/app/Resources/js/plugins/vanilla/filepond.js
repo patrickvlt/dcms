@@ -46,11 +46,9 @@ window.DCMS.filePond = function () {
                 let pond = FilePond.create(inputElement);
                 if (!inputElement.dataset.filepondPrefix) {
                     console.log('No prefix found. Add a data-filepond-prefix to the input element (the prefix of the current model). e.g. (data-filepond-prefix="user")');
-                    return false;
                 }
                 if (!inputElement.dataset.filepondMime) {
                     console.log('No mime found. Add a data-filepond-mime to the input element. e.g. (data-filepond-mime="image")');
-                    return false;
                 }
                 if (!inputElement.dataset.filepondColumn) {
                     console.log('No column attribute assigned to FilePond. Add a data-filepond-column to the input element. e.g. (data-filepond-column="logo")');
@@ -61,8 +59,8 @@ window.DCMS.filePond = function () {
                 pond.maxFiles = (typeof inputElement.dataset.filepondMaxFiles !== 'undefined') ? inputElement.dataset.filepondMaxFiles : 1;
                 pond.maxFileSize = inputElement.dataset.filepondMaxFileSize ? inputElement.dataset.filepondMaxFileSize : window.DCMS.maxSizeServer;
                 pond.name = inputElement.dataset.filepondColumn + "[]";
-                pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.DCMS.FilePondInstantUpload;
-                pond.allowRevert = (inputElement.dataset.filepondAllowRevert) ? inputElement.dataset.filepondAllowRevert : window.DCMS.FilePondAllowRevert;
+                pond.instantUpload = (inputElement.dataset.filepondInstantUpload) ? inputElement.dataset.filepondInstantUpload : window.DCMS.filePond.instantUpload;
+                pond.allowRevert = (inputElement.dataset.filepondAllowRevert) ? inputElement.dataset.filepondAllowRevert : window.DCMS.filePond.allowRevert;
                 pond.allowPaste = false;
                 pond.onerror = () => {
                     window.DCMS.haltSubmit();
@@ -75,7 +73,7 @@ window.DCMS.filePond = function () {
                             "file": file.serverId
                         });
 
-                        // Insert copy button if file has been uploaded 
+                        // Insert copy button if file has been uploaded
                         let buttonToInsert = `<button class="filepond--file-action-button filepond--action-copy-item-processing" type="button" data-filepond-copy-button="${pond.name.replace('[]', '')}-copy" data-dcms-action="copy" data-dcms-file="${file.serverId}" data-align="right" style="transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1); opacity: 1;top: 2.35em">
                         <i class="fas fa-copy" style="color: white;font-size: 10px;margin-bottom: 4px;"></i>
                         </button>`;
@@ -124,33 +122,28 @@ window.DCMS.filePond = function () {
                     process: {
                         url: (inputElement.dataset.filepondProcessUrl) ? inputElement.dataset.filepondProcessUrl : '/dcms/file/process/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
                         onerror: (res) => {
-                            let response, errors = '';
+                            let response;
                             try {
                                 response = JSON.parse(res);
                             } catch (error) {
-                                Swal.fire(Lang('Upload failed'), '', 'error');
-                                return;
+                                //
                             }
                             if (!response.errors) {
                                 Swal.fire({
-                                    title: Lang('Upload failed'),
-                                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
-                                    icon: "error"
+                                    title: Lang("Upload failed"),
+                                    html: Lang("An unknown error has occurred.") + "<br>" + Lang("Contact support if this problem persists."),
+                                    icon: "error",
+                                    confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
                                 });
                             }
                             if (response.errors) {
                                 for (const x in response.errors) {
                                     for (const y in response.errors[x]) {
-                                        errors += response.errors[x][y] + '<br>';
+                                        toastr.error(response.errors[x][y]);
                                     }
                                 }
-                                Swal.fire({
-                                    title: Lang('Upload failed'),
-                                    html: errors,
-                                    icon: "error"
-                                });
                             }
-                        }
+                        },
                     },
                     revert: {
                         headers: {

@@ -3,13 +3,13 @@
     <div class="form-group">
       <table ref="tableElement" data-type="jexcel" :id="id">
         <tr>
-          <slot></slot>
+            <slot name="headerTemplate"></slot>
         </tr>
       </table>
       <span class="form-text text-muted">{{ smalltext }}</span>
     </div>
     <div class="form-group">
-      <button id="submitTable" type="submit" submit-jexcel class="btn btn-success mr-2">
+      <button id="submitTable" type="submit" submit-jexcel class="btn btn-primary mr-2">
         {{ importbuttontext }}
       </button>
       <button id="fixSheet" type="button" autocorrect-jexcel class="btn btn-secondary mr-2">
@@ -43,6 +43,15 @@ export default {
     },
 
     mounted() {
+        if (typeof jexcel == 'undefined' && document.querySelectorAll('[data-type="jexcel"]').length > 0 && (window.DCMS.config.plugins.jexcel && window.DCMS.config.plugins.jexcel.enable !== false)) {
+            window.DCMS.loadCSS(window.DCMS.config.plugins.jexcel);
+            window.DCMS.loadJS(window.DCMS.config.plugins.jexcel);
+        }
+        if (typeof jsuites == 'undefined' && document.querySelectorAll('[data-type="jexcel"]').length > 0 && (window.DCMS.config.plugins.jsuites && window.DCMS.config.plugins.jsuites.enable !== false)) {
+            window.DCMS.loadCSS(window.DCMS.config.plugins.jsuites);
+            window.DCMS.loadJS(window.DCMS.config.plugins.jsuites);
+        }
+
         this.makeTable();
     },
 
@@ -54,16 +63,13 @@ export default {
             if (ajax) {
                 column.source = ajax;
             }
-            column.title = header.dataset.text;
+            column.title = header.dataset.label;
             column.width = header.dataset.width;
             column.tableoverflow = true;
-            column.autocomplete =
-                header.dataset.autocomplete == "true" ? "true" : "false";
+            column.autocomplete = header.dataset.autocomplete == "true" ? "true" : "false";
             if (header.dataset.type == "calendar") {
                 column.options = {
-                    format: header.dataset.format
-                        ? header.dataset.format
-                        : window.AppDateFormat,
+                    format: header.dataset.format ? header.dataset.format : window.AppDateFormat,
                 };
             }
 
@@ -89,9 +95,7 @@ export default {
         },
         addAutoCorrect() {
             let self = this;
-            self.tableWrapper
-                .querySelector("[autocorrect-jexcel]")
-                .addEventListener("click", function (e) {
+            self.tableWrapper.querySelector("[autocorrect-jexcel]").addEventListener("click", function (e) {
                     let dropdownHeaders = [];
                     Array.from(self.tableHeaders).forEach((th) => {
                         if (th.dataset.jexcelType == "dropdown") {
@@ -101,8 +105,7 @@ export default {
                             });
                         }
                     });
-                    window
-                        .axios({
+                    window.axios({
                             method: "POST",
                             url: self.autocorrectroute,
                             data: {
@@ -115,19 +118,12 @@ export default {
                                 "Content-type": "application/x-www-form-urlencoded",
                                 "X-Requested-With": "XMLHttpRequest",
                             },
-                        })
-                        .then(function (response) {
+                        }).then(function (response) {
                             Swal.fire({
                                 title: Lang("Are you sure?"),
-                                html:
-                                    Lang("This will try to fix empty dropdown columns.") +
-                                    "<br>" +
-                                    Lang("Do you want to continue?"),
+                                html: Lang("This will try to fix empty dropdown columns.") + "<br>" + Lang("Do you want to continue?"),
                                 icon: "warning",
-                                confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== "undefined") ? window.DCMS.sweetAlert.confirmButtonColor: "var(--primary)",
-                                confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== "undefined")? window.DCMS.sweetAlert.confirmButtonText: Lang("OK"),
-                                cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== "undefined")? window.DCMS.sweetAlert.cancelButtonColor: "var(--dark)",
-                                cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== "undefined")? window.DCMS.sweetAlert.cancelButtonText: Lang("Cancel"),
+                                showCancelButton: true
                             }).then(function (result) {
                                 if (result.value) {
                                     for (const t in window.DCMS.jExcel.tables) {
@@ -140,16 +136,12 @@ export default {
                                     }
                                 }
                             });
-                        })
-                        .catch(function () {
+                        }).catch(function () {
                             Swal.fire({
                                 title: Lang("Data correction failed"),
                                 text: Lang("The provided data couldn't be fixed."),
                                 icon: "error",
-                                confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== "undefined") ? window.DCMS.sweetAlert.confirmButtonColor: "var(--primary)",
                                 confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== "undefined") ? window.DCMS.sweetAlert.confirmButtonText: Lang("OK"),
-                                cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== "undefined") ? window.DCMS.sweetAlert.cancelButtonColor: "var(--dark)",
-                                cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== "undefined") ? window.DCMS.sweetAlert.cancelButtonText: Lang("Cancel"),
                             });
                         });
                 });
@@ -172,7 +164,7 @@ export default {
                 }),
                 allowInsertColumn: false,
                 allowManualInsertColumn: false,
-                text: window.DCMS.jExcelTranslations,
+                text: window.DCMS.jExcel.translations,
             });
 
             if (self.tableElement) {
@@ -188,8 +180,7 @@ export default {
                     self.clearInvalid(e);
                     self.sheetData = table.getData();
 
-                    window
-                        .axios({
+                    window.axios({
                             method: "POST",
                             url: e.target.action,
                             data: self.sheetData,
@@ -216,12 +207,7 @@ export default {
                                     Array.from(
                                         document.querySelectorAll("tbody tr td:not(.jexcel_row)")
                                     ).forEach(function (cell) {
-                                        if (
-                                            String(error.response.data.errors[z])
-                                                .toLowerCase()
-                                                .indexOf(cell.textContent.toLowerCase()) > -1 &&
-                                            cell.textContent !== ""
-                                        ) {
+                                        if (String(error.response.data.errors[z]).toLowerCase().indexOf(cell.textContent.toLowerCase()) > -1 && cell.textContent !== "") {
                                             cell.classList.add("invalid");
                                         }
                                     });
@@ -230,20 +216,14 @@ export default {
                                     title: Lang("Import failed"),
                                     html: alertMsg,
                                     icon: "error",
-                                    confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== "undefined") ? window.DCMS.sweetAlert.confirmButtonColor: "var(--primary)",
                                     confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== "undefined") ? window.DCMS.sweetAlert.confirmButtonText: Lang("OK"),
-                                    cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== "undefined") ? window.DCMS.sweetAlert.cancelButtonColor: "var(--dark)",
-                                    cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== "undefined") ? window.DCMS.sweetAlert.cancelButtonText: Lang("Cancel"),
                                 });
                             } else {
                                 Swal.fire({
                                     title: error.response.data.response.title,
                                     html: error.response.data.response.message,
                                     icon: "error",
-                                    confirmButtonColor: typeof (window.DCMS.sweetAlert.confirmButtonColor !== "undefined") ? window.DCMS.sweetAlert.confirmButtonColor: "var(--primary)",
                                     confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== "undefined") ? window.DCMS.sweetAlert.confirmButtonText: Lang("OK"),
-                                    cancelButtonColor: typeof (window.DCMS.sweetAlert.cancelButtonColor !== "undefined") ? window.DCMS.sweetAlert.cancelButtonColor: "var(--dark)",
-                                    cancelButtonText: typeof (window.DCMS.sweetAlert.cancelButtonText !== "undefined") ? window.DCMS.sweetAlert.cancelButtonText: Lang("Cancel"),
                                 });
                             }
                         });
@@ -253,11 +233,8 @@ export default {
         makeTable() {
             this.tableElement = this.$refs.tableElement;
             this.tableWrapper = this.$refs.tableWrapper;
-            this.$slots.default.filter((slot) => {
-                if (slot.tag == "jexcelcolumn") {
-                    this.tableHeaders.push(slot.elm);
-                }
-            });
+            this.tableHeaders = this.$refs.tableElement.querySelectorAll('th');
+
             let self = this;
 
             window.DCMS.hasLoaded("jexcel", function () {
@@ -265,13 +242,8 @@ export default {
                 for (const h in self.tableHeaders) {
                     let header = self.tableHeaders[h];
                     if (header.dataset) {
-                        if (
-                            header.dataset &&
-                            header.dataset.fetchRoute !== null &&
-                            typeof header.dataset.fetchRoute !== "undefined"
-                        ) {
-                            window
-                                .axios({
+                        if (header.dataset && header.dataset.fetchRoute !== null && typeof header.dataset.fetchRoute !== "undefined") {
+                            window.axios({
                                     method: "GET",
                                     url: header.dataset.fetchRoute,
                                     responseType: "json",

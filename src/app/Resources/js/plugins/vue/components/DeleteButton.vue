@@ -1,6 +1,6 @@
 <template>
     <button ref="buttonElement" type="button" data-dcms-action="destroy" class="btn btn-danger"
-        :data-dcms-id="id" 
+        :data-dcms-id="objectid"
         :data-dcms-destroy-route="route"
         :data-dcms-destroy-redirect="redirect"
         :data-dcms-delete-confirm-title="confirmtitle"
@@ -45,5 +45,5 @@
     }
 </script>
 <style lang="">
-    
+
 </style>

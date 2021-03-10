@@ -158,10 +158,7 @@ if (window.enableDCMSEditors == true) {
                                             title: Lang('Unknown error'),
                                             html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                                             icon: "error",
-                                            confirmButtonColor: (typeof window.DCMS.sweetAlert.confirmButtonColor !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonColor : "var(--primary)",
                                             confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
-                                            cancelButtonColor: (typeof window.DCMS.sweetAlert.cancelButtonColor !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonColor : "var(--dark)",
-                                            cancelButtonText: (typeof window.DCMS.sweetAlert.cancelButtonText !== 'undefined') ? window.DCMS.sweetAlert.cancelButtonText : Lang("Cancel"),
                                         });
                                     });
                                 });
@@ -186,7 +183,8 @@ if (window.enableDCMSEditors == true) {
                                             Swal.fire({
                                                 title: Lang('Unknown error'),
                                                 html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
-                                                icon: "error"
+                                                icon: "error",
+                                                confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
                                             });
                                         }
                                     });

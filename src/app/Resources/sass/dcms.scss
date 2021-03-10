@@ -1,13 +1,12 @@
+@import "_colors.scss";
 @import "plugins/checkboxes.scss";
 @import "plugins/carousel.scss";
 @import "plugins/slimselect.scss";
 @import "plugins/datetimepicker.scss";
 @import "plugins/datatable.scss";
+@import "plugins/filepond.scss";
 @import "plugins/sweetalert2.scss";
 @import "plugins/toastr.scss";
 @import "plugins/jexcel.scss";
+@import "plugins/tinymce.scss";
 @import "plugins/validation.scss";
-
-[data-type=filepond] {
-    display:none;
-}

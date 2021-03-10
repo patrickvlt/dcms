@@ -1,11 +1,15 @@
+/*
+Assign colors
+*/
+
+.is-invalid {
+    border-color: $danger !important;
+}
+
 .alert [type="button"]:focus, .alert [type="button"]:hover, .alert [type="submit"]:focus, .alert [type="submit"]:hover, .alert button:focus, .alert button:hover {
-    background-color: inherit !important; 
-  }
-  
-  .is-invalid {
-    border-color: #fd2727 !important;
-  }
-  
-  form .btn {
-      min-width: 110px;
-  }
+    background-color: inherit !important;
+}
+
+form .btn {
+    min-width: 110px;
+}

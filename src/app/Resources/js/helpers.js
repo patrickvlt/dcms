@@ -39,7 +39,7 @@ window.DCMS.hasLoaded = function (plugins, yourMethod) {
     var success = 0;
     var readyStateCheckInterval = setInterval(function () {
         plugins.forEach(function (plugin) {
-            if (typeof window[plugin] !== 'undefined' || typeof $.fn[plugin] !== 'undefined') {
+            if (typeof window[plugin] !== 'undefined' || (typeof jQuery !== 'undefined' && typeof $.fn[plugin] !== 'undefined')) {
                 clearInterval(readyStateCheckInterval);
                 success++;
                 if (success == plugins.length) {

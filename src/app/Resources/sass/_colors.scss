@@ -1,0 +1,26 @@
+$primary: var(--primary);
+$danger: var(--danger);
+
+// Normal text colors
+$textColor: black;
+$primaryTextColor: white;
+
+// Normal background colors
+$textBackgroundColor: #fff;
+
+// Border colors
+$borderColor: #dee2e6;
+
+// Hover colors
+$hoverTextColor: white;
+$hoverBackgroundColor: $primary;
+$hoverBorderColor: #dee2e6;
+
+// Disabled colors
+$disabledBackgroundColor: #fff;
+$textDisabledColor: #6c757d;
+
+// Active colors
+$activeTextColor: white;
+$activeBackgroundColor: $hoverBackgroundColor;
+$activeBorderColor: $hoverBorderColor;

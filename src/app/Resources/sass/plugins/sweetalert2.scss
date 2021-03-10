@@ -1,3 +1,61 @@
+$popupBackgroundColor: $textBackgroundColor;
+$popupTextColor: $textColor;
+$popupTitleColor: $textColor;
+
+$confirmBackgroundColor: $primary;
+$confirmTextColor: white;
+
+$cancelBackgroundColor: #02020212;
+$cancelTextColor: black;
+
+$denyBackgroundColor: $danger;
+$denyTextColor: white;
+
+/*
+* Assign colors
+*/
+
+.swal2-popup .swal2-title {
+    color: $popupTitleColor;
+}
+
+.swal2-popup .swal2-content {
+    color: $popupTextColor;
+}
+
+.swal2-popup {
+    background-color: $popupBackgroundColor;
+}
+
+.swal2-actions .swal2-confirm {
+    background-color: $confirmBackgroundColor;
+    color: $confirmTextColor;
+}
+
+.swal2-actions .swal2-cancel {
+    background-color: $cancelBackgroundColor;
+    color: $cancelTextColor;
+}
+
+.swal2-actions .swal2-deny {
+    background-color: $denyBackgroundColor;
+    color: $denyTextColor;
+}
+
+// SweetAlert
+
+.swal2-container {
+    border-color: transparent;
+}
+
+.swal2-popup .swal2-title {
+    font-size: 18px !important;
+}
+
+.swal2-icon .swal2-icon-content {
+    font-size: 65px !important;
+}
+
 .swal2-popup .swal2-title {
     font-size: 1.4rem;
 }

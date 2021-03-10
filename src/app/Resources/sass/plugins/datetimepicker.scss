@@ -1,16 +1,46 @@
-// @import "metronic/fixes-datetimepicker.scss";
+@import "fixes/datetimepicker-metronic.scss";
 
-.c-datepicker__header-day,
-.c-datepicker__header-date {
-    background-color: #1e1e2d !important;
+$headerBackgroundColor: $primary;
+$headerTextColor: white;
+
+/*
+* Assign colors
+*/
+
+.c-datepicker--show-calendar::after,
+.c-datepicker--show-time::after {
+    color: $headerTextColor;
 }
 
-.u-hover-ball-effect:hover:before, 
-.c-datepicker__day-body:hover:before, 
-.c-datepicker__clock__num:hover:before, 
-.c-datepicker__clock__am-pm-toggle label:hover:before, 
-.c-datepicker__day-body--active:not(.hide-hand):before, 
-.c-datepicker__clock__num--active:not(.hide-hand):before, 
+.c-datepicker__header-day,
+.c-datepicker__header-date,
+.c-datepicker__header-date span {
+    background-color: $headerBackgroundColor;
+    color: $headerTextColor;
+}
+
+.c-datepicker--open .modal-btns a{
+    color: $primary;
+    font-weight: 500;
+}
+
+.c-datepicker__day-head,
+.rd-month-label{
+    color: rgba($textColor, 0.75);
+    background-color: $textBackgroundColor;
+}
+
+.c-datepicker__day-body:hover{
+    color: $hoverTextColor;
+    background-color: $hoverBackgroundColor;
+}
+
+.u-hover-ball-effect:hover:before,
+.c-datepicker__day-body:hover:before,
+.c-datepicker__clock__num:hover:before,
+.c-datepicker__clock__am-pm-toggle label:hover:before,
+.c-datepicker__day-body--active:not(.hide-hand):before,
+.c-datepicker__clock__num--active:not(.hide-hand):before,
 .c-datepicker__clock .c-datepicker__clock__num:nth-of-type(1).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
 .c-datepicker__clock .c-datepicker__clock__num:nth-of-type(1):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
 .c-datepicker__clock .c-datepicker__clock__num:nth-of-type(2).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
@@ -35,10 +65,16 @@
 .c-datepicker__clock .c-datepicker__clock__num:nth-of-type(11):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
 .c-datepicker__clock .c-datepicker__clock__num:nth-of-type(12).c-datepicker__clock__num--active:not(.hide-hand)~.c-datepicker__clock-hands .c-datepicker__hour-hand,
 .c-datepicker__clock .c-datepicker__clock__num:nth-of-type(12):hover~.c-datepicker__clock-hands .c-datepicker__hour-hand,
-.c-datepicker__clock-hands, 
-.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(2).c-datepicker__clock__num--active:not(.hide-hand) ~ .c-datepicker__clock-hands .c-datepicker__hour-hand, 
+.c-datepicker__clock-hands,
+.c-datepicker__clock .c-datepicker__clock__num:nth-of-type(2).c-datepicker__clock__num--active:not(.hide-hand) ~ .c-datepicker__clock-hands .c-datepicker__hour-hand,
 .c-datepicker__clock .c-datepicker__clock__num:nth-of-type(10).c-datepicker__clock__num--active:not(.hide-hand) ~ .c-datepicker__clock-hands .c-datepicker__hour-hand {
-    background: var(--primary) !important;
+    background: $primary;
+}
+
+// Datetimepicker
+
+.c-datepicker__day-body:hover{
+    border-radius: 20px;
 }
 
 .c-datepicker--open {
@@ -46,9 +82,9 @@
 }
 
 .c-datepicker__day--disabled {
-    opacity: 0.1 !important;
+    opacity: 0.1;
 }
 
 div.c-scrim.c-scrim--shown {
-    z-index: 2 !important;
+    z-index: 2;
 }

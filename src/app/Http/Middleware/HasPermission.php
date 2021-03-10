@@ -17,6 +17,10 @@ class HasPermission
      */
     public function handle(Request $request, Closure $next)
     {
+        if (config('dcms.hasPermissionMiddleware') == false){
+            return $next($request);
+        }
+
         $currentRouteName = request()->route()->getAction()['as'] ?? null;
         $userIsSuperAdmin = auth()->user() ? auth()->user()->hasRole(config('dcms.superAdminRole')) : false;
 

@@ -1,10 +1,81 @@
+$carouselBorderBackgroundColor: $primary;
+$carouselButtonBackgroundColor: $primary;
+$carouselNavButtonTextColor: $primaryTextColor;
+
+$viewButtonBackgroundColor: $primary;
+$copyButtonBackgroundColor: $primary;
+$destroyButtonBackgroundColor: $primary;
+
+$viewBorderColor: #00000024;
+$copyBorderColor: #00000024;
+$destroyBorderColor: #00000024;
+
+$viewTextColor: $primaryTextColor;
+$copyTextColor: $primaryTextColor;
+$destroyTextColor: $primaryTextColor;
+
+/*
+* Assign colors
+*/
+
+.dCar-btn-view {
+    background-color: $viewButtonBackgroundColor;
+    border: 1px solid $viewBorderColor;
+}
+
+.dCar-btn-view i {
+    color: $viewTextColor;
+}
+
+.dCar-btn-copy {
+    background-color: $copyButtonBackgroundColor;
+    border: 1px solid $copyBorderColor;
+}
+
+.dCar-btn-copy i {
+    color: $copyTextColor;
+}
+
+.dCar-btn-destroy {
+    background-color: $destroyButtonBackgroundColor;
+    border: 1px solid $destroyBorderColor;
+}
+
+.dCar-btn-destroy i {
+    color: $destroyTextColor;
+}
+
+#dCar-prev,
+#dCar-next {
+    background: $carouselButtonBackgroundColor;
+}
+
+#dCar-prev i,
+#dCar-next i {
+    color: $carouselNavButtonTextColor;
+}
+
+// Carousel
+
+.dCar-btn {
+    border-radius: 50%;
+    padding: 5px 7px;
+    margin-left: 2px;
+}
+
 [data-type="dcarousel"] {
-    margin: -20px 0px 20px 0px;
+    margin: 0px 0px 20px 0px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     width: 100%;
+}
+
+.dCar-btn:not(:disabled):not(.disabled),
+#dCar-prev,
+#dCar-next{
+    border-radius: 5px;
 }
 
 #dCar-wrapper {
@@ -27,10 +98,10 @@
     display: flex;
     justify-content: center;
     align-content: center;
-    background: white;
     border: none;
     padding: 8px;
-    border-radius: 50%;
+    width: 30px;
+    height: 30px;
     outline: 0;
     cursor: pointer;
     position: absolute;
@@ -73,7 +144,6 @@
     position: relative;
     top: 30px;
     right: 5px;
-    visibility: hidden;
 }
 
 .dCar-iframe {
@@ -81,33 +151,21 @@
     height: 100%;
 }
 
-.dCar-btn.dCar-btn-icon.dCar-btn-circle {
-    border-radius: 50%;
-}
-.dCar-btn.dCar-btn-icon.dCar-btn-xs {
-    display: inline-block;
-    height: 24px;
-    width: 24px;
+.dCar-btn {
+    display: table-cell;
+    justify-content: center;
 }
 .dCar-btn:not(:disabled):not(.disabled) {
-    cursor: pointer;
-}
-.dCar-btn.dCar-btn-white {
-    background-color: #ffffff;
-    border-color: #ffffff;
+    border-radius: 5px;
 }
 
 .dCar-btn i {
-    color: #3F4254;
+    position: relative;
     font-size: 14px;
-    display: inherit;
-    text-align: center !important;
-    width: 100%;
-    margin-left: 0.3px;
-    padding-top: 5px;
+    left: 0.5px;
 }
 
-.dCar-btn:hover {
-    opacity: 0.9;
-    transition: 0.25s;
+.dCar-btn:hover,
+.dCar-btn i:hover {
+    cursor: pointer;
 }

@@ -28,7 +28,7 @@ class Publish extends Command
 
     public function publishPermissionMigration()
     {
-        copy(base_path() . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
+        copy(base_path() . $this->vendorPath . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
     }
 
     /**
@@ -70,7 +70,7 @@ class Publish extends Command
                 $this->publishPermissionMigration();
             }
             // Other migrations
-            copy(base_path() . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
+            copy(base_path() . $this->vendorPath . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
         }
 
         if ($console->confirm('Do you want to update the JavaScript files?')) {
