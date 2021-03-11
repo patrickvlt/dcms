@@ -117,14 +117,16 @@ trait DCMSController
         ${$this->routePrefix} = ((new $this->model)->find($id)) ?: (new $this->model)->find(request()->{$this->routePrefix});
         // Auto generated Form with HTMLTag package
         $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
-        $vars = method_exists($this, 'beforeEdit') ? $this->beforeEdit($id) : null;
+        $vars = method_exists($this, 'beforeCreate') ? $this->beforeCreate() : [];
+        $vars = method_exists($this, 'beforeCreateOrEdit') ? array_merge($vars,$this->beforeCreateOrEdit()) : $vars;
         return view($this->editView, compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
     }
 
     public function create()
     {
         $this->initDCMS();
-        $vars = method_exists($this, 'beforeCreate') ? $this->beforeCreate() : null;
+        $vars = method_exists($this, 'beforeCreate') ? $this->beforeCreate() : [];
+        $vars = method_exists($this, 'beforeCreateOrEdit') ? array_merge($vars,$this->beforeCreateOrEdit()) : $vars;
         // Auto generated Form with HTMLTag package
         $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         return view($this->createView)->with($vars)->with(['form' => $form]);

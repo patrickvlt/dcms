@@ -68,7 +68,7 @@
 		<!--begin::Page Scripts(used by this page)-->
 		<script src="/js/dcms/portal/widgets.js"></script>
 		<script>
-			var locale = "{{ App::getLocale() }}"; 
+			var locale = "{{ App::getLocale() }}";
 			var maxSizeServer = {!! MaxSizeServer('kb') !!};
 		</script>
 		<script src="/js/dcms/dcms.js"></script>
