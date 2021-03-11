@@ -69,6 +69,11 @@ window.DCMS.dCarousel = function () {
             } else if (typeof dcarSrc === 'object') {
                 // loop through array and make image elements
                 Array.from(dcarSrc).forEach(function (img) {
+                    try {
+                        img = JSON.parse(img)[0];
+                    } catch (error) {
+                        //
+                    }
                     imgElement = imgElement + TypeOfCard(img, element);
                 });
             }

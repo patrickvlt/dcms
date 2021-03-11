@@ -1,5 +1,20 @@
 /**
  *
+ *  Reload datatables
+ *
+ */
+
+window.DCMS.reloadTables = function () {
+    Array.from(document.querySelectorAll('.datatable')).forEach(table => {
+        $(table).KTDatatable('reload');
+    });
+    Array.from(document.querySelectorAll('.dcmstable')).forEach(table => {
+        table.DCMSTable.loadData();
+    });
+};
+
+/**
+ *
  *  AJAX Submits
  *
  */
@@ -216,23 +231,23 @@ window.DCMS.request = function (formMethod, formAction, formData, customSettings
     });
 };
 
-function submitAjax(e) {
-    if (typeof tinymce !== 'undefined') {
-        window.tinyMCE.triggerSave();
-    }
-    let formAction = e.target.action;
-    let formMethod = e.target.method;
-    let formData = new FormData(e.target);
+window.DCMS.addSubmitListeners = function(){
+    document.querySelectorAll('[data-dcms-action=ajax]').forEach((element) => {
+        element.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (typeof tinymce !== 'undefined') {
+                window.tinyMCE.triggerSave();
+            }
+            let formAction = e.target.action;
+            let formMethod = e.target.method;
+            let formData = new FormData(e.target);
 
-    window.DCMS.request(formMethod, formAction, formData);
+            window.DCMS.request(formMethod, formAction, formData);
+        });
+    });
 }
 
-document.querySelectorAll('[data-dcms-action=ajax]').forEach((element) => {
-    element.addEventListener('submit', function (e) {
-        e.preventDefault();
-        submitAjax(e);
-    });
-});
+window.DCMS.addSubmitListeners();
 
 /**
  *
@@ -243,12 +258,13 @@ document.querySelectorAll('[data-dcms-action=ajax]').forEach((element) => {
 window.DCMS.deleteModel = function (args) {
     var id = (typeof args['id'] !== 'undefined') ? args['id'] : null;
     var route = (typeof args['route'] !== 'undefined') ? args['route'] : null;
-    var confirmTitle = (typeof args['confirmTitle'] !== 'undefined') ? Lang(args['confirmTitle']) : '';
-    var confirmMsg = (typeof args['confirmMsg'] !== 'undefined') ? Lang(args['confirmMsg']) : '';
-    var completeMsg = (typeof args['completeMsg'] !== 'undefined') ? Lang(args['completeMsg']) : '';
-    var failedTitle = (typeof args['failedTitle'] !== 'undefined') ? Lang(args['failedTitle']) : '';
-    var failedMsg = (typeof args['failedMsg'] !== 'undefined') ? Lang(args['failedMsg']) : '';
-    var redirect = (typeof args['redirect'] !== 'undefined') ? args['redirect'] : '';
+    var confirmTitle = (typeof args['confirmTitle'] !== 'undefined') ? Lang(args['confirmTitle']) : Lang("Delete object");
+    var confirmMsg = (typeof args["confirmMsg"] !== "undefined") ? Lang(args["confirmMsg"]) : Lang("Are you sure you want to delete this object?");
+    var completeTitle = (typeof args["completeMsg"] !== "undefined") ? Lang(args["completeMsg"]) : Lang("Deleted object");
+    var completeMsg = (typeof args["completeMsg"] !== "undefined") ? Lang(args["completeMsg"]) : Lang("The object has been succesfully deleted.");
+    var failedTitle = (typeof args["failedTitle"] !== "undefined") ? Lang(args["failedTitle"]) : Lang("Deleting failed");
+    var failedMsg = (typeof args["failedMsg"] !== "undefined") ? Lang(args["failedMsg"]) : Lang("This object can't be deleted.") + " " + Lang("An unknown error has occurred.");
+    var redirect = (typeof args["redirect"] !== "undefined") ? args["redirect"] : null;
 
     Swal.fire({
         showCancelButton: true,
@@ -338,7 +354,7 @@ window.DCMS.deleteModel = function (args) {
  *
  */
 
-if (document.querySelector('[data-dcms-action=destroy]')) {
+window.DCMS.addDestroyListeners = function(){
     document.querySelector('[data-dcms-action=destroy]').addEventListener('click', function (e) {
         e.preventDefault();
         let element = e.currentTarget;
@@ -348,13 +364,17 @@ if (document.querySelector('[data-dcms-action=destroy]')) {
         window.DCMS.deleteModel({
             id: id,
             route: route,
-            confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang('Delete object'),
-            confirmMsg: (element.dataset.dcmsDeleteConfirmMessage) ? Lang(element.dataset.dcmsDeleteConfirmMessage) : Lang('Are you sure you want to delete this object?'),
-            completeTitle: (element.dataset.dcmsDeleteCompleteTitle) ? Lang(element.dataset.dcmsDeleteCompleteTitle) : Lang('Deleted object'),
-            completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang('The object has been succesfully deleted.'),
-            failedTitle: (element.dataset.dcmsDeleteFailedTitle) ? Lang(element.dataset.dcmsDeleteFailedTitle) : Lang('Deleting failed'),
-            failedMsg: (element.dataset.dcmsDeleteFailedMessage) ? Lang(element.dataset.dcmsDeleteFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
+            confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang("Delete object"),
+            confirmMsg: (element.dataset.dcmsDeleteConfirmMessage) ? Lang(element.dataset.dcmsDeleteConfirmMessage) : Lang("Are you sure you want to delete this object?"),
+            completeTitle: (element.dataset.dcmsDeleteCompleteTitle) ? Lang(element.dataset.dcmsDeleteCompleteTitle) : Lang("Deleted object"),
+            completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang("The object has been succesfully deleted."),
+            failedTitle: (element.dataset.dcmsDeleteFailedTitle) ? Lang(element.dataset.dcmsDeleteFailedTitle) : Lang("Deleting failed"),
+            failedMsg: (element.dataset.dcmsDeleteFailedMessage) ? Lang(element.dataset.dcmsDeleteFailedMessage) : Lang("This object can't be deleted.") + " " + Lang("An unknown error has occurred."),
             redirect: redirect
         });
     });
+}
+
+if (document.querySelector('[data-dcms-action=destroy]')) {
+    window.DCMS.addDestroyListeners();
 }

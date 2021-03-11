@@ -108,7 +108,11 @@ trait DCMSController
         ${$this->routePrefix} = ((new $this->model)->find($id)) ?: (new $this->model)->find(request()->{$this->routePrefix});
 
         $vars = method_exists($this, 'beforeShow') ? $this->beforeShow($id) : null;
-        return view($this->showView, compact(${$this->routePrefix}))->with($vars);
+        return view($this->editView, compact(${$this->routePrefix}))->with($vars)->with(
+            [
+                $this->routePrefix => ${$this->routePrefix}
+            ]
+        );
     }
 
     public function edit($id)
@@ -119,7 +123,12 @@ trait DCMSController
         $form = (isset($this->form)) ? Form::create($this->request, $this->routePrefix, $this->form, $this->responses) : null;
         $vars = method_exists($this, 'beforeCreate') ? $this->beforeCreate() : [];
         $vars = method_exists($this, 'beforeCreateOrEdit') ? array_merge($vars,$this->beforeCreateOrEdit()) : $vars;
-        return view($this->editView, compact(${$this->routePrefix}))->with($vars)->with(['form' => $form]);
+        return view($this->editView, compact(${$this->routePrefix}))->with($vars)->with(
+            [
+                'form' => $form,
+                $this->routePrefix => ${$this->routePrefix}
+            ]
+        );
     }
 
     public function create()

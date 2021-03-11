@@ -207,7 +207,14 @@ $cellBorderColor: #00000012;
 .dcmstable th,
 .dcmstable tr, {
     border-bottom: 1px solid $cellBorderColor;
+}
+
+.dcmstable-lg tr {
     height: 30px;
+}
+
+.dcmstable-lg th {
+    padding: 10px;
 }
 
 .dcmstable td,
@@ -291,23 +298,6 @@ $cellBorderColor: #00000012;
     cursor: auto;
 }
 
-.dcmstable-expand {
-    min-width: 25px;
-}
-
-.dcmstable-expand label {
-    position: relative;
-    top: 3px;
-    left: 5px;
-}
-
-.dcmstable-nav:hover,
-.dcmstable-expand:hover,
-.dcmstable-expand i:hover,
-.dcmstable-error-button:hover {
-    cursor:pointer;
-}
-
 .dcmstable-page-link:hover, .dcmstable-page-link:visited, .dcmstable-page-link:link, .dcmstable-page-link:active
 {
     text-decoration: none;
@@ -347,8 +337,27 @@ $cellBorderColor: #00000012;
     width: 100%
 }
 
-// Responsiveness
+.dcmstable-actions .btn {
+    min-width: 100px;
+    margin: 3px;
+    display: inline-flex;
+}
 
+.dcmstable-lg .dcmstable-actions .btn {
+    margin-top: 3px;
+    margin-left: 3px;
+}
+
+.dcmstable-lg .dcmstable-actions {
+    padding-right: 10px;
+    text-align: right;
+}
+
+.dcmstable-sm .dcmstable-actions, .dcmstable-md .dcmstable-actions {
+    margin-top: 10px;
+}
+
+// Responsiveness
 .dcmstable-md {
     border: 0;
 }
@@ -359,6 +368,7 @@ $cellBorderColor: #00000012;
 
 .dcmstable td {
     overflow: hidden;
+    padding: 10px;
 }
 
 .dcmstable-md td, .dcmstable-sm td {
@@ -367,7 +377,8 @@ $cellBorderColor: #00000012;
 }
 
 .dcmstable-md tr {
-    margin-bottom: 10px;
+    padding: 10px 12px;
+    margin-bottom: 15px;
     display: block;
 }
 
@@ -404,6 +415,18 @@ $cellBorderColor: #00000012;
 
 // Expanding rows
 
+.dcmstable-expand, [data-dcms-expanded-header] {
+    width: 125px;
+    max-width: 125px;
+}
+
+.dcmstable-nav:hover,
+.dcmstable-expand:hover,
+.dcmstable-expand i:hover,
+.dcmstable-error-button:hover {
+    cursor:pointer;
+}
+
 [data-dcms-expanded-row] {
     display: table-row;
 }
@@ -423,7 +446,9 @@ $cellBorderColor: #00000012;
 }
 
 [data-dcms-expanded-row] td {
-    padding: 10px 10px 10px 20px;
+    padding: 10px 15px;
+    overflow: visible;
+    white-space: nowrap;
 }
 
 // Sorting

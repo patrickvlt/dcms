@@ -9,7 +9,7 @@
         </div>
         <table ref="tableElement" class="dcmstable dcmstable-hover" border="0" cellspacing="0" cellpadding="0" :id="id" :route="route">
             <thead>
-                <th ref="expandHeader"></th>
+                <th ref="expandHeader" class="dcmstable-expand-header"></th>
                 <slot name="headerTemplate"></slot>
             </thead>
             <tbody ref="tableBody">
@@ -127,13 +127,13 @@ export default {
             this.spinnerVisible = true;
             spinner.style.transition = '0s';
 
-            spinner.style.top = "80px";
+            spinner.style.top = "75px";
             if (this.tableData.length > 0 && this.perpage == 5){
-                spinner.style.top = "160px";
+                spinner.style.top = "190px";
             } else if (this.tableData.length > 0 && this.perpage == 10){
-                spinner.style.top = "245px";
+                spinner.style.top = "300px";
             } else if (this.tableData.length > 0 && this.perpage == 20){
-                spinner.style.top = "443px";
+                spinner.style.top = "600px";
             }
 
             let spinnerDelay = this.makeDelay(50);
@@ -332,10 +332,12 @@ export default {
             if (window.screen.width < parseInt(this.mediumSize)){
                 this.isSmall = true;
                 this.tableElement.classList.add('dcmstable-md');
-
                 this.paginationWrapper.classList.add('dcmstable-nav-md');
                 this.perPageWrapper.classList.add('dcmstable-perpage-md');
+                this.tableElement.classList.remove('dcmstable-sm');
+                this.tableElement.classList.remove('dcmstable-lg');
             } else {
+                this.tableElement.classList.add('dcmstable-lg');
                 this.tableElement.classList.remove('dcmstable-md');
                 this.paginationWrapper.classList.remove('dcmstable-nav-md');
                 this.perPageWrapper.classList.remove('dcmstable-perpage-md');
@@ -346,12 +348,14 @@ export default {
                 this.tableElement.classList.add('dcmstable-sm');
                 this.paginationWrapper.classList.add('dcmstable-nav-sm');
                 this.perPageWrapper.classList.add('dcmstable-perpage-sm');
+                this.tableElement.classList.remove('dcmstable-lg');
                 // If table switches to large size
             } else if (window.screen.width > parseInt(this.mediumSize)) {
                 this.tableElement.classList.remove('dcmstable-sm');
                 this.paginationWrapper.classList.remove('dcmstable-nav-sm');
                 this.perPageWrapper.classList.remove('dcmstable-perpage-sm');
             }
+
             if (this.isSmall){
                 this.removeExpanded();
             }
@@ -434,10 +438,17 @@ export default {
                     // Query filters
                     Array.from(document.querySelectorAll('[data-dcmstable-filter]')).forEach((filter) => {
                         if (self.$refs.tableWrapper.querySelector(filter.dataset.dcmstable)){
-                            filter.addEventListener('change',function(){
-                                self.queryFilters[filter.name] = filter.value;
-                                self.makeQuery();
-                            })
+                            if (filter.dataset.event){
+                                filter.addEventListener(filter.dataset.event,function(){
+                                    self.queryFilters[filter.name] = filter.value;
+                                    self.makeQuery();
+                                });
+                            } else {
+                                filter.addEventListener('change',function(){
+                                    self.queryFilters[filter.name] = filter.value;
+                                    self.makeQuery();
+                                });
+                            }
                         }
                     });
 

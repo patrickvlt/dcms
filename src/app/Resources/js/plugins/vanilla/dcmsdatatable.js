@@ -4,18 +4,6 @@ window.DCMS.datatable = {};
 
 /**
  *
- *  Reload datatables
- *
- */
-
-window.DCMS.reloadTables = function () {
-    Array.from(document.querySelectorAll('.datatable')).forEach(table => {
-        $(table).KTDatatable('reload');
-    });
-};
-
-/**
- *
  *  Merge table columns
  *
  */

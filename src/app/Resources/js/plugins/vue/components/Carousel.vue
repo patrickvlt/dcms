@@ -91,6 +91,11 @@ export default {
             } else if (typeof self.src === 'object') {
                 // loop through array and make image elements
                 Array.from(self.src).forEach(function (img) {
+                    try {
+                        img = JSON.parse(img)[0];
+                    } catch (error) {
+                        //
+                    }
                     imgElement = imgElement + TypeOfCard(img);
                 });
             }

@@ -29,7 +29,7 @@ class FilepondController extends Controller
     public function checkFileSizes(): void
     {
         $this->abort = false;
-        
+
         foreach (request()->file() as $key => $file) {
             if ($file[0]->getSize() === false) {
                 $this->abort = true;
@@ -39,26 +39,10 @@ class FilepondController extends Controller
         }
     }
 
-    public function makeUploadRules(): void
-    {
-        $allRules = (new $this->classRequest())->rules();
-        $this->uploadRules = [];
-
-        foreach ($allRules as $key => $ruleArr) {
-            $ruleArr = (is_string($ruleArr)) ? explode('|', $ruleArr) : $ruleArr;
-            foreach ($ruleArr as $x => $rule) {
-                if (preg_match('/(mimes|mimetypes)/', $rule)) {
-                    $this->uploadRules[$key] = $ruleArr;
-                    continue;
-                }
-            }
-        }
-    }
-
     public function validateFile(): ?JsonResponse
     {
         $column = str_replace('[]', '', $this->column);
-        $request = Validator::make(request()->all(), $this->uploadRules, (new $this->classRequest())->messages());
+        $request = Validator::make(request()->all(), (new $this->classRequest())->uploadRules(), (new $this->classRequest())->messages());
         $response = null;
 
         if ($request->failed()) {
@@ -131,8 +115,6 @@ class FilepondController extends Controller
         }
 
         if ($this->abort === false) {
-            $this->makeUploadRules();
-
             // If validating file has a response (error), return this
             $validateFile = $this->validateFile();
             if ($validateFile) {

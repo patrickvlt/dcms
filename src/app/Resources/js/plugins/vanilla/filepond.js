@@ -122,28 +122,40 @@ window.DCMS.filePond = function () {
                     process: {
                         url: (inputElement.dataset.filepondProcessUrl) ? inputElement.dataset.filepondProcessUrl : '/dcms/file/process/' + inputElement.dataset.filepondPrefix + '/' + inputElement.dataset.filepondMime + '/' + inputElement.dataset.filepondColumn,
                         onerror: (res) => {
-                            let response;
+                            let response, errors = '';
                             try {
                                 response = JSON.parse(res);
                             } catch (error) {
-                                //
+                                Swal.fire({
+                                    title: Lang('Upload failed'),
+                                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
+                                    icon: "error",
+                                    confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                                });
+                                return;
                             }
                             if (!response.errors) {
                                 Swal.fire({
-                                    title: Lang("Upload failed"),
-                                    html: Lang("An unknown error has occurred.") + "<br>" + Lang("Contact support if this problem persists."),
+                                    title: Lang('Upload failed'),
+                                    html: Lang('An unknown error has occurred.') + "<br>" + Lang('Contact support if this problem persists.'),
                                     icon: "error",
-                                    confirmButtonText: typeof (window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                                    confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
                                 });
                             }
                             if (response.errors) {
                                 for (const x in response.errors) {
                                     for (const y in response.errors[x]) {
-                                        toastr.error(response.errors[x][y]);
+                                        errors += response.errors[x][y] + '<br>';
                                     }
                                 }
+                                Swal.fire({
+                                    title: Lang('Upload failed'),
+                                    html: errors,
+                                    icon: "error",
+                                    confirmButtonText: (typeof window.DCMS.sweetAlert.confirmButtonText !== 'undefined') ? window.DCMS.sweetAlert.confirmButtonText : Lang("OK"),
+                                });
                             }
-                        },
+                        }
                     },
                     revert: {
                         headers: {
