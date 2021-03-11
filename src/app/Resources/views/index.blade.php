@@ -10,7 +10,7 @@
         <!--begin::Toolbar-->
         <div class="d-flex align-items-center flex-wrap">
             <!--begin::Actions-->
-            
+
             <!--end::Actions-->
         </div>
         <!--end::Toolbar-->
@@ -123,7 +123,7 @@
                         <div class="d-flex align-items-center mr-2">
                             <div class="symbol symbol-50 symbol-light mr-3 flex-shrink-0">
                                 <div class="symbol-label">
-                                    <img src="assets/media/svg/misc/006-plurk.svg" alt="" class="h-50" />
+                                    <img src="" alt="" class="h-50" />
                                 </div>
                             </div>
                             <div>
@@ -139,7 +139,7 @@
                         <div class="d-flex align-items-center mr-2">
                             <div class="symbol symbol-50 symbol-light mr-3 flex-shrink-0">
                                 <div class="symbol-label">
-                                    <img src="assets/media/svg/misc/015-telegram.svg" alt="" class="h-50" />
+                                    <img src="" alt="" class="h-50" />
                                 </div>
                             </div>
                             <div>
@@ -155,7 +155,7 @@
                         <div class="d-flex align-items-center mr-2">
                             <div class="symbol symbol-50 symbol-light mr-3 flex-shrink-0">
                                 <div class="symbol-label">
-                                    <img src="assets/media/svg/misc/003-puzzle.svg" alt="" class="h-50" />
+                                    <img src="" alt="" class="h-50" />
                                 </div>
                             </div>
                             <div>
@@ -245,7 +245,7 @@
             </div>
         </div>
         <!--begin::Mixed Widget 20-->
-        <div class="card card-custom bgi-no-repeat gutter-b" style="height: 175px; background-color: #4AB58E; background-position: calc(100% + 1rem) bottom; background-size: 25% auto; background-image: url(assets/media/svg/humans/custom-1.svg)">
+        <div class="card card-custom bgi-no-repeat gutter-b" style="height: 175px; background-color: #4AB58E; background-position: calc(100% + 1rem) bottom; background-size: 25% auto;">
             <!--begin::Body-->
             <div class="card-body d-flex align-items-center">
                 <div class="py-2">
@@ -261,7 +261,7 @@
     </div>
     <div class="col-xl-3">
         <!--begin::Tiles Widget 7-->
-        <div class="card card-custom bgi-no-repeat gutter-b card-stretch" style="background-color: #1B283F; background-position: 0 calc(100% + 0.5rem); background-size: 100% auto; background-image: url(assets/media/svg/patterns/rhone.svg)">
+        <div class="card card-custom bgi-no-repeat gutter-b card-stretch" style="background-color: #1B283F; background-position: 0 calc(100% + 0.5rem); background-size: 100% auto;">
             <!--begin::Body-->
             <div class="card-body">
                 <div class="p-4">
@@ -292,7 +292,7 @@
                         <span class="text-muted font-weight-bold font-size-lg flex-grow-1">7 Hours Ago</span>
                         <div class="symbol symbol-50">
                             <span class="symbol-label bg-light-light">
-                                <img src="assets/media/svg/misc/006-plurk.svg" class="h-50 align-self-center" alt="" />
+                                <img src="" class="h-50 align-self-center" alt="" />
                             </span>
                         </div>
                     </div>
@@ -312,21 +312,21 @@
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light mr-3">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/001-boy.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light mr-3">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/028-girl-16.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/024-boy-9.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
@@ -348,7 +348,7 @@
                         <span class="text-muted font-weight-bold font-size-lg flex-grow-1">2 Days Ago</span>
                         <div class="symbol symbol-50">
                             <span class="symbol-label bg-light-light">
-                                <img src="assets/media/svg/misc/015-telegram.svg" class="h-50 align-self-center" alt="" />
+                                <img src="" class="h-50 align-self-center" alt="" />
                             </span>
                         </div>
                     </div>
@@ -367,28 +367,28 @@
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light mr-3">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/001-boy.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light mr-3">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/028-girl-16.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
                     <!--begin: Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light mr-3">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/024-boy-9.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/005-girl-2.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
@@ -410,7 +410,7 @@
                         <span class="text-muted font-weight-bold font-size-lg flex-grow-1">5 Weeks Ago</span>
                         <div class="symbol symbol-50">
                             <span class="symbol-label bg-light-light">
-                                <img src="assets/media/svg/misc/003-puzzle.svg" class="h-50 align-self-center" alt="" />
+                                <img src="" class="h-50 align-self-center" alt="" />
                             </span>
                         </div>
                     </div>
@@ -428,21 +428,21 @@
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light mr-3">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/001-boy.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light mr-3">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/028-girl-16.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
                     <!--begin::Pic-->
                     <a href="#" class="symbol symbol-45 symbol-light">
                         <div class="symbol-label">
-                            <img src="assets/media/svg/avatars/024-boy-9.svg" class="h-75 align-self-end" alt="" />
+                            <img src="" class="h-75 align-self-end" alt="" />
                         </div>
                     </a>
                     <!--end::Pic-->
@@ -615,7 +615,7 @@
                                 <td class="pr-0">
                                     <div class="symbol symbol-50 symbol-light mt-1">
                                         <span class="symbol-label">
-                                            <img src="assets/media/svg/avatars/001-boy.svg" class="h-75 align-self-end" alt="" />
+                                            <img src="" class="h-75 align-self-end" alt="" />
                                         </span>
                                     </div>
                                 </td>
@@ -690,7 +690,7 @@
                                 <td class="pr-0">
                                     <div class="symbol symbol-50 symbol-light mt-1">
                                         <span class="symbol-label">
-                                            <img src="assets/media/svg/avatars/018-girl-9.svg" class="h-75 align-self-end" alt="" />
+                                            <img src="" class="h-75 align-self-end" alt="" />
                                         </span>
                                     </div>
                                 </td>
@@ -765,7 +765,7 @@
                                 <td class="pr-0">
                                     <div class="symbol symbol-50 symbol-lightv mt-1">
                                         <span class="symbol-label">
-                                            <img src="assets/media/svg/avatars/047-girl-25.svg" class="h-75 align-self-end" alt="" />
+                                            <img src="" class="h-75 align-self-end" alt="" />
                                         </span>
                                     </div>
                                 </td>
@@ -840,7 +840,7 @@
                                 <td class="pr-0">
                                     <div class="symbol symbol-50 symbol-light mt-1">
                                         <span class="symbol-label">
-                                            <img src="assets/media/svg/avatars/014-girl-7.svg" class="h-75 align-self-end" alt="" />
+                                            <img src="" class="h-75 align-self-end" alt="" />
                                         </span>
                                     </div>
                                 </td>

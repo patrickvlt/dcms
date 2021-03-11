@@ -10,13 +10,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" />
     <!--end::Fonts-->
     <link href="/css/dcms/dcms.css" rel="stylesheet" type="text/css" />
-    <link href="/css/dcms/portal/portal.css" rel="stylesheet" type="text/css" />
     <!--begin::Page Vendors Styles(used by this page)-->
-    <link href="/css/dcms/portal/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />
     <!--end::Page Vendors Styles-->
     <!--begin::Global Theme Styles(used by all pages)-->
     <link href="/css/dcms/portal/plugins.bundle.css" rel="stylesheet" type="text/css" />
-    <link href="/css/dcms/portal/prismjs.bundle.css" rel="stylesheet" type="text/css" />
     <link href="/css/dcms/portal/style.bundle.css" rel="stylesheet" type="text/css" />
     <link href="/css/dcms/portal/wizard.css" rel="stylesheet" type="text/css" />
     <!--end::Global Theme Styles-->

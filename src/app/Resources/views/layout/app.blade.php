@@ -18,7 +18,7 @@
 						<!--begin::Entry-->
 						<div class="d-flex flex-column-fluid">
 							<!--begin::Container-->
-							<div class="container pt-5">
+							<div class="container pt-5" id="vue">
 								@yield('content')
 							</div>
 							<!--end::Container-->
@@ -59,16 +59,14 @@
 		<!--end::Global Config-->
 		<!--begin::Global Theme Bundle(used by all pages)-->
 		<script src="/js/dcms/portal/plugins.bundle.js"></script>
-		<script src="/js/dcms/portal/prismjs.bundle.js"></script>
 		<script src="/js/dcms/portal/scripts.bundle.js"></script>
 		<!--end::Global Theme Bundle-->
 		<!--begin::Page Vendors(used by this page)-->
-		<script src="/js/dcms/portal/fullcalendar.bundle.js"></script>
 		<!--end::Page Vendors-->
 		<!--begin::Page Scripts(used by this page)-->
 		<script src="/js/dcms/portal/widgets.js"></script>
 		<script>
-			var locale = "{{ App::getLocale() }}"; 
+			var locale = "{{ App::getLocale() }}";
 			var maxSizeServer = {!! MaxSizeServer('kb') !!};
 		</script>
 		<script src="/js/dcms/dcms.js"></script>

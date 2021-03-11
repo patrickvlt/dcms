@@ -835,7 +835,7 @@
                                         </div>
                                     </div>
                                     <a href="#" class="symbol symbol-70 flex-shrink-0">
-                                        <img src="assets/media/stock-600x400/img-1.jpg" title="" alt="" />
+                                        <img src="" title="" alt="" />
                                     </a>
                                 </div>
                                 <!--end::Item-->
@@ -861,7 +861,7 @@
                                         </div>
                                     </div>
                                     <a href="#" class="symbol symbol-70 flex-shrink-0">
-                                        <img src="assets/media/stock-600x400/img-2.jpg" title="" alt="" />
+                                        <img src="" title="" alt="" />
                                     </a>
                                 </div>
                                 <!--end::Item-->
@@ -887,7 +887,7 @@
                                         </div>
                                     </div>
                                     <a href="#" class="symbol symbol-70 flex-shrink-0">
-                                        <img src="assets/media/stock-600x400/img-3.jpg" title="" alt="" />
+                                        <img src="" title="" alt="" />
                                     </a>
                                 </div>
                                 <!--end::Item-->
@@ -912,7 +912,7 @@
                                         </div>
                                     </div>
                                     <a href="#" class="symbol symbol-70 flex-shrink-0">
-                                        <img src="assets/media/stock-600x400/img-4.jpg" title="" alt="" />
+                                        <img src="" title="" alt="" />
                                     </a>
                                 </div>
                                 <!--end::Item-->
