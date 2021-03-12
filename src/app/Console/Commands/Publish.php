@@ -28,7 +28,7 @@ class Publish extends Command
 
     public function publishPermissionMigration()
     {
-        copy(base_path() . $this->vendorPath . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
+        copy($this->vendorPath . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path()."/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
     }
 
     /**
@@ -39,12 +39,12 @@ class Publish extends Command
     public function handle()
     {
         $console = $this;
-        $this->vendorPath = '/vendor/pveltrop/dcms/';
+        $this->vendorPath = base_path().'/vendor/pveltrop/dcms/';
 
-        $rootjs = base_path() . '/resources/js/dcms/';
+        $rootjs = base_path() . '/resources/js/dcms';
         $rootjsassets = base_path() . '/public/js/dcms/assets';
         $rootjsportal = base_path() . '/public/js/dcms/portal';
-        $rootscss = base_path() . '/resources/sass/dcms/';
+        $rootscss = base_path() . '/resources/sass/dcms';
         $rootcssassets = base_path() . '/public/css/dcms/assets';
         $rootcssportal = base_path() . '/public/css/dcms/portal';
         $vendorjs = $this->vendorPath.'/src/app/Resources/js';
@@ -70,7 +70,7 @@ class Publish extends Command
                 $this->publishPermissionMigration();
             }
             // Other migrations
-            copy(base_path() . $this->vendorPath . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
+            copy($this->vendorPath . 'src/app/Database/Migrations/add_route_to_permissions_table.php', base_path() . "/database/migrations/".date('Y_m_d_His_')."add_route_to_permissions_table.php");
         }
 
         if ($console->confirm('Do you want to update the JavaScript files?')) {

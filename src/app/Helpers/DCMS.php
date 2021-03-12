@@ -242,17 +242,12 @@ if (!function_exists('CopyDir')) {
     function CopyDir($src, $dst)
     {
         $dir = opendir($src);
-        if (!mkdir($dst) && !is_dir($dst)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dst));
-        }
+        @mkdir($dst);
         while (false !== ($file = readdir($dir))) {
-            if (($file !== '.') && ($file !== '..')) {
+            if (($file != '.') && ($file != '..')) {
                 if (is_dir($src . '/' . $file)) {
                     CopyDir($src . '/' . $file, $dst . '/' . $file);
                 } else {
-                    if (!file_exists($dst)) {
-                        mkdir($dst, 0755, true);
-                    }
                     copy($src . '/' . $file, $dst . '/' . $file);
                 }
             }
