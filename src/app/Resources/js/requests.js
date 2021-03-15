@@ -261,7 +261,7 @@ window.DCMS.deleteModel = function (args) {
     var confirmTitle = (typeof args['confirmTitle'] !== 'undefined') ? Lang(args['confirmTitle']) : Lang("Delete object");
     var confirmMsg = (typeof args["confirmMsg"] !== "undefined") ? Lang(args["confirmMsg"]) : Lang("Are you sure you want to delete this object?");
     var completeTitle = (typeof args["completeMsg"] !== "undefined") ? Lang(args["completeMsg"]) : Lang("Deleted object");
-    var completeMsg = (typeof args["completeMsg"] !== "undefined") ? Lang(args["completeMsg"]) : Lang("The object has been succesfully deleted.");
+    var completeMsg = (typeof args["completeMsg"] !== "undefined") ? Lang(args["completeMsg"]) : Lang("The object has been successfully deleted.");
     var failedTitle = (typeof args["failedTitle"] !== "undefined") ? Lang(args["failedTitle"]) : Lang("Deleting failed");
     var failedMsg = (typeof args["failedMsg"] !== "undefined") ? Lang(args["failedMsg"]) : Lang("This object can't be deleted.") + " " + Lang("An unknown error has occurred.");
     var redirect = (typeof args["redirect"] !== "undefined") ? args["redirect"] : null;
@@ -367,7 +367,7 @@ window.DCMS.addDestroyListeners = function(){
             confirmTitle: (element.dataset.dcmsDeleteConfirmTitle) ? Lang(element.dataset.dcmsDeleteConfirmTitle) : Lang("Delete object"),
             confirmMsg: (element.dataset.dcmsDeleteConfirmMessage) ? Lang(element.dataset.dcmsDeleteConfirmMessage) : Lang("Are you sure you want to delete this object?"),
             completeTitle: (element.dataset.dcmsDeleteCompleteTitle) ? Lang(element.dataset.dcmsDeleteCompleteTitle) : Lang("Deleted object"),
-            completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang("The object has been succesfully deleted."),
+            completeMsg: (element.dataset.dcmsDeleteCompleteMessage) ? Lang(element.dataset.dcmsDeleteCompleteMessage) : Lang("The object has been successfully deleted."),
             failedTitle: (element.dataset.dcmsDeleteFailedTitle) ? Lang(element.dataset.dcmsDeleteFailedTitle) : Lang("Deleting failed"),
             failedMsg: (element.dataset.dcmsDeleteFailedMessage) ? Lang(element.dataset.dcmsDeleteFailedMessage) : Lang("This object can't be deleted.") + " " + Lang("An unknown error has occurred."),
             redirect: redirect

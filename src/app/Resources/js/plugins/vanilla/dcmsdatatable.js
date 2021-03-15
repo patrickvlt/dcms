@@ -534,7 +534,7 @@ window.DCMS.datatable = function (parameters) {
                 confirmTitle: (table.dataset.ktDeleteSingleConfirmTitle) ? Lang(table.dataset.ktDeleteSingleConfirmTitle) : Lang('Delete object'),
                 confirmMsg: (table.dataset.ktDeleteSingleConfirmMessage) ? Lang(table.dataset.ktDeleteSingleConfirmMessage) : Lang('Are you sure you want to delete this object?'),
                 completeTitle: (table.dataset.ktDeleteSingleCompleteTitle) ? Lang(table.dataset.ktDeleteSingleCompleteTitle) : Lang('Deleted object'),
-                completeMsg: (table.dataset.ktDeleteSingleCompleteMessage) ? Lang(table.dataset.ktDeleteSingleCompleteMessage) : Lang('The object has been succesfully deleted.'),
+                completeMsg: (table.dataset.ktDeleteSingleCompleteMessage) ? Lang(table.dataset.ktDeleteSingleCompleteMessage) : Lang('The object has been successfully deleted.'),
                 failedTitle: (table.dataset.ktDeleteSingleFailedTitle) ? Lang(table.dataset.ktDeleteSingleFailedTitle) : Lang('Deleting failed'),
                 failedMsg: (table.dataset.ktDeleteSingleFailedMessage) ? Lang(table.dataset.ktDeleteSingleFailedMessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
             });

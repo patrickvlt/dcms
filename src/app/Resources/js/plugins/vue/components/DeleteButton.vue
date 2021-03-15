@@ -35,7 +35,7 @@
                     confirmTitle: (self.confirmtitle) ? Lang(self.confirmtitle) : Lang('Delete object'),
                     confirmMsg: (self.confirmmessage) ? Lang(self.confirmmessage) : Lang('Are you sure you want to delete this object?'),
                     completeTitle: (self.completetitle) ? Lang(self.completetitle) : Lang('Deleted object'),
-                    completeMsg: (self.completemessage) ? Lang(self.completemessage) : Lang('The object has been succesfully deleted.'),
+                    completeMsg: (self.completemessage) ? Lang(self.completemessage) : Lang('The object has been successfully deleted.'),
                     failedTitle: (self.failedtitle) ? Lang(self.failedtitle) : Lang('Deleting failed'),
                     failedMsg: (self.failedmessage) ? Lang(self.failedmessage) : Lang('This object can\'t be deleted. It might still be required somewhere.'),
                     redirect: redirect
