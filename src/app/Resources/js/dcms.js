@@ -69,6 +69,11 @@ if (typeof toastr == 'undefined' && (window.DCMS.config.plugins.toastr && window
     window.DCMS.loadJS(window.DCMS.config.plugins.toastr);
 }
 
+if (typeof Swal == 'undefined' && (window.DCMS.config.plugins.sweetalert2 && window.DCMS.config.plugins.sweetalert2.enable !== false)) {
+    window.DCMS.loadCSS(window.DCMS.config.plugins.sweetalert2);
+    window.DCMS.loadJS(window.DCMS.config.plugins.sweetalert2);
+}
+
 if (typeof Papa == 'undefined' && (window.DCMS.config.plugins.papa && window.DCMS.config.plugins.papa.enable !== false)) {
     window.DCMS.loadJS(window.DCMS.config.plugins.papa, 'local');
 }

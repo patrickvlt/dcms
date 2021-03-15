@@ -89,13 +89,9 @@ export default {
                     imgElement = TypeOfCard(imgElement);
                 }
             } else if (typeof self.src === 'object') {
+                let src = JSON.parse(self.src);
                 // loop through array and make image elements
-                Array.from(self.src).forEach(function (img) {
-                    try {
-                        img = JSON.parse(img)[0];
-                    } catch (error) {
-                        //
-                    }
+                Array.from(src).forEach(function (img) {
                     imgElement = imgElement + TypeOfCard(img);
                 });
             }

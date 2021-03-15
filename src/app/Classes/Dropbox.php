@@ -24,6 +24,7 @@ class Dropbox
      * @param null $postFields
      * @param null $file
      * @return object
+     * @throws \JsonException
      */
     public static function curlRequest($url, $headers=null, $postFields=null, $file=null): object
     {
@@ -60,7 +61,7 @@ class Dropbox
         } else {
             $status = 500;
         }
-        $result = json_decode($result, true) ?? $result;
+        $result = json_decode($result, true, 512, JSON_THROW_ON_ERROR) ?? $result;
 
         curl_close($ch);
         if ($file) {
@@ -78,6 +79,7 @@ class Dropbox
      * Create a shareable link for the Dropbox file
      * @param $remotePath
      * @return string
+     * @throws \JsonException
      */
     public static function createLink($remotePath): string
     {
@@ -89,7 +91,7 @@ class Dropbox
                 'requested_visibility' => 'public',
                 'access' => 'viewer'
             ]
-        ]));
+        ], JSON_THROW_ON_ERROR));
 
         return $curl->response->url.'&raw=1';
     }
@@ -99,6 +101,7 @@ class Dropbox
      * @param $file
      * @param $remoteFolder
      * @return string
+     * @throws \JsonException
      */
     public static function upload($file, $remoteFolder): string
     {
@@ -109,11 +112,11 @@ class Dropbox
             'Content-Type: application/octet-stream',
             'Dropbox-API-Arg: '.
             json_encode([
-                "path"=> $remoteFolder . '/' . $remoteFile,
+                "path" => $remoteFolder . '/' . $remoteFile,
                 "mode" => "add",
                 "autorename" => true,
                 "mute" => false
-            ])
+            ], JSON_THROW_ON_ERROR)
         ];
 
         $curl = self::curlRequest($url, $headers, null, $file);
@@ -147,8 +150,9 @@ class Dropbox
      * @param $oldPath
      * @param $newPath
      * @return object
+     * @throws \JsonException
      */
-    public static function move($oldPath, $newPath): object
+    public static function move($oldPath, $newPath, $uploadKey, $key)
     {
         $url = 'https://api.dropboxapi.com/2/files/move_v2';
         $postFields = json_encode([
@@ -156,22 +160,36 @@ class Dropbox
             'to_path' => $newPath,
             'autorename' => false,
             'allow_ownership_transfer' => false
-        ]);
+        ], JSON_THROW_ON_ERROR);
 
-        return self::curlRequest($url, null, $postFields);
+        $moveFile = self::curlRequest($url, null, $postFields);
+
+        // If file cant be moved from tmp to files folder
+        if ($moveFile->status !== 200) {
+            return response()->json([
+                'message' => __('Unable to persist file'),
+                'errors' => [
+                    'file' => [
+                        //Example: logo.*.cantPersist
+                        $requestMessages[$uploadKey.'.cantPersist'] ?? __("The ".$key." field contains a file which can't be persisted.")
+                    ]
+                ],
+            ], 422);
+        }
     }
 
     /**
      * Find a file by searching with a shared link
      * @param $link
      * @return object
+     * @throws \JsonException
      */
     public static function findBySharedLink($link): object
     {
         $url = 'https://api.dropboxapi.com/2/sharing/get_shared_link_metadata';
         $postFields = json_encode([
             'url' => $link
-        ]);
+        ], JSON_THROW_ON_ERROR);
 
         return self::curlRequest($url, null, $postFields);
     }
@@ -180,13 +198,14 @@ class Dropbox
      * Find a file by searching with a path
      * @param $path
      * @return object
+     * @throws \JsonException
      */
     public static function findByPath($path): object
     {
         $url = 'https://api.dropboxapi.com/2/files/get_metadata';
         $postFields = json_encode([
             'path' => $path
-        ]);
+        ], JSON_THROW_ON_ERROR);
 
         return self::curlRequest($url, null, $postFields);
     }

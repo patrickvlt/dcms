@@ -66,15 +66,11 @@ window.DCMS.dCarousel = function () {
                 } else {
                     imgElement = TypeOfCard(imgElement);
                 }
-            } else if (typeof dcarSrc === 'object') {
+            } else if (typeof self.src === 'object') {
+                let src = JSON.parse(self.src);
                 // loop through array and make image elements
-                Array.from(dcarSrc).forEach(function (img) {
-                    try {
-                        img = JSON.parse(img)[0];
-                    } catch (error) {
-                        //
-                    }
-                    imgElement = imgElement + TypeOfCard(img, element);
+                Array.from(src).forEach(function (img) {
+                    imgElement = imgElement + TypeOfCard(img);
                 });
             }
 

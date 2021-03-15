@@ -19,8 +19,9 @@ trait DCMSCrud
      * @param $createdOrUpdated
      * @param $id
      * @return Application|JsonResponse|RedirectResponse|Redirector
+     * @throws \JsonException
      */
-    public function persist($createdOrUpdated, $id=null)
+    public function persist($createdOrUpdated, $id = null)
     {
         $this->initDCMS();
         $this->requestData = request()->all();
@@ -61,29 +62,29 @@ trait DCMSCrud
          * Remove tmp folder from array items in request
          */
 
-        foreach ($this->uploadRules as $uploadKey => $uploadRule){
+        foreach ($this->uploadRules as $uploadKey => $uploadRule) {
             $keysToFind = [
-                str_replace('.*','',$uploadKey),
-                str_replace('[]','',$uploadKey)
+                str_replace('.*', '', $uploadKey),
+                str_replace('[]', '', $uploadKey)
             ];
-            foreach($keysToFind as $keyToFind){
-                if (array_key_exists($keyToFind,$this->requestData)){
+            foreach ($keysToFind as $keyToFind) {
+                if (array_key_exists($keyToFind, $this->requestData)) {
                     $files = $this->requestData[$keyToFind];
-                    foreach ($files as $x => $file){
+                    foreach ($files as $x => $file) {
                         // Remove APP_URL since we will need the relative paths to move files around
                         $relativePath = str_replace([
                             env('APP_URL'),
                             'storage/'
-                        ],[
+                        ], [
                             '',
                             'public/'
-                        ],$this->requestData[$keyToFind][$x]);
+                        ], $this->requestData[$keyToFind][$x]);
 
                         $this->filesToMove[$x]['oldPath'] = $relativePath;
-                        $this->filesToMove[$x]['newPath'] = str_replace('tmp/','',$relativePath);
+                        $this->filesToMove[$x]['newPath'] = str_replace('tmp/', '', $relativePath);
 
-                        // Remove tmp folder from request data as well
-                        $this->requestData[$keyToFind][$x] = str_replace('tmp/','',$this->requestData[$keyToFind][$x]);
+                        // Remove tmp folder from request data as well, but store the full URL
+                        $this->requestData[$keyToFind][$x] = str_replace('tmp/', '', $this->requestData[$keyToFind][$x]);
                     }
                 }
             }
@@ -95,19 +96,7 @@ trait DCMSCrud
                 if ($this->storageConfig === 'dropbox') {
                     $findFileDropbox = Dropbox::findByPath($file['newPath']);
                     if ($findFileDropbox->status !== 200) {
-                        $move = Dropbox::move($file['oldPath'], $file['newPath']);
-                        // If file cant be moved from tmp to files folder
-                        if ($move->status !== 200) {
-                            return response()->json([
-                                'message' => __('Unable to persist file'),
-                                'errors' => [
-                                    'file' => [
-                                        //Example: logo.*.cantPersist
-                                        $requestMessages[$uploadKey.'.cantPersist'] ?? __("The ".$key." field contains a file which can't be persisted.")
-                                    ]
-                                ],
-                            ], 422);
-                        }
+                        Dropbox::move($file['oldPath'], $file['newPath'], $uploadKey, $key);
                     }
                     // Move file outside of tmp on local server
                 } elseif (!Storage::exists($file['newPath'])) {
@@ -186,7 +175,15 @@ trait DCMSCrud
                         Dropbox::remove($file->response->path_lower);
                     }
                 } else {
-                    $file = str_replace('storage', 'public', $file);
+                    $file = str_replace([
+                        env('APP_URL'),
+                        'storage',
+                    ],
+                    [
+                        '',
+                        'public'
+                    ], $file);
+
                     if (Storage::exists($file)) {
                         Storage::delete($file);
                     }
@@ -197,12 +194,20 @@ trait DCMSCrud
         return $this->DCMSJSON(${$this->routePrefix}, $createdOrUpdated);
     }
 
+
+    /**
+     * Return a title/message/URL to an alert, after persisting an object
+     * @param $object
+     * @param $createdOrUpdated
+     * @return Application|JsonResponse|RedirectResponse|Redirector
+     */
     public function DCMSJSON($object, $createdOrUpdated)
     {
         $this->initDCMS();
+
         // Url
-        if ($this->{$createdOrUpdated.'Url'}) {
-            $url = $this->{$createdOrUpdated.'Url'};
+        if ($this->{$createdOrUpdated . 'Url'}) {
+            $url = $this->{$createdOrUpdated . 'Url'};
             $url = ReplaceWithAttr($url, $object);
             if ((isset($this->createdUrl) && $createdOrUpdated === 'created') || (isset($this->updatedUrl) && $createdOrUpdated === 'updated')) {
                 if (request()->ajax()) {
@@ -211,18 +216,20 @@ trait DCMSCrud
                     return redirect($url);
                 }
             } elseif (request()->ajax()) {
-                $redirect = '/'.$this->routePrefix;
+                $redirect = '/' . $this->routePrefix;
             } else {
-                $redirect = redirect()->route($this->routePrefix.'.index');
+                $redirect = redirect()->route($this->routePrefix . '.index');
             }
         } else {
             $url = null;
         }
+
         // Title
-        $title = $this->{$createdOrUpdated.'Title'};
+        $title = $this->{$createdOrUpdated . 'Title'};
         $title = ReplaceWithAttr($title, $object);
+
         // Message
-        $message = $this->{$createdOrUpdated.'Message'};
+        $message = $this->{$createdOrUpdated . 'Message'};
         $message = ReplaceWithAttr($message, $object);
 
         if ($url) {
@@ -231,11 +238,11 @@ trait DCMSCrud
                 'message' => $message,
                 'url' => $redirect
             ], 200);
-        } else {
-            return response()->json([
-                'title' => $title,
-                'message' => $message,
-            ], 200);
         }
+
+        return response()->json([
+            'title' => $title,
+            'message' => $message,
+        ], 200);
     }
 }

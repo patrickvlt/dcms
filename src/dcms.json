@@ -31,9 +31,11 @@
         "sweetalert2": {
             "enable": true,
             "cdn": {
+                "css": "https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css",
                 "js": "https://cdn.jsdelivr.net/npm/sweetalert2@10"
             },
             "local": {
+                "css": "/css/dcms/assets/sweetalert2.css",
                 "js": "/js/dcms/assets/sweetalert2.js"
             }
         },

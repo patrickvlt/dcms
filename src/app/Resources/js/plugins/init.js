@@ -13,6 +13,7 @@ require('../requests.js');
 */
 
 if (typeof Swal == 'undefined' && (window.DCMS.config.plugins.sweetalert2 && window.DCMS.config.plugins.sweetalert2.enable !== false)) {
+    window.DCMS.loadCSS(window.DCMS.config.plugins.sweetalert2);
     window.DCMS.loadJS(window.DCMS.config.plugins.sweetalert2);
 }
 
