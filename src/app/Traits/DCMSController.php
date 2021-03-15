@@ -143,13 +143,13 @@ trait DCMSController
 
     public function store()
     {
-        return $this->crud('created');
+        return $this->persist('created');
     }
 
     public function update($id)
     {
         $modelID = request()->route()->parameters[$this->routePrefix];
-        return $this->crud('updated', $modelID);
+        return $this->persist('updated', $modelID);
     }
 
     public function destroy($id)

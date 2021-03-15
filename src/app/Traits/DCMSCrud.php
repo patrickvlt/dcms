@@ -13,20 +13,6 @@ use Illuminate\Support\Facades\Storage;
 
 trait DCMSCrud
 {
-    public function makeUploadRules(): void
-    {
-        $this->uploadRules = [];
-        foreach ($this->requestRules as $key => $ruleArr) {
-            $ruleArr = (is_string($ruleArr)) ? explode('|', $ruleArr) : $ruleArr;
-            foreach ($ruleArr as $x => $rule) {
-                if (preg_match('/(mimes|mimetypes)/', $rule)) {
-                    $this->uploadRules[$key] = $ruleArr;
-                    continue;
-                }
-            }
-        }
-    }
-
     /**
      * Dynamic method to create/update a model
      *
@@ -34,13 +20,13 @@ trait DCMSCrud
      * @param $id
      * @return Application|JsonResponse|RedirectResponse|Redirector
      */
-    public function crud($createdOrUpdated, $id=null)
+    public function persist($createdOrUpdated, $id=null)
     {
         $this->initDCMS();
         $this->requestData = request()->all();
         $this->requestRules = method_exists($this->request, 'rules') ? $this->request->rules() : false;
 
-        $this->uploadRules = false;
+        $this->uploadRules = method_exists($this->request, 'uploadRules') ? $this->request->uploadRules() : false;
         $this->filesToMove = [];
         $this->filesToRemove = [];
 
@@ -48,9 +34,6 @@ trait DCMSCrud
          * Build upload rules & request data
          */
 
-        if ($this->requestRules) {
-            $this->makeUploadRules();
-        }
         $requestMessages = method_exists($this->request, 'messages') ? $this->request->messages() : false;
 
         // Merge request with modified request from beforeValidation()
@@ -62,119 +45,53 @@ trait DCMSCrud
         }
 
         /**
-         * File validations
+         * Validate final request
          */
 
-        // Grab upload rules from custom request
-        // Then loop through the requests' file rules
-        if ($this->uploadRules) {
-            foreach ($this->uploadRules as $uploadKey => $uploadRule) {
-                $key = explode('.', $uploadKey);
-                $key = $key[0];
-                if (array_key_exists($key, $this->requestData)) {
-                    if (is_array($this->requestData[$key])) {
-                        foreach ($this->requestData[$key] as $x => $file) {
-                            // Check if file uploads have this applications URL in it
-                            // If any upload doesnt have the url in its filename, then it has been tampered with
-                            // Only check this if using local webserver storage
-                            if (!preg_match('~'.rtrim(env('APP_URL'), "/").'~', $file) && preg_match('/http/', $file) && $this->storageConfig === 'laravel') {
-                                return response()->json([
-                                    'message' => __('Invalid file'),
-                                    'errors' => [
-                                        'file' => [
-                                            //Example: logo.*.noRemote
-                                            $requestMessages[$uploadKey.'.noRemote'] ?? __("The ".$key." field contains an invalid remote file. <br> Please use a different file.")
-                                            ]
-                                        ],
-                                ], 422);
-                            }
-                            // Check if file exists in tmp folder
-                            // Then move it to final public folder
-                            if ($this->storageConfig === 'dropbox') {
-                                $storedFile = false;
-                                $findFile = Dropbox::findBySharedLink($file);
-                                if ($findFile->status === 200) {
-                                    $storedFile = true;
-                                    $oldPath = $findFile->response->path_lower;
-                                    $newPath = str_replace('/tmp', '', $findFile->response->path_lower);
-                                }
-                            } else {
-                                // Strip APP_URL to locate this file locally on webserver
-                                $oldPath = str_replace(array(rtrim(env('APP_URL'), "/"), '/storage/'), array('', '/public/'), $file);
-                                $newPath = str_replace('/tmp/', '/', $oldPath);
-                                $storedFile = Storage::exists($oldPath);
-                                if ($storedFile && preg_match('/tmp/', $oldPath)) {
-                                    $this->requestData[$key][$x] = str_replace('/public/', '/storage/', $newPath);
-                                }
-                            }
-                            if ($storedFile) {
-                                $this->filesToMove[] = [
-                                    'oldPath' => $oldPath,
-                                    'newPath' => $newPath
-                                ];
-                            } else {
-                                return response()->json([
-                                    'message' => __('Invalid file'),
-                                    'errors' => [
-                                        $key => [
-                                            //Example: logo.*.notFound
-                                            $requestMessages[$uploadKey.'.notFound'] ?? __("The ".$key." field contains a path to a file which doesn't exist. <br> Please upload a new file.")
-                                        ]
-                                    ],
-                                ], 422);
-                            }
-                            // Check if a file is being assigned which actually belongs to this property
-                            // For example: dont allow a thumbnail to be used for a banner
-                            if (!preg_match('/'.$key.'/', $newPath)) {
-                                return response()->json([
-                                    'message' => __('Invalid file'),
-                                    'errors' => [
-                                        'file' => [
-                                            //Example: logo.*.fileType
-                                            $requestMessages[$uploadKey.'.fileType'] ?? __("The ".$key." field contains a file which exists but can't be used by this field. <br> Please upload a new file.")
-                                            ]
-                                        ],
-                                ], 422);
-                            }
-                        }
+        $this->requestRules = array_merge($this->uploadRules, $this->requestRules);
+
+        $customRequest = new \Illuminate\Http\Request();
+        $customRequest->setMethod('POST');
+        $customRequest->request->add($this->requestData);
+
+        $this->validate($customRequest, $this->requestRules, $requestMessages);
+        $afterValidation = method_exists($this->request, 'afterValidation') ? $this->request->afterValidation($this->requestData) : false;
+
+        /**
+         * Remove tmp folder from array items in request
+         */
+
+        foreach ($this->uploadRules as $uploadKey => $uploadRule){
+            $keysToFind = [
+                str_replace('.*','',$uploadKey),
+                str_replace('[]','',$uploadKey)
+            ];
+            foreach($keysToFind as $keyToFind){
+                if (array_key_exists($keyToFind,$this->requestData)){
+                    $files = $this->requestData[$keyToFind];
+                    foreach ($files as $x => $file){
+                        // Remove APP_URL since we will need the relative paths to move files around
+                        $relativePath = str_replace([
+                            env('APP_URL'),
+                            'storage/'
+                        ],[
+                            '',
+                            'public/'
+                        ],$this->requestData[$keyToFind][$x]);
+
+                        $this->filesToMove[$x]['oldPath'] = $relativePath;
+                        $this->filesToMove[$x]['newPath'] = str_replace('tmp/','',$relativePath);
+
+                        // Remove tmp folder from request data as well
+                        $this->requestData[$keyToFind][$x] = str_replace('tmp/','',$this->requestData[$keyToFind][$x]);
                     }
                 }
             }
         }
 
-        // Convert upload rules to string rules, otherwise the request will try to validate a mimetype on a path string
-        foreach ($this->uploadRules as $key => $ruleArr) {
-            $ruleArr = (is_string($ruleArr)) ? explode('|', $ruleArr) : $ruleArr;
-            foreach ($ruleArr as $x => $rule) {
-                if (preg_match('/(min|max|mime|mimetypes)/', $rule)) {
-                    unset($ruleArr[$x]);
-                }
-                if (!preg_match('/string/', json_encode($ruleArr))) {
-                    $ruleArr[] = 'string';
-                }
-            }
-            $this->uploadRules[$key] = $ruleArr;
-        }
-
-        /**
-         * Validate final request
-         */
-
-        $this->requestRules = array_merge($this->requestRules, $this->uploadRules);
-        // Validate the final request
-        $customRequest = new \Illuminate\Http\Request();
-        $customRequest->setMethod('POST');
-        $customRequest->request->add($this->requestData);
-        $this->validate($customRequest, $this->requestRules, $requestMessages);
-        $afterValidation = method_exists($this->request, 'afterValidation') ? $this->request->afterValidation($this->requestData) : false;
-
-        /**
-         * (re)move files, then mass assign model and execute defined afterFunctions
-         */
-
-        // Move files from tmp to files folder
         if (count($this->filesToMove) > 0) {
             foreach ($this->filesToMove as $key => $file) {
+                // Move file outside of tmp on Dropbox
                 if ($this->storageConfig === 'dropbox') {
                     $findFileDropbox = Dropbox::findByPath($file['newPath']);
                     if ($findFileDropbox->status !== 200) {
@@ -187,11 +104,12 @@ trait DCMSCrud
                                     'file' => [
                                         //Example: logo.*.cantPersist
                                         $requestMessages[$uploadKey.'.cantPersist'] ?? __("The ".$key." field contains a file which can't be persisted.")
-                                        ]
-                                    ],
+                                    ]
+                                ],
                             ], 422);
                         }
                     }
+                    // Move file outside of tmp on local server
                 } elseif (!Storage::exists($file['newPath'])) {
                     Storage::copy($file['oldPath'], $file['newPath']);
                     Storage::delete($file['oldPath']);
@@ -219,7 +137,9 @@ trait DCMSCrud
         } elseif ($createdOrUpdated === 'updated') {
             ${$this->routePrefix} = ((new $this->model)->find($id)) ?: (new $this->model)->find(request()->route()->parameters[$this->routePrefix]);
 
-            // Remove any files which are no longer being used
+            /**
+             * Remove any files/array items which are no longer being used
+             */
             foreach ($this->uploadRules as $key => $ruleArr) {
                 $keyToCheck = str_replace('.*', '', $key);
                 // Check if file exists in model and request
@@ -255,7 +175,9 @@ trait DCMSCrud
             }
         }
 
-        // Remove files from storage which havent been passed in the request
+        /*
+        * Remove files from storage which haven't been passed in the request
+        */
         if (count($this->filesToRemove) > 0) {
             foreach ($this->filesToRemove as $key => $file) {
                 if ($this->storageConfig === 'dropbox') {
